@@ -1,0 +1,1734 @@
+/* Estilos Gerais */
+body { font-family: Arial, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 0; padding-top: 110px;}
+h2, h3 { color: #1e1e1e; border-bottom: 2px solid #eee; padding-bottom: 0.1rem; margin-top: 1.0rem; }
+.info-box { background-color: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.hidden { display: none !important; }
+.margin-top-large { margin-top: 2.0rem; }
+
+/* Cabeçalho e Navegação Principal */
+.game-header { background-color: #1e1e1e; color: #fff; padding: 1rem 2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: fixed; /* Fixa o elemento na tela */
+    top: 0;          /* Alinha no topo */
+    left: 0;         /* Alinha à esquerda */
+    right: 0;        /* Alinha à direita (ocupa a largura toda) */
+    z-index: 1000;   /* Garante que fique acima de outros elementos */}
+.game-header h1 { margin: 0; text-align: center; padding-bottom: 0.5rem; }
+.tab-nav { display: flex; justify-content: center; border-bottom: 1px solid #444; }
+.tab-btn { background: none; border: none; color: #ccc; padding: 1rem 1.5rem; cursor: pointer; font-size: 1rem; border-bottom: 3px solid transparent; transition: color 0.2s, border-bottom-color 0.2s; }
+.tab-btn:hover { color: #fff; }
+.tab-btn.active { color: #fff; border-bottom-color: #e10600; }
+
+/* Conteúdo das Abas */
+.tab-content { padding: 2rem; }
+.tab-pane { display: none; animation: fadeIn 0.5s; }
+.tab-pane.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Componentes Genéricos */
+.tabela-classificacao { width: 100%; border-collapse: collapse; }
+.tabela-classificacao th, .tabela-classificacao td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+.tabela-classificacao th { background-color: #1e1e1e; color: white; }
+.tabela-classificacao .player-row { font-weight: bold; background-color: #fffde7; }
+.tabela-classificacao td:first-child, #tabela-resultados td:first-child { padding-left: 1.2rem; }
+
+/* Aba Escuderia */
+.management-section {
+    display: flex;
+    align-items: center;
+}
+.management-section input { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; margin-right: 0.5rem; }
+.management-section .btn-salvaNome {
+background-color: #008cba;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+padding: 0.5rem 1rem;
+margin-left: left;
+}
+.management-section .btn-falencia {
+background-color: red;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+padding: 0.5rem 1rem;
+margin-left: auto;
+}
+
+.management-section .btn-falencia:hover {
+background-color: #c82333;
+}
+
+.btn-falencia:hover { background-color: #c82333; }
+.especialistas-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.especialista-card { background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+.especialista-card h4 { margin-top: 10; color: #e10600; padding-top: 1rem;}
+.especialista-card p { margin: 0.25rem 0; flex-grow: 1; }
+.especialista-card button { width: 100%; padding: 0.6rem; margin-top: 1rem; border: none; border-radius: 4px; color: white; cursor: pointer; }
+.btn-contratar { background-color: #008cba; }
+.btn-demitir { background-color: #6c757d; }
+.btn-projeto { background-color: #5bc0de !important; margin-top: 0.5rem !important; }
+
+
+/* Aba Carro */
+.car-selector-nav { margin-bottom: 1.5rem; border-bottom: 1px solid #ccc; }
+.car-selector-btn { background: none; border: none; padding: 0.8rem 1.2rem; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; }
+.car-selector-btn.active { border-bottom-color: #1e1e1e; font-weight: bold; }
+#car-slots-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; margin-bottom: 2rem; }
+.slot-card {
+    /* ... outros estilos ... */
+    transition: border-left-color 0.3s; /* Transição suave da cor */
+}
+
+/* Cor VERMELHA para quando o slot está VAZIO */
+.slot-card.vazio {
+    border-left: 5px solid #e10600;
+}
+
+/* Cor AZUL para quando o slot está EQUIPADO */
+.slot-card.equipado {
+    border-left: 5px solid #008cba;
+}
+.pecas-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.peca-card { background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; font-size: 0.9rem; }
+.btn-trocar-peca { width: 100%; padding: 0.6rem; margin-top: 1rem; border: 1px solid #008cba; background-color: transparent; color: #008cba; border-radius: 4px; cursor: pointer; }
+.btn-trocar-peca:hover { background-color: #008cba; color: white; }
+
+/* ============================================================= */
+/* NOVO LAYOUT DE 3 COLUNAS PARA A ABA CORRIDA        */
+/* ============================================================= */
+
+
+
+#race-options-container { display: flex; gap: 1rem; margin-bottom: 1rem; justify-content: center; }
+.btn-corrida { padding: 0.5rem; font-size: 0.8rem; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; }
+#race-options-container .btn-corrida { width: 8rem; text-align: center; }
+.btn-real { background-color: #3c9a3c; }
+.btn-rapida { background-color: #008cba; }
+.btn-fechar { margin-top: 1.5rem; background-color: #f0ad4e; }
+.btn-corrida:disabled { background-color: #999; cursor: not-allowed; width: auto;}
+#display-volta { text-align: center; background-color: #1e1e1e; color: white; padding: 0.2rem; border-radius: 4px; margin-bottom: 0.5rem; }
+
+/* --- NOVOS ESTILOS PARA A TABELA DE CORRIDA AO VIVO --- */
+#tabela-resultados {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background-color: #1e1e1e;
+    color: #eee;
+    border-radius: 8px;
+    overflow: hidden; /* Garante que os cantos arredondados funcionem */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#tabela-resultados th,
+#tabela-resultados td {
+    padding: 0.1rem;
+    text-align: center;
+    border-bottom: 1px solid #2c2c2c;
+    font-size: 0.8rem;
+}
+
+#tabela-resultados th {
+    background-color: #2c2c2c;
+    color: #aaa;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+#tabela-resultados tr {
+    border-left: 5px solid transparent; /* O JS controla a cor */
+}
+
+#tabela-resultados tr:last-child td {
+    border-bottom: none; /* Remove a borda da última linha */
+}
+
+/* Estilo para a linha do jogador */
+#tabela-resultados .player-row {
+    background-color: rgba(255, 193, 7, 0.1); /* Um brilho dourado sutil */
+    font-weight: bold;
+}
+
+/* Alinhamento e fontes específicas */
+#tabela-resultados td:nth-child(4), /* Paradas */
+#tabela-resultados td:nth-child(5) { /* Pneu */
+font-size: 0.8rem;
+    text-align: center;
+}
+
+.lap-time {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+#tabela-resultados td:nth-child(6), /* Últ. Volta */
+#tabela-resultados td:nth-child(7), /* Volta Rápida */
+#tabela-resultados td:nth-child(8) { /* Gap */
+    text-align: center;
+    font-size: 0.8rem;
+}
+/* --- NOVOS EST/* Em style.css, adicione no final */
+
+.instalacoes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.instalacao-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.instalacao-card h4 {
+    margin-top: 0;
+    color: #1e1e1e;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.8rem;
+}
+
+.instalacao-card .level-display {
+    font-weight: bold;
+    color: #008cba;
+}
+
+.instalacao-card p {
+    flex-grow: 1; /* Faz a descrição ocupar o espaço disponível */
+}
+
+.instalacao-card .custo-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.strategy-box {
+    background-color: #f1f1fa;
+    border-radius: 8px;
+    padding: 0.6rem;
+    margin-bottom: 0.6rem;
+    border: 1px solid #e9ecef;
+}
+.strategy-box h4 {
+    margin-top: 0.3rem;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+}
+
+.stint-definition {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem;
+    border-radius: 6px;
+    background-color: #fff;
+    margin-bottom: 0.6rem;
+    border: 1px solid #e9ecef;
+}
+
+.stint-definition label {
+    font-weight: bold;
+    color: #495057;
+    flex-basis: 120px; /* Largura fixa para o label */
+}
+
+.stint-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-grow: 1; /* Faz esta parte ocupar o espaço disponível */
+}
+
+.stint-inputs span {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.stint-definition select,
+.stint-definition input {
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.volta-input {
+    width: 60px; /* Largura específica para o input de voltas */
+}
+
+.strategy-actions {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.btn-add-stint {
+    background-color: #5bc0de;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-add-stint:hover {
+    background-color: #31b0d5;
+}
+
+.btn-remover-stint {
+    background-color: #e10600;
+    color: white;
+    border: none;
+    border-radius: 50%; /* Deixa o botão redondo */
+    width: 30px;
+    height: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 3px;
+    padding: 0px;
+    line-height: 30px; /* Centraliza o "X" */
+    transition: background-color 0.2s;
+}
+.btn-remover-stint:hover {
+    background-color: #a70400;
+}
+.strategy-warning { color: #a94442; background-color: #f2dede; border: 1px solid #ebccd1; border-radius: 4px; padding: 0.8rem; margin-top: 1rem; font-size: 0.9rem; font-weight: bold; }
+#strategy-container {
+    padding: 0;
+    border: none;
+    margin: 0;
+    background: none;
+    box-shadow: none;
+}
+
+/* Estilo para a célula da volta mais rápida */
+.fastest-lap-cell {
+    background-color: rgba(228, 265, 233, 0.6);  /* Um verde claro e suave */
+    color: #155724;          /* Cor de texto escura para contraste */
+    font-weight: bold;
+
+}
+
+/* Estilo para o ícone de melhor volta (opcional, mas recomendado) */
+.fastest-lap-icon {
+    margin-left: 5px;
+    font-size: 0.9em;
+    vertical-align: super;
+}
+
+/* Estilo base para todos os indicadores de pneu */
+.tyre-indicator {
+    padding: 0.2em 0.5em;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    font-size: 0.7rem;
+    display: inline-block;
+    text-align: center;
+    min-width: 1.1em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Cores específicas para cada tipo de pneu */
+.tyre-macio {
+    background-color: #e63946; /* Vermelho para Macio (Soft) */
+}
+.tyre-medio {
+    background-color: #fca311; /* Amarelo/Laranja para Médio (Medium) */
+}
+.tyre-duro {
+    background-color: #f1faee; /* Branco/Cinza claro para Duro (Hard) */
+    color: #1e1e1e;           /* Texto escuro para contraste no fundo claro */
+    border: 1px solid #ccc;
+}
+
+/* Aba Negociações */
+.market-filters { display: flex; gap: 2rem; align-items: center; padding: 1.5rem; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; }
+.filter-group { display: flex; align-items: center; gap: 0.5rem; }
+.filter-group label { font-weight: bold; }
+.filter-group select, .filter-group input { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+#tabela-mercado-pecas .atributos-cell { font-size: 0.85rem; line-height: 1.4; }
+.btn-comprar { background-color: #3c9a3c !important; padding: 0.5rem 1rem !important; font-size: 0.9rem !important; width: auto !important; }
+.btn-comprar:disabled { background-color: #999 !important; cursor: not-allowed; }
+.sortable-header { cursor: pointer; position: relative; user-select: none; }
+.sortable-header:hover { background-color: #333; }
+.sortable-header::after { content: ''; position: absolute; right: 10px; top: 50%; margin-top: -8px; border: 5px solid transparent; opacity: 0.3; }
+.sortable-header.sort-asc::after { border-bottom-color: white; opacity: 1; }
+.sortable-header.sort-desc::after { border-top-color: white; opacity: 1; }
+
+/* ============================================================= */
+/* ESTILOS ATUALIZADOS PARA A ABA CAMPEONATO (3 COLUNAS) */
+/* ============================================================= */
+
+.campeonato-container-3col {
+    display: grid;
+    /* Define 3 colunas: as duas primeiras são flexíveis (1fr), a última é mais estreita */
+    grid-template-columns: 1fr 1fr 0.7fr;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.campeonato-coluna {
+    /* O estilo geral da coluna pode ser mantido ou removido se não for mais necessário */
+}
+
+/* Garante que os títulos dentro das colunas não tenham margem superior excessiva */
+.campeonato-coluna h3 {
+    margin-top: 0;
+}
+
+.tabela-classificacao {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-classificacao th, .tabela-classificacao td {
+    border: 1px solid #ddd;
+    padding: 0.2rem;
+    text-align: left;
+    font-size: 1em; /* Ligeiramente menor para caber melhor */
+}
+
+.tabela-classificacao th {
+    background-color: #1e1e1e;
+    color: white;
+}
+
+#resultados-corridas-container .resultado-corrida-box {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-bottom: 0.3rem;
+}
+
+.resultado-corrida-box h4 {
+    margin-top: 0;
+
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.resultado-corrida-box ol {
+    padding-left: 20px;
+
+    margin: 0;
+}
+
+/* Modal */
+#part-selector-modal, #project-modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); animation: fadeIn 0.3s; }
+.modal-content { background-color: #fefefe; margin: 10% auto; padding: 2rem; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 8px; position: relative; }
+.modal-close-btn { color: #aaa; position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; font-weight: bold; cursor: pointer; }
+#modal-parts-list .peca-card { cursor: pointer; }
+.projetos-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.projeto-card { background-color: #fffde7; border: 1px solid #f0ad4e; border-left-width: 5px; border-radius: 8px; padding: 1rem; }
+.projeto-card h4 { margin-top: 0; color: #8a6d3b; }
+.form-group { margin-bottom: 1.5rem; }
+.form-group label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
+.form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; }
+.project-summary { background-color: #f9f9f9; padding: 1rem; border-radius: 4px; margin: 1.5rem 0; }
+
+/* --- Estilos para Patrocinadores --- */
+.info-box-escuderia {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.info-principal {
+    flex-basis: 30%;
+    border-right: 1px solid #eee;
+    padding-right: 1rem;
+}
+.patrocinador-slot {
+    flex: 1;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #888;
+}
+.patrocinador-slot.ocupado {
+    border-style: solid;
+    border-color: #4CAF50;
+    color: #333;
+    background-color: #f8f9fa;
+}
+.patrocinador-slot h5 {
+    margin: 0 0 0.5rem 0;
+    color: #1e1e1e;
+}
+.ofertas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+.oferta-patrocinio-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-left: 5px solid #008cba;
+    border-radius: 8px;
+    padding: 1rem;
+}
+.oferta-patrocinio-card h4 { margin-top: 0; }
+.btn-aceitar-patrocinio {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    background-color: #3c9a3c;
+}
+/* --- Estilos para o Novo Layout do Inventário --- */
+#inventory-columns-container {
+    display: grid;
+    /* Cria 5 colunas com o mesmo tamanho */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem; /* Espaçamento entre as colunas */
+    margin-top: 1rem;
+    align-items: start; /* Alinha as colunas no topo */
+}
+
+.inventory-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Espaçamento entre as peças na mesma coluna */
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.inventory-column h4 {
+    margin: 0 0 1rem 0;
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+/* --- Estilos para Botões de Ação nos Cards --- */
+.card-actions {
+    margin-top: 1rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.btn-vender-peca {
+    width: 100%;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 4px;
+    color: #333;
+    background-color: #ffc107; /* Amarelo/Dourado para Venda */
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+.btn-ficar-com-peca {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  background-color: #007bff; /* azul padrão Bootstrap */
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+
+.btn-vender-peca:hover {
+    background-color: #e0a800;
+}
+/* --- Estilos para a Célula do Pneu na Tabela de Corrida --- */
+
+.pneu-cell-container {
+    display: flex;
+    align-items: center; /* Alinha o ícone e o texto verticalmente */
+    gap: 0.5em;          /* Adiciona um espaço entre o ícone e o contador */
+    text-align: center;
+    font-size: 0.8rem;
+}
+/* Alinha o ícone do pneu e a contagem de voltas na mesma linha */
+.pneu-info-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pneu-lap-counter {
+    font-size: 0.8em;    /* Deixa o texto do contador um pouco menor */
+    color: #555;         /* Cor cinza para não chamar tanta atenção */
+    text-align: center;
+}
+/* Estilo para a informação da volta rápida no resultado da corrida */
+.volta-rapida-info {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid #f0f0f0;
+    font-size: 0.7em;
+    color: #5c3a93; /* Um roxo para destacar */
+}
+/* Estilos para a Animação do Grid de Largada */
+#grid-formation-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 1rem auto;
+    background-color: #1e1e1e;
+    color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#grid-formation-container ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column-reverse; /* Faz a lista crescer de baixo para cima */
+}
+
+#grid-formation-container li {
+    background-color: #2c2c2c;
+    margin-bottom: 0.1rem;
+    padding: 0.1rem;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    border-left: 4px solid transparent;
+    animation: fadeInGridItem 0.5s ease-in-out;
+}
+
+#grid-formation-container li .pos {
+    font-weight: bold;
+    color: #ccc;
+}
+
+#grid-formation-container li .piloto {
+    font-weight: bold;
+}
+
+#grid-formation-container li .equipe {
+    color: #aaa;
+    font-size: 0.8em;
+    margin-left: 0.5rem; /* Adiciona um pequeno espaço após o nome do piloto */
+}
+/* Adicione esta regra para agrupar as informações do piloto à esquerda */
+#grid-formation-container li div {
+    display: flex;
+    align-items: center;
+}
+@keyframes fadeInGridItem {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para a Tela de Luzes de Largada */
+#lights-out-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Garante que fique por cima de tudo */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#lights-out-modal.visible {
+    opacity: 1;
+}
+
+#lights-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    position: absolute; /* Essencial para o controle via JS */
+    top: 50%;
+    left: 50%; /* Posição padrão que será sobrescrita */
+    transform: translate(-50%, -50%); /* Centraliza o elemento em sua coordenada */
+}
+
+.light-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #4d0000; /* Vermelho escuro/apagado */
+    border: 3px solid #111;
+    transition: background-color 0.1s, box-shadow 0.1s;
+}
+
+.light-circle.on {
+    background-color: #ff0000;
+    box-shadow: 0 0 30px #ff0000, 0 0 10px #ff0000 inset;
+}
+
+/* Adicione esta nova regra para o tempo */
+#grid-formation-container li .qualy-time {
+    font-weight: bold;
+    color: #ffc107; /* Um tom de dourado para destacar */
+    font-family: 'Courier New', Courier, monospace; /* Fonte monoespaçada para números */
+}
+.piloto-cargo-tag {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    background-color: #1e1e1e;
+    color: #fff;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+/* Estilos para a Aba Pilotos */
+.pilotos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.equipe-emblema-card {
+    background-color: #f8f9fa;
+
+    padding: 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px; /* Garante uma altura mínima semelhante aos outros cards */
+}
+#emblema-display-pilotos-aba {
+    width: 70%;
+    height: 70%;
+    position: relative;
+}
+.piloto-equipe-tag {
+    font-weight: bold;
+    padding: 0.5rem; /* Opcional: melhora a aparência */
+    text-align: center; /* Opcional: centraliza o texto */
+    border-radius: 4px; /* Opcional: arredonda as bordas */
+    color: white; /*Cor da fonte*/
+}
+.piloto-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-left: 5px solid #e10600; /* Cor padrão, será sobrescrita pelo JS */
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Mantém a posição da tag 'Piloto 1', etc. */
+}
+
+.piloto-card h4 {
+    margin-top: 0;
+    color: #1e1e1e;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.piloto-card .atributos {
+    flex-grow: 1;
+}
+
+.piloto-card p {
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.piloto-card .card-actions {
+    margin-top: 1rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.piloto-card button {
+    width: 100%;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-contratar-piloto {
+    background-color: #28a745; /* Verde */
+}
+
+.btn-dispensar-piloto {
+    background-color: #dc3545; /* Vermelho */
+}
+.piloto-card .atributo-valor.decline {
+    color: #dc3545; /* Vermelho */
+}
+.piloto-card .card-actions {
+    margin-top: 1rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+.piloto-card-info {
+    /* Este novo container vai agrupar toda a informação à esquerda */
+}
+
+
+.piloto-card .atributo-valor.growth {
+    color: #28a745; /* Verde */
+}
+/* Estilos para a Aba Autódromo */
+#autodromo-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.autodromo-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.autodromo-header {
+    padding: 1.5rem;
+}
+
+.autodromo-header h3 {
+    margin: 0;
+    color: #1e1e1e;
+    border-bottom: 2px solid #e10600;
+    padding-bottom: 0.5rem;
+}
+
+.autodromo-imagem {
+
+    height: 300px;
+    object-fit: cover;      /* Essencial: Redimensiona a imagem para cobrir a área sem distorcer. */
+    object-position: center;  /* Opcional: Garante que o centro da imagem seja priorizado. */
+}
+.info-pista-imagem {
+    width: auto; /* Faz a imagem ocupar toda a largura do card */
+    height: 200px; /* Mantém a proporção da imagem */
+    border-radius: 6px; /* Bordas arredondadas para combinar com o design */
+    margin-bottom: 1rem; /* Adiciona um espaço entre a imagem e o texto */
+    display: block;
+}
+
+
+.autodromo-detalhes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.1rem;
+    background-color: #f8f9fa;
+}
+
+.info-bloco h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.info-bloco p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.recorde-volta {
+    font-weight: bold;
+    color: #8a2be2; /* Roxo para destacar */
+}
+
+.historico-corrida {
+    padding: 0.9rem;
+}
+
+.historico-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.historico-tabela th, .historico-tabela td {
+    border: 1px solid #ddd;
+    padding: 0.9rem;
+    text-align: left;
+}
+
+.historico-tabela th {
+    background-color: #f2f2f2;
+}
+/* Em style.css */
+
+/* --- Estilos para o Canvas da Pista --- */
+
+#track-canvas-container {
+    background-color: #3a593a;
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+    width: 100%;
+}
+#track-canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#track-canvas.visible {
+    display: block; /* Mostra o canvas quando a corrida começa */
+}
+
+/* Estilos para o botão Auto-Equipar */
+.auto-equip-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+#btn-auto-equip {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    min-width: 250px;
+}
+/* --- Estilos para a Aba Galeria --- */
+.galeria-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.galeria-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.galeria-card h3 {
+    margin-top: 0;
+    color: #e10600;
+}
+
+#gabinete-trofeus .trofeu-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 1rem;
+}
+
+#gabinete-trofeus .trofeu {
+    font-size: 4rem;
+}
+
+#gabinete-trofeus .trofeu-contador {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+.piloto-fama-info h4 {
+    margin: 0 0 0.5rem 0;
+}
+.piloto-fama-info p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #555;
+}
+#hall-da-fama .piloto-fama {
+    display: flex; /* Altera o display para flexbox */
+    align-items: center; /* Alinha o emblema e o texto verticalmente */
+    gap: 1rem; /* Adiciona um espaço entre o emblema e as informações */
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+#hall-da-fama .piloto-fama:last-child {
+    border-bottom: none;
+}
+#hall-da-fama h4 {
+    margin: 0 0 0.5rem 0;
+}
+#hall-da-fama p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Estilo para bloquear a área de estratégia durante a corrida */
+.strategy-locked {
+    pointer-events: none; /* Desabilita todos os cliques e interações do mouse */
+    opacity: 0.6;         /* Deixa a área com uma aparência "desbotada" */
+    transition: opacity 0.5s ease-in-out;
+}
+.btn-falencia { background-color: #c82333; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 0.5rem 1rem; margin-left: 1rem; }
+.btn-falencia:hover { background-color: #c82333; }
+
+/* Estilos para a Bandeira Quadriculada de Fim de Corrida */
+#chequered-flag-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Fundo semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2001; /* Garante que fique acima de todos os outros elementos */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none; /* Não impede cliques em elementos abaixo quando invisível */
+}
+
+#chequered-flag-modal.visible {
+    opacity: 1;
+}
+
+#chequered-flag-modal img {
+    width: 300px; /* Tamanho da bandeira */
+    height: auto;
+    transform-origin: bottom left; /* Faz a bandeira "balançar" a partir do canto inferior esquerdo */
+    animation: wave-flag 1.2s ease-in-out infinite alternate;
+}
+
+/* Animação da bandeira balançando */
+@keyframes wave-flag {
+    from {
+        transform: rotate(-10deg) scale(1);
+    }
+    to {
+        transform: rotate(15deg) scale(1.05);
+    }
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- Estilos para Desgaste de Peças --- */
+.desgaste-info {
+    color: #6c757d; /* Cinza */
+    font-size: 0.85em;
+    margin-top: 5px;
+    border-top: 1px solid #eee;
+    padding-top: 5px;
+}
+
+.desgaste-negativo {
+    color: #dc3545; /* Vermelho */
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-left: 8px;
+}
+
+.atributos-card p {
+    margin: 4px 0; /* Diminui a margem para acomodar a nova informação */
+}
+
+/* --- Estilos para Comandos de Rádio --- */
+.radio-commands-container {
+    margin-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid #ddd;
+}
+
+.radio-commands-container h5 {
+    text-align: center;
+    margin-top: 0.1;
+    margin-bottom: 0.2rem;
+    color: #333;
+}
+
+.radio-commands-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.btn-mode {
+    padding: 0.7rem;
+    border: 2px solid #ccc;
+    background-color: #f8f9fa;
+    color: #555;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-mode:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-mode:not(:disabled):hover {
+    border-color: #888;
+}
+
+/* Estilos para o botão ativo */
+.btn-mode.active-mode-atacar {
+    background-color: #e63946; /* Vermelho (cor pneu macio) */
+    color: white;
+    border-color: #c41d2a;
+}
+.btn-mode.active-mode-padrao {
+    background-color: #343a40; /* Cinza escuro */
+    color: white;
+    border-color: #1d2124;
+}
+.btn-mode.active-mode-conservar {
+    background-color: #007bff; /* Azul */
+    color: white;
+    border-color: #0056b3;
+}
+/* Adicione esta regra ao final do seu arquivo style.css */
+.strategy-locked .radio-commands-container {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+/* --- Estilos para o Editor de Identidade --- */
+/* 1. O Container Principal vira um "palco" para os elementos */
+.editor-container {
+    position: relative; /* Essencial para o posicionamento dos filhos */
+    width: 100%;
+    min-height: 60vh; /* Garante que o container tenha altura suficiente */
+}
+
+/* 2. A Coluna do Preview é "fixada" no canto esquerdo */
+.editor-preview-coluna {
+    position: absolute; /* Remove o elemento do fluxo normal da página */
+    top: 1rem;
+    left: 2rem;       /* Distância da borda esquerda da tela */
+    width: 250px;     /* Largura fixa para o painel de preview */
+}
+
+/* 3. A Coluna de Controles é centralizada horizontalmente */
+.editor-controles-coluna {
+    max-width: 600px;  /* Define a largura máxima do bloco de controles */
+    margin: 0 auto;    /* O truque mágico que centraliza um bloco na horizontal */
+}
+.emblema-hof {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    flex-shrink: 0; /* Impede que o emblema seja esmagado */
+}
+.emblema-hof > div {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+}
+.emblema-display {
+    width: 250px;
+    height: 250px;
+    position: relative;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+}
+#preview-emblema-forma, #preview-emblema-icone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#preview-emblema-forma svg, #preview-emblema-icone svg {
+    width: 100%;
+    height: 100%;
+}
+.seletor-grid {
+    display: grid; /* Garante que o container se comporte como uma grade */
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Cria várias colunas de 60px que preenchem o espaço */
+    gap: 8px; /* Um espaçamento mais agradável entre os itens */
+
+    background-color: #f0f2f5;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+
+    /* --- Propriedades Cruciais para Corrigir o Problema --- */
+    max-height: 220px; /* Define uma altura máxima para a caixa de seleção */
+    overflow-y: auto;  /* Se houver muitos ícones, a rolagem será VERTICAL */
+    overflow-x: hidden;/* Esconde a barra de rolagem horizontal indesejada */
+}
+/* Substitua sua regra .seletor-item por esta */
+.seletor-item {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    /* Centraliza o SVG dentro da caixa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Garante que o item não cresça de forma indesejada */
+    overflow: hidden;
+}
+
+.seletor-item:hover, .seletor-item.active {
+    border-color: #008cba;
+    transform: scale(1.05);
+}
+.seletor-item svg {
+    max-width: 85%;
+    max-height: 85%;
+    pointer-events: none;
+}
+
+/* Estilo para o controle de escala */
+.controle-escala label {
+    display: block;
+    margin-bottom: 5px;
+}
+input[type="range"] {
+    width: 100%;
+    cursor: pointer;
+}
+.escuderia-header {
+    display: flex;
+    align-items: center; /* Alinha o emblema e o título verticalmente */
+    gap: 1rem; /* Espaço entre o emblema e o título */
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+.emblema-slot-escuderia {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0; /* Impede que o emblema seja esmagado pelo flexbox */
+    position: relative; /* ESSENCIAL: Define o contexto de posicionamento para o emblema */
+}
+
+
+#meus-pilotos-container {
+    display: grid;
+    grid-template-columns: 2fr 2fr 2fr 4fr;
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 2rem; /* Adiciona um pouco de espaço abaixo da seção dos seus pilotos */
+}
+
+.piloto-card.reserva {
+    border-left-color: #ffc107; /* Borda dourada para destacar o reserva */
+    background-color: #fffde7;
+}
+.piloto-card.vaga-reserva {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 2px dashed #e0e0e0;
+    min-height: 200px;
+}
+.emblema-slot-pilotos {
+    width: 120px;
+    height: 120px;
+    position: relative;
+}
+.emblema-slot-pilotos > div {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+}
+.emblema-slot-galeria {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    margin: 1rem auto; /* Centraliza o emblema dentro do card */
+}
+.emblema-slot-galeria > div {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+}
+/* EM style.css */
+
+/* Estilo para o container do emblema pequeno */
+.emblema-display-pequeno {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    /* Adicionado para garantir que o conteúdo não vaze */
+    flex-shrink: 0;
+}
+
+/* Estilo para os divs internos (forma e ícone) */
+.emblema-display-pequeno div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Força o SVG a respeitar o tamanho do container */
+.emblema-display-pequeno svg {
+    width: 100%;
+    height: 100%;
+}
+/* EM style.css */
+.emblema-na-tabela {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    position: relative;
+}
+.emblema-na-tabela div {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+}
+.emblema-na-tabela svg {
+    width: 100%;
+    height: 100%;
+}
+.tabela-classificacao td span {
+    vertical-align: middle;
+}
+
+
+
+/* EM style.css */
+
+.piloto-card.aposentado {
+    opacity: 0.7; /* Opacidade para indicar inatividade */
+    transition: opacity 0.3s ease;
+    border-left-color: #6c757d; /* Uma cor neutra para a borda */
+}
+
+/* O card fica 100% visível ao passar o mouse, para facilitar a leitura */
+.piloto-card.aposentado:hover {
+    opacity: 1;
+}
+
+/* Estilo para a área de ação, que agora mostra o ano da aposentadoria */
+.piloto-aposentado-info {
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+    background-color: #f0f2f5;
+    padding: 0.7rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    border: 1px solid #ddd;
+}
+
+/* ============================================================= */
+/* ESTILOS FINAIS PARA A TELA DE CORRIDA              */
+/* ============================================================= */
+
+/* Layout principal de 3 colunas */
+.corrida-layout-3col {
+    display: grid;
+    grid-template-columns: 1.6fr 5fr 2.1fr; /* Colunas: Esquerda, Meio (maior), Direita */
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.setup-coluna {
+    position: sticky; /* Faz as colunas laterais "seguirem" a rolagem */
+    top: 120px;
+}
+
+.corrida-start-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.1rem;
+}
+
+/* Containers para alternar visibilidade */
+#live-race-view, #pre-race-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+/* Grade superior da corrida ao vivo (Carro 1 - Canvas - Carro 2) */
+#live-race-top-view {
+    display: grid;
+    grid-template-columns: 1fr 2.5fr 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+/* Container do Canvas */
+#track-canvas-container {
+    background-color: #3a593a;
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#track-canvas {
+    width-max: 200px;
+    height: auto;
+    justify-content: space-between; /* ou center, flex-start, etc. */
+    align-items: center; /* alinha verticalmente */
+    display: block;
+}
+.estilo-carros{
+    justify-content: space-between; /* ou center, flex-start, etc. */
+    align-items: stretch; /* alinha verticalmente */
+    display: flex;
+    gap: 20px;
+}
+
+/* Cards de Status do Carro (Compactos) */
+.player-car-status-card.compact {
+    background-color: #2c2c2c;
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: #fff;
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 100px; /* Garante altura mínima */
+}
+
+.player-car-status-card.compact .car-image-compact {
+    width: 60px;
+    height: auto;
+    filter: brightness(0) invert(1);
+}
+
+.player-car-status-card.compact .car-info-compact {
+    flex-grow: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.car-info-compact h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 1em;
+}
+
+.car-info-compact p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.pneu-info-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.car-live-info .tire-lap-count {
+    font-size: 0.9em;
+    color: #ccc;
+}
+
+/* Barra única de desgaste */
+.tire-wear-bar-single {
+    width: 100%;
+    height: 12px;
+    background-color: #555;
+    border: 1px solid #888;
+    border-radius: 4px;
+    padding: 1px;
+}
+
+.tire-wear-bar-fill-single {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s, background-color 0.5s;
+}
+
+/* Estilos do Rádio */
+#radio-messages-container {
+    min-height: 40px;
+}
+
+.radio-message {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 0.3rem 1rem;
+    border-radius: 4px;
+    border-left: 4px solid #e10600;
+    font-family: 'Courier New', Courier, monospace;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    height: 38px;
+    display: flex;
+    align-items: center;
+}
+.radio-message.visible {
+    opacity: 1;
+}
+
+#display-volta {
+    margin: 0.1rem;
+    text-align: center;
+    background-color: #1e1e1e;
+    color: white;
+    padding: 0.2rem;
+    border-radius: 4px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* ============================================================= */
+/* ESTILOS PARA A ABA MARKETING                                  */
+/* ============================================================= */
+
+.marketing-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.marketing-item-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.marketing-item-card .item-imagem {
+    width: 100%;
+    height: 150px;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    background-size: cover;
+    background-position: center;
+    position: relative; /* ESSENCIAL para ser a base do emblema */
+    overflow: hidden; /* Garante que o emblema não vaze para fora */
+}
+
+
+.item-imagem-emblema > div {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+}
+
+.marketing-item-card .item-imagem-emblema {
+    position: relative;
+}
+.marketing-item-card h4 {
+    margin: 0;
+    color: #1e1e1e;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.marketing-item-card .item-info p {
+    margin: 0.4rem 0;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+}
+
+.marketing-item-card .item-controles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: auto; /* Empurra os controles para o final do card */
+}
+
+.item-controles .input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.item-controles input[type="number"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Estilo para itens bloqueados */
+.marketing-item-card.locked {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+}
+
+.marketing-item-card.locked .item-imagem {
+    filter: grayscale(80%);
+}
+
+.btn-marketing {
+    padding: 0.7rem;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-desbloquear-item {
+    background-color: #28a745; /* Verde */
+}
+.btn-produzir-item {
+    background-color: #007bff; /* Azul */
+}
+
+.btn-desbloquear-item:hover { background-color: #218838; }
+.btn-produzir-item:hover { background-color: #0056b3; }
+
+/* Em style.css, no final do arquivo */
+
+.custo-total-display {
+    text-align: right;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #007bff;
+    min-height: 1.2em; /* Evita que o layout "pule" quando o texto aparece */
+    margin-top: 5px;
+    padding-right: 5px;
+}
+
+.draggable {
+background-repeat: no-repeat;
+background-position: center;
+background-size: contain;
+}
+
+.btn-icone-control {
+padding: 5px 8px;
+border: none;
+border-radius: 3px;
+cursor: pointer;
+font-size: 0.8em;
+}
+
+/* Em style.css, adicione estas regras no final */
+
+.input-com-botao {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espaço entre o seletor de cor e o botão */
+}
+
+#btn-fundo-transparente {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8em;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+    /* Efeito visual de grade de transparência */
+    background-image: linear-gradient(45deg, #ddd 25%, transparent 25%),
+                      linear-gradient(-45deg, #ddd 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #ddd 75%),
+                      linear-gradient(-45deg, transparent 75%, #ddd 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+}
+
+#btn-fundo-transparente:hover {
+    border-color: #333;
+}
+
+/* Instalações */
+
+.instalacoes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.instalacao-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.instalacao-card h4 {
+    margin-top: 0;
+    color: #1e1e1e;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.8rem;
+}
+
+.instalacao-card .level-display {
+    font-weight: bold;
+    color: #008cba;
+}
+
+.instalacao-card p {
+    flex-grow: 1; /* Faz a descrição ocupar o espaço disponível */
+}
+
+.instalacao-card .custo-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
