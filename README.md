@@ -1,2 +1,2 @@
-# maraiaf1manager
-Gerenciamento de corrida F1
+# ManagerF1
+Gerenciamento de equipe de corrida
