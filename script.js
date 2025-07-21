@@ -1733,7 +1733,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // A lógica de evolução agora se aplica a pilotos do jogador ou reserva
             const isPilotoTreinavel = piloto.status === 'Jogador' || piloto.status === 'Reserva';
 
-            if (piloto.idade < 16 || piloto.idade > 30 || !isPilotoTreinavel) return;
+            if (piloto.idade < 15 || piloto.idade > 30 || !isPilotoTreinavel) return;
 
             const crescimentoBase = Math.random() * 0.35; /* Bonus de Crescimento base */
             let bonusDesempenho = 0;
@@ -1771,20 +1771,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 piloto.gerenciamentoPneus = Math.min(98, piloto.gerenciamentoPneus + crescimentoTotal * (Math.random() * 0.4 + 0.6));
 
                 const detalhesMelhoria = [];
-                if (Math.floor(piloto.habilidade) > Math.floor(atributosAntigos.hab)) {
-                    detalhesMelhoria.push(`  Hab: ${Math.floor(atributosAntigos.hab)} -> ${Math.floor(piloto.habilidade)}`);
-                }
-                if (Math.floor(piloto.consistencia) > Math.floor(atributosAntigos.con)) {
-                    detalhesMelhoria.push(`  Con: ${Math.floor(atributosAntigos.con)} -> ${Math.floor(piloto.consistencia)}`);
-                }
-                if (Math.floor(piloto.gerenciamentoPneus) > Math.floor(atributosAntigos.ger)) {
-                    detalhesMelhoria.push(`  Ger: ${Math.floor(atributosAntigos.ger)} -> ${Math.floor(piloto.gerenciamentoPneus)}`);
-                }
+                    if (piloto.habilidade.toFixed(2) > atributosAntigos.hab.toFixed(2)) {
+                        detalhesMelhoria.push(`  Hab: ${atributosAntigos.hab.toFixed(2)} -> ${piloto.habilidade.toFixed(2)}`);
+                    }
+                    if (piloto.consistencia.toFixed(2) > atributosAntigos.con.toFixed(2)) {
+                        detalhesMelhoria.push(`  Con: ${atributosAntigos.con.toFixed(2)} -> ${piloto.consistencia.toFixed(2)}`);
+                    }
+                    if (piloto.gerenciamentoPneus.toFixed(2) > atributosAntigos.ger.toFixed(2)) {
+                        detalhesMelhoria.push(`  Ger: ${atributosAntigos.ger.toFixed(2)} -> ${piloto.gerenciamentoPneus.toFixed(2)}`);
+                    }
 
-                if (detalhesMelhoria.length > 0) {
-                    const tipoPiloto = piloto.status === 'Reserva' ? 'Reserva' : 'Piloto';
-                    melhoriasJogador.push(`${piloto.nome} (${tipoPiloto}):\n` + detalhesMelhoria.join('\n'));
-                }
             }
         });
 
