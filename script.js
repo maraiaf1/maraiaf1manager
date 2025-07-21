@@ -848,7 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Lógica para 3 corridas
         else if (projeto.duracaoOriginal === 3) {
             if (chance < 0.70) { // 70% de chance
-                nivelSorteado = 7; // Nível fixo 5
+                nivelSorteado = 6; // Nível fixo 6
             } else { // 30% de chance
                 nivelSorteado = Math.floor(Math.random() * 5) + 6; // Nível aleatório entre 6 e 10
             }
@@ -856,9 +856,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Lógica para 5 corridas
         else if (projeto.duracaoOriginal === 5) {
             if (chance < 0.80) { // 80% de chance
-                nivelSorteado = Math.floor(Math.random() * 4) + 7; // Nível aleatório entre 7 e 10
+                nivelSorteado = Math.floor(Math.random() * 4) + 6; // Nível aleatório entre 7 e 10
             } else { // 20% de chance
-                nivelSorteado = 9; // Nível fixo 9
+                nivelSorteado = 8; // Nível fixo 9
             }
         }
         // LOGICA PARA 10 CORRIDAS
