@@ -2023,7 +2023,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Parabéns pelo ${nossaPosicao}º lugar no Campeonato de Construtores! Você ganhou um bônus de R$ ${bonus[nossaPosicao].toLocaleString('pt-BR')}!`);
         }
 
-        rocessarReajusteSalarialEspecialistas();
+        processarReajusteSalarialEspecialistas();
         processarEnvelhecimentoPilotos();
         atualizarMercadoDePilotos(gameState.pilotos);
         alert("O mercado de pilotos foi atualizado para a nova temporada!");
