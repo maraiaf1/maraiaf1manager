@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const pneus = {
-        macio: { nome: 'Macio', multiplicadorPerformance: 1.39, desgastePorVolta: 4.5, duracaoIdeal: 0.33 }, // Dura aprox. 33% da corrida
+        macio: { nome: 'Macio', multiplicadorPerformance: 1.41, desgastePorVolta: 4.5, duracaoIdeal: 0.33 }, // Dura aprox. 33% da corrida
         medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 2.6, duracaoIdeal: 0.50 }, // Dura aprox. 50% da corrida
         duro: { nome: 'Duro', multiplicadorPerformance: 0.96, desgastePorVolta: 1.75, duracaoIdeal: 0.67 }  // Dura aprox. 67% da corrida
     };
@@ -132,9 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "Heuer", tipo: "Relógios de Luxo", reputacaoMin: 0 }, { nome: "Petrobras", tipo: "Combustíveis", reputacaoMin: 0 }, { nome: "Santander", tipo: "Banco", reputacaoMin: 1 }, { nome: "Pirelli", tipo: "Pneus", reputacaoMin: 1 }, { nome: "Rolex", tipo: "Relógios de Luxo", reputacaoMin: 2 }, { nome: "Amazon AWS", tipo: "Tecnologia", reputacaoMin: 4 }, { nome: "Red Bull", tipo: "Bebidas Energéticas", reputacaoMin: 3 }, { nome: "Louis Vuitton", tipo: "Artigos de Luxo", reputacaoMin: 4 }, { nome: "Brahma", tipo: "Cerveja", reputacaoMin: 3 }, { nome: "Geodados WebSystem", tipo: "Sistemas de Informação", reputacaoMin: 1 }, { nome: "Geodados Geoprocessamento", tipo: "Geoprocessamento", reputacaoMin: 5 }, { nome: "Pitu", tipo: "Alimentos", reputacaoMin: 5 }, { nome: "Heineken", tipo: "Cerveja", reputacaoMin: 4 }, { nome: "Mercado Livre", tipo: "Comércio", reputacaoMin: 2 }, { nome: "Shopee", tipo: "Comércio", reputacaoMin: 0 }, { nome: "Shen", tipo: "Comércio", reputacaoMin: 1 }, { nome: "Colorado Beer", tipo: "cerveja", reputacaoMin: 0 }, { nome: "Tibia", tipo: "Jogo Eletrônico", reputacaoMin: 3 }, { nome: "League of Legends", tipo: "Jogo Eletrônico", reputacaoMin: 1 }, { nome: "Forza", tipo: "Jogo Eletrônico", reputacaoMin: 6 }, { nome: "Jardim Paraiso fest", tipo: "Comércio", reputacaoMin: 0 }, { nome: "H2 Games", tipo: "Comércio", reputacaoMin: 0 }, { nome: "Esfirras do Bairro", tipo: "Alimenticios", reputacaoMin: 1 }, { nome: "Pizzas BR", tipo: "Alimenticios", reputacaoMin: 0 }, { nome: "Petrobras Gás", tipo: "Comércio", reputacaoMin: 1 }, { nome: "Shell", tipo: "Combustível", reputacaoMin: 1 },
     ];
     const baseDePilotos = [
-        { id: 1, nome: "Max Verstappen", idade: 27, habilidade: 92, consistencia: 95, gerenciamentoPneus: 89, atributosBase: { habilidade: 92, consistencia: 95, gerenciamentoPneus: 89 }, status: 'Red Bull' },
+        { id: 1, nome: "Max Verstappen", idade: 27, habilidade: 91, consistencia: 95, gerenciamentoPneus: 89, atributosBase: { habilidade: 91, consistencia: 95, gerenciamentoPneus: 89 }, status: 'Red Bull' },
         { id: 2, nome: "Yuki Tsunoda", idade: 23, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 85, consistencia: 85, gerenciamentoPneus: 88 }, status: 'Red Bull' },
-        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 93, consistencia: 91, gerenciamentoPneus: 90, atributosBase: { habilidade: 93, consistencia: 91, gerenciamentoPneus: 90 }, status: 'Ferrari' },
+        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 95, consistencia: 91, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 91, gerenciamentoPneus: 90 }, status: 'Ferrari' },
         { id: 5, nome: "Charles Leclerc", idade: 27, habilidade: 91, consistencia: 90, gerenciamentoPneus: 94, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 84 }, status: 'Ferrari' },
         { id: 4, nome: "George Russell", idade: 27, habilidade: 90, consistencia: 88, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 88, gerenciamentoPneus: 89 }, status: 'Mercedes' },
         { id: 17, nome: "K. Antonelli", idade: 18, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Mercedes' },
@@ -150,8 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 14, nome: "Oliver Bearman", idade: 20, habilidade: 83, consistencia: 81, gerenciamentoPneus: 82, atributosBase: { habilidade: 83, consistencia: 81, gerenciamentoPneus: 82 }, status: 'Haas' },
         { id: 15, nome: "Isack Hadjar", idade: 20, habilidade: 88, consistencia: 82, gerenciamentoPneus: 83, atributosBase: { habilidade: 88, consistencia: 82, gerenciamentoPneus: 83 }, status: 'RB' },
         { id: 16, nome: "Liam Lawson", idade: 23, habilidade: 81, consistencia: 84, gerenciamentoPneus: 85, atributosBase: { habilidade: 81, consistencia: 84, gerenciamentoPneus: 85 }, status: 'RB' },
-        { id: 19, nome: "Oscar Piastri", idade: 24, habilidade: 90, consistencia: 91, gerenciamentoPneus: 86, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 86 }, status: 'MacLaren' },
-        { id: 20, nome: "Lando Norris", idade: 25, habilidade: 92, consistencia: 90, gerenciamentoPneus: 87, atributosBase: { habilidade: 92, consistencia: 90, gerenciamentoPneus: 87 }, status: 'MacLaren' },
+        { id: 19, nome: "Oscar Piastri", idade: 24, habilidade: 90, consistencia: 91, gerenciamentoPneus: 85, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 85 }, status: 'MacLaren' },
+        { id: 20, nome: "Lando Norris", idade: 25, habilidade: 90, consistencia: 90, gerenciamentoPneus: 87, atributosBase: { habilidade: 90, consistencia: 90, gerenciamentoPneus: 87 }, status: 'MacLaren' },
 
         { id: 101, nome: "Lucas di Grassi", idade: 33, habilidade: 91, consistencia: 90, gerenciamentoPneus: 92, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 92 },salario: 14000, precoContrato: 1200000, status: 'Disponível' },
         { id: 102, nome: "Felipe Drugovich", idade: 19, habilidade: 88, consistencia: 87, gerenciamentoPneus: 89, salario: 17000, precoContrato: 1500000, status: 'Disponível' },
@@ -250,13 +250,13 @@ document.addEventListener('DOMContentLoaded', () => {
             nome: "Simulador de Pilotos",
             descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos.",
             bonusPorNivel: "+5% de bônus na evolução de pilotos",
-            custos: [0, 5000000, 20000000, 50000000] // Custo para Nível 1, 2 e 3
+            custos: [0, 5000000, 12000000, 25000000] // Custo para Nível 1, 2 e 3
         },
         tunelDeVento: {
             nome: "Túnel de Vento",
             descricao: "Uma instalação crucial para o desenvolvimento e teste de peças aerodinâmicas.",
             bonusPorNivel: "-10% no custo de projetos aerodinâmicos",
-            custos: [0, 5000000, 20000000, 50000000]
+            custos: [0, 4000000, 10000000, 22000000]
         },
         treinoDeBox: {
             nome: "Centro de Treinamento da Equipe de Box",
@@ -848,7 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Lógica para 3 corridas
         else if (projeto.duracaoOriginal === 3) {
             if (chance < 0.70) { // 70% de chance
-                nivelSorteado = 6; // Nível fixo 6
+                nivelSorteado = 7; // Nível fixo 5
             } else { // 30% de chance
                 nivelSorteado = Math.floor(Math.random() * 5) + 6; // Nível aleatório entre 6 e 10
             }
@@ -856,9 +856,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Lógica para 5 corridas
         else if (projeto.duracaoOriginal === 5) {
             if (chance < 0.80) { // 80% de chance
-                nivelSorteado = Math.floor(Math.random() * 4) + 6; // Nível aleatório entre 7 e 10
+                nivelSorteado = Math.floor(Math.random() * 4) + 7; // Nível aleatório entre 7 e 10
             } else { // 20% de chance
-                nivelSorteado = 8; // Nível fixo 9
+                nivelSorteado = 9; // Nível fixo 9
             }
         }
         // LOGICA PARA 10 CORRIDAS
@@ -1733,9 +1733,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // A lógica de evolução agora se aplica a pilotos do jogador ou reserva
             const isPilotoTreinavel = piloto.status === 'Jogador' || piloto.status === 'Reserva';
 
-            if (piloto.idade < 15 || piloto.idade > 30 || !isPilotoTreinavel) return;
+            if (piloto.idade < 16 || piloto.idade > 30 || !isPilotoTreinavel) return;
 
-            const crescimentoBase = Math.random() * 0.35; /* Bonus de Crescimento base */
+            const crescimentoBase = Math.random() * 0.50; /* Bonus de Crescimento base */
             let bonusDesempenho = 0;
             const ultimaCorrida = gameState.campeonato.resultadosCorridas.at(-1);
 
@@ -1757,9 +1757,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // APLICAÇÃO DOS BÔNUS DO TREINADOR
             if (treinadorContratado) {
                 if (piloto.status === 'Jogador') {
-                    crescimentoTotal *= 2.5; // Bônus  para pilotos principais
+                    crescimentoTotal *= 3.0; // Bônus  para pilotos principais
                 } else if (piloto.status === 'Reserva') {
-                    crescimentoTotal *= 4.0; // Bônus  para o piloto reserva
+                    crescimentoTotal *= 4.25; // Bônus  para o piloto reserva
                 }
             }
 
@@ -1771,18 +1771,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 piloto.gerenciamentoPneus = Math.min(98, piloto.gerenciamentoPneus + crescimentoTotal * (Math.random() * 0.4 + 0.6));
 
                 const detalhesMelhoria = [];
-                    if (Math.floor(piloto.habilidade) > Math.floor(atributosAntigos.hab)) {
-                        detalhesMelhoria.push(`  Hab: ${atributosAntigos.hab.toFixed(2)} -> ${piloto.habilidade.toFixed(2)}`);
-                    }
-                    if (Math.floor(piloto.consistencia) > Math.floor(atributosAntigos.con)) {
-                        detalhesMelhoria.push(`  Con: ${atributosAntigos.con.toFixed(2)} -> ${piloto.consistencia.toFixed(2)}`);
-                    }
-                    if (Math.floor(piloto.gerenciamentoPneus) > Math.floor(atributosAntigos.ger)) {
-                        detalhesMelhoria.push(`  Ger: ${atributosAntigos.ger.toFixed(2)} -> ${piloto.gerenciamentoPneus.toFixed(2)}`);
-                    }
+                if (Math.floor(piloto.habilidade) > Math.floor(atributosAntigos.hab)) {
+                    detalhesMelhoria.push(`  Hab: ${Math.floor(atributosAntigos.hab)} -> ${Math.floor(piloto.habilidade)}`);
+                }
+                if (Math.floor(piloto.consistencia) > Math.floor(atributosAntigos.con)) {
+                    detalhesMelhoria.push(`  Con: ${Math.floor(atributosAntigos.con)} -> ${Math.floor(piloto.consistencia)}`);
+                }
+                if (Math.floor(piloto.gerenciamentoPneus) > Math.floor(atributosAntigos.ger)) {
+                    detalhesMelhoria.push(`  Ger: ${Math.floor(atributosAntigos.ger)} -> ${Math.floor(piloto.gerenciamentoPneus)}`);
+                }
 
-
-
+                if (detalhesMelhoria.length > 0) {
+                    const tipoPiloto = piloto.status === 'Reserva' ? 'Reserva' : 'Piloto';
+                    melhoriasJogador.push(`${piloto.nome} (${tipoPiloto}):\n` + detalhesMelhoria.join('\n'));
+                }
             }
         });
 
