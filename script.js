@@ -2155,8 +2155,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const posicao = index + 1;
             if (pontosPorPosicao[posicao]) {
                 const pontosGanhos = pontosPorPosicao[posicao];
-                gameState.campeonato.classificacaoPilotos.find(p => p.piloto === res.piloto.nome).pontos += pontosGanhos;
-                gameState.campeonato.classificacaoConstrutores.find(e => e.equipe === res.equipe).pontos += pontosGanhos;
+    
+                // Correção para Pilotos
+                const pilotoNaClassificacao = gameState.campeonato.classificacaoPilotos.find(p => p.piloto === res.piloto.nome);
+                if (pilotoNaClassificacao) {
+                    pilotoNaClassificacao.pontos += pontosGanhos;
+                }
+    
+                // Correção para Construtores
+                const construtorNaClassificacao = gameState.campeonato.classificacaoConstrutores.find(e => e.equipe === res.equipe);
+                if (construtorNaClassificacao) {
+                    construtorNaClassificacao.pontos += pontosGanhos;
+                }
             }
         });
 
