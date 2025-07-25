@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseDePilotos = [
         { id: 1, nome: "Max Verstappen", idade: 27, habilidade: 91, consistencia: 95, gerenciamentoPneus: 89, atributosBase: { habilidade: 91, consistencia: 95, gerenciamentoPneus: 89 }, status: 'Red Bull' },
         { id: 2, nome: "Yuki Tsunoda", idade: 23, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 85, consistencia: 85, gerenciamentoPneus: 88 }, status: 'Red Bull' },
-        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 95, consistencia: 91, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 91, gerenciamentoPneus: 90 }, status: 'Ferrari' },
+        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 93, consistencia: 91, gerenciamentoPneus: 90, atributosBase: { habilidade: 93, consistencia: 91, gerenciamentoPneus: 90 }, status: 'Ferrari' },
         { id: 5, nome: "Charles Leclerc", idade: 27, habilidade: 91, consistencia: 90, gerenciamentoPneus: 94, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 84 }, status: 'Ferrari' },
         { id: 4, nome: "George Russell", idade: 27, habilidade: 90, consistencia: 88, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 88, gerenciamentoPneus: 89 }, status: 'Mercedes' },
         { id: 17, nome: "K. Antonelli", idade: 18, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Mercedes' },
