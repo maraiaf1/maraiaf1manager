@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.3 },
         { nome: "GP da Hungria (Hungaroring)", imagem: "Autodromos/Hungria.png", voltas: 70, tempoBaseVolta: 76, pitstopTime: 20, demandaMotor: 0.8, demandaAero: 0.8, demandaAderencia: 0.7 },
         { nome: "Gp da Holanda (Zandvoort)", imagem: "Autodromos/Holanda.png", voltas: 72, tempoBaseVolta: 71, pitstopTime: 29, demandaMotor: 0.4, demandaAero: 0.5, demandaAderencia: 0.5 },
-        { nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
+        /*{ nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
         { nome: "GP do Azerbaijão (Baku)", imagem: "Autodromos/Azerbaijan.png", voltas: 51, tempoBaseVolta: 103, pitstopTime: 24, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.9 },
         { nome: "GP de Singapura (Marina Bay)", imagem: "Autodromos/Singapura.png", voltas: 61, tempoBaseVolta: 94, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.7, demandaAderencia: 0.5 },
         { nome: "Gp dos EUA (Austin)", imagem: "Autodromos/EUA.png", voltas: 56, tempoBaseVolta: 96, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.8 },
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "GP de Las Vegas", imagem: "Autodromos/LasVegas.png", voltas: 50, tempoBaseVolta: 95, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.3, demandaAderencia: 0.8 },
         { nome: "GP do Catar (Lusail)", imagem: "Autodromos/Qatar.png", voltas: 57, tempoBaseVolta: 84, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.7 },
         { nome: "GP de Abu Dhabi (Yas Marina)", imagem: "Autodromos/Abudabi.png", voltas: 55, tempoBaseVolta: 86, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.7 },
-
+*/
     ];
     const coordenadasPistas = {
         "GP da Austrália (Melbourne)": [{ x: 380, y: 360 }, 	{ x: 270, y: 360 }, 	{ x: 260, y: 340 }, 	{ x: 250, y: 330 }, 	{ x: 200, y: 340 }, 	{ x: 80, y: 330 }, 	{ x: 80, y: 320 }, 	{ x: 90, y: 310 }, 	{ x: 130, y: 270 }, 	{ x: 70, y: 210 }, 	{ x: 80, y: 170 }, 	{ x: 90, y: 130 }, 	{ x: 100, y: 100 }, 	{ x: 120, y: 100 }, 	{ x: 160, y: 70 }, 	{ x: 200, y: 110 }, 	{ x: 230, y: 170 }, 	{ x: 240, y: 180 }, 	{ x: 300, y: 190 }, 	{ x: 340, y: 200 }, 	{ x: 430, y: 200 }, 	{ x: 460, y: 170 }, 	{ x: 530, y: 160 }, 	{ x: 570, y: 150 }, 	{ x: 710, y: 220 }, 	{ x: 710, y: 230 }, 	{ x: 630, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 550, y: 290 }, 	{ x: 550, y: 350 }, 	{ x: 540, y: 360 }, 	{ x: 380, y: 360 }],
