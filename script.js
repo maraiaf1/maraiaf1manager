@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const calendarioCorridas = [
         { nome: "GP da Austrália (Melbourne)", imagem: "Autodromos/Australia.png", voltas: 58, tempoBaseVolta: 79, pitstopTime: 20, demandaMotor: 0.2, demandaAero: 0.4, demandaAderencia: 0.5 },
         { nome: "GP da China (Xangai)", imagem: "Autodromos/China.png", voltas: 56, tempoBaseVolta: 92, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.2 },
-        { nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
+        /*{ nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
         { nome: "GP do Bahrein (Sakhir)", imagem: "Autodromos/Bahrain.png", voltas: 57, tempoBaseVolta: 91, pitstopTime: 22, demandaMotor: 0.9, demandaAero: 0.4, demandaAderencia: 0.7 },
         { nome: "GP da Arábia Saudita (Jeddah)", imagem: "Autodromos/Arabia.png", voltas: 50, tempoBaseVolta: 90, pitstopTime: 26, demandaMotor: 1.0, demandaAero: 0.6, demandaAderencia: 0.3 },
         { nome: "Gp de Miami (EUA)", imagem: "Autodromos/Miami.png", voltas: 57, tempoBaseVolta: 89, pitstopTime: 21, demandaMotor: 0.6, demandaAero: 0.5, demandaAderencia: 1 },
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.3 },
         { nome: "GP da Hungria (Hungaroring)", imagem: "Autodromos/Hungria.png", voltas: 70, tempoBaseVolta: 76, pitstopTime: 20, demandaMotor: 0.8, demandaAero: 0.8, demandaAderencia: 0.7 },
         { nome: "Gp da Holanda (Zandvoort)", imagem: "Autodromos/Holanda.png", voltas: 72, tempoBaseVolta: 71, pitstopTime: 29, demandaMotor: 0.4, demandaAero: 0.5, demandaAderencia: 0.5 },
-        /*{ nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
+        { nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
         { nome: "GP do Azerbaijão (Baku)", imagem: "Autodromos/Azerbaijan.png", voltas: 51, tempoBaseVolta: 103, pitstopTime: 24, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.9 },
         { nome: "GP de Singapura (Marina Bay)", imagem: "Autodromos/Singapura.png", voltas: 61, tempoBaseVolta: 94, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.7, demandaAderencia: 0.5 },
         { nome: "Gp dos EUA (Austin)", imagem: "Autodromos/EUA.png", voltas: 56, tempoBaseVolta: 96, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.8 },
