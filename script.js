@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseDePilotos = [
         { id: 1, nome: "Max Verstappen", idade: 27, habilidade: 91, consistencia: 95, gerenciamentoPneus: 89, atributosBase: { habilidade: 91, consistencia: 95, gerenciamentoPneus: 89 }, status: 'Red Bull' },
         { id: 2, nome: "Yuki Tsunoda", idade: 23, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 85, consistencia: 85, gerenciamentoPneus: 88 }, status: 'Red Bull' },
-        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 95, consistencia: 91, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 91, gerenciamentoPneus: 90 }, status: 'Ferrari' },
+        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 92, consistencia: 91, gerenciamentoPneus: 90, atributosBase: { habilidade: 92, consistencia: 91, gerenciamentoPneus: 90 }, status: 'Ferrari' },
         { id: 5, nome: "Charles Leclerc", idade: 27, habilidade: 91, consistencia: 90, gerenciamentoPneus: 94, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 84 }, status: 'Ferrari' },
         { id: 4, nome: "George Russell", idade: 27, habilidade: 90, consistencia: 88, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 88, gerenciamentoPneus: 89 }, status: 'Mercedes' },
         { id: 17, nome: "K. Antonelli", idade: 18, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Mercedes' },
@@ -250,25 +250,31 @@ document.addEventListener('DOMContentLoaded', () => {
             nome: "Simulador de Pilotos",
             descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos.",
             bonusPorNivel: "+5% de bônus na evolução de pilotos",
-            custos: [0, 5000000, 12000000, 25000000] // Custo para Nível 1, 2 e 3
+            custos: [0, 5000000, 15000000, 25000000] // Custo para Nível 1, 2 e 3
         },
         tunelDeVento: {
             nome: "Túnel de Vento",
             descricao: "Uma instalação crucial para o desenvolvimento e teste de peças aerodinâmicas.",
             bonusPorNivel: "-10% no custo de projetos aerodinâmicos",
-            custos: [0, 4000000, 10000000, 22000000]
+            custos: [0, 4000000, 18000000, 30000000]
         },
         treinoDeBox: {
             nome: "Centro de Treinamento da Equipe de Box",
             descricao: "Equipamentos e treinamento especializado para tornar sua equipe de pit stop a mais rápida do grid.",
             bonusPorNivel: "-0.5s no tempo de pit stop",
-            custos: [0, 3000000, 8000000, 18000000]
+            custos: [0, 5000000, 18000000, 30000000]
         },
         marketing: {
             nome: "Departamento de Marketing e Hospitalidade",
             descricao: "Estrutura para receber patrocinadores e promover a marca da equipe globalmente.",
             bonusPorNivel: "+ chance de melhores patrocínios e vendas",
             custos: [0, 2000000, 5000000, 10000000]
+        },
+        ers: { // <-- NOVO
+            nome: "Centro de Otimização de ERS",
+            descricao: "Melhora a potência da bateria ERS quando ativada, garantindo um bônus de desempenho maior.",
+            bonusPorNivel: "+ bônus de tempo por volta com ERS ativo",
+            custos: [0, 0, 7500000, 18000000] // Nível 1 é padrão, Nível 2 e 3 são compráveis
         }
     };
 
@@ -340,7 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 simulador: 0,
                 tunelDeVento: 0,
                 treinoDeBox: 0,
-                marketing: 0
+                marketing: 0,
+                ers: 1
             },
             marketing: {
                 'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
@@ -378,7 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 gameState = JSON.parse(savedGame);
 
-                // Suas verificações existentes para outras partes do jogo (se houver)...
                 if (!gameState.pilotos || !Array.isArray(gameState.pilotos) || !gameState.pilotos[0] || !gameState.pilotos[0].atributosBase) {
                     console.log("Save antigo ou corrompido detectado. Iniciando novo jogo.");
                     resetGameState();
@@ -397,23 +403,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         piloto.atributosBase = { habilidade: piloto.habilidade, consistencia: piloto.consistencia, gerenciamentoPneus: piloto.gerenciamentoPneus };
                     }
                 });
-                gameState.carros.forEach(carro => {
+                gameState.carros.forEach(carro => { // <-- ALTERADO
                     if (carro.pilotoId) {
                         if (!gameState.pilotos.some(p => p.id === carro.pilotoId)) carro.pilotoId = null;
+                    }
+                    // Adiciona o sistema ERS a saves antigos
+                    if (!carro.ers) {
+                        carro.ers = { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false };
                     }
                 });
                 if (!gameState.patrocinio) gameState.patrocinio = { ofertas: [], ativos: [] };
                 if (!gameState.projetosEmAndamento) gameState.projetosEmAndamento = [];
 
-                // --- INÍCIO DA CORREÇÃO ---
-                // Verifica se os dados de personalização existem no save; se não, cria com valores padrão.
-                // Isso garante compatibilidade com saves antigos.
                 if (!gameState.escuderia.emblema) {
                     console.log("Migrando save antigo: Adicionando dados de emblema padrão.");
                     gameState.escuderia.emblema = {
-                        forma: 'circle.svg',      // Usando um nome que você já tem na sua lista
+                        forma: 'circle.svg',
                         corForma: '#ff0000',
-                        icone: 'asterik.svg',        // Usando um nome que você já tem na sua lista
+                        icone: 'asterik.svg',
                         corIcone: '#030303',
                         escalaIcone: 0.7,
                         iconeNaFrente: true,
@@ -426,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         gameState.escuderia.emblema.corFundo = '#f0f2f5';
                     }
                 }
-                // --- FIM DA CORREÇÃO ---
                 if (!gameState.marketing) {
                     console.log("Migrando save antigo: Adicionando dados de Marketing padrão.");
                     gameState.marketing = {
@@ -437,9 +443,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 300000 },
                     };
                 }
-                if (!gameState.instalacoes) {
-                    gameState.instalacoes = { simulador: 0, tunelDeVento: 0, treinoDeBox: 0, marketing: 0 };
+                if (!gameState.instalacoes) { // <-- ALTERADO
+                    gameState.instalacoes = { simulador: 0, tunelDeVento: 0, treinoDeBox: 0, marketing: 0, ers: 1 };
                 }
+                // Adiciona a instalação ERS a saves antigos
+                if (gameState.instalacoes.ers === undefined) {
+                    gameState.instalacoes.ers = 1;
+                }
+
 
                 for (const key in gameState.marketing) {
                     if (typeof gameState.marketing[key].posicaoIcone === 'undefined') {
@@ -1330,39 +1341,48 @@ document.addEventListener('DOMContentLoaded', () => {
         let participantesIniciais = [];
         gameState.carros.forEach(carro => {
             const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
-            if (piloto) participantesIniciais.push({ piloto, equipe: gameState.escuderia.nome, isPlayer: true, atributos: calcularAtributosCarro(carro), estrategia: JSON.parse(JSON.stringify(carro.estrategia)), pneuAtual: carro.estrategia.pneuInicial });
+            if (piloto) {
+                participantesIniciais.push({
+                    piloto,
+                    equipe: gameState.escuderia.nome,
+                    isPlayer: true,
+                    atributos: calcularAtributosCarro(carro),
+                    estrategia: JSON.parse(JSON.stringify(carro.estrategia)),
+                    pneuAtual: carro.estrategia.pneuInicial,
+                    ers: JSON.parse(JSON.stringify(carro.ers)) // <-- CORREÇÃO: Adicionada esta linha para copiar os dados do ERS
+                });
+            }
         });
         equipesIA.forEach(equipe => {
             const piloto1 = gameState.pilotos.find(p => p.id === equipe.piloto1Id);
             const piloto2 = gameState.pilotos.find(p => p.id === equipe.piloto2Id);
 
             if (piloto1) {
-                // Gera a estratégia UMA VEZ e a armazena em uma variável
                 const estrategiaPiloto1 = gerarEstrategiaIA(pista.voltas);
                 participantesIniciais.push({
                     piloto: piloto1,
                     equipe: equipe.nome,
                     isPlayer: false,
                     atributos: equipe.carro,
-                    estrategia: estrategiaPiloto1, // Usa a estratégia completa
-                    pneuAtual: estrategiaPiloto1.pneuInicial // Usa o pneu da MESMA estratégia
+                    estrategia: estrategiaPiloto1,
+                    pneuAtual: estrategiaPiloto1.pneuInicial
                 });
             }
             if (piloto2) {
-                // Gera a estratégia UMA VEZ e a armazena em uma variável
                 const estrategiaPiloto2 = gerarEstrategiaIA(pista.voltas);
                 participantesIniciais.push({
                     piloto: piloto2,
                     equipe: equipe.nome,
                     isPlayer: false,
                     atributos: equipe.carro,
-                    estrategia: estrategiaPiloto2, // Usa a estratégia completa
-                    pneuAtual: estrategiaPiloto2.pneuInicial // Usa o pneu da MESMA estratégia
+                    estrategia: estrategiaPiloto2,
+                    pneuAtual: estrategiaPiloto2.pneuInicial
                 });
             }
         });
         const gridDeLargada = participantesIniciais
-            .map(p => ({ ...p, tempoQualy: calcularTempoVolta(p, pista, pneus.macio.multiplicadorPerformance, 0, 0) }))
+            // <-- CORREÇÃO: Adicionado o parâmetro final '0' para o bonusERS no qualify -->
+            .map(p => ({ ...p, tempoQualy: calcularTempoVolta(p, pista, pneus.macio.multiplicadorPerformance, 0, 0, 0) }))
             .sort((a, b) => a.tempoQualy - b.tempoQualy);
         const dadosDaPole = { piloto: gridDeLargada[0].piloto.nome, tempo: gridDeLargada[0].tempoQualy };
 
@@ -1379,12 +1399,9 @@ document.addEventListener('DOMContentLoaded', () => {
         await animarLuzesDeLargada();
 
         // --- 4. TRANSIÇÃO CORRETA DA UI ---
-        // Esconde os conteúdos de PRÉ-corrida
         document.getElementById('info-pre-corrida-esquerda').classList.add('hidden');
         document.getElementById('info-pre-corrida-direita').classList.add('hidden');
         document.getElementById('pre-race-view').classList.add('hidden');
-
-        // Mostra os conteúdos de CORRIDA AO VIVO
         document.getElementById('player-car-1-status').classList.remove('hidden');
         document.getElementById('player-car-2-status').classList.remove('hidden');
         document.getElementById('live-race-view').classList.remove('hidden');
@@ -1395,6 +1412,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // 5. Prepara os dados e inicia os loops da corrida
         const finalParticipants = gridDeLargada.map((p, index) => {
             const gridPenalty = index * 0.150;
+
+            if (p.isPlayer) {
+                p.ers.bateria = 0;
+                p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 4;
+                p.ers.totalVoltasParaCarregar = p.ers.voltasParaCarregar;
+                p.ers.cicloDeCarregamento = 0;
+                p.ers.ativo = false;
+            }
+
             return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.6, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
         });
         raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole };
@@ -1416,7 +1442,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, raceData.intervalo);
     }
 
-    function calcularTempoVolta(participante, pista, multiPneu, penDesgaste, penCombustivel) {
+
+
+    function calcularTempoVolta(participante, pista, multiPneu, penDesgaste, penCombustivel, bonusERS = 0) { // <-- ALTERADO
         const carro = participante.atributos;
         const piloto = participante.piloto;
         const bonusHabilidade = piloto.habilidade / 50.0;
@@ -1424,7 +1452,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const pontuacaoCarro = ((carro.potencia * pista.demandaMotor) + (carro.aerodinamica * pista.demandaAero) + (carro.aderencia * pista.demandaAderencia)) * multiPneu;
         const fatorDesempenho = pontuacaoCarro / 100;
         const fatorSorte = (Math.random() - 0.5) * (0.6 * fatorConsistencia);
-        return pista.tempoBaseVolta - fatorDesempenho - bonusHabilidade + penDesgaste + penCombustivel + fatorSorte;
+        // Aplica o bônus do ERS subtraindo do tempo final
+        return pista.tempoBaseVolta - fatorDesempenho - bonusHabilidade + penDesgaste + penCombustivel + fatorSorte - bonusERS; // <-- ALTERADO
     }
 
 
@@ -1435,29 +1464,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
         raceData.participantes.forEach(p => {
             if (p.tempoTotal === Infinity) return;
-            // --- LÓGICA DO MODO DE AGRESSIVIDADE (INÍCIO) ---
+
+            // <-- INÍCIO DA NOVA LÓGICA ERS -->
+            let bonusERS = 0;
+            if (p.isPlayer && p.ers) {
+                if (p.ers.ativo) {
+                    // Define o bônus com base no nível da instalação
+                    const nivelERS = gameState.instalacoes.ers;
+                    if (nivelERS === 1) bonusERS = 0.300;
+                    else if (nivelERS === 2) bonusERS = 0.600;
+                    else if (nivelERS >= 3) bonusERS = 1.000;
+
+                    p.ers.cicloDeCarregamento--;
+                    p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100; // Bateria descarrega em 3 voltas
+
+                    // Se o ciclo de uso acabou, reseta
+                    if (p.ers.cicloDeCarregamento <= 0) {
+                        p.ers.ativo = false;
+                        p.ers.bateria = 0;
+                        p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 4; // Novo ciclo de 4 a 6 voltas
+                        p.ers.totalVoltasParaCarregar = p.ers.voltasParaCarregar;
+                    }
+                } else {
+                    // Carrega a bateria
+                    p.ers.voltasParaCarregar--;
+                    const progressoCarga = 1 - (p.ers.voltasParaCarregar / p.ers.totalVoltasParaCarregar);
+                    p.ers.bateria = Math.min(100, progressoCarga * 100);
+
+                    // Se carregou completamente
+                    if (p.ers.voltasParaCarregar <= 0) {
+                        p.ers.ativo = true;
+                        p.ers.bateria = 100;
+                        p.ers.cicloDeCarregamento = 3; // Dura 3 voltas
+                    }
+                }
+            }
+            // <-- FIM DA NOVA LÓGICA ERS -->
+
             let fatorRitmo = 1.0;
             let fatorDesgastePneu = 1.0;
 
             if (p.modoAgressividade === 'atacar') {
-                fatorRitmo = 0.985; // Bônus de 1.5% no ritmo
-                fatorDesgastePneu = 1.40; // Penalidade de 40% no desgaste do pneu
+                fatorRitmo = 0.985;
+                fatorDesgastePneu = 1.40;
             } else if (p.modoAgressividade === 'conservar') {
-                fatorRitmo = 1.02; // Penalidade de 2% no ritmo
-                fatorDesgastePneu = 0.65; // Bônus de 35% na conservação do pneu
+                fatorRitmo = 1.02;
+                fatorDesgastePneu = 0.65;
             }
-            // --- LÓGICA DO MODO DE AGRESSIVIDADE (FIM) ---
 
-            p.tempoInicioVolta = p.tempoTotal; // Guarda o tempo antes de calcular a nova volta
-            p.timestampInicioVolta = agora; // Guarda o tempo real do início da simulação da volta
+            p.tempoInicioVolta = p.tempoTotal;
+            p.timestampInicioVolta = agora;
 
             const paradaInfo = p.estrategia.paradas[p.stintAtual];
             if (paradaInfo && paradaInfo.pararNaVolta === raceData.voltaAtual) {
-                // --- INÍCIO DA MODIFICAÇÃO ---
-
-                // 1. Calcula a performance da volta como se fosse normal, antes de adicionar o tempo do pit.
-                const reducaoPitStop = gameState.instalacoes.treinoDeBox * 0.5; // 0.5s por nível
-                const tempoDePitFinal = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop); // Garante um tempo mínimo de 18s
+                const reducaoPitStop = gameState.instalacoes.treinoDeBox * 0.5;
+                const tempoDePitFinal = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop);
                 const pneuAtual = pneus[p.pneuAtual];
                 const piloto = p.piloto;
                 const fatorGerenciamento = (1 - (piloto.gerenciamentoPneus / 300));
@@ -1470,20 +1531,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
                 const penalidadeCombustivelAtualizada = p.penalidadeCombustivel * (1 - progressoStint);
 
-                // Calcula o tempo base da volta dinamicamente
-                let tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada);
+                let tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS); // <-- ALTERADO
 
-                // 2. Adiciona o tempo fixo do pit stop ao tempo dinâmico da volta.
                 const tempoFinalDaVoltaComPit = tempoDaVoltaBase + tempoDePitFinal;
 
-                // 3. Atualiza os dados do piloto com o novo tempo dinâmico.
                 p.duracaoVoltaEstimada = tempoFinalDaVoltaComPit;
                 p.tempoTotal += tempoFinalDaVoltaComPit;
                 p.ultimaVolta = `PIT STOP (${formatLapTime(tempoFinalDaVoltaComPit)})`;
 
-                // --- FIM DA MODIFICAÇÃO ---
-
-                // O resto da lógica de pit stop permanece o mesmo
                 p.pneuAtual = paradaInfo.colocarPneu;
                 p.stintAtual++;
                 p.durabilidadePneu = 100;
@@ -1505,7 +1560,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
             const penalidadeCombustivelAtualizada = p.penalidadeCombustivel * (1 - progressoStint);
 
-            let tempoDaVolta = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada);
+            let tempoDaVolta = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS); // <-- ALTERADO
 
             p.duracaoVoltaEstimada = tempoDaVolta;
             if (tempoDaVolta < raceData.melhorVolta) { raceData.melhorVolta = tempoDaVolta; raceData.pilotoMelhorVolta = p.piloto.nome; }
@@ -2023,7 +2078,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Parabéns pelo ${nossaPosicao}º lugar no Campeonato de Construtores! Você ganhou um bônus de R$ ${bonus[nossaPosicao].toLocaleString('pt-BR')}!`);
         }
 
-        rocessarReajusteSalarialEspecialistas();
+        processarReajusteSalarialEspecialistas();
         processarEnvelhecimentoPilotos();
         atualizarMercadoDePilotos(gameState.pilotos);
         alert("O mercado de pilotos foi atualizado para a nova temporada!");
@@ -2932,7 +2987,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const participante = raceData.participantes.find(p => p.piloto.id === pilotoId);
             if (!participante) continue;
 
-            if (!cardContainer.querySelector('.car-image-compact')) {
+            // <-- INÍCIO DA ALTERAÇÃO -->
+            // Adiciona a estrutura da barra de ERS se ela não existir
+            if (!cardContainer.querySelector('.ers-bar-container')) {
                 cardContainer.innerHTML = `
                     <img src="img/carf1.png" alt="Carro" class="car-image-compact">
                     <div class="car-info-compact">
@@ -2944,6 +3001,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </p>
                         <div class="tire-wear-bar-single">
                             <div class="tire-wear-bar-fill-single"></div>
+                        </div>
+                        <div class="ers-bar-container">
+                            <span class="ers-label">ERS</span>
+                            <div class="ers-bar-fill"></div>
                         </div>
                     </div>
                 `;
@@ -2971,6 +3032,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const tireLapCountSpan = cardContainer.querySelector('.tire-lap-count');
             if (tireLapCountSpan) {
                 tireLapCountSpan.textContent = `(${participante.voltasNoPneuAtual}v) - ${durabilidade.toFixed(0)}%`;
+            }
+            if (participante.ers) {
+                const ersFillBar = cardContainer.querySelector('.ers-bar-fill');
+                if (ersFillBar) {
+                    ersFillBar.style.width = `${participante.ers.bateria}%`;
+                    ersFillBar.classList.toggle('full', participante.ers.ativo || participante.ers.bateria >= 100);
+                }
             }
         }
     }

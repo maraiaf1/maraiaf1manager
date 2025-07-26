@@ -229,10 +229,10 @@ font-size: 0.8rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.6rem;
+    padding: 0.4rem;
     border-radius: 6px;
     background-color: #fff;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.4rem;
     border: 1px solid #e9ecef;
 }
 
@@ -250,13 +250,13 @@ font-size: 0.8rem;
 }
 
 .stint-inputs span {
-    font-size: 0.9em;
+    font-size: 0.7em;
     color: #6c757d;
 }
 
 .stint-definition select,
 .stint-definition input {
-    padding: 0.6rem;
+    padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 0.9em;
@@ -268,7 +268,7 @@ font-size: 0.8rem;
 
 .strategy-actions {
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 0.6rem;
 }
 
 .btn-add-stint {
@@ -1090,7 +1090,7 @@ button:disabled {
 }
 
 .btn-mode {
-    padding: 0.7rem;
+    padding: 0.5rem;
     border: 2px solid #ccc;
     background-color: #f8f9fa;
     color: #555;
@@ -1731,4 +1731,37 @@ font-size: 0.8em;
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid #eee;
+}
+
+/* === NOVOS ESTILOS PARA ERS === */
+
+.ers-bar-container {
+    width: 100%;
+    height: 12px;
+    background-color: #555;
+    border: 1px solid #888;
+    border-radius: 4px;
+    padding: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Espaço entre o texto ERS e a barra */
+}
+
+.ers-label {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #ccc;
+    padding-left: 4px;
+}
+
+.ers-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background-color: #4d00d1; /* Roxo para carregando */
+    transition: width 0.5s, background-color 0.5s;
+}
+
+.ers-bar-fill.full {
+    background-color: #00ff00; /* Verde brilhante para cheio/ativo */
+    box-shadow: 0 0 10px #00ff00;
 }
