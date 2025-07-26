@@ -187,6 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ataque_pneu_bom: [
             { remetente: 'Piloto', texto: "O carro está ótimo, estou indo pra cima!" },
             { remetente: 'Engenheiro', texto: "Isso! Continue pressionando, o ritmo está excelente." },
+            { remetente: 'Piloto', texto: "Meu ERS está ajudando muito!" },
+            { remetente: 'Engenheiro', texto: "Gerencie seu ERS. Ele está ajudando muito nas retas." },
             { remetente: 'Piloto', texto: "Estou indo pra cima! Estou confiante." },
             { remetente: 'Engenheiro', texto: "Isso! Excelente." },
             { remetente: 'Piloto', texto: "Estamos bem, os pneus estão respondendo bem!" },
@@ -199,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lidercorrida: [
             { remetente: 'Piloto', texto: "Acho que consigo segurar a vantagem!" },
             { remetente: 'Engenheiro', texto: "Não Alivie, o ritmo está bom." },
+            { remetente: 'Engenheiro', texto: "Hoje será GG!" },
             { remetente: 'Piloto', texto: "Estamos na frente, vamos manter a estratégia?" },
             { remetente: 'Engenheiro', texto: "Estamos no lugar certo, continue!" }
         ],
