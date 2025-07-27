@@ -3720,8 +3720,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveGame();
             } else { alert("Dinheiro insuficiente para atualizar o mercado!"); }
         } else if (target.matches('.sortable-header')) {
-            const column = target.dataset.sort;
-            sortState.column = column === sortState.column && sortState.direction === 'asc' ? 'desc' : 'asc';
+            const newColumn = target.dataset.sort;
+            if (sortState.column === newColumn) {
+                // Se está clicando na mesma coluna, apenas inverte a direção
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Se está clicando em uma nova coluna, define a nova coluna e reseta a direção para 'asc'
+                sortState.column = newColumn;
+                sortState.direction = 'asc';
+            }
             renderAbaNegociacoes();
         }
 

@@ -108,7 +108,7 @@ background-color: #c82333;
 .btn-rapida { background-color: #008cba; }
 .btn-fechar { margin-top: 1.5rem; background-color: #f0ad4e; }
 .btn-corrida:disabled { background-color: #999; cursor: not-allowed; width: auto;}
-#display-volta { text-align: center; background-color: #1e1e1e; color: white; padding: 0.2rem; border-radius: 4px; margin-bottom: 0.5rem; }
+#display-volta { text-align: center; background-color: #1e1e1e; color: white; padding: 0.2rem; border-radius: 4px; margin-bottom: 0.1rem; }
 
 /* --- NOVOS ESTILOS PARA A TABELA DE CORRIDA AO VIVO --- */
 #tabela-resultados {
