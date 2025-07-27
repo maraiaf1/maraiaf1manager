@@ -1396,6 +1396,7 @@ input[type="range"] {
     display: flex;
     flex-direction: column;
     gap: 0.1rem;
+    min-width: 900px;
 }
 
 /* Grade superior da corrida ao vivo (Carro 1 - Canvas - Carro 2) */
