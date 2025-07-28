@@ -1479,41 +1479,47 @@ document.addEventListener('DOMContentLoaded', () => {
         raceData.participantes.forEach(p => {
             if (p.tempoTotal === Infinity) return;
 
-            // <-- INÍCIO DA NOVA LÓGICA ERS -->
+            // <-- INÍCIO DA ALTERAÇÃO -->
+            // 1. Reseta a bandeira no início da simulação da volta
+            p.ersBonusAtivoNestaVolta = false;
+            // <-- FIM DA ALTERAÇÃO -->
+
             let bonusERS = 0;
             if (p.isPlayer && p.ers) {
                 if (p.ers.ativo) {
-                    // Define o bônus com base no nível da instalação
                     const nivelERS = gameState.instalacoes.ers;
                     if (nivelERS === 1) bonusERS = 0.300;
                     else if (nivelERS === 2) bonusERS = 0.600;
                     else if (nivelERS >= 3) bonusERS = 1.000;
 
-                    p.ers.cicloDeCarregamento--;
-                    p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100; // Bateria descarrega em 3 voltas
+                    // <-- INÍCIO DA ALTERAÇÃO -->
+                    // 2. Ativa a bandeira se o bônus foi usado
+                    if (bonusERS > 0) {
+                        p.ersBonusAtivoNestaVolta = true;
+                    }
+                    // <-- FIM DA ALTERAÇÃO -->
 
-                    // Se o ciclo de uso acabou, reseta
+                    p.ers.cicloDeCarregamento--;
+                    p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;
+
                     if (p.ers.cicloDeCarregamento <= 0) {
                         p.ers.ativo = false;
                         p.ers.bateria = 0;
-                        p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 4; // Novo ciclo de 4 a 6 voltas
+                        p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 4;
                         p.ers.totalVoltasParaCarregar = p.ers.voltasParaCarregar;
                     }
                 } else {
-                    // Carrega a bateria
                     p.ers.voltasParaCarregar--;
                     const progressoCarga = 1 - (p.ers.voltasParaCarregar / p.ers.totalVoltasParaCarregar);
                     p.ers.bateria = Math.min(100, progressoCarga * 100);
 
-                    // Se carregou completamente
                     if (p.ers.voltasParaCarregar <= 0) {
                         p.ers.ativo = true;
                         p.ers.bateria = 100;
-                        p.ers.cicloDeCarregamento = 3; // Dura 3 voltas
+                        p.ers.cicloDeCarregamento = 3;
                     }
                 }
             }
-            // <-- FIM DA NOVA LÓGICA ERS -->
 
             let fatorRitmo = 1.0;
             let fatorDesgastePneu = 1.0;
@@ -1545,7 +1551,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
                 const penalidadeCombustivelAtualizada = p.penalidadeCombustivel * (1 - progressoStint);
 
-                let tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS); // <-- ALTERADO
+                let tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
 
                 const tempoFinalDaVoltaComPit = tempoDaVoltaBase + tempoDePitFinal;
 
@@ -1574,7 +1580,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
             const penalidadeCombustivelAtualizada = p.penalidadeCombustivel * (1 - progressoStint);
 
-            let tempoDaVolta = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS); // <-- ALTERADO
+            let tempoDaVolta = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
 
             p.duracaoVoltaEstimada = tempoDaVolta;
             if (tempoDaVolta < raceData.melhorVolta) { raceData.melhorVolta = tempoDaVolta; raceData.pilotoMelhorVolta = p.piloto.nome; }
@@ -1585,6 +1591,8 @@ document.addEventListener('DOMContentLoaded', () => {
             p.voltasNoPneuAtual++;
         });
     }
+
+
 
     async function animarBandeirada() {
         return new Promise(resolve => {
@@ -3156,13 +3164,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let gapLider = res.tempoTotal - lider.tempoTotal;
             let gapAnterior = index > 0 ? res.tempoTotal - raceData.participantes[index - 1].tempoTotal : 0;
 
-            res.posicao = pos; // Salva a posição atual no objeto do participante
-            res.gapParaFrente = gapAnterior; // Salva o gap para o carro da frente
+            res.posicao = pos;
+            res.gapParaFrente = gapAnterior;
 
-            // Identificador único do piloto
             const idPiloto = res.piloto.id || res.piloto.nome;
 
-            // Comparação com o gap anterior
             let corGap = '';
             if (pos > 1 && res.tempoTotal !== Infinity) {
                 const gapAnteriorAnterior = gapsAnteriores[idPiloto];
@@ -3176,7 +3182,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 gapsAnteriores[idPiloto] = gapAnterior;
             }
 
-            // Formatação do gapDisplay
             let gapDisplay;
             if (res.tempoTotal === Infinity) {
                 gapDisplay = "DNF";
@@ -3191,6 +3196,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const celulaPneuHtml = `<div class="pneu-cell-container"><span class="tyre-indicator tyre-${res.pneuAtual}">${res.pneuAtual.charAt(0).toUpperCase()}</span> <span class="pneu-lap-counter">(${res.voltasNoPneuAtual}v)</span></div>`;
             const isFastestLap = res.piloto.nome === raceData.pilotoMelhorVolta && raceData.melhorVolta !== Infinity;
 
+            // <-- INÍCIO DA ALTERAÇÃO -->
+            // 3. Define a classe CSS com base na bandeira do ERS
+            const ultimaVoltaClasse = res.ersBonusAtivoNestaVolta ? 'ers-active-lap' : '';
+            // <-- FIM DA ALTERAÇÃO -->
 
             return `<tr class="${res.isPlayer ? 'player-row' : ''}" style="border-left-color: ${cor};">
                 <td>${pos}</td>
@@ -3198,15 +3207,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${res.equipe}</td>
                 <td>${res.paradas}</td>
                 <td>${celulaPneuHtml}</td>
-                <td><span class="lap-time">${res.ultimaVolta || '---'}</span></td>
+
+                <td><span class="lap-time ${ultimaVoltaClasse}">${res.ultimaVolta || '---'}</span></td>
+
                 <td class="${isFastestLap ? 'fastest-lap-cell' : ''}"><span class="lap-time">${res.melhorVoltaPessoal === Infinity ? '---' : formatLapTime(res.melhorVoltaPessoal)}</span></td>
                 <td><span class="lap-time">${gapDisplay}</span></td>
             </tr>`;
         }).join('');
         if (raceData.voltaAtual === 2) {
             const modeButtons = document.querySelectorAll('.btn-mode');
-            // Verifica se os botões estão de fato desabilitados antes de ativá-los.
-            // Isso impede que este código seja executado desnecessariamente.
             if (modeButtons.length > 0 && modeButtons[0].disabled) {
                 modeButtons.forEach(btn => {
                     btn.disabled = false;

@@ -163,7 +163,14 @@ font-size: 0.8rem;
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
 }
+/* === ESTILO PARA VOLTA COM ERS ATIVO === */
 
+.lap-time.ers-active-lap {
+    color: #00BFFF; /* Um tom de azul elétrico (Deep Sky Blue) */
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0, 191, 255, 0.7); /* Adiciona um brilho sutil */
+    transition: color 0.3s ease-in-out;
+}
 #tabela-resultados td:nth-child(6), /* Últ. Volta */
 #tabela-resultados td:nth-child(7), /* Volta Rápida */
 #tabela-resultados td:nth-child(8) { /* Gap */
