@@ -1540,6 +1540,15 @@ input[type="range"] {
 /* ESTILOS PARA A ABA MARKETING                                  */
 /* ============================================================= */
 
+
+
+.btn-liquidar-item {
+    background-color: #f0ad4e; /* Laranja/Amarelo para liquidação */
+}
+
+.btn-liquidar-item:hover {
+    background-color: #ec9b2e;
+}
 .marketing-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

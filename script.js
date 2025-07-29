@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pneus = {
         macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.8, duracaoIdeal: 0.30 }, // Dura aprox. 33% da corrida
-        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 2.6, duracaoIdeal: 0.50 }, // Dura aprox. 50% da corrida
-        duro: { nome: 'Duro', multiplicadorPerformance: 0.98, desgastePorVolta: 1.75, duracaoIdeal: 0.67 }  // Dura aprox. 67% da corrida
+        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 3.1, duracaoIdeal: 0.50 }, // Dura aprox. 50% da corrida
+        duro: { nome: 'Duro', multiplicadorPerformance: 0.97, desgastePorVolta: 1.75, duracaoIdeal: 0.67 }  // Dura aprox. 67% da corrida
     };
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
 
@@ -968,6 +968,35 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.mercadoDePecas.push({ ...pecaTemplate, instanceId: Date.now() + i, vendedor, preco: calcularPrecoPeca(pecaTemplate) });
         }
     }
+
+
+
+
+    function liquidarEstoqueMarketing(nomeItem) {
+        const itemJogo = gameState.marketing[nomeItem];
+        const itemCatalogo = catalogoMarketing[nomeItem];
+
+        if (!itemJogo || itemJogo.inventario <= 0) {
+            alert("Não há estoque para liquidar.");
+            return;
+        }
+
+        // Liquidação vende por 50% do preço MÍNIMO para evitar exploração
+        const precoLiquidacaoUnitario = itemCatalogo.preco_venda_minimo * 0.5;
+        const receitaTotal = itemJogo.inventario * precoLiquidacaoUnitario;
+
+        if (confirm(`Tem certeza que deseja liquidar ${itemJogo.inventario} unidades de "${nomeItem}"?\n\nVocê receberá R$ ${precoLiquidacaoUnitario.toLocaleString('pt-BR')} por unidade (50% do preço mínimo), totalizando R$ ${receitaTotal.toLocaleString('pt-BR')}.`)) {
+            gameState.escuderia.dinheiro += receitaTotal;
+            itemJogo.inventario = 0;
+
+            alert(`Estoque de "${nomeItem}" liquidado com sucesso!`);
+            updateUI();
+            saveGame();
+        }
+    }
+
+
+
 
     function comprarPeca(instanceId) {
         const pecaIndex = gameState.mercadoDePecas.findIndex(p => p.instanceId === instanceId);
@@ -2325,7 +2354,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. RENDERIZADORES DA UI ---
     // Em script.js, dentro da função updateUI()
-    const updateUI = () => { renderEscuderia(); renderGaragem(); renderAbaPilotos(); renderAbaAutodromo(); renderAbaGaleria(); renderAbaCorrida(); renderAbaCampeonato(); renderAbaNegociacoes(); renderAbaPersonalizacao(); renderAbaMarketing(); renderAbaInstalacoes(); };
+    const updateUI = () => {
+        console.log("[DEBUG] updateUI foi chamada."); // Log para confirmar a execução
+        renderEscuderia();
+        renderGaragem();
+        renderAbaPilotos();
+        renderAbaAutodromo();
+        renderAbaGaleria();
+        renderAbaCorrida();
+        renderAbaCampeonato();
+        renderAbaNegociacoes();
+        renderAbaPersonalizacao();
+        renderAbaMarketing(); // Garante que a função de marketing seja chamada
+        renderAbaInstalacoes();
+    };
 
     function renderAbaInstalacoes() {
         const container = document.getElementById('instalacoes-container');
@@ -2472,7 +2514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function renderAbaPersonalizacao() {
-        console.log("--- EXECUTANDO renderAbaPersonalizacao V6 ---");
+        console.log("--- EXECUTANDO renderAbaPersonalizacao V7 ---");
         // --- Defina aqui os nomes dos arquivos que você baixou ---
         const listaDeFormas = ['circle.svg','circleheart.svg','circlesmall.svg','circlethreequarters.svg','cube.svg','cubes.svg','frame.svg','infinity.svg','modelcube.svg','modelcubespace.svg','oval.svg','pyramid.svg','rectanglehorizontal.svg','rectanglehorizontal1.svg','rhombus.svg','seal.svg','settings.svg','sphere.svg','square.svg','square1.svg','squaredashed.svg','squarestar.svg','star-christmas.svg','starchristmas1.svg','starchristmas2.svg','windowframe.svg','windowframe1.svg'];
         const listaDeIcones = ['asterik.svg',	'asterik1.svg',	'auto-pilot.svg',	'badge-leaf.svg',	'badge-percent.svg',	'badge-sheriff.svg',	'badge-sheriff1.svg',	'badge-sheriff2.svg',	'bat.svg',	'bat1.svg',	'block.svg',	'bolt.svg',	'bowarrow.svg',	'campfire.svg',	'cat.svg',	'chessking.svg',	'chevrondoubleup.svg',	'clawmarks.svg',	'clawmarks1.svg',	'cow.svg',	'cow1.svg',	'crown.svg',	'crown1.svg',	'dove.svg',	'dragon.svg',	'dragon1.svg',	'eagle.svg',	'equestrianstatue.svg',	'featherpointed.svg',	'firstaward.svg',	'flagcheckered.svg',	'flowerbutterfly.svg',	'fox.svg',	'heartupsidedown.svg',	'heartupsidedown1.svg',	'horseshoe.svg',	'lightbulbsetting.svg',	'lion.svg',	'lionhead.svg',	'luchador.svg',	'medicalstar.svg',	'membership.svg',	'om.svg',	'pawclaws.svg',	'pawheart.svg',	'peace.svg',	'peace1.svg',	'percent80.svg',	'rabbit.svg',	'raccoon.svg',	'resources.svg',	'shield.svg',	'shield1.svg',	'shieldalt1.svg',	'shieldcross.svg',	'shieldcross1.svg',	'shielddividedfour.svg',	'sleepingcat.svg',	'snake.svg',	'snake1.svg',	'squirrel.svg',	'starandcrescent.svg',	'starexclamation.svg',	'staroctogram.svg',	'stars.svg',	'steeringwheel.svg',	'suitcase-alt.svg',	'suitcasealt1.svg',	'sword.svg',	't.svg',	'tablelist.svg',	'tablelist1.svg',	'tablelist2.svg',	'tire.svg',	'tire1.svg',	'tire2.svg',	'torch.svg',	'trademark.svg',	'transformationdesign.svg',	'transformationshapes.svg',	'turtle.svg',	'user-crown.svg',	'usercrown1.svg',	'venus.svg',	'wavetriangle.svg',	'whale.svg',	'wingsbox.svg',	'worm.svg'];
@@ -2571,35 +2613,41 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = Object.entries(catalogoMarketing).map(([nome, itemCatalogo]) => {
             const itemJogo = gameState.marketing[nome];
 
-            if (itemJogo.desbloqueado) {
-                const producaoBloqueada = itemJogo.inventario > 0;
+            // --- LÓGICA PARA ITENS DESBLOQUEADOS ---
+            if (itemJogo && itemJogo.desbloqueado) {
+                const temEstoque = itemJogo.inventario > 0;
                 const tamanho = itemJogo.tamanhoIcone || { width: 50, height: 50 };
                 const posicao = itemJogo.posicaoIcone || { top: 25, left: 25 };
 
-                const controlesProducaoHtml = producaoBloqueada
-                ? ` <div class="item-controles">
-                        <p style="text-align: center; color: #8a6d3b; background-color: #fffde7; padding: 1rem; border-radius: 4px;">
-                            <strong>Produção pausada.</strong><br>Venda o estoque atual para poder produzir um novo lote.
+                // Bloco de HTML para os controles, que muda dependendo do estoque
+                let controlesHtml = '';
+                if (temEstoque) {
+                    // Se TEM estoque, mostra a mensagem de pausa e o botão de LIQUIDAR
+                    controlesHtml = `
+                        <p style="text-align: center; color: #8a6d3b; background-color: #fffde7; padding: 0.8rem; border-radius: 4px; font-size: 0.9em; margin-top: 0;">
+                            <strong>Produção pausada.</strong><br>Venda ou liquide o estoque para produzir mais.
                         </p>
-                    </div>`
-                : ` <div class="item-controles">
+                        <button class="btn-marketing btn-liquidar-item" data-action="liquidar-estoque" data-item-nome="${nome}">
+                            Liquidar Estoque (${itemJogo.inventario} un.)
+                        </button>
+                    `;
+                } else {
+                    // Se NÃO TEM estoque, mostra os controles de PRODUÇÃO
+                    controlesHtml = `
                         <div class="input-group">
                             <input type="number" id="qtd-${nome}" placeholder="Qtd. para produzir" min="1" data-action="calcular-custo" data-item-nome="${nome}">
                             <button class="btn-marketing btn-produzir-item" data-action="produzir-marketing" data-item-nome="${nome}">Produzir</button>
                         </div>
                         <div class="custo-total-display" id="custo-total-${nome}">Custo Total: R$ 0</div>
-                    </div>`;
+                    `;
+                }
 
-                // CARD PARA ITEM DESBLOQUEADO
                 return `
                     <div class="marketing-item-card" data-item-nome="${nome}">
-
                         <div class="item-imagem" style="background-image: url('${itemCatalogo.img}'); position: relative;">
-
                             <div id="emblema-container-${nome}" class="item-imagem-emblema draggable"
                                  style="position: absolute; width: ${tamanho.width}%; height: ${tamanho.height}%; top: ${posicao.top}%; left: ${posicao.left}%; cursor: grab;">
-                                 </div>
-
+                            </div>
                             <div style="position: absolute; bottom: 5px; right: 5px; display: flex; gap: 5px; background-color: rgba(0,0,0,0.4); padding: 5px; border-radius: 5px; z-index: 5;">
                                 <button class="btn-icone-control" data-action="aumentar-icone" data-item-nome="${nome}">+</button>
                                 <button class="btn-icone-control" data-action="diminuir-icone" data-item-nome="${nome}">-</button>
@@ -2611,16 +2659,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p><span>Custo p/ Produzir:</span> <strong>R$ ${itemCatalogo.custo_producao.toLocaleString('pt-BR')}</strong></p>
                         </div>
                         <div class="item-controles">
-                            <div class="input-group">
+                            <div class="input-group" style="margin-bottom: 1rem;">
                                 <label for="preco-${nome}">Preço Venda (mín. ${itemCatalogo.preco_venda_minimo}):</label>
-                                <input type="number" id="preco-${nome}" value="${itemJogo.preco_venda_definido}" min="${itemCatalogo.preco_venda_minimo}" data-action="definir-preco" data-item-nome="${nome}" ${producaoBloqueada ? 'disabled' : ''}>
+                                <input type="number" id="preco-${nome}" value="${itemJogo.preco_venda_definido}" min="${itemCatalogo.preco_venda_minimo}" data-action="definir-preco" data-item-nome="${nome}" ${temEstoque ? 'disabled' : ''}>
                             </div>
+                            ${controlesHtml}
                         </div>
-                        ${controlesProducaoHtml}
                     </div>
                 `;
-            } else {
-                // CARD PARA ITEM BLOQUEADO (sem alterações)
+            }
+
+            // --- LÓGICA PARA ITENS BLOQUEADOS (sem alteração) ---
+            else {
                 return `
                      <div class="marketing-item-card locked" data-item-nome="${nome}">
                         <div class="item-imagem" style="background-image: url('${itemCatalogo.img}');">
@@ -2638,7 +2688,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }).join('');
 
-        // Loop final para chamar a função renderizarEmblema
+        // Renderiza os emblemas (sem alteração)
         Object.keys(catalogoMarketing).forEach(nome => {
             const cardElement = container.querySelector(`.marketing-item-card[data-item-nome="${nome}"]`);
             if (cardElement) {
@@ -2653,108 +2703,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-    function renderAbaMarketing() {
-        const container = document.getElementById('marketing-items-container');
-        if (!container) return;
-
-        const emblemaMarketingContainer = document.getElementById('emblema-display-marketing');
-        if(emblemaMarketingContainer) renderizarEmblema(emblemaMarketingContainer, gameState.escuderia.emblema);
-
-
-        container.innerHTML = Object.entries(catalogoMarketing).map(([nome, itemCatalogo]) => {
-            const itemJogo = gameState.marketing[nome];
-
-            if (itemJogo.desbloqueado) {
-                const producaoBloqueada = itemJogo.inventario > 0;
-
-                // Lê os dados de personalização do ícone do gameState
-                const tamanho = itemJogo.tamanhoIcone || { width: 50, height: 50 };
-                const posicao = itemJogo.posicaoIcone || { top: 25, left: 25 };
-
-                const controlesProducaoHtml = producaoBloqueada
-                ? ` <div class="item-controles">
-                        <p style="text-align: center; color: #8a6d3b; background-color: #fffde7; padding: 1rem; border-radius: 4px;">
-                            <strong>Produção pausada.</strong><br>Venda o estoque atual para poder produzir um novo lote.
-                        </p>
-                    </div>`
-                : ` <div class="item-controles">
-                        <div class="input-group">
-                            <input type="number" id="qtd-${nome}" placeholder="Qtd. para produzir" min="1" data-action="calcular-custo" data-item-nome="${nome}">
-                            <button class="btn-marketing btn-produzir-item" data-action="produzir-marketing" data-item-nome="${nome}">Produzir</button>
-                        </div>
-                        <div class="custo-total-display" id="custo-total-${nome}">Custo Total: R$ 0</div>
-                    </div>`;
-
-                // CARD PARA ITEM DESBLOQUEADO
-                return `
-                    <div class="marketing-item-card" data-item-nome="${nome}">
-                        <div class="item-imagem" style="background-image: url('${itemCatalogo.img}');">
-
-                            <div id="emblema-container-${nome}" class="item-imagem-emblema draggable"
-                                 style="width: ${tamanho.width}%; height: ${tamanho.height}%; top: ${posicao.top}%; left: ${posicao.left}%; cursor: grab;">
-                            </div>
-
-                            <div style="position: absolute; bottom: 5px; right: 5px; display: flex; gap: 5px; background-color: rgba(0,0,0,0.4); padding: 5px; border-radius: 5px;">
-                                <button class="btn-icone-control" data-action="aumentar-icone" data-item-nome="${nome}">+</button>
-                                <button class="btn-icone-control" data-action="diminuir-icone" data-item-nome="${nome}">-</button>
-                            </div>
-
-                        </div>
-                        <h4>${nome}</h4>
-                        <div class="item-info">
-                            <p><span>Em Estoque:</span> <strong>${itemJogo.inventario}</strong></p>
-                            <p><span>Custo p/ Produzir:</span> <strong>R$ ${itemCatalogo.custo_producao.toLocaleString('pt-BR')}</strong></p>
-                        </div>
-                        <div class="item-controles">
-                            <div class="input-group">
-                                <label for="preco-${nome}">Preço Venda (mín. ${itemCatalogo.preco_venda_minimo}):</label>
-                                <input type="number" id="preco-${nome}" value="${itemJogo.preco_venda_definido}" min="${itemCatalogo.preco_venda_minimo}" data-action="definir-preco" data-item-nome="${nome}" ${producaoBloqueada ? 'disabled' : ''}>
-                            </div>
-                        </div>
-                        ${controlesProducaoHtml}
-                    </div>
-                `;
-            } else {
-                // CARD PARA ITEM BLOQUEADO (sem alterações)
-                return `
-                    <div class="marketing-item-card locked" data-item-nome="${nome}">
-                        <div class="item-imagem" style="background-image: url('${itemCatalogo.img}');">
-                             <div class="item-imagem-emblema" style="width: 50%; height: 50%;"></div>
-                        </div>
-                        <h4>${nome} (Bloqueado)</h4>
-                        <div class="item-info">
-                            <p>Desbloqueie este item para começar a vender e aumentar a receita da sua equipe.</p>
-                        </div>
-                        <div class="item-controles">
-                             <button class="btn-marketing btn-desbloquear-item" data-action="desbloquear-marketing" data-item-nome="${nome}">
-                                Desbloquear (R$ ${itemCatalogo.custo_desbloqueio.toLocaleString('pt-BR')})
-                             </button>
-                        </div>
-                    </div>
-                `;
-            }
-        }).join('');
-
-        // Após criar o HTML, renderiza os emblemas dentro dos containers corretos
-        Object.keys(catalogoMarketing).forEach(nome => {
-            const itemJogo = gameState.marketing[nome];
-            if (itemJogo.desbloqueado) {
-                const emblemaContainer = document.getElementById(`emblema-container-${nome}`);
-                if (emblemaContainer) {
-                    renderizarEmblema(emblemaContainer, gameState.escuderia.emblema);
-                }
-            } else {
-                const cardElement = container.querySelector(`.marketing-item-card.locked[data-item-nome="${nome}"]`);
-                if (cardElement) {
-                    const emblemaContainer = cardElement.querySelector('.item-imagem-emblema');
-                    if (emblemaContainer) {
-                        renderizarEmblema(emblemaContainer, gameState.escuderia.emblema);
-                    }
-                }
-            }
-        });
-    }
 
 
 
@@ -3649,12 +3597,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- AÇÕES GLOBAIS E DE NAVEGAÇÃO ---
         if (target.matches('.tab-btn')) {
+            const tabName = target.dataset.tab;
+            console.log(`[DEBUG] Clique detectado na aba: ${tabName}`);
+
             document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
             target.classList.add('active');
-            const abaAtiva = document.getElementById(target.dataset.tab);
+            const abaAtiva = document.getElementById(tabName);
             if (abaAtiva) abaAtiva.classList.add('active');
-            updateUI();
-            return; // Ação de navegação, encerra aqui.
+
+            switch (tabName) {
+                case 'escuderia':
+                    console.log("[DEBUG] Entrou no case 'escuderia'. Chamando a função...");
+                    renderEscuderia();
+                    break;
+                case 'instalacoes':
+                    console.log("[DEBUG] Entrou no case 'instalacoes'. Chamando a função...");
+                    renderAbaInstalacoes();
+                    break;
+                case 'pilotos':
+                    console.log("[DEBUG] Entrou no case 'pilotos'. Chamando a função...");
+                    renderAbaPilotos();
+                    break;
+                case 'carro':
+                    console.log("[DEBUG] Entrou no case 'carro'. Chamando a função...");
+                    renderGaragem();
+                    break;
+                case 'corrida':
+                    console.log("[DEBUG] Entrou no case 'corrida'. Chamando a função...");
+                    renderAbaCorrida();
+                    break;
+                case 'campeonato':
+                    console.log("[DEBUG] Entrou no case 'campeonato'. Chamando a função...");
+                    renderAbaCampeonato();
+                    break;
+                case 'negociacoes':
+                    console.log("[DEBUG] Entrou no case 'negociacoes'. Chamando a função...");
+                    renderAbaNegociacoes();
+                    break;
+                case 'autodromo':
+                    console.log("[DEBUG] Entrou no case 'autodromo'. Chamando a função...");
+                    renderAbaAutodromo();
+                    break;
+                case 'galeria':
+                    console.log("[DEBUG] Entrou no case 'galeria'. Chamando a função...");
+                    renderAbaGaleria();
+                    break;
+                case 'personalizacao':
+                    console.log("[DEBUG] Entrou no case 'personalizacao'. Chamando a função...");
+                    renderAbaPersonalizacao();
+                    break;
+                case 'marketing':
+                    // ESTE É O TESTE MAIS IMPORTANTE
+                    console.log("%c[DEBUG] Entrou no case 'marketing'. A próxima linha DEVE chamar a função de renderização.", "color: yellow; background-color: black;");
+                    renderAbaMarketing();
+                    break;
+            }
+            return;
         }
         if (target.matches('.modal-close-btn') || target.id === 'part-selector-modal' || target.id === 'project-modal') {
             closePartSelectorModal();
@@ -3808,6 +3806,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert("Por favor, insira uma quantidade válida.");
             }
+        } else if (action === 'liquidar-estoque') { // <-- ADICIONE ESTE BLOCO
+            liquidarEstoqueMarketing(target.dataset.itemNome);
         } else if (action === 'aumentar-icone' || action === 'diminuir-icone') {
             const nomeItem = target.dataset.itemNome;
             const itemJogo = gameState.marketing[nomeItem];
