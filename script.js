@@ -177,6 +177,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 119, nome: "Amaury Cordeel", idade: 25, habilidade: 85, consistencia: 88, gerenciamentoPneus: 82, salario: 13000, precoContrato: 250000, status: 'Disponível' },
         { id: 120, nome: "Cian Shields", idade: 26, habilidade: 86, consistencia: 85, gerenciamentoPneus: 78, salario: 12000, precoContrato: 350000, status: 'Disponível' },
         { id: 121, nome: "Sami Meguetounif", idade: 16, habilidade: 85, consistencia: 85, gerenciamentoPneus: 90, salario: 14000, precoContrato: 210000, status: 'Disponível' },
+        { id: 125, nome: "Luci Brit", idade: 16, habilidade: 87, consistencia: 86, gerenciamentoPneus: 88, salario: 14000, precoContrato: 210000, status: 'Disponível' },
+        { id: 126, nome: "C. Luck", idade: 16, habilidade: 87, consistencia: 86, gerenciamentoPneus: 88, salario: 14000, precoContrato: 210000, status: 'Disponível' },
+        { id: 127, nome: "G. Chaplin", idade: 16, habilidade: 87, consistencia: 86, gerenciamentoPneus: 88, salario: 14000, precoContrato: 215000, status: 'Disponível' },
+        { id: 128, nome: "GG Joker", idade: 16, habilidade: 85, consistencia: 86, gerenciamentoPneus: 86, salario: 14000, precoContrato: 200000, status: 'Disponível' },
+        { id: 129, nome: "King Princess", idade: 18, habilidade: 86, consistencia: 86, gerenciamentoPneus: 86, salario: 14000, precoContrato: 200000, status: 'Disponível' },
     ];
     const equipesIA = [
         { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 93, aerodinamica: 91, aderencia: 95, confiabilidade: 90 } },
@@ -339,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
         atualizarMercadoDePilotos(pilotosDoJogo);
 
         gameState = {
-            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 1500000, especialistas: [], emblema: {
+            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 2000000, especialistas: [], emblema: {
                 forma: 'circle.svg', // Nome do arquivo padrão
                 corForma: '#ff0000',
                 icone: 'asterik.svg',     // Nome do arquivo padrão
@@ -353,10 +358,14 @@ document.addEventListener('DOMContentLoaded', () => {
             projetosEmAndamento: [],
             patrocinio: { ofertas: [], ativos: [] },
             historicoAutodromos: {},
-            // --- INÍCIO DA MODIFICAÇÃO ---
 
-            galeria: { titulosConstrutores: 0, titulosPilotos: 0, hallDaFama: [], estatisticasPilotos: {} },
-            instalacoes: { // ADICIONE ESTE BLOCO
+            galeria: {
+                titulosConstrutores: [],
+                titulosPilotos: [],
+                hallDaFama: [],
+                estatisticasPilotos: {}
+            },
+            instalacoes: {
                 simulador: 0,
                 tunelDeVento: 0,
                 treinoDeBox: 0,
@@ -406,10 +415,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
-                if (!gameState.galeria) gameState.galeria = { titulosConstrutores: 0, titulosPilotos: 0, hallDaFama: [] };
+                if (!gameState.galeria) { // <-- INÍCIO DAS ALTERAÇÕES
+                    gameState.galeria = { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {} };
+                } else {
+                    // Converte contadores antigos para o novo formato de array
+                    if (typeof gameState.galeria.titulosConstrutores === 'number') {
+                        gameState.galeria.titulosConstrutores = [];
+                    }
+                    if (typeof gameState.galeria.titulosPilotos === 'number') {
+                        gameState.galeria.titulosPilotos = [];
+                    }
+                }
 
                 gameState.pilotos = gameState.pilotos.filter(p => p !== null && typeof p === 'object');
                 gameState.pilotos.forEach(piloto => {
+                    if (!piloto.campeonatosGanhos) { piloto.campeonatosGanhos = [];}
                     if (piloto.idade == null) piloto.idade = 28;
                     if (piloto.salario == null) piloto.salario = 50000;
                     if (piloto.precoContrato == null) piloto.precoContrato = 500000;
@@ -625,7 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
             gerenciamentoPneus: Math.floor(Math.random() * 16) + 60,
             salario: Math.floor(Math.random() * 20000) + 40000,
             precoContrato: Math.floor(Math.random() * 200000) + 400000,
-            status: 'Jogador'
+            status: 'Jogador',
+            campeonatosGanhos: []
         };
         novoPiloto.atributosBase = { habilidade: novoPiloto.habilidade, consistencia: novoPiloto.consistencia, gerenciamentoPneus: novoPiloto.gerenciamentoPneus };
         gameState.pilotos.push(novoPiloto);
@@ -654,9 +675,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const equipeDoPiloto = pilotoAposentado.status;
 
             if (equipeDoPiloto === 'Jogador') {
-                // Se o piloto do jogador se aposenta compulsoriamente
+                // Lógica para o piloto do jogador (já correta)
                 gameState.galeria.hallDaFama.push({
-                    piloto: JSON.parse(JSON.stringify(pilotoAposentado)), // CORREÇÃO: Salva o objeto dentro da chave 'piloto'
+                    piloto: JSON.parse(JSON.stringify(pilotoAposentado)),
                     anoAposentadoria: gameState.campeonato.ano,
                     emblemaNaEpoca: JSON.parse(JSON.stringify(gameState.escuderia.emblema))
                 });
@@ -668,19 +689,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert(`Um novo talento da sua academia, ${novoPiloto.nome}, assume o lugar!`);
                 }
             } else if (equipeDoPiloto !== 'Disponível' && equipeDoPiloto !== 'Indisponível') {
-                // --- NOVA LÓGICA PARA A I.A. CONTRATAR UM SUBSTITUTO ---
+
+                // <-- INÍCIO DA ALTERAÇÃO -->
+                // Adiciona o piloto de IA ao Hall da Fama antes de procurar um substituto.
+                gameState.galeria.hallDaFama.push({
+                    piloto: JSON.parse(JSON.stringify(pilotoAposentado)),
+                    anoAposentadoria: gameState.campeonato.ano
+                    // Pilotos de IA não possuem emblema, então a propriedade é omitida.
+                });
+                // <-- FIM DA ALTERAÇÃO -->
+
                 const equipeIA = equipesIA.find(e => e.nome === equipeDoPiloto);
                 if (equipeIA) {
                     const pilotosDeMercado = gameState.pilotos.filter(p => p.status === 'Disponível');
                     if (pilotosDeMercado.length > 0) {
-                        // Contrata o melhor piloto disponível (baseado em habilidade)
                         pilotosDeMercado.sort((a, b) => b.habilidade - a.habilidade);
                         const novoPilotoContratado = pilotosDeMercado[0];
 
-                        // Atualiza o status do novo piloto
                         novoPilotoContratado.status = equipeIA.nome;
 
-                        // Substitui o ID do piloto na equipe de IA
                         if (equipeIA.piloto1Id === pilotoAposentado.id) {
                             equipeIA.piloto1Id = novoPilotoContratado.id;
                         } else {
@@ -694,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Remove o piloto aposentado da lista principal do jogo
+            // Remove o piloto aposentado da lista principal de pilotos ativos
             gameState.pilotos = gameState.pilotos.filter(p => p.id !== pilotoAposentado.id);
         });
     }
@@ -2106,18 +2133,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const equipeCampe = classificacaoConstrutores[0];
         const pilotoCampeao = classificacaoPilotos[0];
 
-        // FIX: Check if a champion team exists before trying to access its properties
         if (equipeCampe && equipeCampe.equipe === gameState.escuderia.nome) {
-            gameState.galeria.titulosConstrutores++;
+            gameState.galeria.titulosConstrutores.push(gameState.campeonato.ano);
             alert(`🏆 PARABÉNS! Sua equipe, ${gameState.escuderia.nome}, é a CAMPEÃ DE CONSTRUTORES de ${gameState.campeonato.ano}!`);
         }
 
-
-        // FIX: Check if a champion pilot exists before trying to access their properties
         if (pilotoCampeao) {
             const pilotoDaCasa = gameState.pilotos.find(p => p.nome === pilotoCampeao.piloto && p.status === 'Jogador');
             if (pilotoDaCasa) {
-                gameState.galeria.titulosPilotos++;
+                gameState.galeria.titulosPilotos.push(gameState.campeonato.ano);
+                pilotoDaCasa.campeonatosGanhos.push(gameState.campeonato.ano);
                 alert(`🏆 INCRÍVEL! Seu piloto, ${pilotoCampeao.piloto}, é o CAMPEÃO MUNDIAL DE PILOTOS de ${gameState.campeonato.ano}!`);
             }
         }
@@ -2129,13 +2154,37 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Parabéns pelo ${nossaPosicao}º lugar no Campeonato de Construtores! Você ganhou um bônus de R$ ${bonus[nossaPosicao].toLocaleString('pt-BR')}!`);
         }
 
+        // <-- INÍCIO DA NOVA LÓGICA DE CONCLUSÃO DE PROJETOS -->
+        const projetosConcluidosNaPreTemporada = [];
+        gameState.projetosEmAndamento.forEach(projeto => {
+            if (projeto.status === 'em_andamento') {
+                projeto.duracaoRestante = 0;
+                projeto.status = 'concluido';
+                projeto.pecaConcluida = criarPecaDeProjeto(projeto);
+                if (projeto.pecaConcluida) {
+                    projetosConcluidosNaPreTemporada.push(projeto.pecaConcluida.nome);
+                }
+            }
+        });
+
+        if (projetosConcluidosNaPreTemporada.length > 0) {
+            setTimeout(() => {
+                alert(
+                    "Desenvolvimento na Pré-Temporada!\n\n" +
+                    "Durante o recesso, sua equipe de P&D finalizou os seguintes projetos:\n\n" +
+                    `- ${projetosConcluidosNaPreTemporada.join('\n- ')}\n\n` +
+                    "As novas peças estão disponíveis na aba Escuderia."
+                );
+            }, 1500); // Pequeno delay para não sobrepor outros alertas
+        }
+        // <-- FIM DA NOVA LÓGICA -->
+
         processarReajusteSalarialEspecialistas();
         processarEnvelhecimentoPilotos();
         atualizarMercadoDePilotos(gameState.pilotos);
         alert("O mercado de pilotos foi atualizado para a nova temporada!");
 
         gameState.campeonato.ano++;
-        // CRITICAL FIX: Reset the race index for the new season
         gameState.campeonato.corridaAtualIndex = 0;
         gameState.campeonato.classificacaoPilotos = [];
         gameState.campeonato.classificacaoConstrutores = [];
@@ -3522,7 +3571,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!nomeEscuderiaEl || !trofeusContainer || !hallDaFamaContainer || !estatisticasTabelaBody) return;
 
-        // Renderiza o emblema principal da galeria
         const emblemaGaleriaContainer = document.getElementById('emblema-display-galeria');
         if (emblemaGaleriaContainer) {
             renderizarEmblema(emblemaGaleriaContainer, gameState.escuderia.emblema);
@@ -3532,20 +3580,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!gameState.galeria.hallDaFama || gameState.galeria.hallDaFama.length === 0) {
             hallDaFamaContainer.innerHTML = '<h3>Hall da Fama</h3><p>Nenhum piloto foi adicionado ao Hall da Fama ainda.</p>';
         } else {
-            // 1. Cria o HTML com os placeholders para os emblemas
             hallDaFamaContainer.innerHTML = `
                 <h3>Hall da Fama</h3>
-                ${gameState.galeria.hallDaFama.map((p, index) => `
+                ${gameState.galeria.hallDaFama.map((p, index) => {
+                    // Cria uma string de troféus baseada no histórico do piloto
+                    const trofeusPiloto = p.piloto.campeonatosGanhos ? p.piloto.campeonatosGanhos.map(() => '🏆').join(' ') : '';
+
+                    return `
                     <div class="piloto-fama">
                         <div id="emblema-hof-${index}" class="emblema-hof"></div>
                         <div class="piloto-fama-info">
-                            <h4>${p.piloto.nome}</h4> <p>Aposentou-se em ${p.anoAposentadoria}</p>
+                            <h4>${p.piloto.nome} <span class="trofeus-piloto">${trofeusPiloto}</span></h4>
+                            <p>Aposentou-se em ${p.anoAposentadoria}</p>
                         </div>
                     </div>
-                `).join('')}
+                `}).join('')}
             `;
 
-            // 2. Percorre novamente e "desenha" cada emblema histórico no seu placeholder
             gameState.galeria.hallDaFama.forEach((p, index) => {
                 if (p.emblemaNaEpoca) {
                     const container = document.getElementById(`emblema-hof-${index}`);
@@ -3556,7 +3607,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // --- Renderiza os troféus e estatísticas ---
+        // --- LÓGICA DO GABINETE DE TROFÉUS ATUALIZADA ---
         nomeEscuderiaEl.textContent = gameState.escuderia.nome;
         trofeusContainer.innerHTML = `
             <h3>Gabinete de Troféus</h3>
@@ -3564,12 +3615,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div>
                     <div class="trofeu">🏆</div>
                     <div>Construtores</div>
-                    <div class="trofeu-contador">${gameState.galeria.titulosConstrutores || 0}</div>
+                    <div class="trofeu-contador">${gameState.galeria.titulosConstrutores.length || 0}</div>
+                    <div class="trofeu-anos">${gameState.galeria.titulosConstrutores.join(', ') || 'Nenhum título'}</div>
                 </div>
                 <div>
                     <div class="trofeu">🏆</div>
                     <div>Pilotos</div>
-                    <div class="trofeu-contador">${gameState.galeria.titulosPilotos || 0}</div>
+                    <div class="trofeu-contador">${gameState.galeria.titulosPilotos.length || 0}</div>
+                    <div class="trofeu-anos">${gameState.galeria.titulosPilotos.join(', ') || 'Nenhum título'}</div>
                 </div>
             </div>
         `;

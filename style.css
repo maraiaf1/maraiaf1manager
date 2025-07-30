@@ -959,6 +959,18 @@ font-size: 0.8rem;
     margin-top: 0;
     color: #e10600;
 }
+.trofeu-anos {
+    font-size: 0.85em;
+    color: #6c757d; /* Cinza */
+    margin-top: 0.5rem;
+    min-height: 1.2em; /* Garante que o layout não quebre se não houver anos */
+}
+
+.trofeus-piloto {
+    margin-left: 0.5rem;
+    font-size: 0.8em;
+    vertical-align: middle;
+}
 
 #gabinete-trofeus .trofeu-container {
     display: flex;
