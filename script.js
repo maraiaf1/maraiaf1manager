@@ -1403,26 +1403,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // EM script.js
     async function iniciarSequenciaDeLargada(velocidade) {
-        // 1. Desabilita os controles de estratégia
+        // 1. Desabilita os controles
         document.querySelectorAll('.strategy-control').forEach(el => { el.disabled = true; });
 
-        // 2. Prepara os dados dos participantes (código inalterado)
         const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
         let participantesIniciais = [];
+
+        // --- INÍCIO DA LÓGICA À PROVA DE FALHAS ---
         gameState.carros.forEach(carro => {
+            // Pula iterações de carros que possam ser inválidos ou sem piloto
+            if (!carro || !carro.pilotoId) return;
+
             const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
             if (piloto) {
+                // Verificação de segurança: Se estrategia ou ers não existirem, usa um padrão.
+                // Isso impede o erro "JSON.parse('undefined')" de forma definitiva.
+                const estrategiaDoCarro = carro.estrategia || { pneuInicial: 'medio', paradas: [{ pararNaVolta: 25, colocarPneu: 'duro' }] };
+                const ersDoCarro = carro.ers || { bateria: 0, voltasParaCarregar: 4, cicloDeCarregamento: 0, ativo: false };
+
                 participantesIniciais.push({
                     piloto,
                     equipe: gameState.escuderia.nome,
                     isPlayer: true,
                     atributos: calcularAtributosCarro(carro),
-                    estrategia: JSON.parse(JSON.stringify(carro.estrategia)),
-                    pneuAtual: carro.estrategia.pneuInicial,
-                    ers: JSON.parse(JSON.stringify(carro.ers)) // <-- CORREÇÃO: Adicionada esta linha para copiar os dados do ERS
+                    estrategia: JSON.parse(JSON.stringify(estrategiaDoCarro)),
+                    pneuAtual: estrategiaDoCarro.pneuInicial,
+                    ers: JSON.parse(JSON.stringify(ersDoCarro))
                 });
             }
         });
+        // --- FIM DA LÓGICA À PROVA DE FALHAS ---
+
         equipesIA.forEach(equipe => {
             const piloto1 = gameState.pilotos.find(p => p.id === equipe.piloto1Id);
             const piloto2 = gameState.pilotos.find(p => p.id === equipe.piloto2Id);
@@ -1451,12 +1462,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         const gridDeLargada = participantesIniciais
-            // <-- CORREÇÃO: Adicionado o parâmetro final '0' para o bonusERS no qualify -->
             .map(p => ({ ...p, tempoQualy: calcularTempoVolta(p, pista, pneus.macio.multiplicadorPerformance, 0, 0, 0) }))
             .sort((a, b) => a.tempoQualy - b.tempoQualy);
         const dadosDaPole = { piloto: gridDeLargada[0].piloto.nome, tempo: gridDeLargada[0].tempoQualy };
 
-        // 3. Inicia a sequência de animações de pré-corrida
+        // 3. Inicia a sequência de animações
         const tituloEl = document.getElementById('corrida-titulo-pre-race');
         const gridContainer = document.getElementById('grid-formation-container');
         document.getElementById('race-options-container').classList.add('hidden');
@@ -1468,7 +1478,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         await animarLuzesDeLargada();
 
-        // --- 4. TRANSIÇÃO CORRETA DA UI ---
+        // 4. Transição da UI
         document.getElementById('info-pre-corrida-esquerda').classList.add('hidden');
         document.getElementById('info-pre-corrida-direita').classList.add('hidden');
         document.getElementById('pre-race-view').classList.add('hidden');
@@ -1477,7 +1487,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('live-race-view').classList.remove('hidden');
         document.getElementById('info-pre-corrida-esquerda').classList.remove('hidden');
         document.getElementById('info-pre-corrida-direita').classList.remove('hidden');
-
 
         // 5. Prepara os dados e inicia os loops da corrida
         const finalParticipants = gridDeLargada.map((p, index) => {
