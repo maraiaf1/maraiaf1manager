@@ -3589,8 +3589,9 @@ document.addEventListener('DOMContentLoaded', () => {
             hallDaFamaContainer.innerHTML = `
                 <h3>Hall da Fama</h3>
                 ${gameState.galeria.hallDaFama.map((p, index) => {
-                    // Cria uma string de troféus baseada no histórico do piloto
-                    const trofeusPiloto = p.piloto.campeonatosGanhos ? p.piloto.campeonatosGanhos.map(() => '🏆').join(' ') : '';
+                    // <-- ALTERAÇÃO AQUI -->
+                    // Agora, o map cria o troféu JUNTO com o ano da conquista.
+                    const trofeusPiloto = p.piloto.campeonatosGanhos ? p.piloto.campeonatosGanhos.map(ano => `🏆${ano}`).join(' ') : '';
 
                     return `
                     <div class="piloto-fama">
@@ -3613,7 +3614,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // --- LÓGICA DO GABINETE DE TROFÉUS ATUALIZADA ---
+        // --- LÓGICA DO GABINETE DE TROFÉUS (sem alteração) ---
         nomeEscuderiaEl.textContent = gameState.escuderia.nome;
         trofeusContainer.innerHTML = `
             <h3>Gabinete de Troféus</h3>
