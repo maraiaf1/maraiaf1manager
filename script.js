@@ -2916,34 +2916,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!meusPilotosContainer || !mercadoPilotosContainer || !gridAtivoContainer || !aposentadosContainer) return;
 
-        // Limpa todos os containers no início
+        // Limpa todos os containers no início para evitar duplicação
         meusPilotosContainer.innerHTML = '';
         mercadoPilotosContainer.innerHTML = '';
         gridAtivoContainer.innerHTML = '';
         aposentadosContainer.innerHTML = '';
 
-        const meusPilotos = gameState.pilotos.filter(p => p.status === 'Jogador');
-        const pilotoReserva = gameState.pilotos.find(p => p.status === 'Reserva');
-        const vagaNaEquipePrincipal = meusPilotos.length < 2;
-        const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
 
-        // --- LÓGICA UNIFICADA E CORRIGIDA PARA RENDERIZAR OS CARDS DA EQUIPE ---
+        // --- INÍCIO DA LÓGICA CORRIGIDA ---
+        // Agora a renderização é baseada na ordem do array de CARROS, que é a fonte da verdade.
 
-        // 1. Renderiza o Piloto 1 (ou sua vaga)
-        if (meusPilotos[0]) {
-            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(meusPilotos[0], 'Piloto 1');
+        // Renderiza o card do Carro 1
+        const carro1 = gameState.carros[0];
+        const pilotoCarro1 = carro1.pilotoId ? gameState.pilotos.find(p => p.id === carro1.pilotoId) : null;
+
+        if (pilotoCarro1) {
+            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(pilotoCarro1, 'Piloto 1');
         } else {
             meusPilotosContainer.innerHTML += '<div class="piloto-card" style="display: flex; align-items: center; justify-content: center; color: #888; border-style: dashed;"><h4>Vaga para Piloto 1</h4></div>';
         }
 
-        // 2. Renderiza o Piloto 2 (ou sua vaga)
-        if (meusPilotos[1]) {
-            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(meusPilotos[1], 'Piloto 2');
+        // Renderiza o card do Carro 2
+        const carro2 = gameState.carros[1];
+        const pilotoCarro2 = carro2.pilotoId ? gameState.pilotos.find(p => p.id === carro2.pilotoId) : null;
+
+        if (pilotoCarro2) {
+            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(pilotoCarro2, 'Piloto 2');
         } else {
             meusPilotosContainer.innerHTML += '<div class="piloto-card" style="display: flex; align-items: center; justify-content: center; color: #888; border-style: dashed;"><h4>Vaga para Piloto 2</h4></div>';
         }
 
-        // 3. Renderiza o Piloto Reserva (ou sua vaga)
+        // A lógica do Piloto Reserva e do Emblema continua a mesma
+        const pilotoReserva = gameState.pilotos.find(p => p.status === 'Reserva');
+        const vagaNaEquipePrincipal = !pilotoCarro1 || !pilotoCarro2;
+        const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
+
         if (pilotoReserva) {
             meusPilotosContainer.innerHTML += gerarCardPilotoHtml(pilotoReserva, 'Reserva', vagaNaEquipePrincipal);
         } else {
@@ -2954,14 +2961,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 4. Renderiza o card do Emblema
         meusPilotosContainer.innerHTML += `
             <div class="equipe-emblema-card">
                 <div id="emblema-display-pilotos-aba"></div>
             </div>
         `;
+        // --- FIM DA LÓGICA CORRIGIDA ---
 
-        // --- FIM DA LÓGICA UNIFICADA ---
 
         // Renderiza o resto das listas de pilotos (mercado, I.A., aposentados)
         const pilotosDeMercado = gameState.pilotos.filter(p => p.status === 'Disponível');
@@ -2983,15 +2989,6 @@ document.addEventListener('DOMContentLoaded', () => {
             aposentadosContainer.innerHTML = '<p style="text-align: center;">Nenhum piloto da sua equipe se aposentou ainda.</p>';
         }
 
-        // Renderiza os emblemas nos cards corretos (tanto nos cards dos pilotos quanto no card de emblema)
-        meusPilotos.forEach(piloto => {
-            const container = document.getElementById(`emblema-piloto-${piloto.id}`);
-            if (container) renderizarEmblema(container, gameState.escuderia.emblema);
-        });
-        if (pilotoReserva) {
-            const container = document.getElementById(`emblema-piloto-${pilotoReserva.id}`);
-            if (container) renderizarEmblema(container, gameState.escuderia.emblema);
-        }
         const emblemaContainerPrincipal = document.getElementById('emblema-display-pilotos-aba');
         if (emblemaContainerPrincipal) {
             renderizarEmblema(emblemaContainerPrincipal, gameState.escuderia.emblema);
