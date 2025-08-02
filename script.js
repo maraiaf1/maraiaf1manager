@@ -1413,6 +1413,78 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
+    function desbloquearItemMarketing(nomeItem) {
+    const itemJogo = gameState.marketing[nomeItem];
+    const itemCatalogo = catalogoMarketing[nomeItem];
+
+    if (!itemJogo || !itemCatalogo) {
+        alert("Erro: Item de marketing não encontrado!");
+        return;
+    }
+
+    const custoDesbloqueio = itemCatalogo.custo_desbloqueio;
+    if (gameState.escuderia.dinheiro < custoDesbloqueio) {
+        alert(`Dinheiro insuficiente! Custo para desbloquear: R$ ${custoDesbloqueio.toLocaleString('pt-BR')}`);
+        return;
+    }
+
+    if (confirm(`Deseja desbloquear "${nomeItem}" por R$ ${custoDesbloqueio.toLocaleString('pt-BR')}?`)) {
+        gameState.escuderia.dinheiro -= custoDesbloqueio;
+        itemJogo.desbloqueado = true;
+        alert(`"${nomeItem}" desbloqueado com sucesso!`);
+        updateUI();
+        saveGame();
+    }
+}
+
+    /**
+     * Produz uma quantidade de um item de marketing, cobrando o custo de produção.
+     */
+    function produzirItemMarketing(nomeItem, quantidadeStr) {
+        const quantidade = parseInt(quantidadeStr);
+        if (isNaN(quantidade) || quantidade <= 0) {
+            alert("Quantidade inválida.");
+            return;
+        }
+
+        const itemJogo = gameState.marketing[nomeItem];
+        const itemCatalogo = catalogoMarketing[nomeItem];
+
+        if (!itemJogo || !itemCatalogo) {
+            alert("Erro: Item de marketing não encontrado!");
+            return;
+        }
+
+        const custoTotal = quantidade * itemCatalogo.custo_producao;
+        if (gameState.escuderia.dinheiro < custoTotal) {
+            alert(`Dinheiro insuficiente! Custo total da produção: R$ ${custoTotal.toLocaleString('pt-BR')}`);
+            return;
+        }
+
+        gameState.escuderia.dinheiro -= custoTotal;
+        itemJogo.inventario += quantidade;
+
+        alert(`${quantidade.toLocaleString('pt-BR')} unidade(s) de "${nomeItem}" produzida(s) com sucesso!`);
+        updateUI();
+        saveGame();
+    }
+
+    /**
+     * Define o preço de venda de um item de marketing no estado do jogo.
+     */
+    function definirPrecoVendaMarketing(nomeItem, precoStr) {
+        const novoPreco = parseFloat(precoStr);
+        const itemJogo = gameState.marketing[nomeItem];
+        const itemCatalogo = catalogoMarketing[nomeItem];
+
+        if (!itemJogo || !itemCatalogo || isNaN(novoPreco)) return;
+
+        // Apenas atualiza se o preço for maior ou igual ao mínimo para evitar erros
+        if (novoPreco >= itemCatalogo.preco_venda_minimo) {
+            itemJogo.preco_venda_definido = novoPreco;
+            saveGame();
+        }
+    }
     function liquidarEstoqueMarketing(nomeItem) {
         const itemJogo = gameState.marketing[nomeItem];
         const itemCatalogo = catalogoMarketing[nomeItem];
