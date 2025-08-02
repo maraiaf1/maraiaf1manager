@@ -1795,3 +1795,56 @@ font-size: 0.8em;
     background-color: #00ff00; /* Verde brilhante para cheio/ativo */
     box-shadow: 0 0 10px #00ff00;
 }
+
+/* === ESTILOS PARA TELEMETRIA === */
+
+/* Botão na aba Campeonato */
+.btn-telemetria {
+    background-color: #6a0dad !important; /* Roxo */
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+    width: auto !important;
+    margin-top: 0.8rem;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Deixa o modal da telemetria mais largo */
+.modal-content.wide {
+    position: absolute; /* ou absolute, dependendo do seu layout */
+    top: 680px;
+    left: 47%;
+    transform: translateX(-50%);
+    max-width: 900px;
+    width: 90%;
+
+}
+
+/* Estilos para a tabela de dados da telemetria */
+.telemetry-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9em;
+}
+
+.telemetry-table th, .telemetry-table td {
+    border: 1px solid #ddd;
+    padding: 0.4rem;
+    text-align: center;
+}
+
+.telemetry-table th {
+    background-color: #f2f2f2;
+}
+
+.telemetry-table .lap-time {
+    font-size: 0.95em;
+}
+
+/* Ícone de pneu na tabela */
+.telemetry-table .tyre-indicator {
+    margin-right: 5px;
+}

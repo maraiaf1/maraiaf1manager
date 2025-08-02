@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F1 Manager</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="game-header">
@@ -299,7 +300,19 @@
     </div>
     <div id="chequered-flag-modal" class="hidden">
             <img src="img/Bandeirada1.png" alt="Bandeira Quadriculada">
+    </div>
+    <div id="telemetry-modal" class="hidden">
+        <div class="modal-content wide">
+            <span class="modal-close-btn">&times;</span>
+            <h3 id="telemetry-modal-title">Telemetria da Corrida</h3>
+
+            <div>
+                <canvas id="telemetry-chart"></canvas>
+            </div>
+
+            <div id="telemetry-table-container" class="margin-top-large"></div>
         </div>
+    </div>
 
 </body>
 </html>
