@@ -1781,7 +1781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function desenharCarros(ctx, participantes, pistaCoords, scaleX, scaleY) {
         // Validações iniciais para garantir que temos tudo para desenhar.
         if (!pistaCoords || pistaCoords.length === 0 || !participantes || participantes.length === 0) return;
-        const FATOR_DE_ESPALHAMENTO_VISUAL = 35;
+        const FATOR_DE_ESPALHAMENTO_VISUAL = 15;
 
         // A cada quadro, garante que a lista de participantes está ordenada do líder (menor tempo) para o último.
         participantes.sort((a, b) => {
