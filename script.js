@@ -891,6 +891,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const todosOsPneus = ['macio', 'medio', 'duro'];
         let numParadas;
         let perfilCorrida;
+
+        // Define o perfil da corrida baseado no número de voltas
         if (totalVoltas <= 50) {
             perfilCorrida = { umaParada: 0.20, duasParadas: 0.70, tresParadas: 0.10 };
         } else if (totalVoltas > 50 && totalVoltas <= 65) {
@@ -898,6 +900,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             perfilCorrida = { umaParada: 0.25, duasParadas: 0.25, tresParadas: 0.50 };
         }
+
+        // Decide o número de paradas
         const chance = Math.random();
         if (chance < perfilCorrida.duasParadas) {
             numParadas = 2;
@@ -906,36 +910,44 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             numParadas = 3;
         }
+
         const numStints = numParadas + 1;
         const pneusDaEstrategia = [];
-        let ultimoPneu = null;
-        for (let i = 0; i < numStints; i++) {
-            let pneuEscolhido;
-            const pneusDisponiveis = todosOsPneus.filter(p => p !== ultimoPneu);
-            pneuEscolhido = pneusDisponiveis[Math.floor(Math.random() * pneusDisponiveis.length)];
-            pneusDaEstrategia.push(pneuEscolhido);
-            ultimoPneu = pneuEscolhido;
+
+        // --- LÓGICA CORRIGIDA ---
+        if (numParadas === 0) {
+            // Corrida sem paradas, pode ser qualquer pneu, mas duro é o mais lógico.
+            pneusDaEstrategia.push('duro');
+        } else {
+            // Garante que pelo menos 2 tipos de pneus diferentes sejam usados.
+            // Pega 2 pneus obrigatórios diferentes.
+            const pneusObrigatorios = [...todosOsPneus].sort(() => 0.5 - Math.random()).slice(0, 2);
+            pneusDaEstrategia.push(...pneusObrigatorios);
+
+            // Preenche o resto dos stints com pneus aleatórios.
+            while (pneusDaEstrategia.length < numStints) {
+                pneusDaEstrategia.push(todosOsPneus[Math.floor(Math.random() * todosOsPneus.length)]);
+            }
+
+            // Embaralha a ordem dos pneus para criar mais variedade de estratégias
+            pneusDaEstrategia.sort(() => 0.5 - Math.random());
         }
-        const compostosUnicos = new Set(pneusDaEstrategia);
-        if (compostosUnicos.size < 2 && numParadas > 0) {
-            let pneuDeTroca;
-            do {
-                pneuDeTroca = todosOsPneus[Math.floor(Math.random() * todosOsPneus.length)];
-            } while (pneuDeTroca === pneusDaEstrategia[0]);
-            pneusDaEstrategia[pneusDaEstrategia.length - 1] = pneuDeTroca;
-        }
+        // --- FIM DA LÓGICA CORRIGIDA ---
+
         const estrategiaFinal = { pneuInicial: pneusDaEstrategia[0], paradas: [] };
         const duracaoTotalIdeal = pneusDaEstrategia.reduce((soma, pneu) => soma + pneus[pneu].duracaoIdeal, 0);
         let voltasAcumuladas = 0;
+
         for (let i = 0; i < numParadas; i++) {
             const pneuDoStint = pneusDaEstrategia[i];
             const proporcaoDoStint = pneus[pneuDoStint].duracaoIdeal / duracaoTotalIdeal;
             const voltasNoStint = Math.floor(totalVoltas * proporcaoDoStint);
             voltasAcumuladas += voltasNoStint;
-            const variacao = Math.floor(Math.random() * 3 - 1);
+            const variacao = Math.floor(Math.random() * 3 - 1); // pequena variação na volta da parada
             const pneuParaColocar = pneusDaEstrategia[i + 1];
-            estrategiaFinal.paradas.push({ pararNaVolta: voltasAcumuladas + variacao, colocarPneu: pneuParaColocar });
+            estrategiaFinal.paradas.push({ pararNaVolta: Math.max(1, voltasAcumuladas + variacao), colocarPneu: pneuParaColocar });
         }
+
         return estrategiaFinal;
     }
 
