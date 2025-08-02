@@ -756,7 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const multiplicadorBase = 1 + (projeto.nivelEspecialista * 0.03) + (novaPeca.nivel * 0.1);
             const fatorAleatorio = 1 + (Math.random() * 0.2 - 0.1);
             const novoValor = Math.round(novaPeca.atributos[attr] * multiplicadorBase * fatorAleatorio);
-            novaPeca.atributos[attr] = Math.min(novoValor, Math.round(pecaTemplate.atributos[attr] * 1.5));
+            novaPeca.atributos[attr] = Math.min(novoValor, Math.round(pecaTemplate.atributos[attr] * 1.1));
         }
         novaPeca.corridasUsadas = 0;
         novaPeca.atributosOriginais = JSON.parse(JSON.stringify(novaPeca.atributos));
