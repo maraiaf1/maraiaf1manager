@@ -1086,6 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return pista.tempoBaseVolta - fatorDesempenho - bonusHabilidade + penDesgaste + penCombustivel + fatorSorte - bonusERS;
     }
 
+
     function simularUmaVolta() {
         const agora = performance.now();
         raceData.intervaloReal = agora - timestampUltimaSimulacao;
@@ -1132,23 +1133,38 @@ document.addEventListener('DOMContentLoaded', () => {
             let fezPitStop = false;
             const pneuAntesDaVolta = p.pneuAtual;
 
+            // Calcula a penalidade de desgaste ANTES, para ser usada em ambos os casos (pit stop ou não)
+            const pneuAtual = pneus[p.pneuAtual];
+            const piloto = p.piloto;
+            const fatorGerenciamento = (1 - (piloto.gerenciamentoPneus / 300));
+            const desgasteFinal = pneuAtual.desgastePorVolta * fatorGerenciamento;
+
+            let penalidadeDesgaste;
+            const desgasteSofrido = 100 - p.durabilidadePneu;
+            if (desgasteSofrido <= 60) {
+                penalidadeDesgaste = desgasteSofrido * 0.01;
+            } else {
+                const desgasteExcedente = desgasteSofrido - 60;
+                penalidadeDesgaste = (60 * 0.01) + (Math.pow(desgasteExcedente, 1.5) * 0.01);
+            }
+
             const paradaInfo = p.estrategia.paradas[p.stintAtual];
+            const voltaDaUltimaParada = p.paradas.length > 0 ? p.estrategia.paradas.at(-1).pararNaVolta : 0;
+            const proximaParada = paradaInfo ? paradaInfo.pararNaVolta : raceData.totalVoltas;
+            const tamanhoStint = proximaParada - voltaDaUltimaParada;
+            const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
+            const penalidadeCombustivelAtualizada = p.penalidadeCombustivel * (1 - progressoStint);
+            // --- FIM DA CORREÇÃO ---
+
             if (paradaInfo && paradaInfo.pararNaVolta === raceData.voltaAtual) {
                 fezPitStop = true;
                 const reducaoPitStop = gameState.instalacoes.treinoDeBox * 0.5;
                 const tempoDePitFinal = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop);
-                const pneuAtual = pneus[p.pneuAtual];
-                const piloto = p.piloto;
-                const fatorGerenciamento = (1 - (piloto.gerenciamentoPneus / 300));
-                const desgasteFinal = pneuAtual.desgastePorVolta * fatorGerenciamento;
-                const penalidadeDesgaste = (100 - p.durabilidadePneu) * 0.03;
-                const voltaDaUltimaParada = p.paradas.length > 0 ? p.estrategia.paradas.at(-1).pararNaVolta : 0;
-                const proximaParada = paradaInfo ? paradaInfo.pararNaVolta : raceData.totalVoltas;
-                const tamanhoStint = proximaParada - voltaDaUltimaParada;
-                const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
-                const penalidadeCombustivelAtualizada = p.penalidadeCombustivel * (1 - progressoStint);
+
+                // Usa as penalidades já calculadas
                 let tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
                 tempoDaVoltaFinal = tempoDaVoltaBase + tempoDePitFinal;
+
                 p.duracaoVoltaEstimada = tempoDaVoltaFinal;
                 p.tempoTotal += tempoDaVoltaFinal;
                 p.ultimaVolta = `PIT STOP (${formatLapTime(tempoDaVoltaFinal)})`;
@@ -1167,17 +1183,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     return;
                 }
-                const pneuAtual = pneus[p.pneuAtual];
-                const piloto = p.piloto;
-                const fatorGerenciamento = (1 - (piloto.gerenciamentoPneus / 300));
-                const desgasteFinal = pneuAtual.desgastePorVolta * fatorGerenciamento;
-                const penalidadeDesgaste = (100 - p.durabilidadePneu) * 0.03;
-                const voltaDaUltimaParada = p.paradas.length > 0 ? p.estrategia.paradas.at(-1).pararNaVolta : 0;
-                const proximaParada = paradaInfo ? paradaInfo.pararNaVolta : raceData.totalVoltas;
-                const tamanhoStint = proximaParada - voltaDaUltimaParada;
-                const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
-                const penalidadeCombustivelAtualizada = p.penalidadeCombustivel * (1 - progressoStint);
+
+                // Usa as penalidades já calculadas
                 tempoDaVoltaFinal = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
+
                 p.duracaoVoltaEstimada = tempoDaVoltaFinal;
                 if (tempoDaVoltaFinal < raceData.melhorVolta) { raceData.melhorVolta = tempoDaVoltaFinal; raceData.pilotoMelhorVolta = p.piloto.nome; }
                 if (tempoDaVoltaFinal < p.melhorVoltaPessoal) { p.melhorVoltaPessoal = tempoDaVoltaFinal; }
