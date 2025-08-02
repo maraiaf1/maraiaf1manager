@@ -2,18 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. DADOS GLOBAIS ---
     const catalogoDePecas = {
-        50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1', nivel: 1, atributos: { potencia: 45, confiabilidade: 75 } },
-        2: { id: 2, tipo: 'Motor', nome: 'Motor Reforçado V6', nivel: 2, atributos: { potencia: 48, confiabilidade: 79 } },
+        50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1.0', nivel: 1, atributos: { potencia: 45, confiabilidade: 75 } },
+        2: { id: 2, tipo: 'Motor', nome: 'Motor Reforçado V2.0', nivel: 2, atributos: { potencia: 48, confiabilidade: 79 } },
         3: { id: 3, tipo: 'Motor', nome: 'Motor Reforçado D-5+1', nivel: 2, atributos: { potencia: 50, confiabilidade: 79 } },
-        1: { id: 1, tipo: 'Motor', nome: 'Motor Padrão V6', nivel: 3, atributos: { potencia: 52, confiabilidade: 81 } },
-        12: { id: 12, tipo: 'Motor', nome: 'Motor Padrão V5 Sport', nivel: 4, atributos: { potencia: 55, confiabilidade: 83 } },
+        1: { id: 1, tipo: 'Motor', nome: 'Motor Padrão V3', nivel: 3, atributos: { potencia: 52, confiabilidade: 81 } },
+        12: { id: 12, tipo: 'Motor', nome: 'Motor Padrão V4 Sport', nivel: 4, atributos: { potencia: 55, confiabilidade: 83 } },
         13: { id: 13, tipo: 'Motor', nome: 'Motor Especial V6 Sport', nivel: 5, atributos: { potencia: 65, confiabilidade: 82 } },
         14: { id: 14, tipo: 'Motor', nome: 'Motor Power Sport', nivel: 6, atributos: { potencia: 70, confiabilidade: 83 } },
-        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V6', nivel: 6, atributos: { potencia: 75, confiabilidade: 84 } },
-        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo', nivel: 7, atributos: { potencia: 80, confiabilidade: 88 } },
-        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx', nivel: 8, atributos: { potencia: 84, confiabilidade: 86 } },
+        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V8', nivel: 6, atributos: { potencia: 75, confiabilidade: 84 } },
+        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo NB', nivel: 7, atributos: { potencia: 80, confiabilidade: 88 } },
+        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 84, confiabilidade: 86 } },
         17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 87, confiabilidade: 89 } },
-        18: { id: 18, tipo: 'Motor', nome: 'Motor SNx', nivel: 10, atributos: { potencia: 90, confiabilidade: 88 } },
+        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 90, confiabilidade: 88 } },
         40: { id: 40, tipo: 'Suspensão', nome: 'Suspensão Simples', nivel: 1, atributos: { aderencia: 40, confiabilidade: 80 } },
         51: { id: 51, tipo: 'Suspensão', nome: 'Suspensão Simples V2', nivel: 2, atributos: { aderencia: 51, confiabilidade: 83 } },
         52: { id: 52, tipo: 'Suspensão', nome: 'Suspensão Simples V3', nivel: 3, atributos: { aderencia: 52, confiabilidade: 85 } },
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         53: { id: 53, tipo: 'Suspensão', nome: 'Suspensão DC', nivel: 7, atributos: { aderencia: 67, confiabilidade: 89 } },
         28: { id: 28, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 8, atributos: { aderencia: 70, confiabilidade: 90 } },
         31: { id: 31, tipo: 'Suspensão', nome: 'Suspensão TTz', nivel: 9, atributos: { aderencia: 71, confiabilidade: 90 } },
-        54: { id: 54, tipo: 'Suspensão', nome: 'Suspensão JTz', nivel: 10, atributos: { aderencia: 72, confiabilidade: 89 } },
+        54: { id: 54, tipo: 'Suspensão', nome: 'Suspensão TM86', nivel: 10, atributos: { aderencia: 72, confiabilidade: 89 } },
         55: { id: 55, tipo: 'Chassi', nome: 'Chassi XyX', nivel: 1, atributos: { aerodinamica: 9, aderencia: 13, confiabilidade: 75 } },
         10: { id: 10, tipo: 'Chassi', nome: 'Chassi Básico', nivel: 2, atributos: { aerodinamica: 12, aderencia: 15, confiabilidade: 76 } },
         11: { id: 11, tipo: 'Chassi', nome: 'Chassi de Carbono', nivel: 3, atributos: { aerodinamica: 13, aderencia: 15, confiabilidade: 79 } },
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         56: { id: 56, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 7, atributos: { aerodinamica: 20, aderencia: 18, confiabilidade: 86} },
         57: { id: 57, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 8, atributos: { aerodinamica: 21, aderencia: 19, confiabilidade: 87 } },
         26: { id: 26, tipo: 'Chassi', nome: 'Chassi ProM', nivel: 9, atributos: { aerodinamica: 21, aderencia: 20, confiabilidade: 88 } },
-        58: { id: 58, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 10, atributos: { aerodinamica: 22, aderencia: 20, confiabilidade: 89 } },
+        58: { id: 58, tipo: 'Chassi', nome: 'Chassi XxX86', nivel: 10, atributos: { aerodinamica: 22, aderencia: 20, confiabilidade: 89 } },
         33: { id: 33, tipo: 'Asa Dianteira', nome: 'Asa T ProM', nivel: 1, atributos: { aerodinamica: 11, confiabilidade: 74 } },
         34: { id: 34, tipo: 'Asa Dianteira', nome: 'Asa G Pro', nivel: 2, atributos: { aerodinamica: 12, confiabilidade: 76 } },
         20: { id: 20, tipo: 'Asa Dianteira', nome: 'Asa Padrão', nivel: 3, atributos: { aerodinamica: 13, confiabilidade: 78 } },
@@ -111,8 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
         "GP de Abu Dhabi (Yas Marina)": [{ x: 360, y: 190 }, 	{ x: 360, y: 350 }, 	{ x: 370, y: 360 }, 	{ x: 420, y: 360 }, 	{ x: 430, y: 350 }, 	{ x: 440, y: 320 }, 	{ x: 450, y: 300 }, 	{ x: 470, y: 290 }, 	{ x: 490, y: 300 }, 	{ x: 520, y: 320 }, 	{ x: 540, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 630, y: 320 }, 	{ x: 630, y: 310 }, 	{ x: 620, y: 290 }, 	{ x: 330, y: 80 }, 	{ x: 330, y: 120 }, 	{ x: 300, y: 120 }, 	{ x: 270, y: 130 }, 	{ x: 240, y: 160 }, 	{ x: 170, y: 240 }, 	{ x: 130, y: 320 }, 	{ x: 120, y: 340 }, 	{ x: 120, y: 360 }, 	{ x: 130, y: 370 }, 	{ x: 150, y: 380 }, 	{ x: 170, y: 370 }, 	{ x: 180, y: 340 }, 	{ x: 180, y: 280 }, 	{ x: 190, y: 260 }, 	{ x: 210, y: 230 }, 	{ x: 240, y: 230 }, 	{ x: 250, y: 240 }, 	{ x: 250, y: 270 }, 	{ x: 260, y: 280 }, 	{ x: 280, y: 290 }, 	{ x: 290, y: 280 }, 	{ x: 290, y: 180 }, 	{ x: 300, y: 160 }, 	{ x: 340, y: 140 }, 	{ x: 350, y: 140 }, 	{ x: 360, y: 150 }, 	{ x: 360, y: 190 }]
     };
     const pneus = {
-        macio: { nome: 'Macio', multiplicadorPerformance: 1.41, desgastePorVolta: 4.5, duracaoIdeal: 0.33 },
-        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 2.6, duracaoIdeal: 0.50 },
+        macio: { nome: 'Macio', multiplicadorPerformance: 1.41, desgastePorVolta: 4.9, duracaoIdeal: 0.30 },
+        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 2.6, duracaoIdeal: 0.45 },
         duro: { nome: 'Duro', multiplicadorPerformance: 0.96, desgastePorVolta: 1.75, duracaoIdeal: 0.67 }
     };
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 19, nome: "Oscar Piastri", idade: 24, habilidade: 90, consistencia: 91, gerenciamentoPneus: 85, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 85 }, status: 'MacLaren', campeonatosGanhos: [] },
         { id: 20, nome: "Lando Norris", idade: 25, habilidade: 90, consistencia: 90, gerenciamentoPneus: 87, atributosBase: { habilidade: 90, consistencia: 90, gerenciamentoPneus: 87 }, status: 'MacLaren', campeonatosGanhos: [] },
         { id: 101, nome: "Lucas di Grassi", idade: 33, habilidade: 91, consistencia: 90, gerenciamentoPneus: 92, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 92 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 102, nome: "Felipe Drugovich", idade: 19, habilidade: 88, consistencia: 87, gerenciamentoPneus: 89, salario: 17000, precoContrato: 1500000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 102, nome: "Felipe Drugovich", idade: 19, habilidade: 87, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 1500000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 122, nome: "Dudu Barrichello", idade: 21, habilidade: 89, consistencia: 93, gerenciamentoPneus: 91, salario: 15000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 123, nome: "F. Barrichello", idade: 17, habilidade: 89, consistencia: 91, gerenciamentoPneus: 90, salario: 15000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 103, nome: "Pietro Fittipaldi", idade: 18, habilidade: 72, consistencia: 88, gerenciamentoPneus: 85, salario: 15000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
@@ -198,7 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'Bonés': { nome: 'Bonés', img: 'img/marketing/bones.png', custo_desbloqueio: 200000, custo_producao: 15, preco_venda_minimo: 30 },
         'Camisa': { nome: 'Camisa', img: 'img/marketing/camisa.png', custo_desbloqueio: 300000, custo_producao: 50, preco_venda_minimo: 75 },
         'Carro em miniatura': { nome: 'Carro em miniatura', img: 'img/marketing/miniatura.png', custo_desbloqueio: 500000, custo_producao: 80, preco_venda_minimo: 150 },
-        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 100000, preco_venda_minimo: 300000 }
+        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 100000, preco_venda_minimo: 300000 },
+        'Combo Presentes': { nome: 'Combo Presentes', img: 'img/marketing/combo.png', custo_desbloqueio: 5000000, custo_producao: 500000, preco_venda_minimo: 750000 }
     };
 
     const carIcon = new Image(); carIcon.src = 'img/carf1.png';
@@ -263,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 corIcone: '#030303',
                 escalaIcone: 0.7,
                 iconeNaFrente: true,
-                corFundo: '#f0f2f5'
+                corFundo: 'transparent'
                 }
             },
             campeonato: { ano: 2025, corridaAtualIndex: 0, resultadosCorridas: [], classificacaoPilotos: [], classificacaoConstrutores: [] },
@@ -284,6 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
                 'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
                 'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 300000, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 750000, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
             },
             pilotos: pilotosDoJogo,
             todasAsPecas: [
@@ -307,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function gerarPilotoSubstituto() {
-        const nomes = ["J. Santos", "M. Oliveira", "L. Pereira", "G. Almeida", "R. Costa"];
+        const nomes = ["T. Maraia", "J. Santos", "M. Oliveira", "L. Pereira", "G. Almeida", "R. Costa", "N. Bitencourt", "R. Ruffo"];
         const novoPiloto = {
             id: Date.now(),
             nome: `Rookie ${nomes[Math.floor(Math.random() * nomes.length)]}`,
@@ -411,6 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75 },
                         'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150 },
                         'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 300000 },
+                        'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 750000 },
                     };
                 }
                 if (!gameState.instalacoes) {
@@ -558,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 piloto.consistencia = Math.max(40, piloto.consistencia - (Math.floor(Math.random() * 3)));
                 piloto.gerenciamentoPneus = Math.max(40, piloto.gerenciamentoPneus - (Math.floor(Math.random() * 3)));
             }
-            if (piloto.idade >= 45) {
+            if (piloto.idade >= 44) {
                 pilotosAposentados.push(piloto);
             }
         });
@@ -623,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function gerarOfertasDePatrocinio() {
         const espacosDisponiveis = 4 - (gameState.patrocinio.ativos.length + gameState.patrocinio.ofertas.length);
-        if (espacosDisponiveis <= 0 || Math.random() > 0.75) return;
+        if (espacosDisponiveis <= 0 || Math.random() > 0.80) return;
         const classificacao = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
         const nossaPosicao = classificacao.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
         let reputacao = nossaPosicao > 0 ? Math.max(1, 6 - nossaPosicao) : 1;
@@ -1102,8 +1105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (p.ers.ativo) {
                     const nivelERS = gameState.instalacoes.ers;
                     if (nivelERS === 1) bonusERS = 0.300;
-                    else if (nivelERS === 2) bonusERS = 0.600;
-                    else if (nivelERS >= 3) bonusERS = 1.000;
+                    else if (nivelERS === 2) bonusERS = 0.500;
+                    else if (nivelERS >= 3) bonusERS = 0.850;
                     if (bonusERS > 0) p.ersBonusAtivoNestaVolta = true;
                     p.ers.cicloDeCarregamento--;
                     p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;
@@ -1331,7 +1334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const nossaPosicao = classificacaoConstrutores.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
-        const bonus = { 1: 5000000, 2: 3500000, 3: 2500000, 4: 1500000, 5: 1000000 };
+        const bonus = { 1: 7000000, 2: 4500000, 3: 3500000, 4: 2500000, 5: 1000000 };
         if (nossaPosicao > 0 && bonus[nossaPosicao]) {
             gameState.escuderia.dinheiro += bonus[nossaPosicao];
             alert(`Parabéns pelo ${nossaPosicao}º lugar no Campeonato de Construtores! Você ganhou um bônus de R$ ${bonus[nossaPosicao].toLocaleString('pt-BR')}!`);
@@ -1570,6 +1573,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         modDesempenho = 1.0;
                         modPreco = 1.0;
                     }
+                } else if (nomeItem === "Combo Presentes") {
+                    chanceBase = 0.01;
+                    if (melhorPosicaoCorrida <= 5) {
+                        chanceBase = 0.60;
+                        modDesempenho = 1.0;
+                        modPreco = 1.0;
+                    }
                 }
                 let chanceFinalVenda = Math.min(chanceBase * modPreco * modDesempenho, 0.95);
                 const bonusVendas = 1.0 + (gameState.instalacoes.marketing * 0.05);
@@ -1602,15 +1612,17 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.pilotos.forEach(piloto => {
             const isPilotoTreinavel = piloto.status === 'Jogador' || piloto.status === 'Reserva';
             if (piloto.idade < 16 || piloto.idade > 30 || !isPilotoTreinavel) return;
-            const crescimentoBase = Math.random() * 0.50;
+            const crescimentoBase = Math.random() * 0.35;
             let bonusDesempenho = 0;
             const ultimaCorrida = gameState.campeonato.resultadosCorridas.at(-1);
             if (ultimaCorrida && piloto.status === 'Jogador') {
                 const posicao = ultimaCorrida.resultadoFinal.findIndex(res => res.piloto.id === piloto.id) + 1;
                 if (posicao > 0) {
-                    if (posicao === 1) bonusDesempenho = Math.random() * 0.4 + 0.2;
-                    else if (posicao <= 3) bonusDesempenho = Math.random() * 0.3;
+                    if (posicao === 1) bonusDesempenho = Math.random() * 0.3 + 0.2;
+                    else if (posicao <= 3) bonusDesempenho = Math.random() * 0.2;
                     else if (posicao <= 10) bonusDesempenho = Math.random() * 0.15;
+                    else if (posicao <= 15) bonusDesempenho = Math.random() * 0.1;
+                    else if (posicao <= 22) bonusDesempenho = Math.random() * 0.075;
                 }
             }
             let crescimentoTotal = crescimentoBase + bonusDesempenho;
@@ -1622,9 +1634,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (crescimentoTotal > 0) {
                 const atributosAntigos = { hab: piloto.habilidade, con: piloto.consistencia, ger: piloto.gerenciamentoPneus };
-                piloto.habilidade = Math.min(98, piloto.habilidade + crescimentoTotal * (Math.random() * 0.5 + 0.75));
-                piloto.consistencia = Math.min(98, piloto.consistencia + crescimentoTotal * (Math.random() * 0.4 + 0.4));
-                piloto.gerenciamentoPneus = Math.min(98, piloto.gerenciamentoPneus + crescimentoTotal * (Math.random() * 0.4 + 0.6));
+                piloto.habilidade = Math.min(97, piloto.habilidade + crescimentoTotal * (Math.random() * 0.5 + 0.75));
+                piloto.consistencia = Math.min(97, piloto.consistencia + crescimentoTotal * (Math.random() * 0.4 + 0.4));
+                piloto.gerenciamentoPneus = Math.min(97, piloto.gerenciamentoPneus + crescimentoTotal * (Math.random() * 0.4 + 0.6));
                 const detalhesMelhoria = [];
                 if (Math.floor(piloto.habilidade) > Math.floor(atributosAntigos.hab)) detalhesMelhoria.push(`  Hab: ${Math.floor(atributosAntigos.hab)} -> ${Math.floor(piloto.habilidade)}`);
                 if (Math.floor(piloto.consistencia) > Math.floor(atributosAntigos.con)) detalhesMelhoria.push(`  Con: ${Math.floor(atributosAntigos.con)} -> ${Math.floor(piloto.consistencia)}`);
