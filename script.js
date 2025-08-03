@@ -1493,6 +1493,38 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGame();
     }
 
+
+    function melhorarInstalacao(instalacaoId) {
+        const instalacaoData = catalogoInstalacoes[instalacaoId];
+        if (!instalacaoData) {
+            alert("Erro: Instalação não encontrada!");
+            return;
+        }
+
+        const nivelAtual = gameState.instalacoes[instalacaoId];
+        const maxLevel = instalacaoData.custos.length - 1;
+
+        if (nivelAtual >= maxLevel) {
+            alert("Esta instalação já está no nível máximo!");
+            return;
+        }
+
+        const custoProximoNivel = instalacaoData.custos[nivelAtual + 1];
+        if (gameState.escuderia.dinheiro < custoProximoNivel) {
+            alert(`Dinheiro insuficiente! Custo para melhorar: R$ ${custoProximoNivel.toLocaleString('pt-BR')}`);
+            return;
+        }
+
+        if (confirm(`Deseja melhorar "${instalacaoData.nome}" para o Nível ${nivelAtual + 1} por R$ ${custoProximoNivel.toLocaleString('pt-BR')}?`)) {
+            gameState.escuderia.dinheiro -= custoProximoNivel;
+            gameState.instalacoes[instalacaoId]++;
+
+            alert(`"${instalacaoData.nome}" melhorada para o Nível ${nivelAtual + 1} com sucesso!`);
+            updateUI(); // Atualiza a interface para refletir a mudança
+            saveGame(); // Salva o progresso
+        }
+    }
+
     /**
      * Define o preço de venda de um item de marketing no estado do jogo.
      */
@@ -3367,13 +3399,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const corrida = gameState.campeonato.resultadosCorridas[raceIndex];
             const anoDaCorrida = corrida.ano || gameState.campeonato.ano;
             const custo = anoDaCorrida <= 2025 ? 1000 : 20000;
+
             if (gameState.escuderia.dinheiro >= custo) {
+                // Esta parte só é executada se o jogador TIVER dinheiro.
                 if (confirm(`Deseja comprar o relatório de telemetria desta corrida por R$ ${custo.toLocaleString('pt-BR')}?`)) {
                     gameState.escuderia.dinheiro -= custo;
                     openTelemetryModal(raceIndex);
                     renderEscuderia();
                 }
             } else {
+                // E esta parte é executada se o jogador NÃO TIVER dinheiro.
                 alert(`Dinheiro insuficiente! Custo do relatório: R$ ${custo.toLocaleString('pt-BR')}`);
             }
         }
