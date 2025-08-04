@@ -894,11 +894,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Define o perfil da corrida baseado no número de voltas
         if (totalVoltas <= 50) {
-            perfilCorrida = { umaParada: 0.20, duasParadas: 0.70, tresParadas: 0.10 };
+            perfilCorrida = { umaParada: 0.30, duasParadas: 0.65, tresParadas: 0.05 };
         } else if (totalVoltas > 50 && totalVoltas <= 65) {
-            perfilCorrida = { umaParada: 0.40, duasParadas: 0.50, tresParadas: 0.10 };
+            perfilCorrida = { umaParada: 0.10, duasParadas: 0.20, tresParadas: 0.70 };
         } else {
-            perfilCorrida = { umaParada: 0.25, duasParadas: 0.25, tresParadas: 0.50 };
+            perfilCorrida = { umaParada: 0.15, duasParadas: 0.05, tresParadas: 0.80 };
         }
 
         // Decide o número de paradas
@@ -1039,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 5. Prepara os dados e inicia os loops da corrida
         const finalParticipants = gridDeLargada.map((p, index) => {
-            const gridPenalty = index * 0.150;
+            const gridPenalty = index * 0.200;
 
             if (p.isPlayer) {
                 p.ers.bateria = 0;
@@ -1049,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.ers.ativo = false;
             }
 
-            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.6, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
+            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
         });
         raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole };
         redimensionarCanvas();
@@ -1117,9 +1117,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p.isPlayer && p.ers) {
                 if (p.ers.ativo) {
                     const nivelERS = gameState.instalacoes.ers;
-                    if (nivelERS === 1) bonusERS = 0.300;
+                    if (nivelERS === 1) bonusERS = 0.250;
                     else if (nivelERS === 2) bonusERS = 0.500;
-                    else if (nivelERS >= 3) bonusERS = 0.850;
+                    else if (nivelERS >= 3) bonusERS = 0.750;
                     if (bonusERS > 0) p.ersBonusAtivoNestaVolta = true;
                     p.ers.cicloDeCarregamento--;
                     p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;
@@ -1153,11 +1153,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let penalidadeDesgaste;
             const desgasteSofrido = 100 - p.durabilidadePneu;
-            if (desgasteSofrido <= 60) {
+            if (desgasteSofrido <= 65) {
                 penalidadeDesgaste = desgasteSofrido * 0.01;
             } else {
-                const desgasteExcedente = desgasteSofrido - 60;
-                penalidadeDesgaste = (60 * 0.01) + (Math.pow(desgasteExcedente, 1.5) * 0.01);
+                const desgasteExcedente = desgasteSofrido - 65;
+                penalidadeDesgaste = (65 * 0.01) + (Math.pow(desgasteExcedente, 1.5) * 0.01);
             }
 
             const paradaInfo = p.estrategia.paradas[p.stintAtual];
@@ -1183,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.pneuAtual = paradaInfo.colocarPneu;
                 p.stintAtual++;
                 p.durabilidadePneu = 100;
-                p.penalidadeCombustivel = 2.6;
+                p.penalidadeCombustivel = 2.8;
                 p.paradas++;
                 p.voltasNoPneuAtual = 1;
             } else {
