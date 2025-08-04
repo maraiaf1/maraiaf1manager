@@ -894,11 +894,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Define o perfil da corrida baseado no número de voltas
         if (totalVoltas <= 50) {
-            perfilCorrida = { umaParada: 0.30, duasParadas: 0.65, tresParadas: 0.05 };
+            perfilCorrida = { umaParada: 0.50, duasParadas: 0.40, tresParadas: 0.10 };
         } else if (totalVoltas > 50 && totalVoltas <= 65) {
             perfilCorrida = { umaParada: 0.10, duasParadas: 0.20, tresParadas: 0.70 };
         } else {
-            perfilCorrida = { umaParada: 0.15, duasParadas: 0.05, tresParadas: 0.80 };
+            perfilCorrida = { umaParada: 0.15, duasParadas: 0.25, tresParadas: 0.60 };
         }
 
         // Decide o número de paradas
