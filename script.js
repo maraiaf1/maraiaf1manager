@@ -897,18 +897,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return atributosFinais;
     }
 
+
+
     function gerarEstrategiaIA(totalVoltas) {
-        const todosOsPneus = ['macio', 'medio', 'duro'];
-        let numParadas;
-        let perfilCorrida;
+    const todosOsPneus = ['macio', 'medio', 'duro'];
+    let numParadas;
+    let perfilCorrida;
 
         // Define o perfil da corrida baseado no número de voltas
         if (totalVoltas <= 50) {
-            perfilCorrida = { umaParada: 0.50, duasParadas: 0.40, tresParadas: 0.10 };
+            perfilCorrida = { umaParada: 0.30, duasParadas: 0.60, tresParadas: 0.10 };
         } else if (totalVoltas > 50 && totalVoltas <= 65) {
-            perfilCorrida = { umaParada: 0.10, duasParadas: 0.20, tresParadas: 0.70 };
+            perfilCorrida = { umaParada: 0.05, duasParadas: 0.10, tresParadas: 0.85 };
         } else {
-            perfilCorrida = { umaParada: 0.15, duasParadas: 0.25, tresParadas: 0.60 };
+            perfilCorrida = { umaParada: 0.10, duasParadas: 0.20, tresParadas: 0.70 };
         }
 
         // Decide o número de paradas
@@ -924,25 +926,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const numStints = numParadas + 1;
         const pneusDaEstrategia = [];
 
-        // --- LÓGICA CORRIGIDA ---
+        // --- LÓGICA APRIMORADA ---
         if (numParadas === 0) {
-            // Corrida sem paradas, pode ser qualquer pneu, mas duro é o mais lógico.
             pneusDaEstrategia.push('duro');
+        } else if (numParadas === 3) {
+            // REGRA ESPECIAL PARA 3 PARADAS (4 STINTS)
+            // Força uma estratégia mais agressiva: 2 macios, 1 médio e apenas 1 duro.
+            pneusDaEstrategia.push('medio', 'macio', 'macio', 'medio');
+
+            // Embaralha a ordem para que a estratégia não seja sempre a mesma
+            pneusDaEstrategia.sort(() => 0.5 - Math.random());
+        } else if (numParadas === 1) {
+            // REGRA ESPECIAL PARA 1 PARADAS (2 STINTS)
+            // Força uma estratégia conservador: 1 médio e apenas 1 duro.
+            pneusDaEstrategia.push('duro', 'medio');
+
+            // Embaralha a ordem para que a estratégia não seja sempre a mesma
+            pneusDaEstrategia.sort(() => 0.5 - Math.random());
         } else {
-            // Garante que pelo menos 2 tipos de pneus diferentes sejam usados.
-            // Pega 2 pneus obrigatórios diferentes.
+            // Lógica padrão para 1 ou 2 paradas
             const pneusObrigatorios = [...todosOsPneus].sort(() => 0.5 - Math.random()).slice(0, 2);
             pneusDaEstrategia.push(...pneusObrigatorios);
 
-            // Preenche o resto dos stints com pneus aleatórios.
             while (pneusDaEstrategia.length < numStints) {
                 pneusDaEstrategia.push(todosOsPneus[Math.floor(Math.random() * todosOsPneus.length)]);
             }
-
-            // Embaralha a ordem dos pneus para criar mais variedade de estratégias
             pneusDaEstrategia.sort(() => 0.5 - Math.random());
         }
-        // --- FIM DA LÓGICA CORRIGIDA ---
+        // --- FIM DA LÓGICA APRIMORADA ---
 
         const estrategiaFinal = { pneuInicial: pneusDaEstrategia[0], paradas: [] };
         const duracaoTotalIdeal = pneusDaEstrategia.reduce((soma, pneu) => soma + pneus[pneu].duracaoIdeal, 0);
@@ -953,13 +964,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const proporcaoDoStint = pneus[pneuDoStint].duracaoIdeal / duracaoTotalIdeal;
             const voltasNoStint = Math.floor(totalVoltas * proporcaoDoStint);
             voltasAcumuladas += voltasNoStint;
-            const variacao = Math.floor(Math.random() * 3 - 1); // pequena variação na volta da parada
+            const variacao = Math.floor(Math.random() * 3 - 1);
             const pneuParaColocar = pneusDaEstrategia[i + 1];
             estrategiaFinal.paradas.push({ pararNaVolta: Math.max(1, voltasAcumuladas + variacao), colocarPneu: pneuParaColocar });
         }
 
         return estrategiaFinal;
     }
+
+
+
 
     async function iniciarSequenciaDeLargada(velocidade) {
         // 1. Desabilita os controles
