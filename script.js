@@ -111,9 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
         "GP de Abu Dhabi (Yas Marina)": [{ x: 360, y: 190 }, 	{ x: 360, y: 350 }, 	{ x: 370, y: 360 }, 	{ x: 420, y: 360 }, 	{ x: 430, y: 350 }, 	{ x: 440, y: 320 }, 	{ x: 450, y: 300 }, 	{ x: 470, y: 290 }, 	{ x: 490, y: 300 }, 	{ x: 520, y: 320 }, 	{ x: 540, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 630, y: 320 }, 	{ x: 630, y: 310 }, 	{ x: 620, y: 290 }, 	{ x: 330, y: 80 }, 	{ x: 330, y: 120 }, 	{ x: 300, y: 120 }, 	{ x: 270, y: 130 }, 	{ x: 240, y: 160 }, 	{ x: 170, y: 240 }, 	{ x: 130, y: 320 }, 	{ x: 120, y: 340 }, 	{ x: 120, y: 360 }, 	{ x: 130, y: 370 }, 	{ x: 150, y: 380 }, 	{ x: 170, y: 370 }, 	{ x: 180, y: 340 }, 	{ x: 180, y: 280 }, 	{ x: 190, y: 260 }, 	{ x: 210, y: 230 }, 	{ x: 240, y: 230 }, 	{ x: 250, y: 240 }, 	{ x: 250, y: 270 }, 	{ x: 260, y: 280 }, 	{ x: 280, y: 290 }, 	{ x: 290, y: 280 }, 	{ x: 290, y: 180 }, 	{ x: 300, y: 160 }, 	{ x: 340, y: 140 }, 	{ x: 350, y: 140 }, 	{ x: 360, y: 150 }, 	{ x: 360, y: 190 }]
     };
     const pneus = {
-        macio: { nome: 'Macio', multiplicadorPerformance: 1.41, desgastePorVolta: 4.9, duracaoIdeal: 0.30 },
-        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 3.1, duracaoIdeal: 0.45 },
-        duro: { nome: 'Duro', multiplicadorPerformance: 0.96, desgastePorVolta: 1.9, duracaoIdeal: 0.60 }
+        macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.9, duracaoIdeal: 0.30 },
+        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 2.9, duracaoIdeal: 0.45 },
+        duro: { nome: 'Duro', multiplicadorPerformance: 0.90, desgastePorVolta: 1.9, duracaoIdeal: 0.60 }
     };
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
     const especialistaHabilidades = {
@@ -618,6 +618,67 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             gameState.pilotos = gameState.pilotos.filter(p => p.id !== pilotoAposentado.id);
         });
+    }
+
+
+    /**
+     * FORÇA EQUIPES DE IA COM VAGAS ABERTAS A CONTRATAREM O MELHOR PILOTO DISPONÍVEL NO MERCADO.
+     * Esta é uma função de manutenção para ser executada manualmente via console.
+     */
+    function forcarContratacaoIA() {
+        console.log("Iniciando verificação de vagas em equipes de IA...");
+
+        const equipesComVagas = equipesIA.filter(equipe => {
+            const piloto1Existe = gameState.pilotos.some(p => p.id === equipe.piloto1Id);
+            const piloto2Existe = gameState.pilotos.some(p => p.id === equipe.piloto2Id);
+            // Retorna true se uma das vagas estiver em aberto (piloto não existe na lista principal)
+            return !piloto1Existe || !piloto2Existe;
+        });
+
+        if (equipesComVagas.length === 0) {
+            console.log("Nenhuma vaga encontrada. Todas as equipes de IA estão com 2 pilotos.");
+            return;
+        }
+
+        console.log(`Encontradas ${equipesComVagas.length} equipes com vagas.`);
+
+        const pilotosDeMercado = gameState.pilotos.filter(p => p.status === 'Disponível');
+
+        if (pilotosDeMercado.length < equipesComVagas.length) {
+            console.error("ERRO: Não há pilotos suficientes no mercado para preencher todas as vagas!");
+            alert("Não há pilotos 'Disponíveis' suficientes no mercado para preencher as vagas das equipes de IA.");
+            return;
+        }
+
+        // Ordena o mercado para pegar sempre o melhor piloto disponível
+        pilotosDeMercado.sort((a, b) => b.habilidade - a.habilidade);
+
+        equipesComVagas.forEach(equipe => {
+            const piloto1Existe = gameState.pilotos.some(p => p.id === equipe.piloto1Id);
+
+            // Pega o melhor piloto do topo da lista do mercado
+            const novoPilotoContratado = pilotosDeMercado.shift();
+
+            if (!piloto1Existe) {
+                console.log(`A vaga do Piloto 1 na ${equipe.nome} está aberta.`);
+                equipe.piloto1Id = novoPilotoContratado.id;
+            } else { // Se o piloto 1 existe, a vaga só pode ser do piloto 2
+                console.log(`A vaga do Piloto 2 na ${equipe.nome} está aberta.`);
+                equipe.piloto2Id = novoPilotoContratado.id;
+            }
+
+            // Atualiza o status do piloto contratado
+            novoPilotoContratado.status = equipe.nome;
+
+            const mensagem = `${equipe.nome} contratou ${novoPilotoContratado.nome} para preencher a vaga aberta!`;
+            console.log(mensagem);
+            alert(mensagem);
+        });
+
+        console.log("Processo de contratação forçada concluído. Atualizando a interface...");
+        updateUI(); // Atualiza a tela para mostrar o novo piloto na equipe
+        saveGame(); // Salva o estado do jogo com a nova contratação
+        console.log("Jogo salvo com o novo piloto.");
     }
 
     function atualizarMercadoDePilotos(pilotos) {
@@ -1403,8 +1464,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         processarReajusteSalarialEspecialistas();
-        processarEnvelhecimentoPilotos();
         atualizarMercadoDePilotos(gameState.pilotos);
+        processarEnvelhecimentoPilotos();
         alert("O mercado de pilotos foi atualizado para a nova temporada!");
 
         gameState.campeonato.ano++;
