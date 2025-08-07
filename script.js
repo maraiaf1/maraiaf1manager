@@ -1125,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (p.isPlayer) {
                 p.ers.bateria = 0;
-                p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 4;
+                p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 7;
                 p.ers.totalVoltasParaCarregar = p.ers.voltasParaCarregar;
                 p.ers.cicloDeCarregamento = 0;
                 p.ers.ativo = false;
@@ -1204,11 +1204,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (nivelERS >= 3) bonusERS = 0.750;
                     if (bonusERS > 0) p.ersBonusAtivoNestaVolta = true;
                     p.ers.cicloDeCarregamento--;
-                    p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;
+                    p.ers.bateria = (p.ers.cicloDeCarregamento / 2) * 100;
                     if (p.ers.cicloDeCarregamento <= 0) {
                         p.ers.ativo = false;
                         p.ers.bateria = 0;
-                        p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 4;
+                        p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 7;
                         p.ers.totalVoltasParaCarregar = p.ers.voltasParaCarregar;
                     }
                 } else {
@@ -1218,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (p.ers.voltasParaCarregar <= 0) {
                         p.ers.ativo = true;
                         p.ers.bateria = 100;
-                        p.ers.cicloDeCarregamento = 3;
+                        p.ers.cicloDeCarregamento = 2;
                     }
                 }
             }
