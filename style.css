@@ -754,7 +754,7 @@ font-size: 0.8rem;
     padding: 0.5rem; /* Opcional: melhora a aparência */
     text-align: center; /* Opcional: centraliza o texto */
     border-radius: 4px; /* Opcional: arredonda as bordas */
-    color: gray; /*Cor da fonte*/
+    color: black; /*Cor da fonte*/
 }
 .piloto-card {
     background-color: #fff;
