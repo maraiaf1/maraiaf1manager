@@ -621,11 +621,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    /**
-     * FORÇA EQUIPES DE IA COM VAGAS ABERTAS A CONTRATAREM O MELHOR PILOTO DISPONÍVEL NO MERCADO.
-     * Esta é uma função de manutenção para ser executada manualmente via console.
-     */
-    function forcarContratacaoIA() {
+
+    function forcarContratacaoIA() {  
         console.log("Iniciando verificação de vagas em equipes de IA...");
 
         const equipesComVagas = equipesIA.filter(equipe => {
