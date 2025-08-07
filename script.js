@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    function forcarContratacaoIA() {  
+    function forcarContratacaoIA() {
         console.log("Iniciando verificação de vagas em equipes de IA...");
 
         const equipesComVagas = equipesIA.filter(equipe => {
