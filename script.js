@@ -172,16 +172,16 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 125, nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 90, salario: 19000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
     ];
     const equipesIA = [
-        { nome: "Red Bull", cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 92, aerodinamica: 92, aderencia: 94, confiabilidade: 89 } },
-        { nome: "Mercedes", cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 89, aerodinamica: 89, aderencia: 89, confiabilidade: 86 } },
-        { nome: "Ferrari", cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 91, aerodinamica: 94, aderencia: 86, confiabilidade: 88 } },
-        { nome: "Sauber", cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 84, aerodinamica: 85, aderencia: 82, confiabilidade: 85 } },
-        { nome: "Aston Martin", cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 85, aerodinamica: 85, aderencia: 82, confiabilidade: 85 } },
-        { nome: "Alpine", cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 84, aerodinamica: 86, aderencia: 85, confiabilidade: 80 } },
-        { nome: "Haas", cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 79, aerodinamica: 85, aderencia: 82, confiabilidade: 80 } },
-        { nome: "RB", cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 86, aderencia: 86, confiabilidade: 80 } },
-        { nome: "Wilians", cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 88, aerodinamica: 87, aderencia: 89, confiabilidade: 80 } },
-        { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 92, aerodinamica: 91, aderencia: 95, confiabilidade: 90 } },
+        { nome: "Red Bull", cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 95, aerodinamica: 92, aderencia: 95, confiabilidade: 89 } },
+        { nome: "Mercedes", cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 92, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
+        { nome: "Ferrari", cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 93, aerodinamica: 94, aderencia: 95, confiabilidade: 88 } },
+        { nome: "Sauber", cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 89, aerodinamica: 85, aderencia: 89, confiabilidade: 85 } },
+        { nome: "Aston Martin", cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 89, aerodinamica: 88, aderencia: 86, confiabilidade: 85 } },
+        { nome: "Alpine", cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 87, aerodinamica: 86, aderencia: 85, confiabilidade: 80 } },
+        { nome: "Haas", cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 79, aerodinamica: 87, aderencia: 86, confiabilidade: 80 } },
+        { nome: "RB", cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
+        { nome: "Wilians", cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 88, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
+        { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 95, aerodinamica: 92, aderencia: 95, confiabilidade: 90 } },
     ];
 
     const catalogoMensagens = {
