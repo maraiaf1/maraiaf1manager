@@ -2,37 +2,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. DADOS GLOBAIS ---
     const catalogoDePecas = {
-        50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1.0', nivel: 1, atributos: { potencia: 45, confiabilidade: 75 } },
-        2: { id: 2, tipo: 'Motor', nome: 'Motor Reforçado V2.0', nivel: 2, atributos: { potencia: 48, confiabilidade: 79 } },
-        3: { id: 3, tipo: 'Motor', nome: 'Motor Reforçado D-5+1', nivel: 2, atributos: { potencia: 50, confiabilidade: 79 } },
-        1: { id: 1, tipo: 'Motor', nome: 'Motor Padrão V3', nivel: 3, atributos: { potencia: 52, confiabilidade: 81 } },
-        12: { id: 12, tipo: 'Motor', nome: 'Motor Padrão V4 Sport', nivel: 4, atributos: { potencia: 55, confiabilidade: 83 } },
-        13: { id: 13, tipo: 'Motor', nome: 'Motor Especial V6 Sport', nivel: 5, atributos: { potencia: 65, confiabilidade: 82 } },
-        14: { id: 14, tipo: 'Motor', nome: 'Motor Power Sport', nivel: 6, atributos: { potencia: 70, confiabilidade: 83 } },
-        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V8', nivel: 6, atributos: { potencia: 75, confiabilidade: 84 } },
-        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo NB', nivel: 7, atributos: { potencia: 80, confiabilidade: 88 } },
-        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 84, confiabilidade: 86 } },
-        17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 87, confiabilidade: 89 } },
-        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 90, confiabilidade: 88 } },
+        50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1.0', nivel: 1, atributos: { potencia: 30, confiabilidade: 75 } },
+        2: { id: 2, tipo: 'Motor', nome: 'Motor Reforçado V2.0', nivel: 2, atributos: { potencia: 35, confiabilidade: 79 } },
+        3: { id: 3, tipo: 'Motor', nome: 'Motor Reforçado D-5+1', nivel: 2, atributos: { potencia: 40, confiabilidade: 79 } },
+        1: { id: 1, tipo: 'Motor', nome: 'Motor Padrão V3', nivel: 3, atributos: { potencia: 42, confiabilidade: 81 } },
+        12: { id: 12, tipo: 'Motor', nome: 'Motor Padrão V4 Sport', nivel: 4, atributos: { potencia: 45, confiabilidade: 83 } },
+        13: { id: 13, tipo: 'Motor', nome: 'Motor Especial V6 Sport', nivel: 5, atributos: { potencia: 55, confiabilidade: 82 } },
+        14: { id: 14, tipo: 'Motor', nome: 'Motor Power Sport', nivel: 6, atributos: { potencia: 60, confiabilidade: 83 } },
+        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V8', nivel: 6, atributos: { potencia: 70, confiabilidade: 84 } },
+        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo NB', nivel: 7, atributos: { potencia: 75, confiabilidade: 88 } },
+        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 79, confiabilidade: 86 } },
+        17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 82, confiabilidade: 89 } },
+        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 88, confiabilidade: 88 } },
         40: { id: 40, tipo: 'Suspensão', nome: 'Suspensão Simples', nivel: 1, atributos: { aderencia: 40, confiabilidade: 80 } },
-        51: { id: 51, tipo: 'Suspensão', nome: 'Suspensão Simples V2', nivel: 2, atributos: { aderencia: 51, confiabilidade: 83 } },
-        52: { id: 52, tipo: 'Suspensão', nome: 'Suspensão Simples V3', nivel: 3, atributos: { aderencia: 52, confiabilidade: 85 } },
-        4: { id: 4, tipo: 'Suspensão', nome: 'Suspensão de Competição', nivel: 4, atributos: { aderencia: 53, confiabilidade: 87 } },
-        29: { id: 29, tipo: 'Suspensão', nome: 'Suspensão M-Pro', nivel: 5, atributos: { aderencia: 59, confiabilidade: 89 } },
-        27: { id: 27, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 6, atributos: { aderencia: 63, confiabilidade: 90 } },
-        53: { id: 53, tipo: 'Suspensão', nome: 'Suspensão DC', nivel: 7, atributos: { aderencia: 67, confiabilidade: 89 } },
-        28: { id: 28, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 8, atributos: { aderencia: 70, confiabilidade: 90 } },
-        31: { id: 31, tipo: 'Suspensão', nome: 'Suspensão TTz', nivel: 9, atributos: { aderencia: 71, confiabilidade: 90 } },
+        51: { id: 51, tipo: 'Suspensão', nome: 'Suspensão Simples V2', nivel: 2, atributos: { aderencia: 43, confiabilidade: 83 } },
+        52: { id: 52, tipo: 'Suspensão', nome: 'Suspensão Simples V3', nivel: 3, atributos: { aderencia: 46, confiabilidade: 85 } },
+        4: { id: 4, tipo: 'Suspensão', nome: 'Suspensão de Competição', nivel: 4, atributos: { aderencia: 50, confiabilidade: 87 } },
+        29: { id: 29, tipo: 'Suspensão', nome: 'Suspensão M-Pro', nivel: 5, atributos: { aderencia: 53, confiabilidade: 89 } },
+        27: { id: 27, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 6, atributos: { aderencia: 57, confiabilidade: 90 } },
+        53: { id: 53, tipo: 'Suspensão', nome: 'Suspensão DC', nivel: 7, atributos: { aderencia: 61, confiabilidade: 89 } },
+        28: { id: 28, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 8, atributos: { aderencia: 65, confiabilidade: 90 } },
+        31: { id: 31, tipo: 'Suspensão', nome: 'Suspensão TTz', nivel: 9, atributos: { aderencia: 70, confiabilidade: 90 } },
         54: { id: 54, tipo: 'Suspensão', nome: 'Suspensão TM86', nivel: 10, atributos: { aderencia: 72, confiabilidade: 89 } },
-        55: { id: 55, tipo: 'Chassi', nome: 'Chassi XyX', nivel: 1, atributos: { aerodinamica: 9, aderencia: 13, confiabilidade: 75 } },
-        10: { id: 10, tipo: 'Chassi', nome: 'Chassi Básico', nivel: 2, atributos: { aerodinamica: 12, aderencia: 15, confiabilidade: 76 } },
-        11: { id: 11, tipo: 'Chassi', nome: 'Chassi de Carbono', nivel: 3, atributos: { aerodinamica: 13, aderencia: 15, confiabilidade: 79 } },
-        32: { id: 32, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 4, atributos: { aerodinamica: 14, aderencia: 16, confiabilidade: 83 } },
-        5: { id: 5, tipo: 'Chassi', nome: 'Chassi Reforçado', nivel: 5, atributos: { aerodinamica: 15, aderencia: 17, confiabilidade: 84 } },
-        25: { id: 25, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 6, atributos: { aerodinamica: 19, aderencia: 17, confiabilidade: 86 } },
-        56: { id: 56, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 7, atributos: { aerodinamica: 20, aderencia: 18, confiabilidade: 86} },
-        57: { id: 57, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 8, atributos: { aerodinamica: 21, aderencia: 19, confiabilidade: 87 } },
-        26: { id: 26, tipo: 'Chassi', nome: 'Chassi ProM', nivel: 9, atributos: { aerodinamica: 21, aderencia: 20, confiabilidade: 88 } },
+        55: { id: 55, tipo: 'Chassi', nome: 'Chassi XyX', nivel: 1, atributos: { aerodinamica: 9, aderencia: 11, confiabilidade: 75 } },
+        10: { id: 10, tipo: 'Chassi', nome: 'Chassi Básico', nivel: 2, atributos: { aerodinamica: 10, aderencia: 13, confiabilidade: 76 } },
+        11: { id: 11, tipo: 'Chassi', nome: 'Chassi de Carbono', nivel: 3, atributos: { aerodinamica: 11, aderencia: 14, confiabilidade: 79 } },
+        32: { id: 32, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 4, atributos: { aerodinamica: 12, aderencia: 15, confiabilidade: 83 } },
+        5: { id: 5, tipo: 'Chassi', nome: 'Chassi Reforçado', nivel: 5, atributos: { aerodinamica: 13, aderencia: 16, confiabilidade: 84 } },
+        25: { id: 25, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 6, atributos: { aerodinamica: 16, aderencia: 17, confiabilidade: 86 } },
+        56: { id: 56, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 7, atributos: { aerodinamica: 18, aderencia: 18, confiabilidade: 86} },
+        57: { id: 57, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 8, atributos: { aerodinamica: 20, aderencia: 19, confiabilidade: 87 } },
+        26: { id: 26, tipo: 'Chassi', nome: 'Chassi ProM', nivel: 9, atributos: { aerodinamica: 21, aderencia: 19, confiabilidade: 88 } },
         58: { id: 58, tipo: 'Chassi', nome: 'Chassi XxX86', nivel: 10, atributos: { aerodinamica: 22, aderencia: 20, confiabilidade: 89 } },
         33: { id: 33, tipo: 'Asa Dianteira', nome: 'Asa T ProM', nivel: 1, atributos: { aerodinamica: 11, confiabilidade: 74 } },
         34: { id: 34, tipo: 'Asa Dianteira', nome: 'Asa G Pro', nivel: 2, atributos: { aerodinamica: 12, confiabilidade: 76 } },
@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         8: { id: 8, tipo: 'Asa Dianteira', nome: 'Asa de Alta Eficiência', nivel: 8, atributos: { aerodinamica: 22, confiabilidade: 86 } },
         21: { id: 21, tipo: 'Asa Dianteira', nome: 'Asa XxX', nivel: 9, atributos: { aerodinamica: 23, confiabilidade: 86 } },
         61: { id: 61, tipo: 'Asa Dianteira', nome: 'Asa Br-TN', nivel: 10, atributos: { aerodinamica: 24, confiabilidade: 89 } },
-        30: { id: 30, tipo: 'Asa Traseira', nome: 'Asa Padrão', nivel: 1, atributos: { aerodinamica: 36, confiabilidade: 79 } },
-        71: { id: 71, tipo: 'Asa Traseira', nome: 'Asa CRm', nivel: 2, atributos: { aerodinamica: 37, confiabilidade: 82 } },
-        72: { id: 72, tipo: 'Asa Traseira', nome: 'Asa Lck', nivel: 3, atributos: { aerodinamica: 38, confiabilidade: 84 } },
+        30: { id: 30, tipo: 'Asa Traseira', nome: 'Asa Padrão', nivel: 1, atributos: { aerodinamica: 30, confiabilidade: 79 } },
+        71: { id: 71, tipo: 'Asa Traseira', nome: 'Asa CRm', nivel: 2, atributos: { aerodinamica: 33, confiabilidade: 82 } },
+        72: { id: 72, tipo: 'Asa Traseira', nome: 'Asa Lck', nivel: 3, atributos: { aerodinamica: 36, confiabilidade: 84 } },
         73: { id: 73, tipo: 'Asa Traseira', nome: 'Asa ChP', nivel: 4, atributos: { aerodinamica: 39, confiabilidade: 86 } },
         24: { id: 24, tipo: 'Asa Traseira', nome: 'Asa T ProM', nivel: 5, atributos: { aerodinamica: 40, confiabilidade: 87 } },
-        74: { id: 74, tipo: 'Asa Traseira', nome: 'Asa br', nivel: 6, atributos: { aerodinamica: 40, confiabilidade: 90 } },
+        74: { id: 74, tipo: 'Asa Traseira', nome: 'Asa br', nivel: 6, atributos: { aerodinamica: 41, confiabilidade: 90 } },
         23: { id: 23, tipo: 'Asa Traseira', nome: 'Asa T DRS Pro1', nivel: 7, atributos: { aerodinamica: 44, confiabilidade: 90 } },
         75: { id: 75, tipo: 'Asa Traseira', nome: 'Asa 555', nivel: 8, atributos: { aerodinamica: 43, confiabilidade: 89 } },
         9: { id: 9, tipo: 'Asa Traseira', nome: 'Asa Traseira DRS Pro', nivel: 9, atributos: { aerodinamica: 44, confiabilidade: 87 } },
@@ -1747,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.pilotos.forEach(piloto => {
             const isPilotoTreinavel = piloto.status === 'Jogador' || piloto.status === 'Reserva';
             if (piloto.idade < 16 || piloto.idade > 30 || !isPilotoTreinavel) return;
-            const crescimentoBase = Math.random() * 0.35;
+            const crescimentoBase = Math.random() * 0.30;
             let bonusDesempenho = 0;
             const ultimaCorrida = gameState.campeonato.resultadosCorridas.at(-1);
             if (ultimaCorrida && piloto.status === 'Jogador') {
@@ -1764,8 +1764,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const bonusSimulador = 1.0 + (gameState.instalacoes.simulador * 0.05);
             crescimentoTotal *= bonusSimulador;
             if (treinadorContratado) {
-                if (piloto.status === 'Jogador') crescimentoTotal *= 3.0;
-                else if (piloto.status === 'Reserva') crescimentoTotal *= 4.25;
+                if (piloto.status === 'Jogador') crescimentoTotal *= 2.75;
+                else if (piloto.status === 'Reserva') crescimentoTotal *= 4.10;
             }
             if (crescimentoTotal > 0) {
                 const atributosAntigos = { hab: piloto.habilidade, con: piloto.consistencia, ger: piloto.gerenciamentoPneus };
