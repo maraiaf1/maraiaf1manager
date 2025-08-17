@@ -208,8 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'Bonés': { nome: 'Bonés', img: 'img/marketing/bones.png', custo_desbloqueio: 200000, custo_producao: 15, preco_venda_minimo: 30 },
         'Camisa': { nome: 'Camisa', img: 'img/marketing/camisa.png', custo_desbloqueio: 300000, custo_producao: 50, preco_venda_minimo: 75 },
         'Carro em miniatura': { nome: 'Carro em miniatura', img: 'img/marketing/miniatura.png', custo_desbloqueio: 500000, custo_producao: 80, preco_venda_minimo: 150 },
-        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 100000, preco_venda_minimo: 300000 },
-        'Combo Presentes': { nome: 'Combo Presentes', img: 'img/marketing/combo.png', custo_desbloqueio: 5000000, custo_producao: 500000, preco_venda_minimo: 750000 }
+        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 1000, preco_venda_minimo: 3000 },
+        'Combo Presentes': { nome: 'Combo Presentes', img: 'img/marketing/combo.png', custo_desbloqueio: 5000000, custo_producao: 5000, preco_venda_minimo: 7500 }
     };
 
     const carIcon = new Image(); carIcon.src = 'img/carf1.png';
@@ -274,7 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 corIcone: '#030303',
                 escalaIcone: 0.7,
                 iconeNaFrente: true,
-                corFundo: 'transparent'
+                corFundo: 'transparent',
+                centroPDDesbloqueado: false
                 }
             },
             campeonato: { ano: 2025, corridaAtualIndex: 0, resultadosCorridas: [], classificacaoPilotos: [], classificacaoConstrutores: [] },
@@ -294,8 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 30, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
                 'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
                 'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 300000, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 750000, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3000, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7500, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
             },
             pilotos: pilotosDoJogo,
             todasAsPecas: [
@@ -351,6 +352,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     resetGameState();
                     alert("Seu jogo salvo era de uma versão antiga ou incompatível. Um novo jogo foi iniciado.");
                     return;
+                }
+                if (gameState.escuderia.centroPDDesbloqueado === undefined) {
+                    gameState.escuderia.centroPDDesbloqueado = false; //
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
                 if (!gameState.galeria) {
@@ -422,8 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 30 },
                         'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75 },
                         'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150 },
-                        'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 300000 },
-                        'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 750000 },
+                        'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3000 },
+                        'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7500 },
                     };
                 }
                 if (!gameState.instalacoes) {
@@ -620,6 +624,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
+    // Adicione esta nova função em qualquer lugar dentro da seção "LÓGICA DO JOGO" do seu script.js
+    function evoluirCarrosIA() {
+        const classificacaoFinal = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
+
+        equipesIA.forEach(equipe => {
+            const posicao = classificacaoFinal.findIndex(e => e.equipe === equipe.nome) + 1;
+            let fatorMelhoria = 0;
+
+            // Equipes no pódio melhoram mais, equipes no final melhoram menos
+            if (posicao === 1) {
+                fatorMelhoria = 1.8;
+            } else if (posicao <= 3) {
+                fatorMelhoria = 1.5;
+            } else if (posicao <= 7) {
+                fatorMelhoria = 1.2;
+            } else {
+                fatorMelhoria = 1.0;
+            }
+
+            // Aplica a melhoria, com um pouco de aleatoriedade
+            equipe.carro.potencia = Math.min(100, equipe.carro.potencia + (Math.random() * fatorMelhoria));
+            equipe.carro.aerodinamica = Math.min(100, equipe.carro.aerodinamica + (Math.random() * fatorMelhoria));
+            equipe.carro.aderencia = Math.min(100, equipe.carro.aderencia + (Math.random() * fatorMelhoria));
+        });
+
+        // Adiciona uma mensagem para o jogador saber o que aconteceu
+        alert("As equipes adversárias também trabalharam em seus carros para a nova temporada!");
+    }
 
 
     function forcarContratacaoIA() {
@@ -957,6 +990,109 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+    const CENTRO_PD_UNLOCK_COST = 5000000;
+    const CENTRO_PD_COST_MULTIPLIER = 1.5;
+
+    function calcularCustoProjetoCompleto(duracao) {
+        let custoTotalBruto = 0;
+        const especialistas = {
+            "Engenheiro de Motor": gameState.escuderia.especialistas.find(e => e.tipo === "Engenheiro de Motor"),
+            "Aerodinamicista": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
+            "Projetista": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista")
+        };
+
+        if (!especialistas["Engenheiro de Motor"] || !especialistas["Aerodinamicista"] || !especialistas["Projetista"]) {
+            return -1; // Retorna -1 para indicar que faltam especialistas
+        }
+
+        const pecasPorEspecialista = {
+            "Engenheiro de Motor": ["Motor"],
+            "Aerodinamicista": ["Asa Dianteira", "Asa Traseira"],
+            "Projetista": ["Chassi", "Suspensão"]
+        };
+
+        for (const tipoEspecialista in pecasPorEspecialista) {
+            const especialista = especialistas[tipoEspecialista];
+            const pecas = pecasPorEspecialista[tipoEspecialista];
+
+            pecas.forEach(tipoPeca => {
+                let custoPeca = (especialista.nivel * duracao * CUSTO_BASE_PROJETO) * 0.45;
+
+                // Aplica desconto do túnel de vento
+                const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
+                if (pecasAero.includes(tipoPeca)) {
+                    const reducaoCusto = 1.0 - (gameState.instalacoes.tunelDeVento * 0.10);
+                    custoPeca *= reducaoCusto;
+                }
+                if (duracao === 10) {
+                     custoPeca *= 0.90;
+                }
+                custoTotalBruto += custoPeca;
+            });
+        }
+
+        return Math.floor(custoTotalBruto * CENTRO_PD_COST_MULTIPLIER);
+    }
+
+    function desbloquearCentroPD() {
+        if (gameState.escuderia.dinheiro >= CENTRO_PD_UNLOCK_COST) {
+            if (confirm(`Deseja desbloquear o Centro de P&D por R$ ${CENTRO_PD_UNLOCK_COST.toLocaleString('pt-BR')}?`)) {
+                gameState.escuderia.dinheiro -= CENTRO_PD_UNLOCK_COST;
+                gameState.escuderia.centroPDDesbloqueado = true;
+                alert("Centro de P&D desbloqueado! Agora você pode iniciar projetos de peças em massa.");
+                updateUI();
+                saveGame();
+            }
+        } else {
+            alert("Dinheiro insuficiente para desbloquear o Centro de P&D.");
+        }
+    }
+
+    function iniciarProjetoCompleto() {
+        const duracao = parseInt(document.getElementById('pd-project-duration').value);
+        const custoFinal = calcularCustoProjetoCompleto(duracao);
+
+        if (custoFinal < 0) {
+            alert("Você precisa ter um Engenheiro de Motor, um Aerodinamicista e um Projetista contratados para usar esta função.");
+            return;
+        }
+
+        if (gameState.escuderia.dinheiro < custoFinal) {
+            alert(`Dinheiro insuficiente! Custo total do projeto: R$ ${custoFinal.toLocaleString('pt-BR')}`);
+            return;
+        }
+
+        if (confirm(`Iniciar um projeto completo de ${duracao} corrida(s) para todas as 5 categorias de peças por R$ ${custoFinal.toLocaleString('pt-BR')}?`)) {
+            gameState.escuderia.dinheiro -= custoFinal;
+
+            const especialistas = {
+                "Motor": gameState.escuderia.especialistas.find(e => e.tipo === "Engenheiro de Motor"),
+                "Asa Dianteira": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
+                "Asa Traseira": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
+                "Chassi": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista"),
+                "Suspensão": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista")
+            };
+
+            for (const tipoPeca in especialistas) {
+                const especialista = especialistas[tipoPeca];
+                gameState.projetosEmAndamento.push({
+                    id: Date.now() + Math.random(),
+                    tipoPeca,
+                    nomeEspecialista: especialista.nome,
+                    nivelEspecialista: especialista.nivel,
+                    duracaoOriginal: duracao,
+                    duracaoRestante: duracao,
+                    status: 'em_andamento'
+                });
+            }
+
+            alert("Projetos iniciados! O desenvolvimento de um novo conjunto completo de peças começou.");
+            updateUI();
+            saveGame();
+        }
+    }
+
+
     function gerarEstrategiaIA(totalVoltas) {
     const todosOsPneus = ['macio', 'medio', 'duro'];
     let numParadas;
@@ -964,11 +1100,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Define o perfil da corrida baseado no número de voltas
         if (totalVoltas <= 50) {
-            perfilCorrida = { umaParada: 0.30, duasParadas: 0.60, tresParadas: 0.10 };
-        } else if (totalVoltas > 50 && totalVoltas <= 65) {
-            perfilCorrida = { umaParada: 0.05, duasParadas: 0.10, tresParadas: 0.85 };
+            perfilCorrida = { umaParada: 0.60, duasParadas: 0.30, tresParadas: 0.10 };
+        } else if (totalVoltas > 50 && totalVoltas <= 63) {
+            perfilCorrida = { umaParada: 0.05, duasParadas: 0.70, tresParadas: 0.25 };
         } else {
-            perfilCorrida = { umaParada: 0.10, duasParadas: 0.20, tresParadas: 0.70 };
+            perfilCorrida = { umaParada: 0.05, duasParadas: 0.60, tresParadas: 0.35 };
         }
 
         // Decide o número de paradas
@@ -1463,6 +1599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         processarReajusteSalarialEspecialistas();
         atualizarMercadoDePilotos(gameState.pilotos);
         processarEnvelhecimentoPilotos();
+        evoluirCarrosIA();
         alert("O mercado de pilotos foi atualizado para a nova temporada!");
 
         gameState.campeonato.ano++;
@@ -1704,14 +1841,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (nomeItem === "Anel com joia") {
                     chanceBase = 0.01;
                     if (melhorPosicaoCorrida <= 3) {
-                        chanceBase = 0.70;
+                        chanceBase = 0.50;
                         modDesempenho = 1.0;
                         modPreco = 1.0;
                     }
                 } else if (nomeItem === "Combo Presentes") {
                     chanceBase = 0.01;
                     if (melhorPosicaoCorrida <= 5) {
-                        chanceBase = 0.60;
+                        chanceBase = 0.40;
                         modDesempenho = 1.0;
                         modPreco = 1.0;
                     }
@@ -2351,6 +2488,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderizarEmblema(previewContainer, emblemaAtual);
     }
 
+
+
     function renderAbaInstalacoes() {
         const container = document.getElementById('instalacoes-container');
         if (!container) return;
@@ -2398,6 +2537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderEspecialistas();
         renderProjetos();
         renderPatrocinadores();
+        renderCentroPD();
         const emblemaEscuderiaContainer = document.getElementById('emblema-display-escuderia');
         renderizarEmblema(emblemaEscuderiaContainer, gameState.escuderia.emblema);
     }
@@ -2431,6 +2571,63 @@ document.addEventListener('DOMContentLoaded', () => {
         containerDisponiveis.innerHTML = especialistasDisponiveis.filter(e => !idsContratados.has(e.id)).map(e => {
             return `<div class="especialista-card"><h4>${e.nome}</h4><p><strong>Tipo:</strong> ${e.tipo}</p><p><strong>Nível:</strong> ${e.nivel}</p><p><strong>Custo:</strong> R$ ${e.salario.toLocaleString('pt-BR')}</p><button class="btn-contratar" data-id="${e.id}">Contratar</button></div>`;
         }).join('');
+    }
+
+    function renderCentroPD() {
+        const container = document.getElementById('centro-pd-container');
+        const titulo = document.getElementById('centro-pd-titulo');
+        if (!container || !titulo) return;
+
+        if (!gameState.escuderia.centroPDDesbloqueado) {
+            container.innerHTML = `
+                <div class="centro-pd-card">
+                    <div class="pd-card-conteudo">
+                        <div>
+                            <h4>Centro de P&D (Bloqueado)</h4>
+                            <p>Desbloqueie esta instalação para permitir o desenvolvimento simultâneo de um conjunto completo de peças (Motor, Chassi, Suspensão, Asas), economizando tempo de gerenciamento.</p>
+                        </div>
+                        <button class="btn-desbloquear-pd" data-action="desbloquear-pd">
+                            Desbloquear (R$ ${CENTRO_PD_UNLOCK_COST.toLocaleString('pt-BR')})
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            const especialistasNecessarios = ["Engenheiro de Motor", "Aerodinamicista", "Projetista"];
+            const especialistasContratados = new Set(gameState.escuderia.especialistas.map(e => e.tipo));
+            const todosContratados = especialistasNecessarios.every(tipo => especialistasContratados.has(tipo));
+
+            let aviso = '';
+            if (!todosContratados) {
+                aviso = `<p style="color: #dc3545; font-size: 0.9em; text-align: center;">Requer um Engenheiro de Motor, Aerodinamicista e Projetista contratados.</p>`;
+            }
+
+            container.innerHTML = `
+                <div class="centro-pd-card">
+                    <div class="pd-card-conteudo">
+                         <div>
+                            <h4>Projeto de Conjunto Completo</h4>
+                            <p>Inicie simultaneamente o desenvolvimento de 1 Motor, 1 Chassi, 1 Suspensão, 1 Asa Dianteira e 1 Asa Traseira. O custo total tem um acréscimo de 50% pela conveniência.</p>
+                        </div>
+                        <div class="pd-controles">
+                             <select id="pd-project-duration" class="form-group" data-action="calcular-custo-pd">
+                                <option value="1">1 Corrida (Rápido)</option>
+                                <option value="3" selected>3 Corridas (Padrão)</option>
+                                <option value="5">5 Corridas (Ambicioso)</option>
+                                <option value="10">10 Corridas (Vitorioso)</option>
+                            </select>
+                            <div id="pd-custo-total" class="pd-custo-display">Calculando custo...</div>
+                            <button class="btn-iniciar-projeto-completo" data-action="iniciar-projeto-completo" ${!todosContratados ? 'disabled' : ''}>
+                                Iniciar Projeto Completo
+                            </button>
+                        </div>
+                    </div>
+                    ${aviso}
+                </div>
+            `;
+            // Dispara o cálculo inicial
+            document.getElementById('pd-project-duration').dispatchEvent(new Event('change'));
+        }
     }
 
     function renderProjetos() {
@@ -3305,6 +3502,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = e.target;
         const action = target.dataset.action;
 
+        if (action === 'desbloquear-pd') desbloquearCentroPD();
+        else if (action === 'iniciar-projeto-completo') iniciarProjetoCompleto();
+
         if (target.matches('.tab-btn')) {
             const tabName = target.dataset.tab;
             document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
@@ -3420,7 +3620,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('project-modal').classList.add('hidden');
         }
         else if (target.matches('.btn-ficar-com-peca')) {
-            const projetoId = parseInt(target.dataset.projectId);
+            const projetoId = parseFloat(target.dataset.projectId);
             const projeto = gameState.projetosEmAndamento.find(p => p.id === projetoId);
             if (!projeto) return;
             const pecaFinal = projeto.pecaConcluida;
@@ -3437,7 +3637,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         else if (target.matches('.btn-vender-peca[data-project-id]')) {
-            const projetoId = parseInt(target.dataset.projectId);
+            const projetoId = parseFloat(target.dataset.projectId);
             const projeto = gameState.projetosEmAndamento.find(p => p.id === projetoId);
             if (projeto) {
                 projeto.status = 'a_venda';
@@ -3566,6 +3766,17 @@ document.addEventListener('DOMContentLoaded', () => {
             renderAbaNegociacoes();
         } else if (target.matches('#project-part-type, #project-duration')) {
             atualizarSumarioProjeto();
+        }if (target.dataset.action === 'calcular-custo-pd') {
+            const duracao = parseInt(target.value);
+            const custo = calcularCustoProjetoCompleto(duracao);
+            const display = document.getElementById('pd-custo-total');
+            if (display) {
+                if (custo < 0) {
+                    display.textContent = "Faltam especialistas";
+                } else {
+                    display.textContent = `Custo Total: R$ ${custo.toLocaleString('pt-BR')}`;
+                }
+            }
         }
     });
 

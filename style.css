@@ -70,6 +70,71 @@ background-color: #c82333;
 .btn-demitir { background-color: #6c757d; }
 .btn-projeto { background-color: #5bc0de !important; margin-top: 0.5rem !important; }
 
+/* ============================================================= */
+/* ESTILOS PARA O CENTRO DE P&D                                  */
+/* ============================================================= */
+
+.centro-pd-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    /* Ocupa todo o espaço da linha na grade */
+    grid-column: 1 / -1;
+}
+
+.centro-pd-card h4 {
+    margin-top: 0;
+    color: #8a2be2; /* Roxo para destacar */
+}
+
+.pd-card-conteudo {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.pd-card-conteudo p {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.btn-desbloquear-pd, .btn-iniciar-projeto-completo {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap; /* Impede que o texto quebre */
+}
+
+.btn-desbloquear-pd {
+    background-color: #28a745; /* Verde */
+}
+
+.btn-iniciar-projeto-completo {
+    background-color: #007bff; /* Azul */
+}
+
+.pd-controles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 250px;
+}
+
+.pd-custo-display {
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
 
 /* Aba Carro */
 .car-selector-nav { margin-bottom: 1.5rem; border-bottom: 1px solid #ccc; }
