@@ -204,12 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const catalogoMarketing = {
-        'Chaveiro': { nome: 'Chaveiro', img: 'img/marketing/chaveiro.png', custo_desbloqueio: 0, custo_producao: 3, preco_venda_minimo: 5 },
-        'Bonés': { nome: 'Bonés', img: 'img/marketing/bones.png', custo_desbloqueio: 200000, custo_producao: 15, preco_venda_minimo: 30 },
-        'Camisa': { nome: 'Camisa', img: 'img/marketing/camisa.png', custo_desbloqueio: 300000, custo_producao: 50, preco_venda_minimo: 75 },
-        'Carro em miniatura': { nome: 'Carro em miniatura', img: 'img/marketing/miniatura.png', custo_desbloqueio: 500000, custo_producao: 80, preco_venda_minimo: 150 },
-        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 1000, preco_venda_minimo: 3000 },
-        'Combo Presentes': { nome: 'Combo Presentes', img: 'img/marketing/combo.png', custo_desbloqueio: 5000000, custo_producao: 5000, preco_venda_minimo: 7500 }
+        'Chaveiro': { nome: 'Chaveiro', img: 'img/marketing/chaveiro.png', custo_desbloqueio: 0, custo_producao: 5, preco_venda_minimo: 5 },
+        'Bonés': { nome: 'Bonés', img: 'img/marketing/bones.png', custo_desbloqueio: 200000, custo_producao: 30, preco_venda_minimo: 30 },
+        'Camisa': { nome: 'Camisa', img: 'img/marketing/camisa.png', custo_desbloqueio: 300000, custo_producao: 75, preco_venda_minimo: 75 },
+        'Carro em miniatura': { nome: 'Carro em miniatura', img: 'img/marketing/miniatura.png', custo_desbloqueio: 500000, custo_producao: 150, preco_venda_minimo: 150 },
+        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 3000, preco_venda_minimo: 3000 },
+        'Combo Presentes': { nome: 'Combo Presentes', img: 'img/marketing/combo.png', custo_desbloqueio: 5000000, custo_producao: 7500, preco_venda_minimo: 7500 }
     };
 
     const carIcon = new Image(); carIcon.src = 'img/carf1.png';
