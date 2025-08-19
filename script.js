@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. DADOS GLOBAIS ---
+    const CUSTO_MUDAR_NOME = 250000;
+    const CUSTO_MUDAR_EMBLEMA = 250000;
+
     const catalogoDePecas = {
         50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1.0', nivel: 1, atributos: { potencia: 30, confiabilidade: 75 } },
         2: { id: 2, tipo: 'Motor', nome: 'Motor Reforçado V2.0', nivel: 2, atributos: { potencia: 35, confiabilidade: 79 } },
@@ -56,33 +59,33 @@ document.addEventListener('DOMContentLoaded', () => {
         9: { id: 9, tipo: 'Asa Traseira', nome: 'Asa Traseira DRS Pro', nivel: 9, atributos: { aerodinamica: 44, confiabilidade: 87 } },
         76: { id: 76, tipo: 'Asa Traseira', nome: 'Asa 333', nivel: 10, atributos: { aerodinamica: 45, confiabilidade: 90 } },
     };
-    const especialistasDisponiveis = [ { id: 1, nome: "Adrian Newey Jr.", tipo: "Aerodinamicista", nivel: 5, salario: 12000 }, { id: 2, nome: "Paddy Lowe", tipo: "Projetista", nivel: 5, salario: 11900 }, { id: 3, nome: "Luca Marmorini", tipo: "Engenheiro de Motor", nivel: 5, salario: 12000 }, { id: 4, nome: "Helmut Marko Jr.", tipo: "Olheiro", nivel: 5, salario: 11650 }, { id: 5, nome: "Jo Bauer", tipo: "Treinador de Pilotos", nivel: 5, salario: 11750 } ];
+    const especialistasDisponiveis = [ { id: 1, nome: "Adrian Newey Jr.", tipo: "Aerodinamicista", nivel: 5, salario: 15000 }, { id: 2, nome: "Paddy Lowe", tipo: "Projetista", nivel: 5, salario: 11900 }, { id: 3, nome: "Luca Marmorini", tipo: "Engenheiro de Motor", nivel: 5, salario: 12000 }, { id: 4, nome: "Helmut Marko Jr.", tipo: "Olheiro", nivel: 5, salario: 11650 }, { id: 5, nome: "Jo Bauer", tipo: "Treinador de Pilotos", nivel: 5, salario: 11750 } ];
     const CUSTO_BASE_PROJETO = 50000;
     const calendarioCorridas = [
-        { nome: "GP da Austrália (Melbourne)", imagem: "Autodromos/Australia.png", voltas: 58, tempoBaseVolta: 79, pitstopTime: 20, demandaMotor: 0.2, demandaAero: 0.4, demandaAderencia: 0.5 },
-        { nome: "GP da China (Xangai)", imagem: "Autodromos/China.png", voltas: 56, tempoBaseVolta: 92, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.2 },
-        { nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
+        { nome: "GP da Austrália (Melbourne)", imagem: "Autodromos/Australia.png", voltas: 58, tempoBaseVolta: 79, pitstopTime: 20, demandaMotor: 0.2, demandaAero: 0.4, demandaAderencia: 0.3 },
+        { nome: "GP da China (Xangai)", imagem: "Autodromos/China.png", voltas: 56, tempoBaseVolta: 92, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.7, demandaAderencia: 0.6 },
+        { nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.7 },
         { nome: "GP do Bahrein (Sakhir)", imagem: "Autodromos/Bahrain.png", voltas: 57, tempoBaseVolta: 91, pitstopTime: 22, demandaMotor: 0.9, demandaAero: 0.4, demandaAderencia: 0.7 },
-        { nome: "GP da Arábia Saudita (Jeddah)", imagem: "Autodromos/Arabia.png", voltas: 50, tempoBaseVolta: 90, pitstopTime: 26, demandaMotor: 1.0, demandaAero: 0.6, demandaAderencia: 0.3 },
-        { nome: "Gp de Miami (EUA)", imagem: "Autodromos/Miami.png", voltas: 57, tempoBaseVolta: 89, pitstopTime: 21, demandaMotor: 0.6, demandaAero: 0.5, demandaAderencia: 1 },
-        { nome: "GP de Emília-Romanha (Ímola)", imagem: "Autodromos/Imola.png", voltas: 63, tempoBaseVolta: 75, pitstopTime: 20, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.2 },
+        { nome: "GP da Arábia Saudita (Jeddah)", imagem: "Autodromos/Arabia.png", voltas: 50, tempoBaseVolta: 90, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.8 },
+        { nome: "Gp de Miami (EUA)", imagem: "Autodromos/Miami.png", voltas: 57, tempoBaseVolta: 89, pitstopTime: 21, demandaMotor: 0.6, demandaAero: 0.8, demandaAderencia: 0.7 },
+        { nome: "GP de Emília-Romanha (Ímola)", imagem: "Autodromos/Imola.png", voltas: 63, tempoBaseVolta: 75, pitstopTime: 20, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.9 },
         { nome: "GP de Mônaco", imagem: "Autodromos/Monaco.png", voltas: 78, tempoBaseVolta: 75, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.5 },
-        { nome: "GP da Espanha (Barcelona)", imagem: "Autodromos/Spain.png", voltas: 66, tempoBaseVolta: 76, pitstopTime: 23, demandaMotor: 0.6, demandaAero: 1, demandaAderencia: 0.5 },
-        { nome: "GP do Canadá (Montreal)", imagem: "Autodromos/Canada.png", voltas: 70, tempoBaseVolta: 73, pitstopTime: 24, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.2 },
-        { nome: "Gp da Áustria (Red Bull Ring)", imagem: "Autodromos/Austria.png", voltas: 71, tempoBaseVolta: 65, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.3, demandaAderencia: 0.6 },
-        { nome: "GP da Inglaterra (Silverstone)", imagem: "Autodromos/Inglaterra.png", voltas: 52, tempoBaseVolta: 87, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.2 },
-        { nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.3 },
-        { nome: "GP da Hungria (Hungaroring)", imagem: "Autodromos/Hungria.png", voltas: 70, tempoBaseVolta: 76, pitstopTime: 20, demandaMotor: 0.8, demandaAero: 0.8, demandaAderencia: 0.7 },
-        { nome: "Gp da Holanda (Zandvoort)", imagem: "Autodromos/Holanda.png", voltas: 72, tempoBaseVolta: 71, pitstopTime: 29, demandaMotor: 0.4, demandaAero: 0.5, demandaAderencia: 0.5 },
+        { nome: "GP da Espanha (Barcelona)", imagem: "Autodromos/Spain.png", voltas: 66, tempoBaseVolta: 76, pitstopTime: 23, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.5 },
+        { nome: "GP do Canadá (Montreal)", imagem: "Autodromos/Canada.png", voltas: 70, tempoBaseVolta: 73, pitstopTime: 24, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.9 },
+        { nome: "Gp da Áustria (Red Bull Ring)", imagem: "Autodromos/Austria.png", voltas: 71, tempoBaseVolta: 65, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.8, demandaAderencia: 0.6 },
+        { nome: "GP da Inglaterra (Silverstone)", imagem: "Autodromos/Inglaterra.png", voltas: 52, tempoBaseVolta: 87, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.7 },
+        { nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.9 },
+        { nome: "GP da Hungria (Hungaroring)", imagem: "Autodromos/Hungria.png", voltas: 70, tempoBaseVolta: 76, pitstopTime: 20, demandaMotor: 0.8, demandaAero: 0.8, demandaAderencia: 0.5 },
+        { nome: "Gp da Holanda (Zandvoort)", imagem: "Autodromos/Holanda.png", voltas: 72, tempoBaseVolta: 71, pitstopTime: 29, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.9 },
         { nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
         { nome: "GP do Azerbaijão (Baku)", imagem: "Autodromos/Azerbaijan.png", voltas: 51, tempoBaseVolta: 103, pitstopTime: 24, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.9 },
         { nome: "GP de Singapura (Marina Bay)", imagem: "Autodromos/Singapura.png", voltas: 61, tempoBaseVolta: 94, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.7, demandaAderencia: 0.5 },
         { nome: "Gp dos EUA (Austin)", imagem: "Autodromos/EUA.png", voltas: 56, tempoBaseVolta: 96, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.8 },
-        { nome: "GP do México (CDMX)", imagem: "Autodromos/Mexico.png", voltas: 71, tempoBaseVolta: 81, pitstopTime: 25, demandaMotor: 0.6, demandaAero: 0.8, demandaAderencia: 0.8 },
+        { nome: "GP do México (CDMX)", imagem: "Autodromos/Mexico.png", voltas: 71, tempoBaseVolta: 81, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.8 },
         { nome: "Gp do Brasil (Interlagos)", imagem: "Autodromos/Brasil.png", voltas: 71, tempoBaseVolta: 70, pitstopTime: 22, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.9 },
-        { nome: "GP de Las Vegas", imagem: "Autodromos/LasVegas.png", voltas: 50, tempoBaseVolta: 95, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.3, demandaAderencia: 0.8 },
-        { nome: "GP do Catar (Lusail)", imagem: "Autodromos/Qatar.png", voltas: 57, tempoBaseVolta: 84, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.7 },
-        { nome: "GP de Abu Dhabi (Yas Marina)", imagem: "Autodromos/Abudabi.png", voltas: 55, tempoBaseVolta: 86, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.7 },
+        { nome: "GP de Las Vegas", imagem: "Autodromos/LasVegas.png", voltas: 50, tempoBaseVolta: 95, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.9, demandaAderencia: 0.8 },
+        { nome: "GP do Catar (Lusail)", imagem: "Autodromos/Qatar.png", voltas: 57, tempoBaseVolta: 84, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.7 },
+        { nome: "GP de Abu Dhabi (Yas Marina)", imagem: "Autodromos/Abudabi.png", voltas: 55, tempoBaseVolta: 86, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.9, demandaAderencia: 0.9 },
     ];
     const coordenadasPistas = {
         "GP da Austrália (Melbourne)": [{ x: 380, y: 360 }, 	{ x: 270, y: 360 }, 	{ x: 260, y: 340 }, 	{ x: 250, y: 330 }, 	{ x: 200, y: 340 }, 	{ x: 80, y: 330 }, 	{ x: 80, y: 320 }, 	{ x: 90, y: 310 }, 	{ x: 130, y: 270 }, 	{ x: 70, y: 210 }, 	{ x: 80, y: 170 }, 	{ x: 90, y: 130 }, 	{ x: 100, y: 100 }, 	{ x: 120, y: 100 }, 	{ x: 160, y: 70 }, 	{ x: 200, y: 110 }, 	{ x: 230, y: 170 }, 	{ x: 240, y: 180 }, 	{ x: 300, y: 190 }, 	{ x: 340, y: 200 }, 	{ x: 430, y: 200 }, 	{ x: 460, y: 170 }, 	{ x: 530, y: 160 }, 	{ x: 570, y: 150 }, 	{ x: 710, y: 220 }, 	{ x: 710, y: 230 }, 	{ x: 630, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 550, y: 290 }, 	{ x: 550, y: 350 }, 	{ x: 540, y: 360 }, 	{ x: 380, y: 360 }],
@@ -125,11 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "Heuer", tipo: "Relógios de Luxo", reputacaoMin: 0 }, { nome: "Petrobras", tipo: "Combustíveis", reputacaoMin: 0 }, { nome: "Santander", tipo: "Banco", reputacaoMin: 1 }, { nome: "Pirelli", tipo: "Pneus", reputacaoMin: 1 }, { nome: "Rolex", tipo: "Relógios de Luxo", reputacaoMin: 2 }, { nome: "Amazon AWS", tipo: "Tecnologia", reputacaoMin: 4 }, { nome: "Red Bull", tipo: "Bebidas Energéticas", reputacaoMin: 3 }, { nome: "Louis Vuitton", tipo: "Artigos de Luxo", reputacaoMin: 4 }, { nome: "Brahma", tipo: "Cerveja", reputacaoMin: 3 }, { nome: "Geodados WebSystem", tipo: "Sistemas de Informação", reputacaoMin: 1 }, { nome: "Geodados Geoprocessamento", tipo: "Geoprocessamento", reputacaoMin: 5 }, { nome: "Pitu", tipo: "Alimentos", reputacaoMin: 5 }, { nome: "Heineken", tipo: "Cerveja", reputacaoMin: 4 }, { nome: "Mercado Livre", tipo: "Comércio", reputacaoMin: 2 }, { nome: "Shopee", tipo: "Comércio", reputacaoMin: 0 }, { nome: "Shen", tipo: "Comércio", reputacaoMin: 1 }, { nome: "Colorado Beer", tipo: "cerveja", reputacaoMin: 0 }, { nome: "Tibia", tipo: "Jogo Eletrônico", reputacaoMin: 3 }, { nome: "League of Legends", tipo: "Jogo Eletrônico", reputacaoMin: 1 }, { nome: "Forza", tipo: "Jogo Eletrônico", reputacaoMin: 6 }, { nome: "Jardim Paraiso fest", tipo: "Comércio", reputacaoMin: 0 }, { nome: "H2 Games", tipo: "Comércio", reputacaoMin: 0 }, { nome: "Esfirras do Bairro", tipo: "Alimenticios", reputacaoMin: 1 }, { nome: "Pizzas BR", tipo: "Alimenticios", reputacaoMin: 0 }, { nome: "Petrobras Gás", tipo: "Comércio", reputacaoMin: 1 }, { nome: "Shell", tipo: "Combustível", reputacaoMin: 1 },
     ];
     const baseDePilotos = [
-        { id: 1, nome: "Max Verstappen", idade: 27, habilidade: 93, consistencia: 97, gerenciamentoPneus: 89, atributosBase: { habilidade: 93, consistencia: 97, gerenciamentoPneus: 89 }, status: 'Red Bull', campeonatosGanhos: [] },
+        { id: 1, nome: "Max Verstappen", idade: 27, habilidade: 95, consistencia: 97, gerenciamentoPneus: 92, atributosBase: { habilidade: 95, consistencia: 97, gerenciamentoPneus: 92 }, status: 'Red Bull', campeonatosGanhos: [] },
         { id: 2, nome: "Yuki Tsunoda", idade: 23, habilidade: 89, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 89, consistencia: 85, gerenciamentoPneus: 88 }, status: 'Red Bull', campeonatosGanhos: [] },
-        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 95, consistencia: 91, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 91, gerenciamentoPneus: 90 }, status: 'Ferrari', campeonatosGanhos: [] },
+        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 95, consistencia: 93, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 93, gerenciamentoPneus: 90 }, status: 'Ferrari', campeonatosGanhos: [] },
         { id: 4, nome: "Charles Leclerc", idade: 27, habilidade: 92, consistencia: 90, gerenciamentoPneus: 94, atributosBase: { habilidade: 92, consistencia: 90, gerenciamentoPneus: 94 }, status: 'Ferrari', campeonatosGanhos: [] },
-        { id: 5, nome: "George Russell", idade: 27, habilidade: 90, consistencia: 88, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 88, gerenciamentoPneus: 89 }, status: 'Mercedes', campeonatosGanhos: [] },
+        { id: 5, nome: "George Russell", idade: 27, habilidade: 90, consistencia: 91, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 89 }, status: 'Mercedes', campeonatosGanhos: [] },
         { id: 6, nome: "K. Antonelli", idade: 18, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Mercedes', campeonatosGanhos: [] },
         { id: 7, nome: "Carlos Sainz", idade: 30, habilidade: 90, consistencia: 90, gerenciamentoPneus: 88, atributosBase: { habilidade: 90, consistencia: 90, gerenciamentoPneus: 88 }, status: 'Wilians', campeonatosGanhos: [] },
         { id: 8, nome: "Alex Albon", idade: 29, habilidade: 85, consistencia: 89, gerenciamentoPneus: 89, atributosBase: { habilidade: 85, consistencia: 89, gerenciamentoPneus: 89 }, status: 'Wilians', campeonatosGanhos: [] },
@@ -143,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 16, nome: "Oliver Bearman", idade: 20, habilidade: 83, consistencia: 81, gerenciamentoPneus: 82, atributosBase: { habilidade: 83, consistencia: 81, gerenciamentoPneus: 82 }, status: 'Haas', campeonatosGanhos: [] },
         { id: 17, nome: "Isack Hadjar", idade: 20, habilidade: 88, consistencia: 82, gerenciamentoPneus: 83, atributosBase: { habilidade: 88, consistencia: 82, gerenciamentoPneus: 83 }, status: 'RB', campeonatosGanhos: [] },
         { id: 18, nome: "Liam Lawson", idade: 23, habilidade: 81, consistencia: 84, gerenciamentoPneus: 85, atributosBase: { habilidade: 81, consistencia: 84, gerenciamentoPneus: 85 }, status: 'RB', campeonatosGanhos: [] },
-        { id: 19, nome: "Oscar Piastri", idade: 24, habilidade: 92, consistencia: 93, gerenciamentoPneus: 89, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 89 }, status: 'MacLaren', campeonatosGanhos: [] },
-        { id: 20, nome: "Lando Norris", idade: 25, habilidade: 92, consistencia: 93, gerenciamentoPneus: 89, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 89 }, status: 'MacLaren', campeonatosGanhos: [] },
+        { id: 19, nome: "Oscar Piastri", idade: 24, habilidade: 92, consistencia: 93, gerenciamentoPneus: 92, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 92 }, status: 'MacLaren', campeonatosGanhos: [] },
+        { id: 20, nome: "Lando Norris", idade: 25, habilidade: 92, consistencia: 93, gerenciamentoPneus: 93, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 93 }, status: 'MacLaren', campeonatosGanhos: [] },
         { id: 101, nome: "Lucas di Grassi", idade: 33, habilidade: 91, consistencia: 90, gerenciamentoPneus: 92, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 92 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 102, nome: "Felipe Drugovich", idade: 19, habilidade: 87, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 1500000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 103, nome: "Dudu Barrichello", idade: 21, habilidade: 86, consistencia: 90, gerenciamentoPneus: 88, salario: 15000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
@@ -172,16 +175,16 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 125, nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 90, salario: 19000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
     ];
     const equipesIA = [
-        { nome: "Red Bull", cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 95, aerodinamica: 92, aderencia: 95, confiabilidade: 89 } },
+        { nome: "Red Bull", cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 96, aerodinamica: 94, aderencia: 95, confiabilidade: 89 } },
         { nome: "Mercedes", cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 92, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
-        { nome: "Ferrari", cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 93, aerodinamica: 94, aderencia: 95, confiabilidade: 88 } },
+        { nome: "Ferrari", cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 93, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
         { nome: "Sauber", cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 89, aerodinamica: 85, aderencia: 89, confiabilidade: 85 } },
         { nome: "Aston Martin", cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 89, aerodinamica: 88, aderencia: 86, confiabilidade: 85 } },
-        { nome: "Alpine", cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 87, aerodinamica: 86, aderencia: 85, confiabilidade: 80 } },
-        { nome: "Haas", cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 79, aerodinamica: 87, aderencia: 86, confiabilidade: 80 } },
+        { nome: "Alpine", cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 85, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
+        { nome: "Haas", cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 79, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
         { nome: "RB", cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
         { nome: "Wilians", cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 88, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
-        { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 95, aerodinamica: 92, aderencia: 95, confiabilidade: 90 } },
+        { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 96, aerodinamica: 95, aderencia: 95, confiabilidade: 90 } },
     ];
 
     const catalogoMensagens = {
@@ -275,7 +278,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 escalaIcone: 0.7,
                 iconeNaFrente: true,
                 corFundo: 'transparent',
-                centroPDDesbloqueado: false
+                centroPDDesbloqueado: false,
+                primeiroNomeSalvo: false,
+                primeiroEmblemaSalvo: false
                 }
             },
             campeonato: { ano: 2025, corridaAtualIndex: 0, resultadosCorridas: [], classificacaoPilotos: [], classificacaoConstrutores: [] },
@@ -352,6 +357,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     resetGameState();
                     alert("Seu jogo salvo era de uma versão antiga ou incompatível. Um novo jogo foi iniciado.");
                     return;
+                }
+                if (gameState.escuderia.emblema.primeiroNomeSalvo === undefined) {
+                gameState.escuderia.emblema.primeiroNomeSalvo = true;
+                }
+
+                if (gameState.escuderia.emblema.primeiroEmblemaSalvo === undefined) {
+                    gameState.escuderia.emblema.primeiroEmblemaSalvo = true;
                 }
                 if (gameState.escuderia.centroPDDesbloqueado === undefined) {
                     gameState.escuderia.centroPDDesbloqueado = false; //
@@ -472,6 +484,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --------- 3. LÓGICA DO JOGO (CORE) ---------
 
+
+    function salvarIdentidadeEquipe() {
+        const emblemaState = gameState.escuderia.emblema;
+
+        // Se for a primeira vez, o salvamento é gratuito.
+        if (!emblemaState.primeiroEmblemaSalvo) {
+            if (confirm("Deseja salvar a identidade visual da sua equipe? Esta ação é gratuita, mas futuras alterações terão um custo.")) {
+                emblemaState.primeiroEmblemaSalvo = true; // Marca que o primeiro salvamento foi feito
+                alert("Identidade da equipe salva com sucesso!");
+                updateUI();
+                saveGame();
+            }
+        } else {
+            // Se não for a primeira vez, verifica o custo.
+            if (gameState.escuderia.dinheiro < CUSTO_MUDAR_EMBLEMA) {
+                alert(`Dinheiro insuficiente! Custo para alterar a identidade: R$ ${CUSTO_MUDAR_EMBLEMA.toLocaleString('pt-BR')}`);
+                return;
+            }
+
+            if (confirm(`Deseja salvar as alterações na identidade da equipe pelo custo de R$ ${CUSTO_MUDAR_EMBLEMA.toLocaleString('pt-BR')}?`)) {
+                gameState.escuderia.dinheiro -= CUSTO_MUDAR_EMBLEMA;
+                alert("Identidade da equipe alterada com sucesso!");
+                updateUI();
+                saveGame();
+            }
+        }
+    }
+
     function declararFalencia() {
         if (confirm("Tem certeza que deseja declarar falência?\n\nTODO O SEU PROGRESSO SERÁ PERDIDO e o jogo será reiniciado!")) {
             localStorage.removeItem('f1ManagerSave');
@@ -575,7 +615,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 piloto.consistencia = Math.max(40, piloto.consistencia - (Math.floor(Math.random() * 3)));
                 piloto.gerenciamentoPneus = Math.max(40, piloto.gerenciamentoPneus - (Math.floor(Math.random() * 3)));
             }
-            if (piloto.idade >= 41) {
+            const idade = piloto.idade;
+            let deveAposentar = false;
+
+            if (idade > 45) {
+                deveAposentar = true; // 100% de chance
+            } else if (idade >= 43 && idade <= 45) { // 50% de chance para idades 43, 44 e 45
+                if (Math.random() < 0.50) deveAposentar = true;
+            } else if (idade >= 41 && idade <= 42) { // 30% de chance para idades 41 e 42
+                if (Math.random() < 0.30) deveAposentar = true;
+            } else if (idade >= 35 && idade <= 40) { // 10% de chance para idades 37, 38, 39 e 40
+                if (Math.random() < 0.10) deveAposentar = true;
+            }
+
+            if (deveAposentar) {
                 pilotosAposentados.push(piloto);
             }
         });
@@ -625,7 +678,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Adicione esta nova função em qualquer lugar dentro da seção "LÓGICA DO JOGO" do seu script.js
+    function mudarNomeEquipe() {
+        const novoNome = document.getElementById('input-nome-escuderia').value.trim();
+        if (!novoNome || novoNome.length < 3) {
+            alert("O nome da equipe deve ter pelo menos 3 caracteres.");
+            return;
+        }
+
+        const emblemaState = gameState.escuderia.emblema;
+
+        // Se for a primeira vez, a mudança é grátis.
+        if (!emblemaState.primeiroNomeSalvo) {
+            if (confirm(`Definir o nome da equipe como "${novoNome}"? Esta ação é gratuita, mas futuras alterações terão um custo.`)) {
+                gameState.escuderia.nome = novoNome;
+                emblemaState.primeiroNomeSalvo = true; // Marca que a primeira mudança foi feita
+                alert("Nome da equipe definido com sucesso!");
+                updateUI();
+                saveGame();
+            }
+        } else {
+            // Se não for a primeira vez, verifica o custo.
+            if (gameState.escuderia.dinheiro < CUSTO_MUDAR_NOME) {
+                alert(`Dinheiro insuficiente! Custo para alterar o nome: R$ ${CUSTO_MUDAR_NOME.toLocaleString('pt-BR')}`);
+                return;
+            }
+
+            if (confirm(`Deseja alterar o nome da equipe para "${novoNome}" pelo custo de R$ ${CUSTO_MUDAR_NOME.toLocaleString('pt-BR')}?`)) {
+                gameState.escuderia.dinheiro -= CUSTO_MUDAR_NOME;
+                gameState.escuderia.nome = novoNome;
+                alert("Nome da equipe alterado com sucesso!");
+                updateUI();
+                saveGame();
+            }
+        }
+    }
+
     function evoluirCarrosIA() {
         const classificacaoFinal = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
 
@@ -2540,6 +2627,16 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCentroPD();
         const emblemaEscuderiaContainer = document.getElementById('emblema-display-escuderia');
         renderizarEmblema(emblemaEscuderiaContainer, gameState.escuderia.emblema);
+        const btnSalvarNome = document.getElementById('btn-salvar-nome');
+        if (btnSalvarNome) {
+            if (gameState.escuderia.emblema.primeiroNomeSalvo) {
+                btnSalvarNome.textContent = `Salvar Nome (R$ ${CUSTO_MUDAR_NOME.toLocaleString('pt-BR')})`;
+                btnSalvarNome.disabled = gameState.escuderia.dinheiro < CUSTO_MUDAR_NOME;
+            } else {
+                btnSalvarNome.textContent = 'Salvar Nome (Grátis)';
+                btnSalvarNome.disabled = false;
+            }
+        }
     }
 
     function renderPatrocinadores() {
@@ -2666,6 +2763,16 @@ document.addEventListener('DOMContentLoaded', () => {
         seletorFormasContainer.innerHTML = listaDeFormas.map(nomeArquivo => `<div class="seletor-item" data-tipo="forma" data-valor="${nomeArquivo}"><img src="img/emblemas/formas/${nomeArquivo}" alt="${nomeArquivo}"></div>`).join('');
         seletorIconesContainer.innerHTML = listaDeIcones.map(nomeArquivo => `<div class="seletor-item" data-tipo="icone" data-valor="${nomeArquivo}"><img src="img/emblemas/icones/${nomeArquivo}" alt="${nomeArquivo}"></div>`).join('');
         atualizarPreviewEmblema();
+        const btnSalvarIdentidade = document.getElementById('btn-salvar-identidade');
+        if (btnSalvarIdentidade) {
+            if (gameState.escuderia.emblema.primeiroEmblemaSalvo) {
+                btnSalvarIdentidade.textContent = `Salvar Identidade (R$ ${CUSTO_MUDAR_EMBLEMA.toLocaleString('pt-BR')})`;
+                btnSalvarIdentidade.disabled = gameState.escuderia.dinheiro < CUSTO_MUDAR_EMBLEMA;
+            } else {
+                btnSalvarIdentidade.textContent = 'Salvar Identidade (Grátis)';
+                btnSalvarIdentidade.disabled = false;
+            }
+        }
     }
 
     function renderAbaMarketing() {
@@ -3539,8 +3646,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (action === 'dispensar-piloto') dispensarPiloto(parseInt(target.dataset.pilotoId));
         else if (action === 'promover-piloto') promoverPilotoReserva(parseInt(target.dataset.pilotoId));
         else if (target.matches('#btn-salvar-nome')) {
-            const novoNome = document.getElementById('input-nome-escuderia').value.trim();
-            if (novoNome) { gameState.escuderia.nome = novoNome; renderEscuderia(); saveGame(); }
+            mudarNomeEquipe();
         }
         else if (target.matches('#btn-falencia')) declararFalencia();
         else if (target.matches('.btn-contratar')) {
@@ -3570,7 +3676,7 @@ document.addEventListener('DOMContentLoaded', () => {
             atualizarPreviewEmblema();
             saveGame();
         }
-        else if (target.id === 'btn-salvar-identidade') { saveGame(); alert('Identidade da equipe salva com sucesso!'); }
+        else if (target.id === 'btn-salvar-identidade') { salvarIdentidadeEquipe(); }
         else if (target.matches('#btn-auto-equip')) autoEquiparMelhoresPecas();
         else if (target.matches('.car-selector-btn')) {
             garagemState.carroSelecionadoIndex = parseInt(target.dataset.carIndex);
