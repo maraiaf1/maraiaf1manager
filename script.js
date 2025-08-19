@@ -3579,10 +3579,10 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (target.matches('.btn-trocar-peca')) openPartSelectorModal(target.dataset.slotKey);
         else if (target.closest('#modal-parts-list .peca-card')) {
             const card = target.closest('.peca-card');
-            equiparPeca(parseInt(card.dataset.instanceId), card.dataset.slotKey);
+            equiparPeca(parseFloat(card.dataset.instanceId), card.dataset.slotKey);
         }
-        else if (target.matches('.btn-vender-peca[data-instance-id]')) venderPecaInventario(parseInt(target.dataset.instanceId));
-        else if (target.matches('.btn-comprar')) comprarPeca(parseInt(target.dataset.instanceId));
+        else if (target.matches('.btn-vender-peca[data-instance-id]')) venderPecaInventario(parseFloat(target.dataset.instanceId));
+        else if (target.matches('.btn-comprar')) comprarPeca(parseFloat(target.dataset.instanceId));
         else if (target.matches('#btn-atualizar-mercado')) {
             if (gameState.escuderia.dinheiro >= 30000) {
                 gameState.escuderia.dinheiro -= 30000;
