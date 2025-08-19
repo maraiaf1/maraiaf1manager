@@ -575,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 piloto.consistencia = Math.max(40, piloto.consistencia - (Math.floor(Math.random() * 3)));
                 piloto.gerenciamentoPneus = Math.max(40, piloto.gerenciamentoPneus - (Math.floor(Math.random() * 3)));
             }
-            if (piloto.idade >= 44) {
+            if (piloto.idade >= 41) {
                 pilotosAposentados.push(piloto);
             }
         });
@@ -1597,8 +1597,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         processarReajusteSalarialEspecialistas();
-        atualizarMercadoDePilotos(gameState.pilotos);
         processarEnvelhecimentoPilotos();
+        atualizarMercadoDePilotos(gameState.pilotos);
         evoluirCarrosIA();
         alert("O mercado de pilotos foi atualizado para a nova temporada!");
 
