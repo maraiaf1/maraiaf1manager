@@ -2621,6 +2621,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.escuderia-dinheiro-display').forEach(el => { el.textContent = gameState.escuderia.dinheiro.toLocaleString('pt-BR'); });
         document.getElementById('input-nome-escuderia').value = gameState.escuderia.nome;
         document.querySelectorAll('.campeonato-ano-display').forEach(el => el.textContent = gameState.campeonato.ano);
+        const proximaPista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
+        if (proximaPista) {
+            document.getElementById('pista-nome-escuderia').textContent = `${proximaPista.nome} (${gameState.campeonato.corridaAtualIndex + 1}/${calendarioCorridas.length})`;
+        }
         renderEspecialistas();
         renderProjetos();
         renderPatrocinadores();
@@ -3027,7 +3031,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         corridaDiv.innerHTML = `
-            <h2>Próxima Corrida: <span id="pista-nome"></span></h2>
+            <h2>Próxima Corrida: <span id="pista-nome-corrida"></span></h2>
             <div class="corrida-layout-3col">
                 <div class="setup-coluna" id="coluna-esquerda-corrida">
                     <div id="info-pre-corrida-esquerda">
@@ -3075,7 +3079,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
-        document.getElementById('pista-nome').textContent = `${pista.nome} (${gameState.campeonato.corridaAtualIndex + 1}/${calendarioCorridas.length})`;
+        document.getElementById('pista-nome-corrida').textContent = `${pista.nome} (${gameState.campeonato.corridaAtualIndex + 1}/${calendarioCorridas.length})`;
         document.getElementById('info-pista').innerHTML = `<img src="${pista.imagem}" alt="Circuito" class="info-pista-imagem"><p>Voltas: ${pista.voltas}</p><p>Foco em Motor: ${pista.demandaMotor * 100}%</p><p>Foco em Aerodinâmica: ${pista.demandaAero * 100}%</p><p>Foco em Aderência: ${pista.demandaAderencia * 100}%</p>`;
         document.getElementById('nossos-carros-corrida').innerHTML = gameState.carros.map(carro => {
             const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
