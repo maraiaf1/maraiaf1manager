@@ -10,13 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
         3: { id: 3, tipo: 'Motor', nome: 'Motor Reforçado D-5+1', nivel: 2, atributos: { potencia: 40, confiabilidade: 79 } },
         1: { id: 1, tipo: 'Motor', nome: 'Motor Padrão V3', nivel: 3, atributos: { potencia: 42, confiabilidade: 81 } },
         12: { id: 12, tipo: 'Motor', nome: 'Motor Padrão V4 Sport', nivel: 4, atributos: { potencia: 45, confiabilidade: 83 } },
-        13: { id: 13, tipo: 'Motor', nome: 'Motor Especial V6 Sport', nivel: 5, atributos: { potencia: 55, confiabilidade: 82 } },
-        14: { id: 14, tipo: 'Motor', nome: 'Motor Power Sport', nivel: 6, atributos: { potencia: 60, confiabilidade: 83 } },
-        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V8', nivel: 6, atributos: { potencia: 70, confiabilidade: 84 } },
-        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo NB', nivel: 7, atributos: { potencia: 75, confiabilidade: 88 } },
-        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 79, confiabilidade: 86 } },
-        17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 82, confiabilidade: 89 } },
-        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 88, confiabilidade: 88 } },
+        13: { id: 13, tipo: 'Motor', nome: 'Motor Especial V6 Sport', nivel: 5, atributos: { potencia: 46, confiabilidade: 82 } },
+        14: { id: 14, tipo: 'Motor', nome: 'Motor Power Sport', nivel: 6, atributos: { potencia: 50, confiabilidade: 83 } },
+        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V8', nivel: 6, atributos: { potencia: 52, confiabilidade: 84 } },
+        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo NB', nivel: 7, atributos: { potencia: 56, confiabilidade: 88 } },
+        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 64, confiabilidade: 87 } },
+        17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 70, confiabilidade: 89 } },
+        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 75, confiabilidade: 88 } },
+        200: { id: 200, tipo: 'Motor', nome: 'Motor CChaplin25', nivel: 10, atributos: { potencia: 79, confiabilidade: 89 } },
+
         40: { id: 40, tipo: 'Suspensão', nome: 'Suspensão Simples', nivel: 1, atributos: { aderencia: 40, confiabilidade: 80 } },
         51: { id: 51, tipo: 'Suspensão', nome: 'Suspensão Simples V2', nivel: 2, atributos: { aderencia: 43, confiabilidade: 83 } },
         52: { id: 52, tipo: 'Suspensão', nome: 'Suspensão Simples V3', nivel: 3, atributos: { aderencia: 46, confiabilidade: 85 } },
@@ -25,18 +27,23 @@ document.addEventListener('DOMContentLoaded', () => {
         27: { id: 27, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 6, atributos: { aderencia: 57, confiabilidade: 90 } },
         53: { id: 53, tipo: 'Suspensão', nome: 'Suspensão DC', nivel: 7, atributos: { aderencia: 61, confiabilidade: 89 } },
         28: { id: 28, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 8, atributos: { aderencia: 65, confiabilidade: 90 } },
-        31: { id: 31, tipo: 'Suspensão', nome: 'Suspensão TTz', nivel: 9, atributos: { aderencia: 70, confiabilidade: 90 } },
-        54: { id: 54, tipo: 'Suspensão', nome: 'Suspensão TM86', nivel: 10, atributos: { aderencia: 72, confiabilidade: 89 } },
+        31: { id: 31, tipo: 'Suspensão', nome: 'Suspensão TTz', nivel: 9, atributos: { aderencia: 66, confiabilidade: 90 } },
+        54: { id: 54, tipo: 'Suspensão', nome: 'Suspensão TM86', nivel: 10, atributos: { aderencia: 69, confiabilidade: 89 } },
+        201: { id: 201, tipo: 'Suspensão', nome: 'Beralta-19', nivel: 10, atributos: { aderencia: 70, confiabilidade: 89 } },
+
         55: { id: 55, tipo: 'Chassi', nome: 'Chassi XyX', nivel: 1, atributos: { aerodinamica: 9, aderencia: 11, confiabilidade: 75 } },
         10: { id: 10, tipo: 'Chassi', nome: 'Chassi Básico', nivel: 2, atributos: { aerodinamica: 10, aderencia: 13, confiabilidade: 76 } },
         11: { id: 11, tipo: 'Chassi', nome: 'Chassi de Carbono', nivel: 3, atributos: { aerodinamica: 11, aderencia: 14, confiabilidade: 79 } },
         32: { id: 32, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 4, atributos: { aerodinamica: 12, aderencia: 15, confiabilidade: 83 } },
         5: { id: 5, tipo: 'Chassi', nome: 'Chassi Reforçado', nivel: 5, atributos: { aerodinamica: 13, aderencia: 16, confiabilidade: 84 } },
         25: { id: 25, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 6, atributos: { aerodinamica: 16, aderencia: 17, confiabilidade: 86 } },
-        56: { id: 56, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 7, atributos: { aerodinamica: 18, aderencia: 18, confiabilidade: 86} },
-        57: { id: 57, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 8, atributos: { aerodinamica: 20, aderencia: 19, confiabilidade: 87 } },
-        26: { id: 26, tipo: 'Chassi', nome: 'Chassi ProM', nivel: 9, atributos: { aerodinamica: 21, aderencia: 19, confiabilidade: 88 } },
-        58: { id: 58, tipo: 'Chassi', nome: 'Chassi XxX86', nivel: 10, atributos: { aerodinamica: 22, aderencia: 20, confiabilidade: 89 } },
+        56: { id: 56, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 7, atributos: { aerodinamica: 16, aderencia: 17, confiabilidade: 86} },
+        57: { id: 57, tipo: 'Chassi', nome: 'Chassi XxX', nivel: 8, atributos: { aerodinamica: 17, aderencia: 16, confiabilidade: 87 } },
+        26: { id: 26, tipo: 'Chassi', nome: 'Chassi ProM', nivel: 9, atributos: { aerodinamica: 17, aderencia: 17, confiabilidade: 88 } },
+        205: { id: 26, tipo: 'Chassi', nome: 'BigBig', nivel: 9, atributos: { aerodinamica: 18, aderencia: 18, confiabilidade: 88 } },
+        58: { id: 58, tipo: 'Chassi', nome: 'Chassi XxX86', nivel: 10, atributos: { aerodinamica: 20, aderencia: 17, confiabilidade: 89 } },
+        202: { id: 202, tipo: 'Chassi', nome: 'Luck-Boss', nivel: 10, atributos: { aerodinamica: 20, aderencia: 18, confiabilidade: 89 } },
+
         33: { id: 33, tipo: 'Asa Dianteira', nome: 'Asa T ProM', nivel: 1, atributos: { aerodinamica: 11, confiabilidade: 74 } },
         34: { id: 34, tipo: 'Asa Dianteira', nome: 'Asa G Pro', nivel: 2, atributos: { aerodinamica: 12, confiabilidade: 76 } },
         20: { id: 20, tipo: 'Asa Dianteira', nome: 'Asa Padrão', nivel: 3, atributos: { aerodinamica: 13, confiabilidade: 78 } },
@@ -44,20 +51,23 @@ document.addEventListener('DOMContentLoaded', () => {
         19: { id: 19, tipo: 'Asa Dianteira', nome: 'Asa X-Eficiência', nivel: 4, atributos: { aerodinamica: 15, confiabilidade: 80 } },
         22: { id: 22, tipo: 'Asa Dianteira', nome: 'Asa DeltaT', nivel: 5, atributos: { aerodinamica: 16, confiabilidade: 81 } },
         59: { id: 59, tipo: 'Asa Dianteira', nome: 'Asa T Pro', nivel: 6, atributos: { aerodinamica: 17, confiabilidade: 84 } },
-        60: { id: 60, tipo: 'Asa Dianteira', nome: 'Asa NB', nivel: 7, atributos: { aerodinamica: 20, confiabilidade: 85 } },
-        8: { id: 8, tipo: 'Asa Dianteira', nome: 'Asa de Alta Eficiência', nivel: 8, atributos: { aerodinamica: 22, confiabilidade: 86 } },
-        21: { id: 21, tipo: 'Asa Dianteira', nome: 'Asa XxX', nivel: 9, atributos: { aerodinamica: 23, confiabilidade: 86 } },
-        61: { id: 61, tipo: 'Asa Dianteira', nome: 'Asa Br-TN', nivel: 10, atributos: { aerodinamica: 24, confiabilidade: 89 } },
+        60: { id: 60, tipo: 'Asa Dianteira', nome: 'Asa NB', nivel: 7, atributos: { aerodinamica: 17, confiabilidade: 85 } },
+        8: { id: 8, tipo: 'Asa Dianteira', nome: 'NN-25', nivel: 8, atributos: { aerodinamica: 18, confiabilidade: 86 } },
+        21: { id: 21, tipo: 'Asa Dianteira', nome: 'Asa XxX', nivel: 9, atributos: { aerodinamica: 19, confiabilidade: 86 } },
+        61: { id: 61, tipo: 'Asa Dianteira', nome: 'Asa Br-TN', nivel: 10, atributos: { aerodinamica: 21, confiabilidade: 89 } },
+        203: { id: 203, tipo: 'Asa Dianteira', nome: 'B-CC25', nivel: 10, atributos: { aerodinamica: 22, confiabilidade: 89 } },
+
         30: { id: 30, tipo: 'Asa Traseira', nome: 'Asa Padrão', nivel: 1, atributos: { aerodinamica: 30, confiabilidade: 79 } },
-        71: { id: 71, tipo: 'Asa Traseira', nome: 'Asa CRm', nivel: 2, atributos: { aerodinamica: 33, confiabilidade: 82 } },
-        72: { id: 72, tipo: 'Asa Traseira', nome: 'Asa Lck', nivel: 3, atributos: { aerodinamica: 36, confiabilidade: 84 } },
-        73: { id: 73, tipo: 'Asa Traseira', nome: 'Asa ChP', nivel: 4, atributos: { aerodinamica: 39, confiabilidade: 86 } },
-        24: { id: 24, tipo: 'Asa Traseira', nome: 'Asa T ProM', nivel: 5, atributos: { aerodinamica: 40, confiabilidade: 87 } },
-        74: { id: 74, tipo: 'Asa Traseira', nome: 'Asa br', nivel: 6, atributos: { aerodinamica: 41, confiabilidade: 90 } },
-        23: { id: 23, tipo: 'Asa Traseira', nome: 'Asa T DRS Pro1', nivel: 7, atributos: { aerodinamica: 44, confiabilidade: 90 } },
-        75: { id: 75, tipo: 'Asa Traseira', nome: 'Asa 555', nivel: 8, atributos: { aerodinamica: 43, confiabilidade: 89 } },
-        9: { id: 9, tipo: 'Asa Traseira', nome: 'Asa Traseira DRS Pro', nivel: 9, atributos: { aerodinamica: 44, confiabilidade: 87 } },
-        76: { id: 76, tipo: 'Asa Traseira', nome: 'Asa 333', nivel: 10, atributos: { aerodinamica: 45, confiabilidade: 90 } },
+        71: { id: 71, tipo: 'Asa Traseira', nome: 'Asa CRm', nivel: 2, atributos: { aerodinamica: 30, confiabilidade: 82 } },
+        72: { id: 72, tipo: 'Asa Traseira', nome: 'Asa Lck', nivel: 3, atributos: { aerodinamica: 31, confiabilidade: 84 } },
+        73: { id: 73, tipo: 'Asa Traseira', nome: 'Asa ChP', nivel: 4, atributos: { aerodinamica: 33, confiabilidade: 86 } },
+        24: { id: 24, tipo: 'Asa Traseira', nome: 'Asa T ProM', nivel: 5, atributos: { aerodinamica: 35, confiabilidade: 87 } },
+        74: { id: 74, tipo: 'Asa Traseira', nome: 'Asa br', nivel: 6, atributos: { aerodinamica: 37, confiabilidade: 90 } },
+        23: { id: 23, tipo: 'Asa Traseira', nome: 'Asa T DRS Pro1', nivel: 7, atributos: { aerodinamica: 37, confiabilidade: 90 } },
+        75: { id: 75, tipo: 'Asa Traseira', nome: 'Asa 555', nivel: 8, atributos: { aerodinamica: 38, confiabilidade: 89 } },
+        9: { id: 9, tipo: 'Asa Traseira', nome: 'Asa Traseira DRS Pro', nivel: 9, atributos: { aerodinamica: 39, confiabilidade: 87 } },
+        76: { id: 76, tipo: 'Asa Traseira', nome: 'Asa 333', nivel: 10, atributos: { aerodinamica: 40, confiabilidade: 89 } },
+        204: { id: 204, tipo: 'Asa Traseira', nome: 'Orange-C', nivel: 10, atributos: { aerodinamica: 42, confiabilidade: 89 } },
     };
     const especialistasDisponiveis = [ { id: 1, nome: "Adrian Newey Jr.", tipo: "Aerodinamicista", nivel: 5, salario: 15000 }, { id: 2, nome: "Paddy Lowe", tipo: "Projetista", nivel: 5, salario: 11900 }, { id: 3, nome: "Luca Marmorini", tipo: "Engenheiro de Motor", nivel: 5, salario: 12000 }, { id: 4, nome: "Helmut Marko Jr.", tipo: "Olheiro", nivel: 5, salario: 11650 }, { id: 5, nome: "Jo Bauer", tipo: "Treinador de Pilotos", nivel: 5, salario: 11750 } ];
     const CUSTO_BASE_PROJETO = 50000;
@@ -114,9 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
         "GP de Abu Dhabi (Yas Marina)": [{ x: 360, y: 190 }, 	{ x: 360, y: 350 }, 	{ x: 370, y: 360 }, 	{ x: 420, y: 360 }, 	{ x: 430, y: 350 }, 	{ x: 440, y: 320 }, 	{ x: 450, y: 300 }, 	{ x: 470, y: 290 }, 	{ x: 490, y: 300 }, 	{ x: 520, y: 320 }, 	{ x: 540, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 630, y: 320 }, 	{ x: 630, y: 310 }, 	{ x: 620, y: 290 }, 	{ x: 330, y: 80 }, 	{ x: 330, y: 120 }, 	{ x: 300, y: 120 }, 	{ x: 270, y: 130 }, 	{ x: 240, y: 160 }, 	{ x: 170, y: 240 }, 	{ x: 130, y: 320 }, 	{ x: 120, y: 340 }, 	{ x: 120, y: 360 }, 	{ x: 130, y: 370 }, 	{ x: 150, y: 380 }, 	{ x: 170, y: 370 }, 	{ x: 180, y: 340 }, 	{ x: 180, y: 280 }, 	{ x: 190, y: 260 }, 	{ x: 210, y: 230 }, 	{ x: 240, y: 230 }, 	{ x: 250, y: 240 }, 	{ x: 250, y: 270 }, 	{ x: 260, y: 280 }, 	{ x: 280, y: 290 }, 	{ x: 290, y: 280 }, 	{ x: 290, y: 180 }, 	{ x: 300, y: 160 }, 	{ x: 340, y: 140 }, 	{ x: 350, y: 140 }, 	{ x: 360, y: 150 }, 	{ x: 360, y: 190 }]
     };
     const pneus = {
-        macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.9, duracaoIdeal: 0.30 },
-        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 2.9, duracaoIdeal: 0.45 },
-        duro: { nome: 'Duro', multiplicadorPerformance: 0.90, desgastePorVolta: 1.9, duracaoIdeal: 0.60 }
+        macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.99, duracaoIdeal: 0.33 },
+        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 3.0, duracaoIdeal: 0.45 },
+        duro: { nome: 'Duro', multiplicadorPerformance: 0.96, desgastePorVolta: 1.9, duracaoIdeal: 0.65 }
     };
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
     const especialistaHabilidades = {
@@ -149,12 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 19, nome: "Oscar Piastri", idade: 24, habilidade: 92, consistencia: 93, gerenciamentoPneus: 92, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 92 }, status: 'MacLaren', campeonatosGanhos: [] },
         { id: 20, nome: "Lando Norris", idade: 25, habilidade: 92, consistencia: 93, gerenciamentoPneus: 93, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 93 }, status: 'MacLaren', campeonatosGanhos: [] },
         { id: 101, nome: "Lucas di Grassi", idade: 33, habilidade: 91, consistencia: 90, gerenciamentoPneus: 92, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 92 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 102, nome: "Felipe Drugovich", idade: 19, habilidade: 87, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 1500000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 103, nome: "Dudu Barrichello", idade: 21, habilidade: 86, consistencia: 90, gerenciamentoPneus: 88, salario: 15000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 104, nome: "F. Barrichello", idade: 17, habilidade: 87, consistencia: 91, gerenciamentoPneus: 90, salario: 15000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 102, nome: "Felipe Drugovich", idade: 19, habilidade: 87, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 3800000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 103, nome: "Dudu Barrichello", idade: 21, habilidade: 84, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 104, nome: "F. Barrichello", idade: 17, habilidade: 80, consistencia: 81, gerenciamentoPneus: 85, salario: 15000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 105, nome: "Pietro Fittipaldi", idade: 18, habilidade: 72, consistencia: 88, gerenciamentoPneus: 85, salario: 15000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 106, nome: "Enzo Fittipaldi", idade: 17,habilidade: 66, consistencia: 82, gerenciamentoPneus: 84, salario: 16000, precoContrato: 100000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 107, nome: "Caio Collet", idade: 20, habilidade: 87, consistencia: 89, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 107, nome: "Caio Collet", idade: 20, habilidade: 85, consistencia: 86, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 108, nome: "Bueno Filho", idade: 25, habilidade: 89, consistencia: 86, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 109, nome: "Roberty Moreno", idade: 22, habilidade: 80, consistencia: 95, gerenciamentoPneus: 88, salario: 18000, precoContrato: 750000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 110, nome: "Nonato André", idade: 21, habilidade: 75, consistencia: 79, gerenciamentoPneus: 79, salario: 14000, precoContrato: 500000, status: 'Disponível', campeonatosGanhos: [] },
@@ -164,27 +174,29 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 114, nome: "Roberto Moreno", idade: 24, habilidade: 85, consistencia: 89, gerenciamentoPneus: 91, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 115, nome: "Pepe Martí", idade: 25, habilidade: 88, consistencia: 80, gerenciamentoPneus: 88, salario: 16000, precoContrato: 650000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 116, nome: "Oliver Goethe", idade: 26, habilidade: 91, consistencia: 85, gerenciamentoPneus: 84, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 117, nome: "Richard Verschoo", idade: 19, habilidade: 78, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 118, nome: "Luke Browning", idade: 24, habilidade: 90, consistencia: 75, gerenciamentoPneus: 88, salario: 14000, precoContrato: 250000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 117, nome: "Richard Verschoo", idade: 19, habilidade: 82, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 118, nome: "Luke Browning", idade: 24, habilidade: 90, consistencia: 75, gerenciamentoPneus: 88, salario: 14000, precoContrato: 290000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 119, nome: "Dino Beganovic", idade: 25, habilidade: 82, consistencia: 85, gerenciamentoPneus: 78, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 120, nome: "Gabriele Minì", idade: 38, habilidade: 90, consistencia: 92, gerenciamentoPneus: 91, salario: 16000, precoContrato: 250000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 120, nome: "Gabriele Minì", idade: 38, habilidade: 90, consistencia: 92, gerenciamentoPneus: 91, salario: 16000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 121, nome: "Jak Crawford", idade: 24, habilidade: 88, consistencia: 82, gerenciamentoPneus: 85, salario: 11000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 122, nome: "Amaury Cordeel", idade: 25, habilidade: 85, consistencia: 88, gerenciamentoPneus: 82, salario: 13000, precoContrato: 250000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 122, nome: "Amaury Cordeel", idade: 25, habilidade: 85, consistencia: 88, gerenciamentoPneus: 82, salario: 13000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 123, nome: "Cian Shields", idade: 26, habilidade: 86, consistencia: 85, gerenciamentoPneus: 78, salario: 12000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 124, nome: "Sami Meguetounif", idade: 16, habilidade: 85, consistencia: 85, gerenciamentoPneus: 90, salario: 14000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 125, nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 90, salario: 19000, precoContrato: 210000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 124, nome: "Sami Meguetounif", idade: 16, habilidade: 84, consistencia: 85, gerenciamentoPneus: 86, salario: 14000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 125, nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 19000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 126, nome: "Charlie Chaplin", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 18000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 127, nome: "P. Beralta", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 17000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
     ];
     const equipesIA = [
-        { nome: "Red Bull", cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 96, aerodinamica: 94, aderencia: 95, confiabilidade: 89 } },
-        { nome: "Mercedes", cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 92, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
-        { nome: "Ferrari", cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 93, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
-        { nome: "Sauber", cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 89, aerodinamica: 85, aderencia: 89, confiabilidade: 85 } },
-        { nome: "Aston Martin", cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 89, aerodinamica: 88, aderencia: 86, confiabilidade: 85 } },
-        { nome: "Alpine", cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 85, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
-        { nome: "Haas", cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 79, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
-        { nome: "RB", cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
-        { nome: "Wilians", cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 88, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
-        { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 96, aerodinamica: 95, aderencia: 95, confiabilidade: 90 } },
+        { nome: "Red Bull", cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 98, aerodinamica: 96, aderencia: 95, confiabilidade: 89 } },
+        { nome: "Mercedes", cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
+        { nome: "Ferrari", cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 97, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
+        { nome: "Sauber", cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
+        { nome: "Aston Martin", cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
+        { nome: "Alpine", cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 95, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
+        { nome: "Haas", cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 89, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
+        { nome: "RB", cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 91, aderencia: 92, confiabilidade: 80 } },
+        { nome: "Wilians", cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 91, aerodinamica: 89, aderencia: 91, confiabilidade: 80 } },
+        { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 98, aerodinamica: 96, aderencia: 97, confiabilidade: 90 } },
     ];
 
     const catalogoMensagens = {
@@ -615,17 +627,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 piloto.consistencia = Math.max(40, piloto.consistencia - (Math.floor(Math.random() * 3)));
                 piloto.gerenciamentoPneus = Math.max(40, piloto.gerenciamentoPneus - (Math.floor(Math.random() * 3)));
             }
+            const isPilotoDoJogador = piloto.status === 'Jogador' || piloto.status === 'Reserva';
             const idade = piloto.idade;
             let deveAposentar = false;
 
-            if (idade > 45) {
-                deveAposentar = true; // 100% de chance
-            } else if (idade >= 43 && idade <= 45) { // 50% de chance para idades 43, 44 e 45
-                if (Math.random() < 0.50) deveAposentar = true;
-            } else if (idade >= 41 && idade <= 42) { // 30% de chance para idades 41 e 42
-                if (Math.random() < 0.30) deveAposentar = true;
-            } else if (idade >= 35 && idade <= 40) { // 10% de chance para idades 37, 38, 39 e 40
-                if (Math.random() < 0.10) deveAposentar = true;
+            if (isPilotoDoJogador) {
+                // REGRA PARA PILOTOS DO JOGADOR: Apenas aposentadoria compulsória.
+                if (idade > 45) {
+                    deveAposentar = true;
+                }
+            } else {
+                // REGRAS PARA PILOTOS DA I.A.: Lógica de probabilidade.
+                if (idade > 45) {
+                    deveAposentar = true; // 100% de chance
+                } else if (idade >= 43 && idade <= 45) { // 50% de chance
+                    if (Math.random() < 0.50) deveAposentar = true;
+                } else if (idade >= 41 && idade <= 42) { // 30% de chance
+                    if (Math.random() < 0.30) deveAposentar = true;
+                } else if (idade >= 37 && idade <= 40) { // 10% de chance
+                    if (Math.random() < 0.10) deveAposentar = true;
+                }
             }
 
             if (deveAposentar) {
