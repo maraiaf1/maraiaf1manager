@@ -728,6 +728,79 @@ font-size: 0.8rem;
     }
 }
 
+/* ============================================================= */
+/* ESTILOS PARA FOTOS DOS PILOTOS                                */
+/* ============================================================= */
+
+/* Altera o card de piloto para usar flexbox */
+.piloto-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Container para a foto */
+.piloto-rosto-container {
+    flex-shrink: 0; /* Impede que a imagem seja esmagada */
+}
+
+/* Estilo da imagem do piloto */
+.piloto-rosto {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* Deixa a imagem redonda */
+    object-fit: cover; /* Garante que a imagem preencha o círculo sem distorcer */
+    border: 3px solid #eee;
+}
+
+/* Container para as informações (nome, atributos, etc.) */
+.piloto-info-container {
+    flex-grow: 1; /* Faz esta área ocupar o resto do espaço */
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Garante que o container ocupe a largura */
+}
+
+/* Para pilotos aposentados, a foto fica em tons de cinza */
+.piloto-card.aposentado .piloto-rosto {
+    filter: grayscale(100%);
+}
+
+/* Estilo menor para a foto na Galeria (Hall da Fama) */
+.piloto-rosto-fama {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    flex-shrink: 0;
+}
+
+/* ============================================================= */
+/* ESTILOS PARA FOTOS DAS EQUIPES NO CAMPEONATO                  */
+/* ============================================================= */
+
+/* Alinha a imagem e o texto na célula da equipe */
+#tabela-classificacao-pilotos td:nth-child(3),
+#tabela-classificacao-construtores td:nth-child(2) {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espaço entre a imagem e o nome */
+}
+
+/* Estilo para a imagem da equipe */
+.equipe-foto-tabela {
+    width: 30px;
+    height: 30px;
+    object-fit: contain; /* Garante que o logo não seja distorcido */
+}
+
+/* Ajusta o tamanho do emblema do jogador para ficar consistente */
+.emblema-na-tabela {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0; /* Impede que o emblema seja esmagado */
+}
 /* Estilos para a Tela de Luzes de Largada */
 #lights-out-modal {
     position: fixed;

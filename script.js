@@ -6,18 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const catalogoDePecas = {
         50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1.0', nivel: 1, atributos: { potencia: 30, confiabilidade: 75 } },
-        2: { id: 2, tipo: 'Motor', nome: 'Motor Reforçado V2.0', nivel: 2, atributos: { potencia: 35, confiabilidade: 79 } },
-        3: { id: 3, tipo: 'Motor', nome: 'Motor Reforçado D-5+1', nivel: 2, atributos: { potencia: 40, confiabilidade: 79 } },
-        1: { id: 1, tipo: 'Motor', nome: 'Motor Padrão V3', nivel: 3, atributos: { potencia: 42, confiabilidade: 81 } },
-        12: { id: 12, tipo: 'Motor', nome: 'Motor Padrão V4 Sport', nivel: 4, atributos: { potencia: 45, confiabilidade: 83 } },
-        13: { id: 13, tipo: 'Motor', nome: 'Motor Especial V6 Sport', nivel: 5, atributos: { potencia: 46, confiabilidade: 82 } },
-        14: { id: 14, tipo: 'Motor', nome: 'Motor Power Sport', nivel: 6, atributos: { potencia: 50, confiabilidade: 83 } },
-        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V8', nivel: 6, atributos: { potencia: 52, confiabilidade: 84 } },
-        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo NB', nivel: 7, atributos: { potencia: 56, confiabilidade: 88 } },
-        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 64, confiabilidade: 87 } },
-        17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 70, confiabilidade: 89 } },
-        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 75, confiabilidade: 88 } },
-        200: { id: 200, tipo: 'Motor', nome: 'Motor CChaplin25', nivel: 10, atributos: { potencia: 79, confiabilidade: 89 } },
+        2: { id: 2, tipo: 'Motor', nome: 'Motor Reforçado V2.0', nivel: 2, atributos: { potencia: 42, confiabilidade: 79 } },
+        3: { id: 3, tipo: 'Motor', nome: 'Motor Reforçado D-5+1', nivel: 2, atributos: { potencia: 45, confiabilidade: 79 } },
+        1: { id: 1, tipo: 'Motor', nome: 'Motor Padrão V3', nivel: 3, atributos: { potencia: 48, confiabilidade: 81 } },
+        12: { id: 12, tipo: 'Motor', nome: 'Motor Padrão V4 Sport', nivel: 4, atributos: { potencia: 52, confiabilidade: 83 } },
+        13: { id: 13, tipo: 'Motor', nome: 'Motor Especial V6 Sport', nivel: 5, atributos: { potencia: 56, confiabilidade: 82 } },
+        14: { id: 14, tipo: 'Motor', nome: 'Motor Power Sport', nivel: 6, atributos: { potencia: 62, confiabilidade: 83 } },
+        6: { id: 6, tipo: 'Motor', nome: 'Motor Otimizado V8', nivel: 6, atributos: { potencia: 66, confiabilidade: 84 } },
+        15: { id: 15, tipo: 'Motor', nome: 'Motor Turbo NB', nivel: 7, atributos: { potencia: 70, confiabilidade: 88 } },
+        16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 73, confiabilidade: 87 } },
+        17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 76, confiabilidade: 89 } },
+        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 81, confiabilidade: 89 } },
+        200: { id: 200, tipo: 'Motor', nome: 'Motor CChaplin25', nivel: 10, atributos: { potencia: 83, confiabilidade: 89 } },
 
         40: { id: 40, tipo: 'Suspensão', nome: 'Suspensão Simples', nivel: 1, atributos: { aderencia: 40, confiabilidade: 80 } },
         51: { id: 51, tipo: 'Suspensão', nome: 'Suspensão Simples V2', nivel: 2, atributos: { aderencia: 43, confiabilidade: 83 } },
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         28: { id: 28, tipo: 'Suspensão', nome: 'Suspensão Avx', nivel: 8, atributos: { aderencia: 65, confiabilidade: 90 } },
         31: { id: 31, tipo: 'Suspensão', nome: 'Suspensão TTz', nivel: 9, atributos: { aderencia: 66, confiabilidade: 90 } },
         54: { id: 54, tipo: 'Suspensão', nome: 'Suspensão TM86', nivel: 10, atributos: { aderencia: 69, confiabilidade: 89 } },
-        201: { id: 201, tipo: 'Suspensão', nome: 'Beralta-19', nivel: 10, atributos: { aderencia: 70, confiabilidade: 89 } },
+        201: { id: 201, tipo: 'Suspensão', nome: 'Beralta-19', nivel: 10, atributos: { aderencia: 73, confiabilidade: 89 } },
 
         55: { id: 55, tipo: 'Chassi', nome: 'Chassi XyX', nivel: 1, atributos: { aerodinamica: 9, aderencia: 11, confiabilidade: 75 } },
         10: { id: 10, tipo: 'Chassi', nome: 'Chassi Básico', nivel: 2, atributos: { aerodinamica: 10, aderencia: 13, confiabilidade: 76 } },
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         26: { id: 26, tipo: 'Chassi', nome: 'Chassi ProM', nivel: 9, atributos: { aerodinamica: 17, aderencia: 17, confiabilidade: 88 } },
         205: { id: 26, tipo: 'Chassi', nome: 'BigBig', nivel: 9, atributos: { aerodinamica: 18, aderencia: 18, confiabilidade: 88 } },
         58: { id: 58, tipo: 'Chassi', nome: 'Chassi XxX86', nivel: 10, atributos: { aerodinamica: 20, aderencia: 17, confiabilidade: 89 } },
-        202: { id: 202, tipo: 'Chassi', nome: 'Luck-Boss', nivel: 10, atributos: { aerodinamica: 20, aderencia: 18, confiabilidade: 89 } },
+        202: { id: 202, tipo: 'Chassi', nome: 'Luck-Boss', nivel: 10, atributos: { aerodinamica: 22, aderencia: 19, confiabilidade: 89 } },
 
         33: { id: 33, tipo: 'Asa Dianteira', nome: 'Asa T ProM', nivel: 1, atributos: { aerodinamica: 11, confiabilidade: 74 } },
         34: { id: 34, tipo: 'Asa Dianteira', nome: 'Asa G Pro', nivel: 2, atributos: { aerodinamica: 12, confiabilidade: 76 } },
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         8: { id: 8, tipo: 'Asa Dianteira', nome: 'NN-25', nivel: 8, atributos: { aerodinamica: 18, confiabilidade: 86 } },
         21: { id: 21, tipo: 'Asa Dianteira', nome: 'Asa XxX', nivel: 9, atributos: { aerodinamica: 19, confiabilidade: 86 } },
         61: { id: 61, tipo: 'Asa Dianteira', nome: 'Asa Br-TN', nivel: 10, atributos: { aerodinamica: 21, confiabilidade: 89 } },
-        203: { id: 203, tipo: 'Asa Dianteira', nome: 'B-CC25', nivel: 10, atributos: { aerodinamica: 22, confiabilidade: 89 } },
+        203: { id: 203, tipo: 'Asa Dianteira', nome: 'B-CC25', nivel: 10, atributos: { aerodinamica: 24, confiabilidade: 89 } },
 
         30: { id: 30, tipo: 'Asa Traseira', nome: 'Asa Padrão', nivel: 1, atributos: { aerodinamica: 30, confiabilidade: 79 } },
         71: { id: 71, tipo: 'Asa Traseira', nome: 'Asa CRm', nivel: 2, atributos: { aerodinamica: 30, confiabilidade: 82 } },
@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
         23: { id: 23, tipo: 'Asa Traseira', nome: 'Asa T DRS Pro1', nivel: 7, atributos: { aerodinamica: 37, confiabilidade: 90 } },
         75: { id: 75, tipo: 'Asa Traseira', nome: 'Asa 555', nivel: 8, atributos: { aerodinamica: 38, confiabilidade: 89 } },
         9: { id: 9, tipo: 'Asa Traseira', nome: 'Asa Traseira DRS Pro', nivel: 9, atributos: { aerodinamica: 39, confiabilidade: 87 } },
-        76: { id: 76, tipo: 'Asa Traseira', nome: 'Asa 333', nivel: 10, atributos: { aerodinamica: 40, confiabilidade: 89 } },
-        204: { id: 204, tipo: 'Asa Traseira', nome: 'Orange-C', nivel: 10, atributos: { aerodinamica: 42, confiabilidade: 89 } },
+        76: { id: 76, tipo: 'Asa Traseira', nome: 'Asa 333', nivel: 10, atributos: { aerodinamica: 42, confiabilidade: 89 } },
+        204: { id: 204, tipo: 'Asa Traseira', nome: 'Orange-C', nivel: 10, atributos: { aerodinamica: 44, confiabilidade: 89 } },
     };
     const especialistasDisponiveis = [ { id: 1, nome: "Adrian Newey Jr.", tipo: "Aerodinamicista", nivel: 5, salario: 15000 }, { id: 2, nome: "Paddy Lowe", tipo: "Projetista", nivel: 5, salario: 11900 }, { id: 3, nome: "Luca Marmorini", tipo: "Engenheiro de Motor", nivel: 5, salario: 12000 }, { id: 4, nome: "Helmut Marko Jr.", tipo: "Olheiro", nivel: 5, salario: 11650 }, { id: 5, nome: "Jo Bauer", tipo: "Treinador de Pilotos", nivel: 5, salario: 11750 } ];
     const CUSTO_BASE_PROJETO = 50000;
@@ -137,66 +137,68 @@ document.addEventListener('DOMContentLoaded', () => {
     const marcasPatrocinadores = [
         { nome: "Heuer", tipo: "Relógios de Luxo", reputacaoMin: 0 }, { nome: "Petrobras", tipo: "Combustíveis", reputacaoMin: 0 }, { nome: "Santander", tipo: "Banco", reputacaoMin: 1 }, { nome: "Pirelli", tipo: "Pneus", reputacaoMin: 1 }, { nome: "Rolex", tipo: "Relógios de Luxo", reputacaoMin: 2 }, { nome: "Amazon AWS", tipo: "Tecnologia", reputacaoMin: 4 }, { nome: "Red Bull", tipo: "Bebidas Energéticas", reputacaoMin: 3 }, { nome: "Louis Vuitton", tipo: "Artigos de Luxo", reputacaoMin: 4 }, { nome: "Brahma", tipo: "Cerveja", reputacaoMin: 3 }, { nome: "Geodados WebSystem", tipo: "Sistemas de Informação", reputacaoMin: 1 }, { nome: "Geodados Geoprocessamento", tipo: "Geoprocessamento", reputacaoMin: 5 }, { nome: "Pitu", tipo: "Alimentos", reputacaoMin: 5 }, { nome: "Heineken", tipo: "Cerveja", reputacaoMin: 4 }, { nome: "Mercado Livre", tipo: "Comércio", reputacaoMin: 2 }, { nome: "Shopee", tipo: "Comércio", reputacaoMin: 0 }, { nome: "Shen", tipo: "Comércio", reputacaoMin: 1 }, { nome: "Colorado Beer", tipo: "cerveja", reputacaoMin: 0 }, { nome: "Tibia", tipo: "Jogo Eletrônico", reputacaoMin: 3 }, { nome: "League of Legends", tipo: "Jogo Eletrônico", reputacaoMin: 1 }, { nome: "Forza", tipo: "Jogo Eletrônico", reputacaoMin: 6 }, { nome: "Jardim Paraiso fest", tipo: "Comércio", reputacaoMin: 0 }, { nome: "H2 Games", tipo: "Comércio", reputacaoMin: 0 }, { nome: "Esfirras do Bairro", tipo: "Alimenticios", reputacaoMin: 1 }, { nome: "Pizzas BR", tipo: "Alimenticios", reputacaoMin: 0 }, { nome: "Petrobras Gás", tipo: "Comércio", reputacaoMin: 1 }, { nome: "Shell", tipo: "Combustível", reputacaoMin: 1 },
     ];
+
     const baseDePilotos = [
-        { id: 1, nome: "Max Verstappen", idade: 27, habilidade: 95, consistencia: 97, gerenciamentoPneus: 92, atributosBase: { habilidade: 95, consistencia: 97, gerenciamentoPneus: 92 }, status: 'Red Bull', campeonatosGanhos: [] },
-        { id: 2, nome: "Yuki Tsunoda", idade: 23, habilidade: 89, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 89, consistencia: 85, gerenciamentoPneus: 88 }, status: 'Red Bull', campeonatosGanhos: [] },
-        { id: 3, nome: "Lewis Hamilton", idade: 40, habilidade: 95, consistencia: 93, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 93, gerenciamentoPneus: 90 }, status: 'Ferrari', campeonatosGanhos: [] },
-        { id: 4, nome: "Charles Leclerc", idade: 27, habilidade: 92, consistencia: 90, gerenciamentoPneus: 94, atributosBase: { habilidade: 92, consistencia: 90, gerenciamentoPneus: 94 }, status: 'Ferrari', campeonatosGanhos: [] },
-        { id: 5, nome: "George Russell", idade: 27, habilidade: 90, consistencia: 91, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 89 }, status: 'Mercedes', campeonatosGanhos: [] },
-        { id: 6, nome: "K. Antonelli", idade: 18, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Mercedes', campeonatosGanhos: [] },
-        { id: 7, nome: "Carlos Sainz", idade: 30, habilidade: 90, consistencia: 90, gerenciamentoPneus: 88, atributosBase: { habilidade: 90, consistencia: 90, gerenciamentoPneus: 88 }, status: 'Wilians', campeonatosGanhos: [] },
-        { id: 8, nome: "Alex Albon", idade: 29, habilidade: 85, consistencia: 89, gerenciamentoPneus: 89, atributosBase: { habilidade: 85, consistencia: 89, gerenciamentoPneus: 89 }, status: 'Wilians', campeonatosGanhos: [] },
-        { id: 9, nome: "G. Bortoleto", idade: 20, habilidade: 89, consistencia: 89, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 89, gerenciamentoPneus: 86 }, status: 'Sauber', campeonatosGanhos: [] },
-        { id: 10, nome: "Nico Hulkenberg", idade: 37, habilidade: 89, consistencia: 88, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 88, gerenciamentoPneus: 86 }, status: 'Sauber', campeonatosGanhos: [] },
-        { id: 11, nome: "Fernando Alonso", idade: 43, habilidade: 92, consistencia: 91, gerenciamentoPneus: 96, atributosBase: { habilidade: 92, consistencia: 91, gerenciamentoPneus: 96 }, status: 'Aston Martin', campeonatosGanhos: [] },
-        { id: 12, nome: "Lance Stroll", idade: 26, habilidade: 86, consistencia: 78, gerenciamentoPneus: 86, atributosBase: { habilidade: 86, consistencia: 78, gerenciamentoPneus: 86 }, status: 'Aston Martin', campeonatosGanhos: [] },
-        { id: 13, nome: "Pierre Gasly", idade: 29, habilidade: 82, consistencia: 86, gerenciamentoPneus: 87, atributosBase: { habilidade: 82, consistencia: 86, gerenciamentoPneus: 87 }, status: 'Alpine', campeonatosGanhos: [] },
-        { id: 14, nome: "F. Colapinto", idade: 22, habilidade: 80, consistencia: 80, gerenciamentoPneus: 80, atributosBase: { habilidade: 80, consistencia: 80, gerenciamentoPneus: 80 }, status: 'Alpine', campeonatosGanhos: [] },
-        { id: 15, nome: "Esteban Ocon", idade: 28, habilidade: 85, consistencia: 87, gerenciamentoPneus: 86, atributosBase: { habilidade: 85, consistencia: 87, gerenciamentoPneus: 86 }, status: 'Haas', campeonatosGanhos: [] },
-        { id: 16, nome: "Oliver Bearman", idade: 20, habilidade: 83, consistencia: 81, gerenciamentoPneus: 82, atributosBase: { habilidade: 83, consistencia: 81, gerenciamentoPneus: 82 }, status: 'Haas', campeonatosGanhos: [] },
-        { id: 17, nome: "Isack Hadjar", idade: 20, habilidade: 88, consistencia: 82, gerenciamentoPneus: 83, atributosBase: { habilidade: 88, consistencia: 82, gerenciamentoPneus: 83 }, status: 'RB', campeonatosGanhos: [] },
-        { id: 18, nome: "Liam Lawson", idade: 23, habilidade: 81, consistencia: 84, gerenciamentoPneus: 85, atributosBase: { habilidade: 81, consistencia: 84, gerenciamentoPneus: 85 }, status: 'RB', campeonatosGanhos: [] },
-        { id: 19, nome: "Oscar Piastri", idade: 24, habilidade: 92, consistencia: 93, gerenciamentoPneus: 92, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 92 }, status: 'MacLaren', campeonatosGanhos: [] },
-        { id: 20, nome: "Lando Norris", idade: 25, habilidade: 92, consistencia: 93, gerenciamentoPneus: 93, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 93 }, status: 'MacLaren', campeonatosGanhos: [] },
-        { id: 101, nome: "Lucas di Grassi", idade: 33, habilidade: 91, consistencia: 90, gerenciamentoPneus: 92, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 92 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 102, nome: "Felipe Drugovich", idade: 19, habilidade: 87, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 3800000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 103, nome: "Dudu Barrichello", idade: 21, habilidade: 84, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 104, nome: "F. Barrichello", idade: 17, habilidade: 80, consistencia: 81, gerenciamentoPneus: 85, salario: 15000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 105, nome: "Pietro Fittipaldi", idade: 18, habilidade: 72, consistencia: 88, gerenciamentoPneus: 85, salario: 15000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 106, nome: "Enzo Fittipaldi", idade: 17,habilidade: 66, consistencia: 82, gerenciamentoPneus: 84, salario: 16000, precoContrato: 100000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 107, nome: "Caio Collet", idade: 20, habilidade: 85, consistencia: 86, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 108, nome: "Bueno Filho", idade: 25, habilidade: 89, consistencia: 86, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 109, nome: "Roberty Moreno", idade: 22, habilidade: 80, consistencia: 95, gerenciamentoPneus: 88, salario: 18000, precoContrato: 750000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 110, nome: "Nonato André", idade: 21, habilidade: 75, consistencia: 79, gerenciamentoPneus: 79, salario: 14000, precoContrato: 500000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 111, nome: "Brian EUA", idade: 30, habilidade: 89, consistencia: 88, gerenciamentoPneus: 91, salario: 13500, precoContrato: 480000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 112, nome: "Leonardo Fornaroli", idade: 28, habilidade: 88, consistencia: 88, gerenciamentoPneus: 79, salario: 13500, precoContrato: 480000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 113, nome: "Roman Staněk", idade: 23, habilidade: 87, consistencia: 90, gerenciamentoPneus: 85, salario: 13500, precoContrato: 480000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 114, nome: "Roberto Moreno", idade: 24, habilidade: 85, consistencia: 89, gerenciamentoPneus: 91, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 115, nome: "Pepe Martí", idade: 25, habilidade: 88, consistencia: 80, gerenciamentoPneus: 88, salario: 16000, precoContrato: 650000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 116, nome: "Oliver Goethe", idade: 26, habilidade: 91, consistencia: 85, gerenciamentoPneus: 84, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 117, nome: "Richard Verschoo", idade: 19, habilidade: 82, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 118, nome: "Luke Browning", idade: 24, habilidade: 90, consistencia: 75, gerenciamentoPneus: 88, salario: 14000, precoContrato: 290000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 119, nome: "Dino Beganovic", idade: 25, habilidade: 82, consistencia: 85, gerenciamentoPneus: 78, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 120, nome: "Gabriele Minì", idade: 38, habilidade: 90, consistencia: 92, gerenciamentoPneus: 91, salario: 16000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 121, nome: "Jak Crawford", idade: 24, habilidade: 88, consistencia: 82, gerenciamentoPneus: 85, salario: 11000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 122, nome: "Amaury Cordeel", idade: 25, habilidade: 85, consistencia: 88, gerenciamentoPneus: 82, salario: 13000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 123, nome: "Cian Shields", idade: 26, habilidade: 86, consistencia: 85, gerenciamentoPneus: 78, salario: 12000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 124, nome: "Sami Meguetounif", idade: 16, habilidade: 84, consistencia: 85, gerenciamentoPneus: 86, salario: 14000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 125, nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 19000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 126, nome: "Charlie Chaplin", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 18000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 127, nome: "P. Beralta", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 17000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 1, rosto: 'img/Pilotos/verstapen.png', nome: "Max Verstappen", idade: 27, habilidade: 95, consistencia: 97, gerenciamentoPneus: 92, atributosBase: { habilidade: 95, consistencia: 97, gerenciamentoPneus: 92 }, status: 'Red Bull', campeonatosGanhos: [] },
+        { id: 2, rosto: 'img/Pilotos/tsunoda.png', nome: "Yuki Tsunoda", idade: 23, habilidade: 89, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 89, consistencia: 85, gerenciamentoPneus: 88 }, status: 'Red Bull', campeonatosGanhos: [] },
+        { id: 3, rosto: 'img/Pilotos/hamilton.png', nome: "Lewis Hamilton", idade: 40, habilidade: 95, consistencia: 93, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 93, gerenciamentoPneus: 90 }, status: 'Ferrari', campeonatosGanhos: [] },
+        { id: 4, rosto: 'img/Pilotos/leclerc.png', nome: "Charles Leclerc", idade: 27, habilidade: 92, consistencia: 90, gerenciamentoPneus: 94, atributosBase: { habilidade: 92, consistencia: 90, gerenciamentoPneus: 94 }, status: 'Ferrari', campeonatosGanhos: [] },
+        { id: 5, rosto: 'img/Pilotos/russel.png', nome: "George Russell", idade: 27, habilidade: 90, consistencia: 91, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 89 }, status: 'Mercedes', campeonatosGanhos: [] },
+        { id: 6, rosto: 'img/Pilotos/antonele.png', nome: "K. Antonelli", idade: 18, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Mercedes', campeonatosGanhos: [] },
+        { id: 7, rosto: 'img/Pilotos/sainz.png', nome: "Carlos Sainz", idade: 30, habilidade: 90, consistencia: 90, gerenciamentoPneus: 88, atributosBase: { habilidade: 90, consistencia: 90, gerenciamentoPneus: 88 }, status: 'Wilians', campeonatosGanhos: [] },
+        { id: 8, rosto: 'img/Pilotos/albon.png', nome: "Alex Albon", idade: 29, habilidade: 85, consistencia: 89, gerenciamentoPneus: 89, atributosBase: { habilidade: 85, consistencia: 89, gerenciamentoPneus: 89 }, status: 'Wilians', campeonatosGanhos: [] },
+        { id: 9, rosto: 'img/Pilotos/bortoleto.png', nome: "G. Bortoleto", idade: 20, habilidade: 89, consistencia: 89, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 89, gerenciamentoPneus: 86 }, status: 'Sauber', campeonatosGanhos: [] },
+        { id: 10, rosto: 'img/Pilotos/hulkenberg.png', nome: "Nico Hulkenberg", idade: 37, habilidade: 89, consistencia: 88, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 88, gerenciamentoPneus: 86 }, status: 'Sauber', campeonatosGanhos: [] },
+        { id: 11, rosto: 'img/Pilotos/alonso.png', nome: "Fernando Alonso", idade: 43, habilidade: 92, consistencia: 91, gerenciamentoPneus: 96, atributosBase: { habilidade: 92, consistencia: 91, gerenciamentoPneus: 96 }, status: 'Aston Martin', campeonatosGanhos: [] },
+        { id: 12, rosto: 'img/Pilotos/stroll.png', nome: "Lance Stroll", idade: 26, habilidade: 86, consistencia: 78, gerenciamentoPneus: 86, atributosBase: { habilidade: 86, consistencia: 78, gerenciamentoPneus: 86 }, status: 'Aston Martin', campeonatosGanhos: [] },
+        { id: 13, rosto: 'img/Pilotos/gasly.png', nome: "Pierre Gasly", idade: 29, habilidade: 82, consistencia: 86, gerenciamentoPneus: 87, atributosBase: { habilidade: 82, consistencia: 86, gerenciamentoPneus: 87 }, status: 'Alpine', campeonatosGanhos: [] },
+        { id: 14, rosto: 'img/Pilotos/colapinto.png', nome: "F. Colapinto", idade: 22, habilidade: 80, consistencia: 80, gerenciamentoPneus: 80, atributosBase: { habilidade: 80, consistencia: 80, gerenciamentoPneus: 80 }, status: 'Alpine', campeonatosGanhos: [] },
+        { id: 15, rosto: 'img/Pilotos/ocon.png', nome: "Esteban Ocon", idade: 28, habilidade: 85, consistencia: 87, gerenciamentoPneus: 86, atributosBase: { habilidade: 85, consistencia: 87, gerenciamentoPneus: 86 }, status: 'Haas', campeonatosGanhos: [] },
+        { id: 16, rosto: 'img/Pilotos/bearman.png', nome: "Oliver Bearman", idade: 20, habilidade: 83, consistencia: 81, gerenciamentoPneus: 82, atributosBase: { habilidade: 83, consistencia: 81, gerenciamentoPneus: 82 }, status: 'Haas', campeonatosGanhos: [] },
+        { id: 17, rosto: 'img/Pilotos/hadjar.png', nome: "Isack Hadjar", idade: 20, habilidade: 88, consistencia: 82, gerenciamentoPneus: 83, atributosBase: { habilidade: 88, consistencia: 82, gerenciamentoPneus: 83 }, status: 'RB', campeonatosGanhos: [] },
+        { id: 18, rosto: 'img/Pilotos/lawson.png', nome: "Liam Lawson", idade: 23, habilidade: 81, consistencia: 84, gerenciamentoPneus: 85, atributosBase: { habilidade: 81, consistencia: 84, gerenciamentoPneus: 85 }, status: 'RB', campeonatosGanhos: [] },
+        { id: 19, rosto: 'img/Pilotos/piastri.png', nome: "Oscar Piastri", idade: 24, habilidade: 92, consistencia: 93, gerenciamentoPneus: 92, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 92 }, status: 'MacLaren', campeonatosGanhos: [] },
+        { id: 20, rosto: 'img/Pilotos/norris.png', nome: "Lando Norris", idade: 25, habilidade: 92, consistencia: 93, gerenciamentoPneus: 93, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 93 }, status: 'MacLaren', campeonatosGanhos: [] },
+        { id: 101, rosto: 'img/Pilotos/lucasdigrassi.png', nome: "Lucas di Grassi", idade: 33, habilidade: 91, consistencia: 90, gerenciamentoPneus: 92, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 92 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 102, rosto: 'img/Pilotos/felipedrugovich.png', nome: "Felipe Drugovich", idade: 19, habilidade: 87, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 3800000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 103, rosto: 'img/Pilotos/dudubarrichello.png', nome: "Dudu Barrichello", idade: 21, habilidade: 84, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 104, rosto: 'img/Pilotos/fbarrichello.png', nome: "F. Barrichello", idade: 17, habilidade: 80, consistencia: 81, gerenciamentoPneus: 85, salario: 15000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 105, rosto: 'img/Pilotos/default.png', nome: "Pietro Fittipaldi", idade: 18, habilidade: 72, consistencia: 88, gerenciamentoPneus: 85, salario: 15000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 106, rosto: 'img/Pilotos/default.png', nome: "Enzo Fittipaldi", idade: 17,habilidade: 66, consistencia: 82, gerenciamentoPneus: 84, salario: 16000, precoContrato: 100000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 107, rosto: 'img/Pilotos/caiocole.png', nome: "Caio Collet", idade: 20, habilidade: 85, consistencia: 86, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 108, rosto: 'img/Pilotos/buenofilho.png', nome: "Bueno Filho", idade: 25, habilidade: 89, consistencia: 86, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 109, rosto: 'img/Pilotos/default.png', nome: "Roberty Moreno", idade: 22, habilidade: 80, consistencia: 95, gerenciamentoPneus: 88, salario: 18000, precoContrato: 750000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 110, rosto: 'img/Pilotos/default.png', nome: "Nonato André", idade: 21, habilidade: 75, consistencia: 79, gerenciamentoPneus: 79, salario: 14000, precoContrato: 500000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 111, rosto: 'img/Pilotos/default.png', nome: "Brian EUA", idade: 30, habilidade: 89, consistencia: 88, gerenciamentoPneus: 91, salario: 13500, precoContrato: 480000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 112, rosto: 'img/Pilotos/default.png', nome: "Leonardo Fornaroli", idade: 28, habilidade: 88, consistencia: 88, gerenciamentoPneus: 79, salario: 13500, precoContrato: 480000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 113, rosto: 'img/Pilotos/default.png', nome: "Roman Staněk", idade: 23, habilidade: 87, consistencia: 90, gerenciamentoPneus: 85, salario: 13500, precoContrato: 480000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 114, rosto: 'img/Pilotos/default.png', nome: "Roberto Moreno", idade: 24, habilidade: 85, consistencia: 89, gerenciamentoPneus: 91, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 115, rosto: 'img/Pilotos/pepe.png', nome: "Pepe Martí", idade: 25, habilidade: 88, consistencia: 80, gerenciamentoPneus: 88, salario: 16000, precoContrato: 650000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 116, rosto: 'img/Pilotos/default.png', nome: "Oliver Goethe", idade: 26, habilidade: 91, consistencia: 85, gerenciamentoPneus: 84, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 117, rosto: 'img/Pilotos/default.png', nome: "Richard Verschoo", idade: 19, habilidade: 82, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 118, rosto: 'img/Pilotos/default.png', nome: "Luke Browning", idade: 24, habilidade: 90, consistencia: 75, gerenciamentoPneus: 88, salario: 14000, precoContrato: 290000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 119, rosto: 'img/Pilotos/default.png', nome: "Dino Beganovic", idade: 25, habilidade: 82, consistencia: 85, gerenciamentoPneus: 78, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 120, rosto: 'img/Pilotos/default.png', nome: "Gabriele Minì", idade: 38, habilidade: 90, consistencia: 92, gerenciamentoPneus: 91, salario: 16000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 121, rosto: 'img/Pilotos/default.png', nome: "Jak Crawford", idade: 24, habilidade: 88, consistencia: 82, gerenciamentoPneus: 85, salario: 11000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 122, rosto: 'img/Pilotos/default.png', nome: "Amaury Cordeel", idade: 25, habilidade: 85, consistencia: 88, gerenciamentoPneus: 82, salario: 13000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 123, rosto: 'img/Pilotos/default.png', nome: "Cian Shields", idade: 26, habilidade: 86, consistencia: 85, gerenciamentoPneus: 78, salario: 12000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 124, rosto: 'img/Pilotos/default.png', nome: "Sami Meguetounif", idade: 16, habilidade: 84, consistencia: 85, gerenciamentoPneus: 86, salario: 14000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 125, rosto: 'img/Pilotos/rafaelcamara.png', nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 19000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 126, rosto: 'img/Pilotos/default.png', nome: "Charlie Chaplin", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 18000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 127, rosto: 'img/Pilotos/default.png', nome: "P. Beralta", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 17000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
     ];
+
     const equipesIA = [
-        { nome: "Red Bull", cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 98, aerodinamica: 96, aderencia: 95, confiabilidade: 89 } },
-        { nome: "Mercedes", cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
-        { nome: "Ferrari", cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 97, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
-        { nome: "Sauber", cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
-        { nome: "Aston Martin", cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
-        { nome: "Alpine", cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 95, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
-        { nome: "Haas", cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 89, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
-        { nome: "RB", cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 91, aderencia: 92, confiabilidade: 80 } },
-        { nome: "Wilians", cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 91, aerodinamica: 89, aderencia: 91, confiabilidade: 80 } },
-        { nome: "MacLaren", cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 98, aerodinamica: 96, aderencia: 97, confiabilidade: 90 } },
+        { nome: "Red Bull", ftequipe: 'img/equipes/redbull.png', cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 98, aerodinamica: 96, aderencia: 95, confiabilidade: 89 } },
+        { nome: "Mercedes", ftequipe: 'img/equipes/mercedes.png', cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
+        { nome: "Ferrari", ftequipe: 'img/equipes/ferrari.png', cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 97, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
+        { nome: "Sauber", ftequipe: 'img/equipes/sauber.png', cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
+        { nome: "Aston Martin", ftequipe: 'img/equipes/astonmartin.png', cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
+        { nome: "Alpine", ftequipe: 'img/equipes/alpine.png', cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 95, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
+        { nome: "Haas", ftequipe: 'img/equipes/haas.png', cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 89, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
+        { nome: "RB", ftequipe: 'img/equipes/racingbulls.png', cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 91, aderencia: 92, confiabilidade: 80 } },
+        { nome: "Wilians", ftequipe: 'img/equipes/willians.png', cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 91, aerodinamica: 89, aderencia: 91, confiabilidade: 80 } },
+        { nome: "MacLaren", ftequipe: 'img/equipes/maclaren.png', cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 98, aerodinamica: 96, aderencia: 97, confiabilidade: 90 } },
     ];
 
     const catalogoMensagens = {
@@ -340,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nomes = ["T. Maraia", "J. Santos", "M. Oliveira", "L. Pereira", "G. Almeida", "R. Costa", "N. Bitencourt", "R. Ruffo"];
         const novoPiloto = {
             id: Date.now(),
+            rosto: 'img/Pilotos/default.png',
             nome: `Rookie ${nomes[Math.floor(Math.random() * nomes.length)]}`,
             idade: Math.floor(Math.random() * 5) + 18,
             habilidade: Math.floor(Math.random() * 11) + 65,
@@ -404,6 +407,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!piloto.campeonatosGanhos) {
                         piloto.campeonatosGanhos = [];
                     }
+                    // --- INÍCIO DA CORREÇÃO PARA AS FOTOS ---
+                    // Verifica se a propriedade 'rosto' não existe no piloto do save
+                    if (piloto.rosto === undefined) {
+                        // Procura o piloto correspondente na base de dados principal pelo ID
+                        const pilotoOriginal = baseDePilotos.find(p => p.id === piloto.id);
+                        if (pilotoOriginal && pilotoOriginal.rosto) {
+                            // Se encontrou, copia o caminho da imagem para o piloto do save
+                            piloto.rosto = pilotoOriginal.rosto;
+                        } else {
+                            // Se não encontrou (ex: um piloto 'Rookie' antigo), atribui a imagem padrão
+                            piloto.rosto = 'img/Pilotos/default.png';
+                        }
+                    }
+                    // --- FIM DA CORREÇÃO PARA AS FOTOS ---
                 });
                 gameState.carros.forEach(carro => {
                     if (carro.pilotoId) {
@@ -530,6 +547,23 @@ document.addEventListener('DOMContentLoaded', () => {
             loadGame();
             updateUI();
             alert("Você declarou falência. O jogo foi reiniciado.");
+        }
+    }
+
+    /**
+     * Retorna uma cor (verde, laranja, vermelho) com base no valor de um atributo em relação a um valor máximo.
+     * @param {number} valor - O valor atual do atributo.
+     * @param {number} maxValor - O valor máximo teórico para este atributo.
+     * @returns {string} - O nome da cor em inglês.
+     */
+    function getCorAtributo(valor, maxValor) {
+        const percentual = (valor / maxValor) * 100;
+        if (percentual >= 80) {
+            return 'green'; // Bom
+        } else if (percentual >= 50) {
+            return 'orange'; // Médio
+        } else {
+            return 'red'; // Ruim
         }
     }
 
@@ -1202,13 +1236,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function gerarEstrategiaIA(totalVoltas) {
-    const todosOsPneus = ['macio', 'medio', 'duro'];
-    let numParadas;
-    let perfilCorrida;
+        const todosOsPneus = ['macio', 'medio', 'duro'];
+        let numParadas;
+        let perfilCorrida;
 
         // Define o perfil da corrida baseado no número de voltas
         if (totalVoltas <= 50) {
-            perfilCorrida = { umaParada: 0.60, duasParadas: 0.30, tresParadas: 0.10 };
+            perfilCorrida = { umaParada: 0.50, duasParadas: 0.40, tresParadas: 0.10 };
         } else if (totalVoltas > 50 && totalVoltas <= 63) {
             perfilCorrida = { umaParada: 0.05, duasParadas: 0.70, tresParadas: 0.25 };
         } else {
@@ -1228,34 +1262,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const numStints = numParadas + 1;
         const pneusDaEstrategia = [];
 
-        // --- LÓGICA APRIMORADA ---
-        if (numParadas === 0) {
-            pneusDaEstrategia.push('duro');
-        } else if (numParadas === 3) {
-            // REGRA ESPECIAL PARA 3 PARADAS (4 STINTS)
-            // Força uma estratégia mais agressiva: 2 macios, 1 médio e apenas 1 duro.
-            pneusDaEstrategia.push('medio', 'macio', 'macio', 'medio');
-
-            // Embaralha a ordem para que a estratégia não seja sempre a mesma
-            pneusDaEstrategia.sort(() => 0.5 - Math.random());
-        } else if (numParadas === 1) {
-            // REGRA ESPECIAL PARA 1 PARADAS (2 STINTS)
-            // Força uma estratégia conservador: 1 médio e apenas 1 duro.
-            pneusDaEstrategia.push('duro', 'medio');
-
-            // Embaralha a ordem para que a estratégia não seja sempre a mesma
-            pneusDaEstrategia.sort(() => 0.5 - Math.random());
-        } else {
-            // Lógica padrão para 1 ou 2 paradas
-            const pneusObrigatorios = [...todosOsPneus].sort(() => 0.5 - Math.random()).slice(0, 2);
-            pneusDaEstrategia.push(...pneusObrigatorios);
-
-            while (pneusDaEstrategia.length < numStints) {
-                pneusDaEstrategia.push(todosOsPneus[Math.floor(Math.random() * todosOsPneus.length)]);
+        // --- LÓGICA DE ESTRATÉGIA ATUALIZADA ---
+        if (numParadas === 3) {
+            // REGRA PARA 3 PARADAS (4 STINTS): Estratégia super agressiva sem pneus duros.
+            // Opções: 3 macios/1 médio ou 2 macios/2 médios.
+            if (Math.random() < 0.5) {
+                pneusDaEstrategia.push('macio', 'macio', 'macio', 'medio');
+            } else {
+                pneusDaEstrategia.push('macio', 'macio', 'medio', 'medio');
             }
             pneusDaEstrategia.sort(() => 0.5 - Math.random());
+
+        } else if (numParadas === 2) {
+            // REGRA PARA 2 PARADAS (3 STINTS): Estratégia agressiva sem pneus duros.
+            // Opções: 2 macios/1 médio ou 1 macio/2 médios.
+            if (Math.random() < 0.5) {
+                pneusDaEstrategia.push('macio', 'macio', 'medio');
+            } else {
+                pneusDaEstrategia.push('macio', 'medio', 'medio');
+            }
+            pneusDaEstrategia.sort(() => 0.5 - Math.random());
+
+        } else if (numParadas === 1) {
+            // REGRA PARA 1 PARADA (2 STINTS): ÚNICO CASO ONDE PNEU DURO É USADO.
+            // Opções: Macio/Duro ou Médio/Duro.
+            if (Math.random() < 0.5) {
+                pneusDaEstrategia.push('macio', 'duro');
+            } else {
+                pneusDaEstrategia.push('medio', 'duro');
+            }
+            pneusDaEstrategia.sort(() => 0.5 - Math.random());
+
+        } else { // numParadas === 0
+            // Corrida inteira com o mesmo pneu, obrigatoriamente duro.
+            pneusDaEstrategia.push('duro');
         }
-        // --- FIM DA LÓGICA APRIMORADA ---
+        // --- FIM DA LÓGICA ATUALIZADA ---
 
         const estrategiaFinal = { pneuInicial: pneusDaEstrategia[0], paradas: [] };
         const duracaoTotalIdeal = pneusDaEstrategia.reduce((soma, pneu) => soma + pneus[pneu].duracaoIdeal, 0);
@@ -1293,7 +1335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (piloto) {
                 // Verificação de segurança: Se estrategia ou ers não existirem, usa um padrão.
                 // Isso impede o erro "JSON.parse('undefined')" de forma definitiva.
-                const estrategiaDoCarro = carro.estrategia || { pneuInicial: 'medio', paradas: [{ pararNaVolta: 25, colocarPneu: 'duro' }] };
+                const estrategiaDoCarro = carro.estrategia || { pneuInicial: 'macio', paradas: [{ pararNaVolta: 22, colocarPneu: 'duro' }] };
                 const ersDoCarro = carro.ers || { bateria: 0, voltasParaCarregar: 4, cicloDeCarregamento: 0, ativo: false };
 
                 participantesIniciais.push({
@@ -1369,7 +1411,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (p.isPlayer) {
                 p.ers.bateria = 0;
-                p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 7;
+                p.ers.voltasParaCarregar = Math.floor(Math.random() * 3) + 6;
                 p.ers.totalVoltasParaCarregar = p.ers.voltasParaCarregar;
                 p.ers.cicloDeCarregamento = 0;
                 p.ers.ativo = false;
@@ -1443,12 +1485,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p.isPlayer && p.ers) {
                 if (p.ers.ativo) {
                     const nivelERS = gameState.instalacoes.ers;
-                    if (nivelERS === 1) bonusERS = 0.250;
-                    else if (nivelERS === 2) bonusERS = 0.500;
-                    else if (nivelERS >= 3) bonusERS = 0.750;
+                    if (nivelERS === 1) bonusERS = 0.400;
+                    else if (nivelERS === 2) bonusERS = 0.550;
+                    else if (nivelERS >= 3) bonusERS = 0.850;
                     if (bonusERS > 0) p.ersBonusAtivoNestaVolta = true;
                     p.ers.cicloDeCarregamento--;
-                    p.ers.bateria = (p.ers.cicloDeCarregamento / 2) * 100;
+                    p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;  //quantidade de voltas com o ERS ligado (p.ers.cicloDeCarregamento = 3)
                     if (p.ers.cicloDeCarregamento <= 0) {
                         p.ers.ativo = false;
                         p.ers.bateria = 0;
@@ -1462,7 +1504,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (p.ers.voltasParaCarregar <= 0) {
                         p.ers.ativo = true;
                         p.ers.bateria = 100;
-                        p.ers.cicloDeCarregamento = 2;
+                        p.ers.cicloDeCarregamento = 3; //Ajustar aqui para ter a quantidade de voltas ativas com ERS - junto com p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;
                     }
                 }
             }
@@ -2454,6 +2496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<div class="atributos-card">${atributosHtml}${corridasUsadasHtml}</div>`;
     }
 
+
     function gerarCardAposentadoHtml(entradaHall) {
         const piloto = entradaHall.piloto;
         if (!piloto) {
@@ -2462,17 +2505,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const gerarHtmlAtributo = (label, valor) => `<p><span>${label}:</span> <strong>${Math.round(valor)}</strong></p>`;
         return `
             <div class="piloto-card aposentado">
-                <h4>${piloto.nome} <span style="font-weight:normal; color: #666;">(Aposentado aos ${piloto.idade} anos)</span></h4>
-                <div class="atributos">
-                    ${gerarHtmlAtributo('Habilidade Final', piloto.habilidade)}
-                    ${gerarHtmlAtributo('Consistência Final', piloto.consistencia)}
-                    ${gerarHtmlAtributo('Gerenc. Pneus Final', piloto.gerenciamentoPneus)}
+                <div class="piloto-rosto-container">
+                    <img src="${piloto.rosto || 'img/Pilotos/default.png'}" alt="${piloto.nome}" class="piloto-rosto">
                 </div>
-                <div class="piloto-aposentado-info">
-                    Aposentado em: ${entradaHall.anoAposentadoria}
+                <div class="piloto-info-container">
+                    <h4>${piloto.nome} (${piloto.idade} anos)</h4>
+                    <div class="atributos">
+                        ${gerarHtmlAtributo('Hab. Final', piloto.habilidade)}
+                        ${gerarHtmlAtributo('Con. Final', piloto.consistencia)}
+                        ${gerarHtmlAtributo('Ger. Final', piloto.gerenciamentoPneus)}
+                    </div>
+                    <div class="piloto-aposentado-info">
+                        Aposentado em: ${entradaHall.anoAposentadoria}
+                    </div>
                 </div>
             </div>`;
     }
+
 
     function gerarCardPilotoHtml(piloto, cargo, vagaAberta) {
         const gerarHtmlAtributo = (label, valorAtual, valorBase) => {
@@ -2508,22 +2557,25 @@ document.addEventListener('DOMContentLoaded', () => {
             infoFinanceiraHtml = `<p><span>Contrato:</span> <strong>R$ ${(piloto.precoContrato || 0).toLocaleString('pt-BR')}</strong></p>`;
         } else if (piloto.status === 'Jogador' || piloto.status === 'Reserva') {
             infoFinanceiraHtml = `<p><span>Salário/Corrida:</span> <strong>R$ ${(piloto.salario || 0).toLocaleString('pt-BR')}</strong></p>`;
-        } else {
-            infoFinanceiraHtml = `<p><span>Contrato:</span> <strong>?</strong></p>`;
         }
 
         return `
             <div class="piloto-card ${classeExtra}" style="border-left-color: ${corEquipe};">
                 ${cargoHtml}
-                <h4>${piloto.nome} <span style="font-weight:normal; color: #666;">(${piloto.idade} anos)</span></h4>
-                <div class="atributos">
-                    ${gerarHtmlAtributo('Habilidade', piloto.habilidade, piloto.atributosBase.habilidade)}
-                    ${gerarHtmlAtributo('Consistência', piloto.consistencia, piloto.atributosBase.consistencia)}
-                    ${gerarHtmlAtributo('Gerenc. Pneus', piloto.gerenciamentoPneus, piloto.atributosBase.gerenciamentoPneus)}
-                    ${infoFinanceiraHtml}
+                <div class="piloto-rosto-container">
+                    <img src="${piloto.rosto || 'img/Pilotos/default.png'}" alt="${piloto.nome}" class="piloto-rosto">
                 </div>
-                <div class="card-actions">
-                    ${actionButtonHtml}
+                <div class="piloto-info-container">
+                    <h4>${piloto.nome} (${piloto.idade} anos)</h4>
+                    <div class="atributos">
+                        ${gerarHtmlAtributo('Habilidade', piloto.habilidade, piloto.atributosBase.habilidade)}
+                        ${gerarHtmlAtributo('Consistência', piloto.consistencia, piloto.atributosBase.consistencia)}
+                        ${gerarHtmlAtributo('Gerenc. Pneus', piloto.gerenciamentoPneus, piloto.atributosBase.gerenciamentoPneus)}
+                        ${infoFinanceiraHtml}
+                    </div>
+                    <div class="card-actions">
+                        ${actionButtonHtml}
+                    </div>
                 </div>
             </div>`;
     }
@@ -3102,12 +3154,45 @@ document.addEventListener('DOMContentLoaded', () => {
         const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
         document.getElementById('pista-nome-corrida').textContent = `${pista.nome} (${gameState.campeonato.corridaAtualIndex + 1}/${calendarioCorridas.length})`;
         document.getElementById('info-pista').innerHTML = `<img src="${pista.imagem}" alt="Circuito" class="info-pista-imagem"><p>Voltas: ${pista.voltas}</p><p>Foco em Motor: ${pista.demandaMotor * 100}%</p><p>Foco em Aerodinâmica: ${pista.demandaAero * 100}%</p><p>Foco em Aderência: ${pista.demandaAderencia * 100}%</p>`;
-        document.getElementById('nossos-carros-corrida').innerHTML = gameState.carros.map(carro => {
-            const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
-            const pilotoNome = piloto ? piloto.nome : "VAGO";
-            const atributos = calcularAtributosCarro(carro);
-            return `<div class="carro-resumo"><h4>${pilotoNome}</h4><p>Pot: ${atributos.potencia} | Aero: ${atributos.aerodinamica} | Adr: ${atributos.aderencia} | Conf: ${atributos.confiabilidade}%</p></div>`;
-        }).join('');
+
+        // --- INÍCIO DA LÓGICA ATUALIZADA ---
+        document.getElementById('nossos-carros-corrida').innerHTML = gameState.carros.map((carro, index) => {
+        const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
+        const pilotoNome = piloto ? piloto.nome : "VAGO";
+        const atributosCarro = calcularAtributosCarro(carro);
+
+        // Define os valores máximos para calcular o percentual. 100 é um bom teto.
+        const MAX_VALOR_ATRIBUTO = 100;
+
+        let forcaEquipeHtml = '<strong>Força da Equipe:</strong> N/A';
+        if (piloto) {
+            const mediaPiloto = (piloto.habilidade + piloto.consistencia + piloto.gerenciamentoPneus) / 3;
+            const forcaEquipe = (atributosCarro.potencia + atributosCarro.aerodinamica + atributosCarro.aderencia + mediaPiloto) / 4;
+            forcaEquipeHtml = `<strong>Força da Equipe:</strong> <span style="color: ${getCorAtributo(forcaEquipe, 100)}; font-weight: bold;">${forcaEquipe.toFixed(0)}</span>`;
+        }
+
+        // Gera o HTML para os atributos com as cores dinâmicas
+        const atributosHtml = `
+            <p>
+                Pot: <strong style="color: ${getCorAtributo(atributosCarro.potencia, MAX_VALOR_ATRIBUTO)};">${atributosCarro.potencia}</strong> |
+                Aero: <strong style="color: ${getCorAtributo(atributosCarro.aerodinamica, MAX_VALOR_ATRIBUTO)};">${atributosCarro.aerodinamica}</strong> |
+                Adr: <strong style="color: ${getCorAtributo(atributosCarro.aderencia, MAX_VALOR_ATRIBUTO)};">${atributosCarro.aderencia}</strong> |
+                Conf: <strong style="color: ${getCorAtributo(atributosCarro.confiabilidade, 100)};">${atributosCarro.confiabilidade}%</strong>
+            </p>
+            <p style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;">
+                ${forcaEquipeHtml}
+            </p>
+        `;
+
+        let separador = '';
+        if (index === 0 && gameState.carros.length > 1) {
+            separador = '<hr style="border-top: 1px solid #ccc; margin: 10px 0;">';
+        }
+
+        return `<div class="carro-resumo"><h4>${pilotoNome}</h4>${atributosHtml}</div>${separador}`;
+    }).join('');
+        // --- FIM DA LÓGICA ATUALIZADA ---
+
         renderEstrategiaUI();
     }
 
@@ -3171,22 +3256,33 @@ document.addEventListener('DOMContentLoaded', () => {
         renderResultadosCorridas();
     }
 
+
     function renderTabelaClassificacaoPilotos() {
         const tabelaBody = document.querySelector("#tabela-classificacao-pilotos tbody");
         if (!tabelaBody) return;
         const classificacaoOrdenada = [...gameState.campeonato.classificacaoPilotos].sort((a, b) => b.pontos - a.pontos);
         tabelaBody.innerHTML = classificacaoOrdenada.map((piloto, index) => {
-            let emblemaHtml = '';
+            let logoOuEmblemaHtml = '';
             if (piloto.equipe === gameState.escuderia.nome) {
-                emblemaHtml = `<div id="emblema-pilotos-${index}" class="emblema-na-tabela"></div>`;
+                // Se for a equipe do jogador, prepara o container do emblema
+                logoOuEmblemaHtml = `<div id="emblema-pilotos-${index}" class="emblema-na-tabela"></div>`;
+            } else {
+                // Se for uma equipe de IA, encontra os dados e pega a imagem
+                const equipeData = equipesIA.find(e => e.nome === piloto.equipe);
+                if (equipeData && equipeData.ftequipe) {
+                    logoOuEmblemaHtml = `<img src="${equipeData.ftequipe}" alt="${piloto.equipe}" class="equipe-foto-tabela">`;
+                }
             }
+
             return `<tr class="${piloto.equipe === gameState.escuderia.nome ? 'player-row' : ''}" style="border-left: 5px solid ${getCorDaEquipe(piloto.equipe)};">
                         <td>${index + 1}</td>
                         <td>${piloto.piloto}</td>
-                        <td>${emblemaHtml}<span>${piloto.equipe}</span></td>
+                        <td>${logoOuEmblemaHtml}<span>${piloto.equipe}</span></td>
                         <td>${piloto.pontos}</td>
                     </tr>`;
         }).join('');
+
+        // Renderiza o emblema do jogador após o HTML ser inserido
         classificacaoOrdenada.forEach((piloto, index) => {
             if (piloto.equipe === gameState.escuderia.nome) {
                 const container = document.getElementById(`emblema-pilotos-${index}`);
@@ -3197,21 +3293,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
     function renderTabelaClassificacaoConstrutores() {
         const tabelaBody = document.querySelector("#tabela-classificacao-construtores tbody");
         if (!tabelaBody) return;
         const classificacaoOrdenada = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
         tabelaBody.innerHTML = classificacaoOrdenada.map((equipe, index) => {
-            let emblemaHtml = '';
+            let logoOuEmblemaHtml = '';
             if (equipe.equipe === gameState.escuderia.nome) {
-                emblemaHtml = `<div id="emblema-construtores-${index}" class="emblema-na-tabela"></div>`;
+                // Se for a equipe do jogador, prepara o container do emblema
+                logoOuEmblemaHtml = `<div id="emblema-construtores-${index}" class="emblema-na-tabela"></div>`;
+            } else {
+                // Se for uma equipe de IA, encontra os dados e pega a imagem
+                const equipeData = equipesIA.find(e => e.nome === equipe.equipe);
+                if (equipeData && equipeData.ftequipe) {
+                    logoOuEmblemaHtml = `<img src="${equipeData.ftequipe}" alt="${equipe.equipe}" class="equipe-foto-tabela">`;
+                }
             }
+
             return `<tr class="${equipe.equipe === gameState.escuderia.nome ? 'player-row' : ''}" style="border-left: 5px solid ${getCorDaEquipe(equipe.equipe)};">
                         <td>${index + 1}</td>
-                        <td>${emblemaHtml}<span>${equipe.equipe}</span></td>
+                        <td>${logoOuEmblemaHtml}<span>${equipe.equipe}</span></td>
                         <td>${equipe.pontos}</td>
                     </tr>`;
         }).join('');
+
+        // Renderiza o emblema do jogador após o HTML ser inserido
         classificacaoOrdenada.forEach((equipe, index) => {
             if (equipe.equipe === gameState.escuderia.nome) {
                 const container = document.getElementById(`emblema-construtores-${index}`);
@@ -3300,6 +3407,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
+
     function renderAbaGaleria() {
         const nomeEscuderiaEl = document.getElementById('escuderia-nome-galeria');
         const trofeusContainer = document.getElementById('gabinete-trofeus');
@@ -3317,11 +3425,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             hallDaFamaContainer.innerHTML = `
                 <h3>Hall da Fama</h3>
-                ${gameState.galeria.hallDaFama.map((p, index) => {
+                ${gameState.galeria.hallDaFama.map((p) => {
                     const trofeusPiloto = p.piloto.campeonatosGanhos ? p.piloto.campeonatosGanhos.map(ano => `🏆${ano}`).join(' ') : '';
                     return `
                     <div class="piloto-fama">
-                        <div id="emblema-hof-${index}" class="emblema-hof"></div>
+                        <img src="${p.piloto.rosto || 'img/Pilotos/default.png'}" alt="${p.piloto.nome}" class="piloto-rosto-fama">
                         <div class="piloto-fama-info">
                             <h4>${p.piloto.nome} <span class="trofeus-piloto">${trofeusPiloto}</span></h4>
                             <p>Aposentou-se em ${p.anoAposentadoria}</p>
@@ -3329,14 +3437,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `}).join('')}
             `;
-            gameState.galeria.hallDaFama.forEach((p, index) => {
-                if (p.emblemaNaEpoca) {
-                    const container = document.getElementById(`emblema-hof-${index}`);
-                    if (container) {
-                        renderizarEmblema(container, p.emblemaNaEpoca);
-                    }
-                }
-            });
         }
 
         nomeEscuderiaEl.textContent = gameState.escuderia.nome;
