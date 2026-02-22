@@ -157,6 +157,10 @@ background-color: #c82333;
 }
 .pecas-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
 .peca-card { background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; font-size: 0.9rem; }
+.perf-indicator { display: inline-block; font-weight: 700; font-size: 0.82rem; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; letter-spacing: 0.03em; }
+.perf-up { background: #d4edda; color: #1a7c39; border: 1px solid #28a745; }
+.perf-down { background: #f8d7da; color: #a71d2a; border: 1px solid #dc3545; }
+.perf-neutral { background: #e2e3e5; color: #555; border: 1px solid #aaa; }
 .btn-trocar-peca { width: 100%; padding: 0.6rem; margin-top: 1rem; border: 1px solid #008cba; background-color: transparent; color: #008cba; border-radius: 4px; cursor: pointer; }
 .btn-trocar-peca:hover { background-color: #008cba; color: white; }
 

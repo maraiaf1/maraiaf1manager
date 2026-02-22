@@ -1120,9 +1120,51 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalList = document.getElementById('modal-parts-list');
         const pecasEquipadasIds = new Set(gameState.carros.flatMap(c => Object.values(c.pecas)));
         const normalize = (str) => str.toLowerCase().replace(/\s/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const pecasCompativeis = gameState.todasAsPecas.filter(p => !pecasEquipadasIds.has(p.instanceId) && normalize(p.tipo) === normalize(slotKey));
+
+        // Get currently equipped piece for this slot on the selected car
+        const carroAtual = gameState.carros[garagemState.carroSelecionadoIndex];
+        const instanceIdEquipado = carroAtual.pecas[slotKey];
+        const pecaEquipada = instanceIdEquipado ? gameState.todasAsPecas.find(p => p.instanceId === instanceIdEquipado) : null;
+
+        // Determine main attribute by slot type
+        const atributoOrdemModal = {
+            'motor': 'potencia',
+            'chassi': 'aerodinamica',
+            'asaDianteira': 'aerodinamica',
+            'asaTraseira': 'aerodinamica',
+            'suspensao': 'aderencia'
+        };
+        const mainAttr = atributoOrdemModal[slotKey];
+        const valorAtualEquipado = pecaEquipada && mainAttr ? (pecaEquipada.atributos[mainAttr] || 0) : null;
+
+        // Sort compatible parts
+        const pecasCompatibleRaw = gameState.todasAsPecas.filter(p => !pecasEquipadasIds.has(p.instanceId) && normalize(p.tipo) === normalize(slotKey));
+        const pecasCompativeis = [...pecasCompatibleRaw].sort((a, b) => {
+            const valA = mainAttr ? (a.atributos[mainAttr] || 0) : 0;
+            const valB = mainAttr ? (b.atributos[mainAttr] || 0) : 0;
+            if (valB !== valA) return valB - valA;
+            return b.nivel - a.nivel;
+        });
+
         modalList.innerHTML = pecasCompativeis.length > 0
-            ? pecasCompativeis.map(peca => `<div class="peca-card" data-instance-id="${peca.instanceId}" data-slot-key="${slotKey}"><h5>${peca.nome} (Nvl ${peca.nivel})</h5>${gerarHtmlAtributosPeca(peca)}</div>`).join('')
+            ? pecasCompativeis.map(peca => {
+                let indicadorHtml = '';
+                if (mainAttr !== undefined && valorAtualEquipado !== null) {
+                    const valorNova = peca.atributos[mainAttr] || 0;
+                    const diff = valorNova - valorAtualEquipado;
+                    if (diff > 0) {
+                        indicadorHtml = `<div class="perf-indicator perf-up">▲ +${diff} ${mainAttr.charAt(0).toUpperCase() + mainAttr.slice(1)}</div>`;
+                    } else if (diff < 0) {
+                        indicadorHtml = `<div class="perf-indicator perf-down">▼ ${diff} ${mainAttr.charAt(0).toUpperCase() + mainAttr.slice(1)}</div>`;
+                    } else {
+                        indicadorHtml = `<div class="perf-indicator perf-neutral">● Igual ${mainAttr.charAt(0).toUpperCase() + mainAttr.slice(1)}</div>`;
+                    }
+                } else if (mainAttr !== undefined && valorAtualEquipado === null) {
+                    const valorNova = peca.atributos[mainAttr] || 0;
+                    indicadorHtml = `<div class="perf-indicator perf-up">▲ +${valorNova} ${mainAttr.charAt(0).toUpperCase() + mainAttr.slice(1)} (slot vazio)</div>`;
+                }
+                return `<div class="peca-card" data-instance-id="${peca.instanceId}" data-slot-key="${slotKey}">${indicadorHtml}<h5>${peca.nome} (Nvl ${peca.nivel})</h5>${gerarHtmlAtributosPeca(peca)}</div>`;
+            }).join('')
             : '<p>Nenhuma peça compatível no inventário.</p>';
         document.getElementById('part-selector-modal').classList.remove('hidden');
     }
@@ -3015,8 +3057,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 (acc[peca.tipo] = acc[peca.tipo] || []).push(peca);
                 return acc;
             }, {});
+        const sortPecasPorTipo = (pecas, tipo) => {
+            const atributoOrdem = {
+                'Motor': 'potencia',
+                'Chassi': 'aerodinamica',
+                'Asa Dianteira': 'aerodinamica',
+                'Asa Traseira': 'aerodinamica',
+                'Suspensão': 'aderencia'
+            };
+            const attr = atributoOrdem[tipo];
+            return [...pecas].sort((a, b) => {
+                const valA = attr ? (a.atributos[attr] || 0) : 0;
+                const valB = attr ? (b.atributos[attr] || 0) : 0;
+                if (valB !== valA) return valB - valA;
+                return b.nivel - a.nivel;
+            });
+        };
         inventoryContainer.innerHTML = Object.values(slotTypes).map(tipo => {
-            const pecasDaColuna = (pecasAgrupadas[tipo] || []).sort((a, b) => b.nivel - a.nivel);
+            const pecasDaColuna = sortPecasPorTipo(pecasAgrupadas[tipo] || [], tipo);
             const pecasHtml = pecasDaColuna.length > 0
                 ? pecasDaColuna.map(peca => `<div class="peca-card"><h5>${peca.nome} (Nvl ${peca.nivel})</h5>${gerarHtmlAtributosPeca(peca)}<div class="card-actions"><button class="btn-vender-peca" data-instance-id="${peca.instanceId}">Vender (R$ ${Math.floor(calcularPrecoPeca(peca) * 0.7).toLocaleString('pt-BR')})</button></div></div>`).join('')
                 : `<p style="text-align: center; font-size: 0.9em; color: #888;">Nenhuma peça</p>`;
