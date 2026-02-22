@@ -358,7 +358,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return novoPiloto.id;
     }
 
-    const saveGame = () => localStorage.setItem('f1ManagerSave', JSON.stringify(gameState));
+    const saveGame = () => {
+        // Persiste o estado mutável das equipes de IA (piloto1Id, piloto2Id, carro)
+        // junto com o gameState para que substituições de pilotos sobrevivam ao reload.
+        gameState._equipesIA_save = equipesIA.map(e => ({
+            nome: e.nome,
+            piloto1Id: e.piloto1Id,
+            piloto2Id: e.piloto2Id,
+            carro: JSON.parse(JSON.stringify(e.carro))
+        }));
+        localStorage.setItem('f1ManagerSave', JSON.stringify(gameState));
+    };
 
     const loadGame = () => {
         const savedGame = localStorage.getItem('f1ManagerSave');
@@ -437,6 +447,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (!gameState.patrocinio) gameState.patrocinio = { ofertas: [], ativos: [] };
                 if (!gameState.projetosEmAndamento) gameState.projetosEmAndamento = [];
+
+                // Restaura o estado mutável das equipes de IA (piloto1Id, piloto2Id, carro)
+                // que foi salvo por saveGame. Sem isso, substituições de pilotos se perdem ao recarregar.
+                if (Array.isArray(gameState._equipesIA_save)) {
+                    // Save novo: restaura exatamente o que foi salvo.
+                    gameState._equipesIA_save.forEach(savedEquipe => {
+                        const equipe = equipesIA.find(e => e.nome === savedEquipe.nome);
+                        if (equipe) {
+                            equipe.piloto1Id = savedEquipe.piloto1Id;
+                            equipe.piloto2Id = savedEquipe.piloto2Id;
+                            equipe.carro = savedEquipe.carro;
+                        }
+                    });
+                } else {
+                    // Save antigo (sem _equipesIA_save): executa migração automática.
+                    // Para cada equipe IA, verifica se os IDs hardcoded existem em gameState.pilotos.
+                    // Se não existirem, procura pilotos cujo status seja o nome da equipe e corrige os IDs.
+                    equipesIA.forEach(equipe => {
+                        const piloto1Valido = gameState.pilotos.some(p => p.id === equipe.piloto1Id);
+                        const piloto2Valido = gameState.pilotos.some(p => p.id === equipe.piloto2Id);
+
+                        if (!piloto1Valido || !piloto2Valido) {
+                            const pilotosDaEquipe = gameState.pilotos.filter(p => p.status === equipe.nome);
+
+                            if (!piloto1Valido) {
+                                const substituto = pilotosDaEquipe.find(p => p.id !== equipe.piloto2Id);
+                                if (substituto) {
+                                    console.log(`Migração: corrigindo piloto1 da ${equipe.nome}: ID ${equipe.piloto1Id} -> ${substituto.id} (${substituto.nome})`);
+                                    equipe.piloto1Id = substituto.id;
+                                }
+                            }
+                            if (!piloto2Valido) {
+                                const substituto = pilotosDaEquipe.find(p => p.id !== equipe.piloto1Id);
+                                if (substituto) {
+                                    console.log(`Migração: corrigindo piloto2 da ${equipe.nome}: ID ${equipe.piloto2Id} -> ${substituto.id} (${substituto.nome})`);
+                                    equipe.piloto2Id = substituto.id;
+                                }
+                            }
+                        }
+                    });
+                }
 
                 // --- INÍCIO DA CORREÇÃO ---
                 // Verifica se os dados de personalização existem no save; se não, cria com valores padrão.
