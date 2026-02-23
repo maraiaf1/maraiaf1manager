@@ -310,12 +310,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 ers: 1
             },
             marketing: {
-                'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 30, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3000, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7500, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 30, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3000, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7500, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
             },
             pilotos: pilotosDoJogo,
             todasAsPecas: [
@@ -514,12 +514,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!gameState.marketing) {
                     console.log("Migrando save antigo: Adicionando dados de Marketing padrão.");
                     gameState.marketing = {
-                        'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5 },
-                        'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 30 },
-                        'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75 },
-                        'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150 },
-                        'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3000 },
-                        'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7500 },
+                        'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5, lote_referencia: 0 },
+                        'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 30, lote_referencia: 0 },
+                        'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75, lote_referencia: 0 },
+                        'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150, lote_referencia: 0 },
+                        'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3000, lote_referencia: 0 },
+                        'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7500, lote_referencia: 0 },
                     };
                 }
                 if (!gameState.instalacoes) {
@@ -537,6 +537,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     if (typeof gameState.marketing[key].tamanhoIcone === 'undefined') {
                         gameState.marketing[key].tamanhoIcone = { width: 50, height: 50 };
+                    }
+                    // Migração: garante lote_referencia em saves antigos
+                    if (typeof gameState.marketing[key].lote_referencia === 'undefined') {
+                        gameState.marketing[key].lote_referencia = gameState.marketing[key].inventario;
                     }
                 }
 
@@ -1949,6 +1953,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gameState.escuderia.dinheiro -= custoTotal;
         itemJogo.inventario += quantidade;
+        // Atualiza o lote de referência — usado como âncora no cálculo de vendas
+        itemJogo.lote_referencia = Math.max(itemJogo.lote_referencia || 0, quantidade);
 
         alert(`${quantidade.toLocaleString('pt-BR')} unidade(s) de "${nomeItem}" produzida(s) com sucesso!`);
         updateUI();
@@ -2099,17 +2105,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 let chanceFinalVenda = Math.min(chanceBase * modPreco * modDesempenho, 0.95);
                 const bonusVendas = 1.0 + (gameState.instalacoes.marketing * 0.05);
                 chanceFinalVenda *= bonusVendas;
+
+                const LIMIAR_LIQUIDACAO = 5; // Quando restam ≤ N unidades, vende tudo automaticamente
                 let unidadesVendidas = 0;
-                for (let i = 0; i < itemJogo.inventario; i++) {
-                    if (Math.random() < chanceFinalVenda) {
-                        unidadesVendidas++;
-                    }
+
+                if (itemJogo.inventario <= LIMIAR_LIQUIDACAO) {
+                    // Últimas unidades: liquida o estoque restante de uma vez
+                    unidadesVendidas = itemJogo.inventario;
+                } else {
+                    // Cálculo em lote usando o lote de referência como âncora
+                    // Garante que estoques baixos vendam na mesma proporção que o lote original
+                    const loteBase = Math.max(itemJogo.lote_referencia || itemJogo.inventario, itemJogo.inventario);
+                    const vendaBase = chanceFinalVenda * loteBase;
+                    // Variância natural de ±15% para dar dinamismo
+                    const variancia = 0.85 + Math.random() * 0.30;
+                    const vendaCalculada = Math.round(vendaBase * variancia);
+                    // Nunca vende mais do que há em estoque
+                    unidadesVendidas = Math.min(vendaCalculada, itemJogo.inventario);
                 }
+
                 if (unidadesVendidas > 0) {
                     const receitaItem = unidadesVendidas * itemJogo.preco_venda_definido;
                     receitaTotal += receitaItem;
                     itemJogo.inventario -= unidadesVendidas;
-                    relatorioVendas += `- ${nomeItem}: ${unidadesVendidas} unid. vendidas por R$ ${receitaItem.toLocaleString('pt-BR')}\n`;
+                    const tagLiquidacao = (itemJogo.inventario === 0 && unidadesVendidas <= LIMIAR_LIQUIDACAO) ? ' 🏁 (últimas unidades!)' : '';
+                    relatorioVendas += `- ${nomeItem}: ${unidadesVendidas} unid. vendidas por R$ ${receitaItem.toLocaleString('pt-BR')}${tagLiquidacao}\n`;
+                    // Reseta a referência de lote quando o estoque vai a zero
+                    if (itemJogo.inventario === 0) {
+                        itemJogo.lote_referencia = 0;
+                    }
                     algumaVendaOcorreu = true;
                 }
             }
