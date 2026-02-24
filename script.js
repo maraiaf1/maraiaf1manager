@@ -679,10 +679,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (piloto.idade >= 35 && piloto.status === 'Jogador') {
             if (confirm(`Tem certeza que deseja aposentar ${piloto.nome}?\nEle será adicionado ao Hall da Fama e removido permanentemente do jogo.`)) {
+                const _statsSnap = gameState.galeria.estatisticasPilotos[piloto.nome] || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
                 gameState.galeria.hallDaFama.push({
                     piloto: JSON.parse(JSON.stringify(piloto)),
                     anoAposentadoria: gameState.campeonato.ano,
-                    emblemaNaEpoca: JSON.parse(JSON.stringify(gameState.escuderia.emblema))
+                    emblemaNaEpoca: JSON.parse(JSON.stringify(gameState.escuderia.emblema)),
+                    statsCarreira: {
+                        corridas: _statsSnap.corridas || 0,
+                        vitorias: _statsSnap.vitorias || 0,
+                        podios: _statsSnap.podios || 0,
+                        pontos: _statsSnap.pontos || 0,
+                        titulos: (piloto.campeonatosGanhos && piloto.campeonatosGanhos.length) || 0
+                    }
                 });
                 const carroComPiloto = gameState.carros.find(c => c.pilotoId === pilotoId);
                 if (carroComPiloto) {
@@ -748,10 +756,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const equipeDoPiloto = pilotoAposentado.status;
 
             if (equipeDoPiloto === 'Jogador') {
+                const _statsSnap2 = gameState.galeria.estatisticasPilotos[pilotoAposentado.nome] || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
                 gameState.galeria.hallDaFama.push({
                     piloto: JSON.parse(JSON.stringify(pilotoAposentado)),
                     anoAposentadoria: gameState.campeonato.ano,
-                    emblemaNaEpoca: JSON.parse(JSON.stringify(gameState.escuderia.emblema))
+                    emblemaNaEpoca: JSON.parse(JSON.stringify(gameState.escuderia.emblema)),
+                    statsCarreira: {
+                        corridas: _statsSnap2.corridas || 0,
+                        vitorias: _statsSnap2.vitorias || 0,
+                        podios: _statsSnap2.podios || 0,
+                        pontos: _statsSnap2.pontos || 0,
+                        titulos: (pilotoAposentado.campeonatosGanhos && pilotoAposentado.campeonatosGanhos.length) || 0
+                    }
                 });
                 const novoPilotoId = gerarPilotoSubstituto();
                 const carroDoAposentado = gameState.carros.find(c => c.pilotoId === pilotoAposentado.id);
@@ -763,7 +779,14 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (equipeDoPiloto !== 'Disponível' && equipeDoPiloto !== 'Indisponível') {
                 gameState.galeria.hallDaFama.push({
                     piloto: JSON.parse(JSON.stringify(pilotoAposentado)),
-                    anoAposentadoria: gameState.campeonato.ano
+                    anoAposentadoria: gameState.campeonato.ano,
+                    statsCarreira: {
+                        corridas: 0,
+                        vitorias: 0,
+                        podios: 0,
+                        pontos: 0,
+                        titulos: (pilotoAposentado.campeonatosGanhos && pilotoAposentado.campeonatosGanhos.length) || 0
+                    }
                 });
                 const equipeIA = equipesIA.find(e => e.nome === equipeDoPiloto);
                 if (equipeIA) {
@@ -3556,20 +3579,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!gameState.galeria.hallDaFama || gameState.galeria.hallDaFama.length === 0) {
             hallDaFamaContainer.innerHTML = '<h3>Hall da Fama</h3><p>Nenhum piloto foi adicionado ao Hall da Fama ainda.</p>';
         } else {
-            hallDaFamaContainer.innerHTML = `
-                <h3>Hall da Fama</h3>
-                ${gameState.galeria.hallDaFama.map((p) => {
-                    const trofeusPiloto = p.piloto.campeonatosGanhos ? p.piloto.campeonatosGanhos.map(ano => `🏆${ano}`).join(' ') : '';
-                    return `
-                    <div class="piloto-fama">
-                        <img src="${p.piloto.rosto || 'img/Pilotos/default.png'}" alt="${p.piloto.nome}" class="piloto-rosto-fama">
-                        <div class="piloto-fama-info">
-                            <h4>${p.piloto.nome} <span class="trofeus-piloto">${trofeusPiloto}</span></h4>
-                            <p>Aposentou-se em ${p.anoAposentadoria}</p>
-                        </div>
-                    </div>
-                `}).join('')}
-            `;
+            hallDaFamaContainer.innerHTML = '<h3>Hall da Fama</h3>' + gameState.galeria.hallDaFama.map((p) => {
+                const titulosCount = (p.statsCarreira && p.statsCarreira.titulos) || (p.piloto.campeonatosGanhos && p.piloto.campeonatosGanhos.length) || 0;
+                const trofeusPiloto = p.piloto.campeonatosGanhos && p.piloto.campeonatosGanhos.length > 0 ? p.piloto.campeonatosGanhos.map(ano => '\uD83C\uDFC6 ' + ano).join(' ') : '';
+                const stats = p.statsCarreira || { corridas: 0, vitorias: 0, podios: 0, pontos: 0, titulos: titulosCount };
+                return '<div class="piloto-fama">' +
+                    '<img src="' + (p.piloto.rosto || 'img/Pilotos/default.png') + '" alt="' + p.piloto.nome + '" class="piloto-rosto-fama">' +
+                    '<div class="piloto-fama-info">' +
+                        '<h4>' + p.piloto.nome + '</h4>' +
+                        '<p class="fama-aposentadoria">Aposentou-se em ' + p.anoAposentadoria + (trofeusPiloto ? ' · ' + trofeusPiloto : '') + '</p>' +
+                        '<div class="fama-stats-grid">' +
+                            '<div class="fama-stat"><span class="fama-stat-valor">' + stats.corridas + '</span><span class="fama-stat-label">Corridas</span></div>' +
+                            '<div class="fama-stat"><span class="fama-stat-valor">' + stats.pontos.toLocaleString('pt-BR') + '</span><span class="fama-stat-label">Pontos</span></div>' +
+                            '<div class="fama-stat"><span class="fama-stat-valor">' + stats.podios + '</span><span class="fama-stat-label">Pódios</span></div>' +
+                            '<div class="fama-stat"><span class="fama-stat-valor">' + stats.vitorias + '</span><span class="fama-stat-label">Vitórias</span></div>' +
+                            '<div class="fama-stat fama-stat-titulos' + (titulosCount > 0 ? ' tem-titulo' : '') + '"><span class="fama-stat-valor">' + (titulosCount > 0 ? '\uD83C\uDFC6 ' : '') + titulosCount + '</span><span class="fama-stat-label">Títulos</span></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
         }
 
         nomeEscuderiaEl.textContent = gameState.escuderia.nome;
