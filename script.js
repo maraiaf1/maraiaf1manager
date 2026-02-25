@@ -124,22 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
         "GP de Abu Dhabi (Yas Marina)": [{ x: 360, y: 190 }, 	{ x: 360, y: 350 }, 	{ x: 370, y: 360 }, 	{ x: 420, y: 360 }, 	{ x: 430, y: 350 }, 	{ x: 440, y: 320 }, 	{ x: 450, y: 300 }, 	{ x: 470, y: 290 }, 	{ x: 490, y: 300 }, 	{ x: 520, y: 320 }, 	{ x: 540, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 630, y: 320 }, 	{ x: 630, y: 310 }, 	{ x: 620, y: 290 }, 	{ x: 330, y: 80 }, 	{ x: 330, y: 120 }, 	{ x: 300, y: 120 }, 	{ x: 270, y: 130 }, 	{ x: 240, y: 160 }, 	{ x: 170, y: 240 }, 	{ x: 130, y: 320 }, 	{ x: 120, y: 340 }, 	{ x: 120, y: 360 }, 	{ x: 130, y: 370 }, 	{ x: 150, y: 380 }, 	{ x: 170, y: 370 }, 	{ x: 180, y: 340 }, 	{ x: 180, y: 280 }, 	{ x: 190, y: 260 }, 	{ x: 210, y: 230 }, 	{ x: 240, y: 230 }, 	{ x: 250, y: 240 }, 	{ x: 250, y: 270 }, 	{ x: 260, y: 280 }, 	{ x: 280, y: 290 }, 	{ x: 290, y: 280 }, 	{ x: 290, y: 180 }, 	{ x: 300, y: 160 }, 	{ x: 340, y: 140 }, 	{ x: 350, y: 140 }, 	{ x: 360, y: 150 }, 	{ x: 360, y: 190 }]
     };
     const pneus = {
-        // CORREÇÃO DE BALANCEAMENTO — valores anteriores faziam os pneus durarem longas demais:
-        //   Macio antigo: ~29 voltas | Médio antigo: ~47 voltas | Duro antigo: ~75 voltas
-        //
-        // Metas realistas (piloto ger=87, pista demandaAderencia=0.75 média):
-        //   Macio:  cliff ~10v, vida ~17v  → exige estratégia 2-3 paradas
-        //   Médio:  cliff ~18v, vida ~28v  → 1-2 paradas dependendo da pista
-        //   Duro:   cliff ~30v, vida ~47v  → 1 parada em pistas curtas e suaves
-        //
-        // multiplicadorPerformance do macio: 1.35→1.50 para que o ganho de ritmo fresco
-        // (~0.8s/v vs médio) justifique o custo do desgaste acelerado.
-        //
-        // duracaoIdeal recalibrada para se alinhar com o desgaste real (fatorPista médio 1.15):
-        //   macio: 0.33→0.22 | medio: 0.45→0.37 | duro: 0.65→0.62
-        macio: { nome: 'Macio', multiplicadorPerformance: 1.50, desgastePorVolta: 7.4,  duracaoIdeal: 0.22 },
-        medio: { nome: 'Médio', multiplicadorPerformance: 1.00, desgastePorVolta: 4.55, duracaoIdeal: 0.37 },
-        duro:  { nome: 'Duro',  multiplicadorPerformance: 0.96, desgastePorVolta: 2.50, duracaoIdeal: 0.62 }
+        macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.99, duracaoIdeal: 0.33 },
+        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 3.0, duracaoIdeal: 0.45 },
+        duro: { nome: 'Duro', multiplicadorPerformance: 0.96, desgastePorVolta: 1.9, duracaoIdeal: 0.65 }
     };
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
     const especialistaHabilidades = {
@@ -369,8 +356,8 @@ document.addEventListener('DOMContentLoaded', () => {
             })),
             mercadoDePecas: [],
             carros: [
-                { id: 1, pilotoId: piloto1Jogador ? piloto1Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 21, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } },
-                { id: 2, pilotoId: piloto2Jogador ? piloto2Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 22, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } }
+                { id: 1, pilotoId: piloto1Jogador ? piloto1Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 26, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } },
+                { id: 2, pilotoId: piloto2Jogador ? piloto2Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 27, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } }
             ]
         };
     }
@@ -1124,21 +1111,57 @@ document.addEventListener('DOMContentLoaded', () => {
         return novaPeca;
     }
 
-    function isEstrategiaValida(estrategia) {
-        if (!estrategia || !estrategia.pneuInicial) return false;
-
-        if (estrategia.paradas.length === 0) {
-            // CORREÇÃO: corrida sem pit só é válida com pneu duro e em pistas curtas (≤55v).
-            // Antes, qualquer pneu era aceito — o que permitia usar macio por 78 voltas (Mônaco),
-            // o que é fisicamente impossível e quebra o balanceamento do jogo.
-            const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
-            const voltasDaPista = pista ? pista.voltas : 999;
-            return estrategia.pneuInicial === 'duro' && voltasDaPista <= 55;
+    // Retorna um array de strings descrevendo todos os erros da estratégia.
+    // Array vazio = estratégia válida. Usado tanto pela UI quanto pelo botão de iniciar.
+    function getErrosEstrategia(estrategia) {
+        const erros = [];
+        if (!estrategia || !estrategia.pneuInicial) {
+            erros.push('Estratégia incompleta: selecione o pneu inicial.');
+            return erros;
         }
 
+        const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
+        const totalVoltas = pista ? pista.voltas : 58;
+
+        // REGRA 1: ao menos 1 pit stop obrigatório (regulamento F1).
+        if (estrategia.paradas.length === 0) {
+            erros.push('Obrigatório fazer ao menos 1 pit stop durante a corrida.');
+            return erros; // demais validações não fazem sentido sem paradas
+        }
+
+        // REGRA 2: cada parada deve ter uma volta estritamente maior que a anterior
+        // e estritamente menor que o total de voltas da corrida.
+        for (let i = 0; i < estrategia.paradas.length; i++) {
+            const volta = estrategia.paradas[i].pararNaVolta;
+            const voltaMinima = i === 0 ? 1 : estrategia.paradas[i - 1].pararNaVolta;
+
+            if (volta <= 0) {
+                erros.push(`Parada ${i + 1}: a volta não pode ser 0 ou negativa.`);
+            } else if (i > 0 && volta <= voltaMinima) {
+                erros.push(
+                    `Parada ${i + 1}: deve ser depois da parada ${i} ` +
+                    `(volta ${voltaMinima}). Corrija para pelo menos volta ${voltaMinima + 1}.`
+                );
+            } else if (volta >= totalVoltas) {
+                erros.push(
+                    `Parada ${i + 1}: volta ${volta} é igual ou posterior à última volta (${totalVoltas}). ` +
+                    `Use no máximo a volta ${totalVoltas - 1}.`
+                );
+            }
+        }
+
+        // REGRA 3: ao menos 2 compostos diferentes (regulamento F1).
         const pneusUsados = new Set(estrategia.paradas.map(p => p.colocarPneu));
         pneusUsados.add(estrategia.pneuInicial);
-        return pneusUsados.size >= 2;
+        if (pneusUsados.size < 2) {
+            erros.push('É obrigatório usar ao menos 2 compostos de pneu diferentes.');
+        }
+
+        return erros;
+    }
+
+    function isEstrategiaValida(estrategia) {
+        return getErrosEstrategia(estrategia).length === 0;
     }
 
     function calcularPrecoPeca(peca) {
@@ -1586,7 +1609,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.ers.ativo = false;
             }
 
-            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
+            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
         });
         raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole };
         redimensionarCanvas();
@@ -1686,30 +1709,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const pneuAtual = pneus[p.pneuAtual];
             const piloto = p.piloto;
             const fatorGerenciamento = (1 - (piloto.gerenciamentoPneus / 300));
-            // CORREÇÃO: desgaste agora considera a aderência da pista.
-            // Pistas exigentes (Ímola 0.9, Canadá 0.9) desgastam mais do que pistas suaves (Austrália 0.3).
-            // fatorPista varia de 0.88 (Austrália) a 1.24 (Ímola) com a fórmula 0.7 + aderência × 0.6.
-            const fatorPista = 0.7 + raceData.pista.demandaAderencia * 0.6;
-            const desgasteFinal = pneuAtual.desgastePorVolta * fatorGerenciamento * fatorPista;
+            const desgasteFinal = pneuAtual.desgastePorVolta * fatorGerenciamento;
 
             let penalidadeDesgaste;
             const desgasteSofrido = 100 - p.durabilidadePneu;
             if (desgasteSofrido <= 65) {
                 penalidadeDesgaste = desgasteSofrido * 0.01;
             } else {
-                // CORREÇÃO: expoente 1.5→2.0 para curva de cliff mais abrupta e realista.
-                // Após 65% de desgaste o pneu degrada muito rapidamente, forçando o piloto
-                // a fazer pit stop antes de perder vários segundos por volta.
                 const desgasteExcedente = desgasteSofrido - 65;
-                penalidadeDesgaste = (65 * 0.01) + (Math.pow(desgasteExcedente, 2.0) * 0.01);
+                penalidadeDesgaste = (65 * 0.01) + (Math.pow(desgasteExcedente, 1.5) * 0.01);
             }
 
             const paradaInfo = p.estrategia.paradas[p.stintAtual];
-            // CORREÇÃO: p.paradas é um contador numérico (incrementado com p.paradas++),
-            // não um array. Usar p.paradas.length retornava undefined, fazendo
-            // voltaDaUltimaParada sempre ser 0 e a penalidade de combustível ficar errada
-            // do início ao fim da corrida, mesmo após pit stops.
-            const voltaDaUltimaParada = p.paradas > 0 ? p.estrategia.paradas[p.paradas - 1].pararNaVolta : 0;
+            const voltaDaUltimaParada = p.paradas.length > 0 ? p.estrategia.paradas.at(-1).pararNaVolta : 0;
             const proximaParada = paradaInfo ? paradaInfo.pararNaVolta : raceData.totalVoltas;
             const tamanhoStint = proximaParada - voltaDaUltimaParada;
             const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
@@ -1735,6 +1747,76 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.paradas++;
                 p.voltasNoPneuAtual = 1;
             } else {
+                // ----------------------------------------------------------------
+                // VERIFICAÇÃO DE PNEU DESTRUÍDO (durabilidade ≤ 0)
+                // Se o piloto estourou o stint além do limite do pneu, o contador
+                // voltasPneuDestruido acumula. A partir de 3 voltas no limite:
+                //   → Pit de emergência automático (evita DNF, mas paga tempo extra).
+                //   → Se o pit de emergência não for possível (sem stints restantes),
+                //     o carro tem 60% de chance por volta de DNF.
+                // ----------------------------------------------------------------
+                if (p.durabilidadePneu <= 0) {
+                    p.durabilidadePneu = 0; // garante que não fique negativo
+                    p.voltasPneuDestruido++;
+
+                    if (p.voltasPneuDestruido > 3) {
+                        // Tenta realizar um pit de emergência antes de jogar o dado de DNF.
+                        // Escolhe o pneu mais durável ainda não usado na estratégia original,
+                        // ou 'duro' como último recurso.
+                        const proximoStintNaEstrategia = p.estrategia.paradas[p.stintAtual];
+                        const pneuEmergencia = proximoStintNaEstrategia
+                            ? proximoStintNaEstrategia.colocarPneu
+                            : 'duro';
+
+                        // Verifica se ainda há voltas suficientes para valer um pit
+                        const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
+
+                        if (voltasRestantes > 2) {
+                            // PIT DE EMERGÊNCIA: custo normal de pit + 5s de penalidade
+                            // (para simular a entrada não-planejada e o risco de unsafe release)
+                            const reducaoPitStop = p.isPlayer ? gameState.instalacoes.treinoDeBox * 0.5 : 0;
+                            const tempoPitEmergencia = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop) + 5;
+                            const tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
+                            tempoDaVoltaFinal = tempoDaVoltaBase + tempoPitEmergencia;
+
+                            p.tempoTotal += tempoDaVoltaFinal;
+                            p.ultimaVolta = `⚠️ PIT EMERG. (${formatLapTime(tempoDaVoltaFinal)})`;
+                            p.duracaoVoltaEstimada = tempoDaVoltaFinal;
+
+                            // Avança o stint para o próximo planejado (ou mantém no duro de emergência)
+                            if (proximoStintNaEstrategia) {
+                                p.stintAtual++;
+                            }
+                            p.pneuAtual = pneuEmergencia;
+                            p.durabilidadePneu = 100;
+                            p.penalidadeCombustivel = 2.8;
+                            p.paradas++;
+                            p.voltasNoPneuAtual = 1;
+                            p.voltasPneuDestruido = 0; // reset ao trocar pneu
+
+                            fezPitStop = true;
+
+                            if (p.isPlayer) {
+                                p.lapData.push({ lap: raceData.voltaAtual, lapTime: tempoDaVoltaFinal, tire: pneuAntesDaVolta, pitStop: true });
+                            }
+                            return; // pula o resto do bloco else
+                        } else {
+                            // Perto do fim: sem sentido fazer pit. Joga o dado de DNF.
+                            if (Math.random() < 0.60) {
+                                p.tempoTotal = Infinity;
+                                p.ultimaVolta = "DNF (pneu)";
+                                if (p.isPlayer) {
+                                    p.lapData.push({ lap: raceData.voltaAtual, lapTime: Infinity, tire: pneuAntesDaVolta, pitStop: false });
+                                }
+                                return;
+                            }
+                        }
+                    }
+                } else {
+                    p.voltasPneuDestruido = 0; // pneu ainda vivo — reset do contador
+                }
+
+                // Risco de DNF mecânico normal (confiabilidade)
                 if (Math.random() < 0.002 * (1 - (p.atributos.confiabilidade / 100))) {
                     p.tempoTotal = Infinity;
                     p.ultimaVolta = "DNF";
@@ -1744,7 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Usa as penalidades já calculadas
+                // Volta normal
                 tempoDaVoltaFinal = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
 
                 p.duracaoVoltaEstimada = tempoDaVoltaFinal;
@@ -3744,7 +3826,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <button class="btn-remover-stint strategy-control" data-car-index="${carroIndex}" data-parada-index="${paradaIndex}">X</button>
                 </div>`).join('');
-            const aviso = !isEstrategiaValida(carro.estrategia) ? `<p class="strategy-warning">Estratégia inválida: é obrigatório usar ao menos 2 tipos de pneu diferentes se houver pit stops.</p>` : '';
+            const errosEstrategia = getErrosEstrategia(carro.estrategia);
+            const aviso = errosEstrategia.length > 0
+                ? `<div class="strategy-warning">${errosEstrategia.map(e => `<p>⚠️ ${e}</p>`).join('')}</div>`
+                : `<p class="strategy-ok">✅ Estratégia válida.</p>`;
 
             return `<div class="strategy-box">
                         <h4>Carro ${carroIndex + 1} (${pilotoNome})</h4>
@@ -4170,7 +4255,15 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (target.matches('#btn-corrida-real') || target.matches('#btn-corrida-rapida')) {
             const carrosDoJogador = gameState.carros.filter(c => c.pilotoId !== null);
             if (carrosDoJogador.length < 2) { alert("Você precisa ter 2 pilotos contratados para iniciar uma corrida!"); return; }
-            if (!isEstrategiaValida(carrosDoJogador[0].estrategia) || !isEstrategiaValida(carrosDoJogador[1].estrategia)) { alert("Estratégia Inválida! Verifique as regras de pneus."); return; }
+            if (!isEstrategiaValida(carrosDoJogador[0].estrategia) || !isEstrategiaValida(carrosDoJogador[1].estrategia)) {
+                const erros1 = getErrosEstrategia(carrosDoJogador[0].estrategia);
+                const erros2 = getErrosEstrategia(carrosDoJogador[1].estrategia);
+                let mensagem = '🚫 Estratégia Inválida!\n\n';
+                if (erros1.length > 0) mensagem += `Carro 1:\n• ${erros1.join('\n• ')}\n\n`;
+                if (erros2.length > 0) mensagem += `Carro 2:\n• ${erros2.join('\n• ')}`;
+                alert(mensagem.trim());
+                return;
+            }
             if (!carrosDoJogador.every(carro => Object.values(carro.pecas).every(peca => peca !== null))) { alert("Ambos os carros precisam ter todas as peças equipadas!"); return; }
             target.disabled = true;
             document.getElementById(target.id === 'btn-corrida-real' ? 'btn-corrida-rapida' : 'btn-corrida-real').disabled = true;
