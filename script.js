@@ -1834,7 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tempoDaVoltaFinal < p.melhorVoltaPessoal) { p.melhorVoltaPessoal = tempoDaVoltaFinal; }
                 p.ultimaVolta = formatLapTime(tempoDaVoltaFinal);
                 p.tempoTotal += tempoDaVoltaFinal;
-                p.durabilidadePneu = Math.max(0, p.durabilidadePneu - desgasteFinal);
+                p.durabilidadePneu -= desgasteFinal;
                 p.voltasNoPneuAtual++;
             }
 
@@ -2384,7 +2384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pilotoId = gameState.carros[i].pilotoId;
             const participante = raceData.participantes.find(p => p.piloto.id === pilotoId);
             if (!participante) continue;
-            const durabilidade = Math.max(0, participante.durabilidadePneu);
+            const durabilidade = participante.durabilidadePneu;
             const modo = participante.modoAgressividade;
             let categoria = null;
             if (participante.posicao === 1) {
@@ -3783,11 +3783,104 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
+    // ---------------------------------------------------------------------------
+    // GUIA DE PNEUS PIRELLI
+    // Calcula a janela de stint recomendada para cada composto na pista atual.
+    // Usa o piloto médio (gerenciamentoPneus=87) como referência e aplica ±30%
+    // de margem no cliff (65% de desgaste) para deixar a janela propositalmente
+    // vaga — o jogador ainda precisa usar o próprio julgamento.
+    // ---------------------------------------------------------------------------
+    function gerarGuiaPirelli() {
+        const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
+        if (!pista) return null;
+
+        const gerMedia = 87;
+        const fatorGer = 1 - (gerMedia / 300);
+        const fatorPista = 0.7 + pista.demandaAderencia * 0.6;
+        const MARGEM = 0.30;
+
+        const compostos = [
+            { id: 'macio', nome: 'Macio', cor: '#e8002d', corTexto: '#fff' },
+            { id: 'medio', nome: 'Médio', cor: '#ffd700', corTexto: '#222' },
+            { id: 'duro',  nome: 'Duro',  cor: '#f5f5f5', corTexto: '#222', borda: '#aaa' },
+        ];
+
+        return compostos.map(c => {
+            const degReal = pneus[c.id].desgastePorVolta * fatorGer * fatorPista;
+            const cliffReal = 65 / degReal;
+            const baixo  = Math.max(1, Math.floor(cliffReal * (1 - MARGEM)));
+            const alto   = Math.min(pista.voltas - 1, Math.ceil(cliffReal * (1 + MARGEM)));
+            return { ...c, baixo, alto };
+        });
+    }
+
+    function renderGuiaPirelliHTML() {
+        const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
+        if (!pista) return '';
+        const dados = gerarGuiaPirelli();
+        if (!dados) return '';
+
+        const totalVoltas = pista.voltas;
+        const demandaLabel = pista.demandaAderencia >= 0.8
+            ? '🔴 Alta demanda de pneus'
+            : pista.demandaAderencia >= 0.5
+            ? '🟡 Demanda moderada'
+            : '🟢 Baixa demanda de pneus';
+
+        const barrasHtml = dados.map(c => {
+            const largBaixo = ((c.baixo / totalVoltas) * 100).toFixed(1);
+            const largFaixa = (((c.alto - c.baixo) / totalVoltas) * 100).toFixed(1);
+            const bordaExtra = c.borda ? `border:1px solid ${c.borda};` : '';
+            return `
+            <div class="pirelli-compound-row">
+                <div class="pirelli-badge" style="background:${c.cor};color:${c.corTexto};${bordaExtra}">${c.nome[0]}</div>
+                <div class="pirelli-compound-nome">${c.nome}</div>
+                <div class="pirelli-bar-container" title="${c.nome}: ~${c.baixo} a ~${c.alto} voltas">
+                    <div class="pirelli-bar-offset" style="width:${largBaixo}%"></div>
+                    <div class="pirelli-bar-fill"   style="width:${largFaixa}%;background:${c.cor};${bordaExtra}"></div>
+                </div>
+                <div class="pirelli-janela-label">~${c.baixo}–${c.alto}v</div>
+            </div>`;
+        }).join('');
+
+        const ticks = [0, 25, 50, 75, 100];
+        const marcacaoHtml = `<div class="pirelli-ruler">${
+            ticks.map(p => `<span style="left:${p}%">${Math.round(p * totalVoltas / 100)}</span>`).join('')
+        }</div>`;
+
+        return `
+        <div class="pirelli-guide-panel">
+            <div class="pirelli-header">
+                <span class="pirelli-logo">🏎️ Pirelli</span>
+                <span class="pirelli-pista">${pista.nome}</span>
+                <span class="pirelli-demanda">${demandaLabel}</span>
+            </div>
+            <p class="pirelli-subtitulo">Janela de stint estimada por composto</p>
+            ${barrasHtml}
+            ${marcacaoHtml}
+            <p class="pirelli-aviso">⚠️ Estimativas baseadas em condições médias. Gerenciamento do piloto e estratégia da equipe podem alterar a durabilidade real.</p>
+        </div>`;
+    }
+
     function renderEstrategiaUI() {
         const container = document.getElementById('strategy-container');
         if (!container) return;
 
-        container.innerHTML = gameState.carros.map((carro, carroIndex) => {
+        // Preserva o estado aberto/fechado do guia Pirelli entre re-renders
+        const guiaAberto = container.dataset.guiaPirelliAberto === 'true';
+
+        const guiaBotaoHtml = `
+            <div class="pirelli-guide-toggle-wrapper">
+                <button class="btn-pirelli-guide" id="btn-toggle-pirelli">
+                    🏎️ Guia de Pneus Pirelli
+                </button>
+            </div>
+            <div id="pirelli-guide-container" style="display:${guiaAberto ? 'block' : 'none'}">
+                ${guiaAberto ? renderGuiaPirelliHTML() : ''}
+            </div>
+        `;
+
+        container.innerHTML = guiaBotaoHtml + gameState.carros.map((carro, carroIndex) => {
             const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
             const pilotoNome = piloto ? piloto.nome : "VAGO";
 
@@ -4286,6 +4379,21 @@ document.addEventListener('DOMContentLoaded', () => {
             processarFimDeTemporada();
             saveGame();
             updateUI();
+        }
+        else if (target.matches('#btn-toggle-pirelli')) {
+            const stratContainer = document.getElementById('strategy-container');
+            const guiaContainer  = document.getElementById('pirelli-guide-container');
+            const estaAberto = stratContainer.dataset.guiaPirelliAberto === 'true';
+            const novoEstado = !estaAberto;
+            stratContainer.dataset.guiaPirelliAberto = novoEstado;
+            if (guiaContainer) {
+                if (novoEstado) {
+                    guiaContainer.innerHTML = renderGuiaPirelliHTML();
+                    guiaContainer.style.display = 'block';
+                } else {
+                    guiaContainer.style.display = 'none';
+                }
+            }
         }
         else if (target.matches('.btn-add-stint')) {
             const carroIndex = parseInt(target.dataset.carIndex);
