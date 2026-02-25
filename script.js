@@ -147,8 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 6, rosto: 'img/Pilotos/antonele.png', nome: "K. Antonelli", idade: 18, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Mercedes', campeonatosGanhos: [] },
         { id: 7, rosto: 'img/Pilotos/sainz.png', nome: "Carlos Sainz", idade: 30, habilidade: 90, consistencia: 90, gerenciamentoPneus: 88, atributosBase: { habilidade: 90, consistencia: 90, gerenciamentoPneus: 88 }, status: 'Wilians', campeonatosGanhos: [] },
         { id: 8, rosto: 'img/Pilotos/albon.png', nome: "Alex Albon", idade: 29, habilidade: 85, consistencia: 89, gerenciamentoPneus: 89, atributosBase: { habilidade: 85, consistencia: 89, gerenciamentoPneus: 89 }, status: 'Wilians', campeonatosGanhos: [] },
-        { id: 9, rosto: 'img/Pilotos/bortoleto.png', nome: "G. Bortoleto", idade: 20, habilidade: 89, consistencia: 89, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 89, gerenciamentoPneus: 86 }, status: 'Sauber', campeonatosGanhos: [] },
-        { id: 10, rosto: 'img/Pilotos/hulkenberg.png', nome: "Nico Hulkenberg", idade: 37, habilidade: 89, consistencia: 88, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 88, gerenciamentoPneus: 86 }, status: 'Sauber', campeonatosGanhos: [] },
+        { id: 9, rosto: 'img/Pilotos/bortoleto.png', nome: "G. Bortoleto", idade: 20, habilidade: 89, consistencia: 89, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 89, gerenciamentoPneus: 86 }, status: 'Audi', campeonatosGanhos: [] },
+        { id: 10, rosto: 'img/Pilotos/hulkenberg.png', nome: "Nico Hulkenberg", idade: 37, habilidade: 89, consistencia: 88, gerenciamentoPneus: 86, atributosBase: { habilidade: 89, consistencia: 88, gerenciamentoPneus: 86 }, status: 'Audi', campeonatosGanhos: [] },
         { id: 11, rosto: 'img/Pilotos/alonso.png', nome: "Fernando Alonso", idade: 43, habilidade: 92, consistencia: 91, gerenciamentoPneus: 96, atributosBase: { habilidade: 92, consistencia: 91, gerenciamentoPneus: 96 }, status: 'Aston Martin', campeonatosGanhos: [] },
         { id: 12, rosto: 'img/Pilotos/stroll.png', nome: "Lance Stroll", idade: 26, habilidade: 86, consistencia: 78, gerenciamentoPneus: 86, atributosBase: { habilidade: 86, consistencia: 78, gerenciamentoPneus: 86 }, status: 'Aston Martin', campeonatosGanhos: [] },
         { id: 13, rosto: 'img/Pilotos/gasly.png', nome: "Pierre Gasly", idade: 29, habilidade: 82, consistencia: 86, gerenciamentoPneus: 87, atributosBase: { habilidade: 82, consistencia: 86, gerenciamentoPneus: 87 }, status: 'Alpine', campeonatosGanhos: [] },
@@ -186,19 +186,22 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 125, rosto: 'img/Pilotos/rafaelcamara.png', nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 19000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 126, rosto: 'img/Pilotos/default.png', nome: "Charlie Chaplin", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 18000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 127, rosto: 'img/Pilotos/default.png', nome: "P. Beralta", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 17000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 128, rosto: 'img/Pilotos/sergio.png', nome: "Sérgio Perez", idade: 35, habilidade: 90, consistencia: 91, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 89 }, status: 'Cadillac Racing', campeonatosGanhos: [] },
+        { id: 129, rosto: 'img/Pilotos/valtteri.png', nome: "Valtteri Bottas", idade: 35, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Cadillac Racing', campeonatosGanhos: [] },
     ];
 
     const equipesIA = [
         { nome: "Red Bull", ftequipe: 'img/equipes/redbull.png', cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 98, aerodinamica: 96, aderencia: 95, confiabilidade: 89 } },
         { nome: "Mercedes", ftequipe: 'img/equipes/mercedes.png', cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
         { nome: "Ferrari", ftequipe: 'img/equipes/ferrari.png', cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 97, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
-        { nome: "Sauber", ftequipe: 'img/equipes/sauber.png', cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
+        { nome: "Audi", ftequipe: 'img/equipes/audi.png', cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
         { nome: "Aston Martin", ftequipe: 'img/equipes/astonmartin.png', cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
         { nome: "Alpine", ftequipe: 'img/equipes/alpine.png', cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 95, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
         { nome: "Haas", ftequipe: 'img/equipes/haas.png', cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 89, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
         { nome: "RB", ftequipe: 'img/equipes/racingbulls.png', cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 91, aderencia: 92, confiabilidade: 80 } },
         { nome: "Wilians", ftequipe: 'img/equipes/willians.png', cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 91, aerodinamica: 89, aderencia: 91, confiabilidade: 80 } },
         { nome: "MacLaren", ftequipe: 'img/equipes/maclaren.png', cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 98, aerodinamica: 96, aderencia: 97, confiabilidade: 90 } },
+        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png', cor: "rgb(0,90,200)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
     ];
 
     const catalogoMensagens = {
@@ -247,6 +250,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------ 2. ESTADO DO JOGO ------------
 
     function resetGameState() {
+        // Restaura os IDs de pilotos originais das equipes de IA,
+        // garantindo que um novo jogo comece sempre com o grid padrão.
+        const defaultPilotIds = {
+            "Red Bull":        { p1: 1,   p2: 2  },
+            "Mercedes":        { p1: 5,   p2: 6  },
+            "Ferrari":         { p1: 3,   p2: 4  },
+            "Audi":            { p1: 9,   p2: 10 },
+            "Aston Martin":    { p1: 11,  p2: 12 },
+            "Alpine":          { p1: 13,  p2: 14 },
+            "Haas":            { p1: 15,  p2: 16 },
+            "RB":              { p1: 18,  p2: 17 },
+            "Wilians":         { p1: 7,   p2: 8  },
+            "MacLaren":        { p1: 19,  p2: 20 },
+            "Cadillac Racing": { p1: 128, p2: 129 }
+        };
+        equipesIA.forEach(equipe => {
+            if (defaultPilotIds[equipe.nome]) {
+                equipe.piloto1Id = defaultPilotIds[equipe.nome].p1;
+                equipe.piloto2Id = defaultPilotIds[equipe.nome].p2;
+            }
+        });
+
         const pilotosDoJogo = JSON.parse(JSON.stringify(baseDePilotos)).map(p => {
             // Cria uma cópia do objeto do piloto
             const newPilot = {...p, campeonatosGanhos: p.campeonatosGanhos || [] };
