@@ -140,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const baseDePilotos = [
         { id: 1, rosto: 'img/Pilotos/verstapen.png', nome: "Max Verstappen", idade: 28, habilidade: 95, consistencia: 97, gerenciamentoPneus: 92, atributosBase: { habilidade: 95, consistencia: 97, gerenciamentoPneus: 92 }, status: 'Red Bull', campeonatosGanhos: [] },
-        { id: 2, rosto: 'img/Pilotos/tsunoda.png', nome: "Yuki Tsunoda", idade: 24, habilidade: 89, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 89, consistencia: 85, gerenciamentoPneus: 88 }, status: 'Disponível', campeonatosGanhos: [] },
         { id: 3, rosto: 'img/Pilotos/hamilton.png', nome: "Lewis Hamilton", idade: 41, habilidade: 95, consistencia: 93, gerenciamentoPneus: 90, atributosBase: { habilidade: 95, consistencia: 93, gerenciamentoPneus: 90 }, status: 'Ferrari', campeonatosGanhos: [] },
         { id: 4, rosto: 'img/Pilotos/leclerc.png', nome: "Charles Leclerc", idade: 28, habilidade: 92, consistencia: 90, gerenciamentoPneus: 94, atributosBase: { habilidade: 92, consistencia: 90, gerenciamentoPneus: 94 }, status: 'Ferrari', campeonatosGanhos: [] },
         { id: 5, rosto: 'img/Pilotos/russel.png', nome: "George Russell", idade: 28, habilidade: 90, consistencia: 91, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 89 }, status: 'Mercedes', campeonatosGanhos: [] },
@@ -187,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 125, rosto: 'img/Pilotos/rafaelcamara.png', nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 19000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 126, rosto: 'img/Pilotos/default.png', nome: "Charlie Chaplin", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 18000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 127, rosto: 'img/Pilotos/default.png', nome: "P. Beralta", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 17000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 2, rosto: 'img/Pilotos/tsunoda.png', nome: "Yuki Tsunoda", idade: 24, habilidade: 89, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 89, consistencia: 85, gerenciamentoPneus: 88 }, salario: 18000, precoContrato: 950000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 128, rosto: 'img/Pilotos/sergio.png', nome: "Sérgio Perez", idade: 35, habilidade: 90, consistencia: 91, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 89 }, status: 'Cadillac Racing', campeonatosGanhos: [] },
         { id: 129, rosto: 'img/Pilotos/valtteri.png', nome: "Valtteri Bottas", idade: 35, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Cadillac Racing', campeonatosGanhos: [] },
     ];
