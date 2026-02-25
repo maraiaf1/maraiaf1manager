@@ -1834,7 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tempoDaVoltaFinal < p.melhorVoltaPessoal) { p.melhorVoltaPessoal = tempoDaVoltaFinal; }
                 p.ultimaVolta = formatLapTime(tempoDaVoltaFinal);
                 p.tempoTotal += tempoDaVoltaFinal;
-                p.durabilidadePneu -= desgasteFinal;
+                p.durabilidadePneu = Math.max(0, p.durabilidadePneu - desgasteFinal);
                 p.voltasNoPneuAtual++;
             }
 
@@ -2384,7 +2384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pilotoId = gameState.carros[i].pilotoId;
             const participante = raceData.participantes.find(p => p.piloto.id === pilotoId);
             if (!participante) continue;
-            const durabilidade = participante.durabilidadePneu;
+            const durabilidade = Math.max(0, participante.durabilidadePneu);
             const modo = participante.modoAgressividade;
             let categoria = null;
             if (participante.posicao === 1) {
