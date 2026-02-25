@@ -194,14 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "Red Bull", ftequipe: 'img/equipes/redbull.png', cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 2, carro: { potencia: 98, aerodinamica: 96, aderencia: 95, confiabilidade: 89 } },
         { nome: "Mercedes", ftequipe: 'img/equipes/mercedes.png', cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
         { nome: "Ferrari", ftequipe: 'img/equipes/ferrari.png', cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 97, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
-        { nome: "Audi", ftequipe: 'img/equipes/audi.png', cor: "rgb(82,226,82)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
+        { nome: "Audi", ftequipe: 'img/equipes/audi.png', cor: "rgb(20,20,20)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
         { nome: "Aston Martin", ftequipe: 'img/equipes/astonmartin.png', cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
         { nome: "Alpine", ftequipe: 'img/equipes/alpine.png', cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 95, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
         { nome: "Haas", ftequipe: 'img/equipes/haas.png', cor: "rgb(79,79,79)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 89, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
         { nome: "RB", ftequipe: 'img/equipes/racingbulls.png', cor: "rgb(255,250,240)", piloto1Id: 18, piloto2Id: 17, carro: { potencia: 86, aerodinamica: 91, aderencia: 92, confiabilidade: 80 } },
         { nome: "Wilians", ftequipe: 'img/equipes/willians.png', cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 91, aerodinamica: 89, aderencia: 91, confiabilidade: 80 } },
         { nome: "MacLaren", ftequipe: 'img/equipes/maclaren.png', cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 98, aerodinamica: 96, aderencia: 97, confiabilidade: 90 } },
-        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png', cor: "rgb(0,90,200)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
+        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png', cor: "rgb(160,160,160)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
     ];
 
     const catalogoMensagens = {
