@@ -985,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (patrocinadoresElegiveis.length === 0) return;
         const marca = patrocinadoresElegiveis[Math.floor(Math.random() * patrocinadoresElegiveis.length)];
         const duracao = Math.floor(Math.random() * 6) + 3;
-        const valor = Math.floor((500000 * reputacao) / (duracao * 0.2));
+        const valor = Math.floor((800000 * reputacao) / (duracao * 0.2));
         gameState.patrocinio.ofertas.push({ id: Date.now(), marca: marca.nome, valor, duracao });
     }
 
