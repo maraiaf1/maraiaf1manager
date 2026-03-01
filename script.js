@@ -1950,10 +1950,57 @@ document.addEventListener('DOMContentLoaded', () => {
     // ================================================================
 
     /**
-     * Gera uma estratégia para as voltas restantes após o SC,
-     * convertendo os números de volta para absolutos (a partir de voltaAtualCorrida).
+     * Calcula quantas voltas um pneu NOVO de cada composto aguenta,
+     * com uma margem de segurança de 85% para evitar DNF por pneu destruído.
      */
-    function gerarEstrategiaPosSC(voltaAtualCorrida, voltasRestantes) {
+    function voltasPorComposto() {
+        const MARGEM = 0.85;
+        return {
+            macio: Math.floor((100 / pneus.macio.desgastePorVolta) * MARGEM),
+            medio: Math.floor((100 / pneus.medio.desgastePorVolta) * MARGEM),
+            duro:  Math.floor((100 / pneus.duro.desgastePorVolta)  * MARGEM),
+        };
+    }
+
+    /**
+     * Gera a estratégia ideal para as voltas restantes após o SC.
+     *
+     * Lógica central:
+     *   1. Verifica se algum pneu novo aguentaria ir até o final SEM parar.
+     *      Se sim, escolhe o mais adequado ao modo de agressividade e retorna
+     *      zero paradas adicionais.
+     *   2. Se não houver pneu que cubra o restante, usa gerarEstrategiaIA com
+     *      as voltasRestantes para calcular a melhor estratégia de múltiplas paradas.
+     *
+     * @param {number} voltaAtualCorrida  - volta em que o SC entrou
+     * @param {number} voltasRestantes    - voltas até o fim da corrida
+     * @param {string} modoAgressividade  - 'atacar' | 'padrão' | 'conservar'
+     */
+    function gerarEstrategiaPosSC(voltaAtualCorrida, voltasRestantes, modoAgressividade = 'padrão') {
+        const duracao = voltasPorComposto();
+
+        // ── Caso 1: pneu único cobre o restante ─────────────────────
+        // Macio aguenta → todos os compostos servem: escolhe pelo ritmo/modo
+        if (voltasRestantes <= duracao.macio) {
+            const pneu = modoAgressividade === 'atacar'    ? 'macio'
+                       : modoAgressividade === 'conservar' ? 'duro'
+                       : 'medio';
+            return { pneuInicial: pneu, paradas: [] };
+        }
+
+        // Médio aguenta → médio ou duro servem
+        if (voltasRestantes <= duracao.medio) {
+            const pneu = modoAgressividade === 'atacar' ? 'medio' : 'duro';
+            return { pneuInicial: pneu, paradas: [] };
+        }
+
+        // Apenas o duro aguenta → coloca duro e vai até o final
+        if (voltasRestantes <= duracao.duro) {
+            return { pneuInicial: 'duro', paradas: [] };
+        }
+
+        // ── Caso 2: nenhum pneu cobre o restante → necessita paradas ─
+        // Delega para gerarEstrategiaIA com as voltasRestantes como "total"
         const est = gerarEstrategiaIA(Math.max(1, voltasRestantes));
         return {
             pneuInicial: est.pneuInicial,
@@ -1995,10 +2042,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // ── 2. IA: pit durante o SC + nova estratégia ────────────────
         raceData.participantes.forEach(p => {
             if (!p.isPlayer && p.tempoTotal !== Infinity) {
-                const novaEstrategia = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes);
+                // Calcula quantas voltas o pneu atual ainda aguenta
+                const voltasQueOPneuAtualAguenta = Math.floor(
+                    p.durabilidadePneu / pneus[p.pneuAtual].desgastePorVolta
+                );
+                const pneuAtualChegaAoFinal = voltasQueOPneuAtualAguenta >= voltasRestantes;
 
-                // IA para se tem pneu desgastado ou ainda tem muitas voltas pela frente
-                const devePararSC = p.durabilidadePneu < 65 || voltasRestantes > 15;
+                // IA só para se o pneu atual NÃO aguentar até o fim
+                const devePararSC = !pneuAtualChegaAoFinal;
+
+                const novaEstrategia = gerarEstrategiaPosSC(
+                    raceData.voltaAtual,
+                    voltasRestantes,
+                    p.modoAgressividade || 'padrão'
+                );
+
                 if (devePararSC) {
                     p.tempoTotal += 22; // custo do pit durante SC (mais barato que pit normal)
                     p.pneuAtual = novaEstrategia.pneuInicial;
@@ -2009,12 +2067,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     p.voltasPneuDestruido = 0;
                 }
 
-                // Nova estratégia (futuros stops apenas)
+                // Nova estratégia: usa o pneu atual se não parou, ou o novo pneu se parou
                 p.estrategia = {
                     pneuInicial: devePararSC ? novaEstrategia.pneuInicial : p.pneuAtual,
-                    paradas: novaEstrategia.paradas
+                    paradas: devePararSC ? novaEstrategia.paradas : (() => {
+                        // Mesmo sem parar agora, recalcula as paradas futuras
+                        // baseado nas voltas restantes e no pneu que já está
+                        const duracao = voltasPorComposto();
+                        const voltasRestantesDoPneu = Math.floor(
+                            p.durabilidadePneu / pneus[p.pneuAtual].desgastePorVolta
+                        );
+                        // Pneu já cobre o final → sem paradas
+                        return voltasRestantesDoPneu >= voltasRestantes ? [] : novaEstrategia.paradas;
+                    })()
                 };
-                p.stintAtual = 0; // reset para apontar para paradas[0]
+                p.stintAtual = 0;
             }
         });
 
@@ -2032,7 +2099,9 @@ document.addEventListener('DOMContentLoaded', () => {
             raceData.scContexto[carro.pilotoId] = { pneusJaUsados: pneusAntesSC };
 
             // Gera nova estratégia automática como ponto de partida
-            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes);
+            // Passa o modo de agressividade do participante para o cálculo
+            const modo = participante.modoAgressividade || 'padrão';
+            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes, modo);
 
             // Aplica o pit de SC — o novaEst.pneuInicial já entra na contagem de compostos
             participante.tempoTotal += 22;
@@ -2194,7 +2263,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
             if (!participante || participante.tempoTotal === Infinity) return;
 
-            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes);
+            const modo = participante.modoAgressividade || 'padrão';
+            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes, modo);
             // Mantém o pneu que já foi colocado no pit do SC
             novaEst.pneuInicial = participante.pneuAtual;
 
