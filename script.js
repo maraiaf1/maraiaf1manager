@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pneus = {
         macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.99, duracaoIdeal: 0.33 },
         medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 3.0, duracaoIdeal: 0.45 },
-        duro: { nome: 'Duro', multiplicadorPerformance: 0.96, desgastePorVolta: 1.9, duracaoIdeal: 0.65 }
+        duro: { nome: 'Duro', multiplicadorPerformance: 0.988, desgastePorVolta: 1.9, duracaoIdeal: 0.65 }
     };
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
     const especialistaHabilidades = {
