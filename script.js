@@ -2042,14 +2042,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // ── 2. IA: pit durante o SC + nova estratégia ────────────────
         raceData.participantes.forEach(p => {
             if (!p.isPlayer && p.tempoTotal !== Infinity) {
-                // Calcula quantas voltas o pneu atual ainda aguenta
+                // Reconstrói os compostos já usados por este piloto até o momento
+                // (pneu inicial + paradas já realizadas conforme stintAtual)
+                const compositosJaUsados = new Set([p.estrategia.pneuInicial]);
+                for (let i = 0; i < p.stintAtual; i++) {
+                    if (p.estrategia.paradas[i]) {
+                        compositosJaUsados.add(p.estrategia.paradas[i].colocarPneu);
+                    }
+                }
+                compositosJaUsados.add(p.pneuAtual); // pneu em uso agora
+                const regulamentoJaCumprido = compositosJaUsados.size >= 2;
+
+                // Calcula se o pneu atual dura até o final
                 const voltasQueOPneuAtualAguenta = Math.floor(
                     p.durabilidadePneu / pneus[p.pneuAtual].desgastePorVolta
                 );
                 const pneuAtualChegaAoFinal = voltasQueOPneuAtualAguenta >= voltasRestantes;
 
-                // IA só para se o pneu atual NÃO aguentar até o fim
-                const devePararSC = !pneuAtualChegaAoFinal;
+                // Deve parar se:
+                // a) O pneu atual não chega ao final, OU
+                // b) O regulamento de 2 compostos ainda não foi cumprido
+                //    (nesse caso a parada é obrigatória para trocar de composto)
+                const devePararSC = !pneuAtualChegaAoFinal || !regulamentoJaCumprido;
 
                 const novaEstrategia = gerarEstrategiaPosSC(
                     raceData.voltaAtual,
@@ -2058,8 +2072,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
 
                 if (devePararSC) {
-                    p.tempoTotal += 22; // custo do pit durante SC (mais barato que pit normal)
-                    p.pneuAtual = novaEstrategia.pneuInicial;
+                    // Se a parada é apenas para cumprir o regulamento, escolhe um composto
+                    // diferente do atual que cubra as voltas restantes
+                    let pneuEscolhido = novaEstrategia.pneuInicial;
+                    if (!regulamentoJaCumprido && pneuEscolhido === p.pneuAtual) {
+                        const duracao = voltasPorComposto();
+                        const alternativas = ['duro', 'medio', 'macio'].filter(c => c !== p.pneuAtual);
+                        // Prefere o mais durável que cubra as voltas restantes
+                        pneuEscolhido = alternativas.find(c => duracao[c] >= voltasRestantes)
+                            || alternativas[0]; // fallback: qualquer diferente
+                    }
+
+                    p.tempoTotal += 22;
+                    p.pneuAtual = pneuEscolhido;
                     p.durabilidadePneu = 100;
                     p.penalidadeCombustivel = 2.8;
                     p.paradas++;
@@ -2067,19 +2092,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     p.voltasPneuDestruido = 0;
                 }
 
-                // Nova estratégia: usa o pneu atual se não parou, ou o novo pneu se parou
+                // Nova estratégia: pneu atual se não parou, novo pneu se parou
+                const pneuFinal = devePararSC ? p.pneuAtual : p.pneuAtual;
+                const voltasRestantesDoPneuFinal = devePararSC
+                    ? Math.floor(100 / pneus[p.pneuAtual].desgastePorVolta) // pneu novo
+                    : voltasQueOPneuAtualAguenta;
+
                 p.estrategia = {
-                    pneuInicial: devePararSC ? novaEstrategia.pneuInicial : p.pneuAtual,
-                    paradas: devePararSC ? novaEstrategia.paradas : (() => {
-                        // Mesmo sem parar agora, recalcula as paradas futuras
-                        // baseado nas voltas restantes e no pneu que já está
-                        const duracao = voltasPorComposto();
-                        const voltasRestantesDoPneu = Math.floor(
-                            p.durabilidadePneu / pneus[p.pneuAtual].desgastePorVolta
-                        );
-                        // Pneu já cobre o final → sem paradas
-                        return voltasRestantesDoPneu >= voltasRestantes ? [] : novaEstrategia.paradas;
-                    })()
+                    pneuInicial: p.pneuAtual,
+                    paradas: voltasRestantesDoPneuFinal >= voltasRestantes ? [] : novaEstrategia.paradas
                 };
                 p.stintAtual = 0;
             }
