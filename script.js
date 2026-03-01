@@ -1116,7 +1116,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Retorna um array de strings descrevendo todos os erros da estratégia.
     // Array vazio = estratégia válida. Usado tanto pela UI quanto pelo botão de iniciar.
-    function getErrosEstrategia(estrategia) {
+    /**
+     * Valida a estratégia e retorna lista de erros.
+     * @param {object} estrategia
+     * @param {object|null} contextoSC - quando não-nulo, indica modal do SC.
+     *   { pneusJaUsados: Set<string>, voltaAtual: number }
+     *   Compostos já usados na corrida são contabilizados nas regras 1 e 3.
+     */
+    function getErrosEstrategia(estrategia, contextoSC = null) {
         const erros = [];
         if (!estrategia || !estrategia.pneuInicial) {
             erros.push('Estratégia incompleta: selecione o pneu inicial.');
@@ -1126,17 +1133,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
         const totalVoltas = pista ? pista.voltas : 58;
 
+        // Monta o set completo de compostos (histórico + nova estratégia)
+        const pneusNaEstrategia = new Set(estrategia.paradas.map(p => p.colocarPneu));
+        pneusNaEstrategia.add(estrategia.pneuInicial);
+        const pneusHistorico = contextoSC ? new Set(contextoSC.pneusJaUsados) : new Set();
+        const todosPneus = new Set([...pneusHistorico, ...pneusNaEstrategia]);
+
         // REGRA 1: ao menos 1 pit stop obrigatório (regulamento F1).
+        // Exceção: no SC, se já há 2+ compostos distintos no total da corrida,
+        // pode terminar sem mais paradas (o pit do SC já contou).
         if (estrategia.paradas.length === 0) {
-            erros.push('Obrigatório fazer ao menos 1 pit stop durante a corrida.');
-            return erros; // demais validações não fazem sentido sem paradas
+            if (!contextoSC || todosPneus.size < 2) {
+                erros.push('Obrigatório fazer ao menos 1 pit stop durante a corrida.');
+                return erros;
+            }
+            // SC + 2 compostos garantidos → zero paradas adicionais é válido.
+            return erros;
         }
 
         // REGRA 2: cada parada deve ter uma volta estritamente maior que a anterior
         // e estritamente menor que o total de voltas da corrida.
+        const voltaMinimaPrimeira = contextoSC ? contextoSC.voltaAtual : 1;
         for (let i = 0; i < estrategia.paradas.length; i++) {
             const volta = estrategia.paradas[i].pararNaVolta;
-            const voltaMinima = i === 0 ? 1 : estrategia.paradas[i - 1].pararNaVolta;
+            const voltaMinima = i === 0 ? voltaMinimaPrimeira : estrategia.paradas[i - 1].pararNaVolta;
 
             if (volta <= 0) {
                 erros.push(`Parada ${i + 1}: a volta não pode ser 0 ou negativa.`);
@@ -1144,6 +1164,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 erros.push(
                     `Parada ${i + 1}: deve ser depois da parada ${i} ` +
                     `(volta ${voltaMinima}). Corrija para pelo menos volta ${voltaMinima + 1}.`
+                );
+            } else if (contextoSC && volta < voltaMinimaPrimeira) {
+                erros.push(
+                    `Parada ${i + 1}: volta ${volta} já passou (corrida na volta ${voltaMinimaPrimeira}).`
                 );
             } else if (volta >= totalVoltas) {
                 erros.push(
@@ -1154,9 +1178,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // REGRA 3: ao menos 2 compostos diferentes (regulamento F1).
-        const pneusUsados = new Set(estrategia.paradas.map(p => p.colocarPneu));
-        pneusUsados.add(estrategia.pneuInicial);
-        if (pneusUsados.size < 2) {
+        // Conta histórico da corrida quando no contexto SC.
+        if (todosPneus.size < 2) {
             erros.push('É obrigatório usar ao menos 2 compostos de pneu diferentes.');
         }
 
@@ -1984,15 +2007,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // ── 3. Player: pit automático durante o SC ───────────────────
+        // Salva os compostos já usados ANTES do pit do SC (para validação contextual)
+        raceData.scContexto = {};
         gameState.carros.forEach((carro) => {
             if (!carro.pilotoId) return;
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
             if (!participante || participante.tempoTotal === Infinity) return;
 
+            // Compostos usados antes do SC: pneu inicial da corrida + todos os pneus colocados em paradas
+            const pneusAntesSC = new Set((participante.lapData || []).map(d => d.tire));
+            pneusAntesSC.add(participante.pneuAtual); // pneu em uso no momento do SC
+            raceData.scContexto[carro.pilotoId] = { pneusJaUsados: pneusAntesSC };
+
             // Gera nova estratégia automática como ponto de partida
             const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes);
 
-            // Aplica o pit de SC
+            // Aplica o pit de SC — o novaEst.pneuInicial já entra na contagem de compostos
             participante.tempoTotal += 22;
             participante.pneuAtual = novaEst.pneuInicial;
             participante.durabilidadePneu = 100;
@@ -2059,7 +2089,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             data-parada-index="${paradaIndex}">✕</button>
                 </div>`).join('');
 
-            const erros = getErrosEstrategia(carro.estrategia);
+            // Contexto SC: informa compostos já usados para relaxar as regras 1 e 3
+            const ctxSC = (raceData.scContexto && raceData.scContexto[carro.pilotoId])
+                ? { pneusJaUsados: raceData.scContexto[carro.pilotoId].pneusJaUsados, voltaAtual: raceData.voltaAtual }
+                : null;
+            const erros = getErrosEstrategia(carro.estrategia, ctxSC);
             const aviso = erros.length > 0
                 ? `<div class="strategy-warning">${erros.map(e => `<p>⚠️ ${e}</p>`).join('')}</div>`
                 : `<p class="strategy-ok">✅ Estratégia válida.</p>`;
@@ -2190,6 +2224,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Desabilita os controles de estratégia novamente
         document.querySelectorAll('.strategy-control').forEach(el => { el.disabled = true; });
+
+        // Atualiza a tabela imediatamente com o pneu correto (fix visual)
+        raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
+        renderTabelaAoVivo();
 
         // Atualiza a UI de estratégia da sidebar
         renderEstrategiaUI();
@@ -4744,7 +4782,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Valida as estratégias antes de confirmar
             const carrosValidos = gameState.carros.every(c => {
                 if (!c.pilotoId) return true;
-                return isEstrategiaValida(c.estrategia);
+                const ctxSC = (raceData.scContexto && raceData.scContexto[c.pilotoId])
+                    ? { pneusJaUsados: raceData.scContexto[c.pilotoId].pneusJaUsados, voltaAtual: raceData.voltaAtual }
+                    : null;
+                return getErrosEstrategia(c.estrategia, ctxSC).length === 0;
             });
             if (!carrosValidos) {
                 alert('⚠️ Estratégia inválida! Verifique as configurações antes de confirmar.');
