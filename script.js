@@ -1119,9 +1119,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Valida a estratégia e retorna lista de erros.
      * @param {object} estrategia
-     * @param {object|null} contextoSC - quando não-nulo, indica modal do SC.
-     *   { pneusJaUsados: Set<string>, voltaAtual: number }
-     *   Compostos já usados na corrida são contabilizados nas regras 1 e 3.
+     * @param {object|null} contextoSC - quando não-nulo, estamos no modal do Safety Car.
+     *   { voltaAtual: number }
+     *   No contexto SC, as regras 1 (pit obrigatório) e 3 (2 compostos) são isentas:
+     *   o pit do próprio SC já cumpre ambas as obrigações do regulamento.
+     *   Apenas a Regra 2 (coerência das voltas futuras) é aplicada.
      */
     function getErrosEstrategia(estrategia, contextoSC = null) {
         const erros = [];
@@ -1133,30 +1135,43 @@ document.addEventListener('DOMContentLoaded', () => {
         const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
         const totalVoltas = pista ? pista.voltas : 58;
 
-        // Monta o set completo de compostos (histórico + nova estratégia)
-        const pneusNaEstrategia = new Set(estrategia.paradas.map(p => p.colocarPneu));
-        pneusNaEstrategia.add(estrategia.pneuInicial);
-        const pneusHistorico = contextoSC ? new Set(contextoSC.pneusJaUsados) : new Set();
-        const todosPneus = new Set([...pneusHistorico, ...pneusNaEstrategia]);
+        // ── Contexto SAFETY CAR ──────────────────────────────────────
+        // O pit durante o SC já conta como o pit stop obrigatório e garante
+        // o uso de um segundo composto. Não forçamos paradas adicionais.
+        if (contextoSC) {
+            // Sem paradas futuras: totalmente válido no SC.
+            if (estrategia.paradas.length === 0) return erros;
+
+            // Com paradas futuras: só valida coerência das voltas.
+            const voltaAtual = contextoSC.voltaAtual;
+            for (let i = 0; i < estrategia.paradas.length; i++) {
+                const volta = estrategia.paradas[i].pararNaVolta;
+                const voltaMinima = i === 0 ? voltaAtual : estrategia.paradas[i - 1].pararNaVolta;
+
+                if (volta < voltaAtual) {
+                    erros.push(`Parada ${i + 1}: volta ${volta} já passou (corrida na volta ${voltaAtual}).`);
+                } else if (i > 0 && volta <= voltaMinima) {
+                    erros.push(`Parada ${i + 1}: deve ser depois da parada ${i} (volta ${voltaMinima}).`);
+                } else if (volta >= totalVoltas) {
+                    erros.push(`Parada ${i + 1}: use no máximo a volta ${totalVoltas - 1}.`);
+                }
+            }
+            return erros;
+        }
+
+        // ── Corrida normal ───────────────────────────────────────────
 
         // REGRA 1: ao menos 1 pit stop obrigatório (regulamento F1).
-        // Exceção: no SC, se já há 2+ compostos distintos no total da corrida,
-        // pode terminar sem mais paradas (o pit do SC já contou).
         if (estrategia.paradas.length === 0) {
-            if (!contextoSC || todosPneus.size < 2) {
-                erros.push('Obrigatório fazer ao menos 1 pit stop durante a corrida.');
-                return erros;
-            }
-            // SC + 2 compostos garantidos → zero paradas adicionais é válido.
+            erros.push('Obrigatório fazer ao menos 1 pit stop durante a corrida.');
             return erros;
         }
 
         // REGRA 2: cada parada deve ter uma volta estritamente maior que a anterior
         // e estritamente menor que o total de voltas da corrida.
-        const voltaMinimaPrimeira = contextoSC ? contextoSC.voltaAtual : 1;
         for (let i = 0; i < estrategia.paradas.length; i++) {
             const volta = estrategia.paradas[i].pararNaVolta;
-            const voltaMinima = i === 0 ? voltaMinimaPrimeira : estrategia.paradas[i - 1].pararNaVolta;
+            const voltaMinima = i === 0 ? 1 : estrategia.paradas[i - 1].pararNaVolta;
 
             if (volta <= 0) {
                 erros.push(`Parada ${i + 1}: a volta não pode ser 0 ou negativa.`);
@@ -1164,10 +1179,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 erros.push(
                     `Parada ${i + 1}: deve ser depois da parada ${i} ` +
                     `(volta ${voltaMinima}). Corrija para pelo menos volta ${voltaMinima + 1}.`
-                );
-            } else if (contextoSC && volta < voltaMinimaPrimeira) {
-                erros.push(
-                    `Parada ${i + 1}: volta ${volta} já passou (corrida na volta ${voltaMinimaPrimeira}).`
                 );
             } else if (volta >= totalVoltas) {
                 erros.push(
@@ -1178,8 +1189,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // REGRA 3: ao menos 2 compostos diferentes (regulamento F1).
-        // Conta histórico da corrida quando no contexto SC.
-        if (todosPneus.size < 2) {
+        const pneusUsados = new Set(estrategia.paradas.map(p => p.colocarPneu));
+        pneusUsados.add(estrategia.pneuInicial);
+        if (pneusUsados.size < 2) {
             erros.push('É obrigatório usar ao menos 2 compostos de pneu diferentes.');
         }
 
@@ -2090,9 +2102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`).join('');
 
             // Contexto SC: informa compostos já usados para relaxar as regras 1 e 3
-            const ctxSC = (raceData.scContexto && raceData.scContexto[carro.pilotoId])
-                ? { pneusJaUsados: raceData.scContexto[carro.pilotoId].pneusJaUsados, voltaAtual: raceData.voltaAtual }
-                : null;
+            const ctxSC = raceData.safetyCarAtivo ? { voltaAtual: raceData.voltaAtual } : null;
             const erros = getErrosEstrategia(carro.estrategia, ctxSC);
             const aviso = erros.length > 0
                 ? `<div class="strategy-warning">${erros.map(e => `<p>⚠️ ${e}</p>`).join('')}</div>`
@@ -4782,9 +4792,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Valida as estratégias antes de confirmar
             const carrosValidos = gameState.carros.every(c => {
                 if (!c.pilotoId) return true;
-                const ctxSC = (raceData.scContexto && raceData.scContexto[c.pilotoId])
-                    ? { pneusJaUsados: raceData.scContexto[c.pilotoId].pneusJaUsados, voltaAtual: raceData.voltaAtual }
-                    : null;
+                const ctxSC = raceData.safetyCarAtivo ? { voltaAtual: raceData.voltaAtual } : null;
                 return getErrosEstrategia(c.estrategia, ctxSC).length === 0;
             });
             if (!carrosValidos) {
