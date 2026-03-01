@@ -2180,6 +2180,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (participante && participante.tempoTotal !== Infinity) {
                 participante.estrategia = JSON.parse(JSON.stringify(carro.estrategia));
                 participante.stintAtual = 0;
+                // CORREÇÃO: sincroniza o pneu atual com o que o usuário escolheu no modal.
+                // pneuInicial da estratégia pós-SC = o pneu colocado durante o pit do safety car.
+                participante.pneuAtual = carro.estrategia.pneuInicial;
+                participante.durabilidadePneu = 100;   // pneu acabou de ser colocado
+                participante.voltasNoPneuAtual = 1;
             }
         });
 
