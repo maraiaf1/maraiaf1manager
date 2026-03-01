@@ -246,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let projetoAtual = {};
     let gapsAnteriores = {};
     let telemetryChartInstance = null;
+    let scTimerId = null; // intervalo do timer de 60s do safety car
 
 
     // ------------ 2. ESTADO DO JOGO ------------
@@ -1613,7 +1614,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
         });
-        raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole };
+        raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole, safetyCarAtivo: false, pendingSafetyCar: false, safetyCarMotivo: '' };
         redimensionarCanvas();
         renderTabelaAoVivo();
         animacaoAtiva = true;
@@ -1626,8 +1627,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             if (raceData.voltaAtual <= raceData.totalVoltas) {
+                // Chance base de SC por volta (~0.3% por volta)
+                if (!raceData.pendingSafetyCar && Math.random() < 0.003) {
+                    raceData.pendingSafetyCar = true;
+                    raceData.safetyCarMotivo = 'Incidente na pista';
+                }
+
                 // A corrida ainda está em andamento normal
                 simularUmaVolta();
+
+                // Verifica se um SC foi acionado durante a volta
+                if (raceData.pendingSafetyCar) {
+                    raceData.pendingSafetyCar = false;
+                    raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
+                    renderTabelaAoVivo();
+                    raceData.voltaAtual++;
+                    ativarSafetyCar();
+                    return; // pausa o loop — será retomado após o modal
+                }
+
                 raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
                 renderTabelaAoVivo();
                 gerarMensagensDeRadio();
@@ -1810,6 +1828,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (p.isPlayer) {
                                     p.lapData.push({ lap: raceData.voltaAtual, lapTime: Infinity, tire: pneuAntesDaVolta, pitStop: false });
                                 }
+                                // 40% de chance de acionar o Safety Car
+                                if (!raceData.pendingSafetyCar && Math.random() < 0.40) {
+                                    raceData.pendingSafetyCar = true;
+                                    raceData.safetyCarMotivo = `${p.piloto.nome} abandonou com falha de pneu`;
+                                }
                                 return;
                             }
                         }
@@ -1824,6 +1847,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     p.ultimaVolta = "DNF";
                     if (p.isPlayer) {
                         p.lapData.push({ lap: raceData.voltaAtual, lapTime: Infinity, tire: pneuAntesDaVolta, pitStop: false });
+                    }
+                    // 60% de chance de acionar o Safety Car
+                    if (!raceData.pendingSafetyCar && Math.random() < 0.60) {
+                        raceData.pendingSafetyCar = true;
+                        raceData.safetyCarMotivo = `${p.piloto.nome} abandonou com problema mecânico`;
                     }
                     return;
                 }
@@ -1881,6 +1909,329 @@ document.addEventListener('DOMContentLoaded', () => {
             saveGame();
         });
     }
+
+    // ================================================================
+    //  SAFETY CAR — funções principais
+    // ================================================================
+
+    /**
+     * Gera uma estratégia para as voltas restantes após o SC,
+     * convertendo os números de volta para absolutos (a partir de voltaAtualCorrida).
+     */
+    function gerarEstrategiaPosSC(voltaAtualCorrida, voltasRestantes) {
+        const est = gerarEstrategiaIA(Math.max(1, voltasRestantes));
+        return {
+            pneuInicial: est.pneuInicial,
+            paradas: est.paradas.map(p => ({
+                ...p,
+                pararNaVolta: Math.min(
+                    p.pararNaVolta + voltaAtualCorrida,
+                    voltaAtualCorrida + voltasRestantes - 1
+                )
+            }))
+        };
+    }
+
+    /**
+     * Ativa o Safety Car:
+     * 1. Pausa o loop da corrida
+     * 2. Comprime o campo (gap de 0.4s entre carros)
+     * 3. Faz o pit de todos durante o SC (+22s, pneus novos)
+     * 4. Recalcula estratégias IA automaticamente
+     * 5. Abre o modal para o jogador revisar suas estratégias
+     */
+    function ativarSafetyCar() {
+        // Pausa o loop
+        clearInterval(raceTimerId);
+        raceTimerId = null;
+        raceData.safetyCarAtivo = true;
+
+        const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+
+        // ── 1. Comprime o campo ──────────────────────────────────────
+        const ativos = raceData.participantes.filter(p => p.tempoTotal !== Infinity);
+        if (ativos.length > 0) {
+            const tempoLider = ativos[0].tempoTotal;
+            ativos.forEach((p, i) => {
+                p.tempoTotal = tempoLider + (i * 0.4);
+            });
+        }
+
+        // ── 2. IA: pit durante o SC + nova estratégia ────────────────
+        raceData.participantes.forEach(p => {
+            if (!p.isPlayer && p.tempoTotal !== Infinity) {
+                const novaEstrategia = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes);
+
+                // IA para se tem pneu desgastado ou ainda tem muitas voltas pela frente
+                const devePararSC = p.durabilidadePneu < 65 || voltasRestantes > 15;
+                if (devePararSC) {
+                    p.tempoTotal += 22; // custo do pit durante SC (mais barato que pit normal)
+                    p.pneuAtual = novaEstrategia.pneuInicial;
+                    p.durabilidadePneu = 100;
+                    p.penalidadeCombustivel = 2.8;
+                    p.paradas++;
+                    p.voltasNoPneuAtual = 1;
+                    p.voltasPneuDestruido = 0;
+                }
+
+                // Nova estratégia (futuros stops apenas)
+                p.estrategia = {
+                    pneuInicial: devePararSC ? novaEstrategia.pneuInicial : p.pneuAtual,
+                    paradas: novaEstrategia.paradas
+                };
+                p.stintAtual = 0; // reset para apontar para paradas[0]
+            }
+        });
+
+        // ── 3. Player: pit automático durante o SC ───────────────────
+        gameState.carros.forEach((carro) => {
+            if (!carro.pilotoId) return;
+            const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
+            if (!participante || participante.tempoTotal === Infinity) return;
+
+            // Gera nova estratégia automática como ponto de partida
+            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes);
+
+            // Aplica o pit de SC
+            participante.tempoTotal += 22;
+            participante.pneuAtual = novaEst.pneuInicial;
+            participante.durabilidadePneu = 100;
+            participante.penalidadeCombustivel = 2.8;
+            participante.paradas++;
+            participante.voltasNoPneuAtual = 1;
+            participante.voltasPneuDestruido = 0;
+            participante.stintAtual = 0;
+
+            // Sincroniza estratégia no gameState e no participante
+            carro.estrategia = JSON.parse(JSON.stringify(novaEst));
+            participante.estrategia = JSON.parse(JSON.stringify(novaEst));
+        });
+
+        // Reordena e atualiza a tabela com as novas posições
+        raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
+        renderTabelaAoVivo();
+
+        // Habilita os controles de estratégia para edição no modal
+        document.querySelectorAll('.strategy-control').forEach(el => { el.disabled = false; });
+
+        // ── 4. Abre o modal ──────────────────────────────────────────
+        abrirModalSafetyCar(voltasRestantes);
+    }
+
+    /**
+     * Renderiza o editor de estratégia dentro do modal SC.
+     * Usa as mesmas classes dos controles existentes para aproveitar
+     * o event delegation já configurado.
+     */
+    function renderEstrategiaModalSC(voltasRestantes) {
+        const container = document.getElementById('sc-strategy-container');
+        if (!container) return;
+
+        container.innerHTML = gameState.carros.map((carro, carroIndex) => {
+            if (!carro.pilotoId) return '';
+            const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
+            const pilotoNome = piloto ? piloto.nome : 'VAGO';
+            const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
+            if (!participante || participante.tempoTotal === Infinity) return '';
+
+            const paradaInputs = carro.estrategia.paradas.map((parada, paradaIndex) => `
+                <div class="stint-definition">
+                    <label>Parada ${paradaIndex + 1}</label>
+                    <div class="stint-inputs">
+                        <span>Na volta:</span>
+                        <input type="number" class="volta-input strategy-control"
+                               value="${parada.pararNaVolta}"
+                               min="${raceData.voltaAtual}"
+                               max="${raceData.totalVoltas}"
+                               data-car-index="${carroIndex}"
+                               data-parada-index="${paradaIndex}">
+                        <span>Pneu:</span>
+                        <select class="pneu-select-parada strategy-control"
+                                data-car-index="${carroIndex}"
+                                data-parada-index="${paradaIndex}">
+                            <option value="macio" ${parada.colocarPneu === 'macio' ? 'selected' : ''}>Macio 🔴</option>
+                            <option value="medio" ${parada.colocarPneu === 'medio' ? 'selected' : ''}>Médio 🟡</option>
+                            <option value="duro"  ${parada.colocarPneu === 'duro'  ? 'selected' : ''}>Duro ⚪</option>
+                        </select>
+                    </div>
+                    <button class="btn-remover-stint strategy-control"
+                            data-car-index="${carroIndex}"
+                            data-parada-index="${paradaIndex}">✕</button>
+                </div>`).join('');
+
+            const erros = getErrosEstrategia(carro.estrategia);
+            const aviso = erros.length > 0
+                ? `<div class="strategy-warning">${erros.map(e => `<p>⚠️ ${e}</p>`).join('')}</div>`
+                : `<p class="strategy-ok">✅ Estratégia válida.</p>`;
+
+            const pneuAtualNome = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' }[participante.pneuAtual] || participante.pneuAtual;
+
+            return `<div class="strategy-box">
+                <h4>Carro ${carroIndex + 1} — ${pilotoNome}
+                    <small style="font-weight:400; color:#aaa; font-size:0.8em;">
+                        | Pneu atual: ${pneuAtualNome} | Voltas restantes: ${voltasRestantes}
+                    </small>
+                </h4>
+                <div class="stint-definition initial-stint">
+                    <label>Pneu colocado no SC</label>
+                    <div class="stint-inputs">
+                        <select class="pneu-select-inicial strategy-control" data-car-index="${carroIndex}">
+                            <option value="macio" ${carro.estrategia.pneuInicial === 'macio' ? 'selected' : ''}>Macio 🔴</option>
+                            <option value="medio" ${carro.estrategia.pneuInicial === 'medio' ? 'selected' : ''}>Médio 🟡</option>
+                            <option value="duro"  ${carro.estrategia.pneuInicial === 'duro'  ? 'selected' : ''}>Duro ⚪</option>
+                        </select>
+                    </div>
+                </div>
+                ${paradaInputs}
+                <div class="strategy-actions">
+                    <button class="btn-add-stint strategy-control" data-car-index="${carroIndex}">+ Adicionar Parada</button>
+                </div>
+                ${aviso}
+            </div>`;
+        }).join('');
+    }
+
+    /**
+     * Abre o modal do Safety Car e inicia o timer de 60 segundos.
+     */
+    function abrirModalSafetyCar(voltasRestantes) {
+        const modal = document.getElementById('safety-car-modal');
+        if (!modal) return;
+
+        // Preenche informações do header
+        document.getElementById('sc-motivo-text').textContent = raceData.safetyCarMotivo || 'Incidente na pista';
+        document.getElementById('sc-volta-info').textContent = `Volta ${raceData.voltaAtual} de ${raceData.totalVoltas}`;
+        document.getElementById('sc-voltas-restantes-info').textContent = `${voltasRestantes} voltas restantes`;
+
+        // Renderiza editor de estratégia
+        renderEstrategiaModalSC(voltasRestantes);
+
+        // Exibe o modal
+        modal.classList.remove('hidden');
+
+        // Inicia o timer de 60 segundos
+        let segundosRestantes = 60;
+        const timerDisplay = document.getElementById('sc-timer-display');
+        const timerBar = document.getElementById('sc-timer-bar');
+
+        const atualizarTimer = () => {
+            if (timerDisplay) {
+                timerDisplay.textContent = segundosRestantes;
+                timerDisplay.classList.toggle('urgente', segundosRestantes <= 10);
+            }
+            if (timerBar) {
+                timerBar.style.width = `${(segundosRestantes / 60) * 100}%`;
+            }
+        };
+
+        atualizarTimer();
+
+        if (scTimerId) clearInterval(scTimerId);
+        scTimerId = setInterval(() => {
+            segundosRestantes--;
+            atualizarTimer();
+
+            if (segundosRestantes <= 0) {
+                clearInterval(scTimerId);
+                scTimerId = null;
+                // Aplica estratégia automática e fecha
+                aplicarEstrategiaAutoPosSC(voltasRestantes);
+                fecharModalSafetyCar();
+            }
+        }, 1000);
+    }
+
+    /**
+     * Aplica estratégia gerada automaticamente para os carros do jogador.
+     */
+    function aplicarEstrategiaAutoPosSC(voltasRestantes) {
+        gameState.carros.forEach((carro) => {
+            if (!carro.pilotoId) return;
+            const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
+            if (!participante || participante.tempoTotal === Infinity) return;
+
+            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes);
+            // Mantém o pneu que já foi colocado no pit do SC
+            novaEst.pneuInicial = participante.pneuAtual;
+
+            carro.estrategia = JSON.parse(JSON.stringify(novaEst));
+            participante.estrategia = JSON.parse(JSON.stringify(novaEst));
+        });
+        renderEstrategiaUI();
+    }
+
+    /**
+     * Fecha o modal e retoma a corrida.
+     */
+    function fecharModalSafetyCar() {
+        // Para o timer caso ainda esteja rodando
+        if (scTimerId) {
+            clearInterval(scTimerId);
+            scTimerId = null;
+        }
+
+        const modal = document.getElementById('safety-car-modal');
+        if (modal) modal.classList.add('hidden');
+
+        // Sincroniza estratégia do gameState → participante (caso o usuário tenha editado na sidebar)
+        gameState.carros.forEach((carro) => {
+            if (!carro.pilotoId) return;
+            const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
+            if (participante && participante.tempoTotal !== Infinity) {
+                participante.estrategia = JSON.parse(JSON.stringify(carro.estrategia));
+                participante.stintAtual = 0;
+            }
+        });
+
+        // Desabilita os controles de estratégia novamente
+        document.querySelectorAll('.strategy-control').forEach(el => { el.disabled = true; });
+
+        // Atualiza a UI de estratégia da sidebar
+        renderEstrategiaUI();
+
+        // Retoma o loop da corrida
+        raceData.safetyCarAtivo = false;
+        raceData.pendingSafetyCar = false;
+        timestampUltimaSimulacao = performance.now();
+        raceTimerId = setInterval(() => {
+            if (!animacaoAtiva) {
+                finalizarCorrida();
+                return;
+            }
+            if (raceData.voltaAtual <= raceData.totalVoltas) {
+                // Chance base de SC por volta
+                if (!raceData.pendingSafetyCar && Math.random() < 0.003) {
+                    raceData.pendingSafetyCar = true;
+                    raceData.safetyCarMotivo = 'Incidente na pista';
+                }
+
+                simularUmaVolta();
+
+                if (raceData.pendingSafetyCar) {
+                    raceData.pendingSafetyCar = false;
+                    raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
+                    renderTabelaAoVivo();
+                    raceData.voltaAtual++;
+                    ativarSafetyCar();
+                    return;
+                }
+
+                raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
+                renderTabelaAoVivo();
+                gerarMensagensDeRadio();
+                raceData.voltaAtual++;
+            } else {
+                simularUmaVolta();
+                raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
+                renderTabelaAoVivo();
+                finalizarCorrida();
+            }
+        }, raceData.intervalo);
+    }
+
+    // ================================================================
+    //  FIM SAFETY CAR
+    // ================================================================
 
     function processarResultados(resultados, pilotoMelhorVoltaNome) {
         const pistaAtual = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
@@ -3868,6 +4219,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('strategy-container');
         if (!container) return;
 
+        // Se o modal do Safety Car estiver aberto, re-renderiza o editor do modal também
+        const scModal = document.getElementById('safety-car-modal');
+        if (scModal && !scModal.classList.contains('hidden') && raceData && raceData.safetyCarAtivo) {
+            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+            renderEstrategiaModalSC(voltasRestantes);
+        }
+
         // Preserva o estado aberto/fechado do guia Pirelli entre re-renders
         const guiaAberto = container.dataset.guiaPirelliAberto === 'true';
 
@@ -4376,6 +4734,23 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 updateUI();
             }
+        }
+        else if (target.matches('#btn-confirmar-sc')) {
+            // Valida as estratégias antes de confirmar
+            const carrosValidos = gameState.carros.every(c => {
+                if (!c.pilotoId) return true;
+                return isEstrategiaValida(c.estrategia);
+            });
+            if (!carrosValidos) {
+                alert('⚠️ Estratégia inválida! Verifique as configurações antes de confirmar.');
+                return;
+            }
+            fecharModalSafetyCar();
+        }
+        else if (target.matches('#btn-sc-auto')) {
+            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+            aplicarEstrategiaAutoPosSC(voltasRestantes);
+            renderEstrategiaModalSC(voltasRestantes);
         }
         else if (target.matches('#btn-iniciar-nova-temporada')) {
             processarFimDeTemporada();

@@ -306,6 +306,50 @@
     <div id="chequered-flag-modal" class="hidden">
             <img src="img/Bandeirada1.png" alt="Bandeira Quadriculada">
     </div>
+    <!-- SAFETY CAR MODAL -->
+    <div id="safety-car-modal" class="hidden">
+        <div class="sc-modal-content">
+            <div class="sc-header">
+                <div class="sc-icon-wrapper">
+                    <span class="sc-car-icon">🚗</span>
+                    <span class="sc-flag-icon">🟡</span>
+                </div>
+                <div class="sc-title-block">
+                    <div class="sc-title">SAFETY CAR</div>
+                    <div class="sc-motivo" id="sc-motivo-text">Incidente na pista</div>
+                </div>
+            </div>
+
+            <div class="sc-info-bar">
+                <span id="sc-volta-info">Volta 0 de 0</span>
+                <span class="sc-separator">•</span>
+                <span id="sc-voltas-restantes-info">0 voltas restantes</span>
+                <span class="sc-separator">•</span>
+                <span class="sc-pit-badge">🔧 Pit realizado — pneus novos!</span>
+            </div>
+
+            <div class="sc-timer-section">
+                <div class="sc-timer-label">⏱️ Tempo para revisar sua estratégia</div>
+                <div class="sc-timer-display" id="sc-timer-display">60</div>
+                <div class="sc-timer-bar-bg">
+                    <div class="sc-timer-bar" id="sc-timer-bar"></div>
+                </div>
+                <div class="sc-timer-sub">Se o tempo esgotar, a estratégia ótima será aplicada automaticamente</div>
+            </div>
+
+            <div class="sc-strategy-section">
+                <h4 class="sc-strategy-title">📋 Nova Estratégia (voltas restantes)</h4>
+                <p class="sc-hint">Configure as paradas a partir da volta atual. A estratégia anterior foi descartada.</p>
+                <div id="sc-strategy-container"></div>
+            </div>
+
+            <div class="sc-actions">
+                <button id="btn-sc-auto" class="btn-sc-auto">🔄 Aplicar Estratégia Automática</button>
+                <button id="btn-confirmar-sc" class="btn-sc-confirmar">✅ Confirmar e Retomar Corrida</button>
+            </div>
+        </div>
+    </div>
+
     <div id="telemetry-modal" class="hidden">
         <div class="modal-content wide">
             <span class="modal-close-btn">&times;</span>
