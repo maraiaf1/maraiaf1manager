@@ -4755,18 +4755,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const rows = pilotos.map(p => {
             const isPlayer = p.isPlayer;
-            // Reconstrói stints a partir da estratégia
+            // Reconstrói stints a partir da estratégia (SEM mutar o objeto original)
             const stints = [];
             const est = p.estrategia || { pneuInicial: 'duro', paradas: [] };
             let voltaInicio = 1;
+            let pneuCorrente = est.pneuInicial; // variável local — não toca em est
             const paradas = [...(est.paradas || [])].sort((a,b) => a.pararNaVolta - b.pararNaVolta);
 
             paradas.forEach(parada => {
-                stints.push({ inicio: voltaInicio, fim: parada.pararNaVolta - 1, pneu: est.pneuInicial });
+                stints.push({ inicio: voltaInicio, fim: parada.pararNaVolta - 1, pneu: pneuCorrente });
                 voltaInicio = parada.pararNaVolta;
-                est.pneuInicial = parada.colocarPneu; // avança composto
+                pneuCorrente = parada.colocarPneu; // avança composto só localmente
             });
-            stints.push({ inicio: voltaInicio, fim: totalVoltas, pneu: est.pneuInicial });
+            stints.push({ inicio: voltaInicio, fim: totalVoltas, pneu: pneuCorrente });
 
             const segmentos = stints.map(s => {
                 const largura = ((s.fim - s.inicio + 1) / totalVoltas * 100).toFixed(2);
@@ -4798,18 +4799,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pilotos.forEach((p, pilotoIdx) => {
             const corClasse = pilotoIdx === 0 ? 'p1' : 'p2';
-            // Identifica stints a partir do lapData (pit = início de novo stint)
+            // Identifica stints a partir do lapData.
+            // Nota: d.tire = pneu usado DURANTE o lap (antes do pit).
+            // Quando pitStop=true, o lap ainda pertence ao stint atual;
+            // o NOVO stint começa no lap seguinte com o tire do próximo entry.
             const stints = [];
             let stintAtual = [];
             let pneuStint = p.lapData[0]?.tire || 'duro';
 
             p.lapData.forEach((d, i) => {
-                if (d.pitStop && i > 0) {
-                    if (stintAtual.length > 0) stints.push({ voltas: stintAtual, pneu: pneuStint });
-                    stintAtual = [d];
-                    pneuStint = d.tire;
-                } else {
-                    stintAtual.push(d);
+                stintAtual.push(d);
+                if (d.pitStop) {
+                    stints.push({ voltas: stintAtual, pneu: pneuStint });
+                    stintAtual = [];
+                    // Novo composto = tire do próximo lap (o pneu colocado no pit)
+                    pneuStint = p.lapData[i + 1]?.tire || pneuStint;
                 }
             });
             if (stintAtual.length > 0) stints.push({ voltas: stintAtual, pneu: pneuStint });
@@ -4848,11 +4852,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTelemPosicao(corrida) {
         if (telemChartPosicao) { telemChartPosicao.destroy(); telemChartPosicao = null; }
         const pilotos = corrida.resultadoFinal.filter(p => p.isPlayer && p.lapData?.length > 0);
-        if (pilotos.length === 0) return;
+        const container = document.getElementById('telem-chart-posicao').parentElement;
+
+        if (pilotos.length === 0) {
+            container.innerHTML = '<p style="color:#555;text-align:center;padding:1.5rem">Dados de posição não disponíveis para esta corrida.</p>';
+            return;
+        }
+
+        // Verifica se há dados de posição (só existe em corridas após a atualização)
+        const temPosicao = pilotos.some(p => p.lapData.some(d => d.posicao != null));
+        if (!temPosicao) {
+            container.innerHTML = '<p style="color:#555;text-align:center;padding:1.5rem">Dados de evolução de posição não disponíveis para corridas anteriores à atualização do sistema.</p>';
+            return;
+        }
 
         const cores = ['#e10600', '#00bcd4'];
         const datasets = pilotos.map((p, i) => {
-            const posData = p.lapData.map(d => d.posicao || null);
+            const posData = p.lapData.map(d => d.posicao ?? null);
             return {
                 label: p.piloto.nome,
                 data: posData,
