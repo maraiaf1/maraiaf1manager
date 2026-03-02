@@ -4690,6 +4690,251 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTelemStrategyMap(corrida);
         renderTelemStints(corrida);
         renderTelemPosicao(corrida);
+        renderTelemPitStops(corrida);
+        renderTelemLicoes(corrida);
+    }
+
+    /** ── Gráfico de tempo total nos boxes ─────────────────────────── */
+    function renderTelemPitStops(corrida) {
+        if (window._telemChartPit) { window._telemChartPit.destroy(); window._telemChartPit = null; }
+
+        const pista = calendarioCorridas.find(c => c.nome === corrida.nomePista);
+        const pitstopBase = pista ? pista.pitstopTime : 22;
+
+        // Coleta dados de pit para top 10 com lapData + estimativa para os demais
+        const top10 = corrida.resultadoFinal.slice(0, 10);
+        const dados = top10.map(p => {
+            let totalPit = 0;
+            if (p.lapData && p.lapData.length > 0) {
+                // Calcula tempo real: somamos lapTime das voltas de pit e subtraímos a média das voltas normais
+                const voltasNormais = p.lapData.filter(d => !d.pitStop && d.lapTime !== Infinity);
+                const mediaVoltaNormal = voltasNormais.length > 0
+                    ? voltasNormais.reduce((s, d) => s + d.lapTime, 0) / voltasNormais.length
+                    : pitstopBase + 75;
+                const voltasPit = p.lapData.filter(d => d.pitStop);
+                totalPit = voltasPit.reduce((s, d) => s + Math.max(0, d.lapTime - mediaVoltaNormal), 0);
+            } else {
+                // Estimativa para IA sem lapData
+                totalPit = p.paradas * pitstopBase;
+            }
+            return {
+                nome: p.piloto.nome.split(' ').pop(), // sobrenome
+                nomeCompleto: p.piloto.nome,
+                isPlayer: p.isPlayer,
+                paradas: p.paradas,
+                totalPit: Math.max(0, totalPit)
+            };
+        });
+
+        // Média top 5 como referência
+        const mediaTop5 = dados.slice(0, 5).reduce((s, d) => s + d.totalPit, 0) / Math.min(5, dados.length);
+
+        const cores = dados.map(d => d.isPlayer ? '#e10600' : 'rgba(100,120,160,0.7)');
+        const ctx = document.getElementById('telem-chart-pitstops').getContext('2d');
+
+        window._telemChartPit = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dados.map(d => d.nome),
+                datasets: [{
+                    label: 'Tempo total nos boxes (s)',
+                    data: dados.map(d => parseFloat(d.totalPit.toFixed(1))),
+                    backgroundColor: cores,
+                    borderColor: cores,
+                    borderRadius: 4,
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: ctx => dados[ctx[0].dataIndex].nomeCompleto,
+                            label: ctx => {
+                                const d = dados[ctx.dataIndex];
+                                const s = ctx.parsed.x.toFixed(1);
+                                return [`⏱ Total: ${s}s`, `🔧 Paradas: ${d.paradas}x`, `⌀ por parada: ${(ctx.parsed.x / Math.max(1, d.paradas)).toFixed(1)}s`];
+                            }
+                        }
+                    },
+                    annotation: {
+                        annotations: {
+                            mediaLine: {
+                                type: 'line',
+                                scaleID: 'x',
+                                value: parseFloat(mediaTop5.toFixed(1)),
+                                borderColor: '#f0c040',
+                                borderWidth: 2,
+                                borderDash: [6, 3],
+                                label: {
+                                    display: true,
+                                    content: `Média top5: ${mediaTop5.toFixed(1)}s`,
+                                    color: '#f0c040',
+                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    font: { size: 10 },
+                                    position: 'start',
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#555', callback: v => `${v}s` },
+                        grid: { color: '#111125' },
+                        title: { display: true, text: 'Segundos perdidos nos boxes', color: '#666' }
+                    },
+                    y: { ticks: { color: '#aaa' }, grid: { color: '#111125' } }
+                }
+            }
+        });
+    }
+
+    /** ── Lições da Corrida ────────────────────────────────────────── */
+    function renderTelemLicoes(corrida) {
+        const container = document.getElementById('telem-licoes');
+        const pilotosJogador = corrida.resultadoFinal.filter(p => p.isPlayer && p.lapData?.length > 0);
+        const vencedor = corrida.resultadoFinal[0];
+        const pista = calendarioCorridas.find(c => c.nome === corrida.nomePista);
+        const pitstopBase = pista ? pista.pitstopTime : 22;
+
+        // ── Bloco 1: Pneu mais rápido da corrida ──
+        const ritmoPorComposto = { macio: [], medio: [], duro: [] };
+        corrida.resultadoFinal.forEach(p => {
+            if (!p.lapData?.length) return;
+            const stints = stintsDoLapData(p.lapData);
+            stints.forEach(s => {
+                const voltas = p.lapData.filter(d => d.lap >= s.inicio && d.lap <= s.fim && !d.pitStop && d.lapTime !== Infinity);
+                if (voltas.length < 3) return; // ignora stints muito curtos
+                const media = voltas.reduce((acc, d) => acc + d.lapTime, 0) / voltas.length;
+                if (ritmoPorComposto[s.pneu]) ritmoPorComposto[s.pneu].push(media);
+            });
+        });
+        const mediaComposto = {};
+        Object.entries(ritmoPorComposto).forEach(([pneu, tempos]) => {
+            if (tempos.length > 0)
+                mediaComposto[pneu] = tempos.reduce((s, t) => s + t, 0) / tempos.length;
+        });
+        const compostoOrdenado = Object.entries(mediaComposto).sort((a,b) => a[1] - b[1]);
+        const pneuNome = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
+        const bloco1Html = compostoOrdenado.length > 0 ? `
+            <div class="licao-bloco">
+                <div class="licao-titulo">🏎️ Ritmo por Composto — nesta pista</div>
+                <div class="licao-composto-lista">
+                    ${compostoOrdenado.map(([pneu, media], i) => `
+                        <div class="licao-composto-item ${i === 0 ? 'melhor' : ''}">
+                            <span class="licao-comp-label">${pneuNome[pneu]}</span>
+                            <span class="licao-comp-valor">${formatLapTime(media)}</span>
+                            ${i === 0 ? '<span class="licao-badge">Mais rápido</span>' : ''}
+                            ${i > 0 ? `<span class="licao-delta">+${(media - compostoOrdenado[0][1]).toFixed(3)}s/v</span>` : ''}
+                        </div>`).join('')}
+                </div>
+                <p class="licao-insight">Baseado na média de todos os stints com ≥3 voltas limpas nesta corrida.</p>
+            </div>` : '';
+
+        // ── Bloco 2: Custo dos boxes vs vencedor ──
+        let bloco2Html = '';
+        if (pilotosJogador.length > 0) {
+            const calcPitTotal = (p) => {
+                const voltasNormais = p.lapData.filter(d => !d.pitStop && d.lapTime !== Infinity);
+                const media = voltasNormais.length > 0
+                    ? voltasNormais.reduce((s, d) => s + d.lapTime, 0) / voltasNormais.length : pitstopBase + 75;
+                return p.lapData.filter(d => d.pitStop)
+                    .reduce((s, d) => s + Math.max(0, d.lapTime - media), 0);
+            };
+
+            const linhas = pilotosJogador.map(p => {
+                const pitJogador = calcPitTotal(p);
+                const posicao = corrida.resultadoFinal.findIndex(r => r.piloto.id === p.piloto.id) + 1;
+                const delta = corrida.resultadoFinal[posicao - 1]?.tempoTotal - vencedor.tempoTotal || 0;
+                return { nome: p.piloto.nome, pit: pitJogador, posicao, delta };
+            });
+
+            let pitVencedor = 0;
+            if (vencedor.lapData?.length > 0) {
+                const voltasN = vencedor.lapData.filter(d => !d.pitStop && d.lapTime !== Infinity);
+                const med = voltasN.length > 0 ? voltasN.reduce((s, d) => s + d.lapTime, 0) / voltasN.length : pitstopBase + 75;
+                pitVencedor = vencedor.lapData.filter(d => d.pitStop).reduce((s, d) => s + Math.max(0, d.lapTime - med), 0);
+            } else {
+                pitVencedor = vencedor.paradas * pitstopBase;
+            }
+
+            bloco2Html = `
+            <div class="licao-bloco">
+                <div class="licao-titulo">⏱️ Boxes: você vs vencedor (${vencedor.piloto.nome})</div>
+                <div class="licao-pit-comparativo">
+                    <div class="licao-pit-ref">
+                        <span class="licao-pit-nome">🏆 ${vencedor.piloto.nome}</span>
+                        <span class="licao-pit-tempo">${pitVencedor.toFixed(1)}s</span>
+                        <span class="licao-pit-paradas">${vencedor.paradas} parada${vencedor.paradas !== 1 ? 's' : ''}</span>
+                    </div>
+                    ${linhas.map(l => {
+                        const diff = l.pit - pitVencedor;
+                        const cor = diff <= 0 ? '#81c784' : diff < 5 ? '#f0c040' : '#e57373';
+                        return `<div class="licao-pit-ref player">
+                            <span class="licao-pit-nome">P${l.posicao} ${l.nome}</span>
+                            <span class="licao-pit-tempo" style="color:${cor}">${l.pit.toFixed(1)}s ${diff > 0 ? '+' : ''}${diff.toFixed(1)}s</span>
+                            <span class="licao-pit-paradas">${corrida.resultadoFinal.find(r=>r.piloto.nome===l.nome)?.paradas || '?'} paradas · ${l.delta > 0 ? '+' + l.delta.toFixed(1) + 's do líder' : 'Vencedor'}</span>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <p class="licao-insight">Diferença de tempo nos boxes pode explicar posições perdidas mesmo com ritmo de pista similar.</p>
+            </div>`;
+        }
+
+        // ── Bloco 3: "E se...?" ──
+        let bloco3Html = '';
+        if (pilotosJogador.length > 0) {
+            const p = pilotosJogador[0];
+            const stints = stintsDoLapData(p.lapData);
+
+            // Acha o stint do jogador com menor média (excluindo pit)
+            let melhorStint = null;
+            stints.forEach(s => {
+                const voltas = p.lapData.filter(d => d.lap >= s.inicio && d.lap <= s.fim && !d.pitStop && d.lapTime !== Infinity);
+                if (voltas.length < 2) return;
+                const media = voltas.reduce((acc, d) => acc + d.lapTime, 0) / voltas.length;
+                if (!melhorStint || media < melhorStint.media) melhorStint = { pneu: s.pneu, voltas: voltas.length, media };
+            });
+
+            // Pneu mais rápido da corrida
+            const [pneuIdeal] = compostoOrdenado[0] || ['duro', 0];
+            const mediaIdeal = mediaComposto[pneuIdeal];
+
+            if (melhorStint && mediaIdeal) {
+                const totalVoltas = corrida.resultadoFinal[0].lapData?.length || pista?.voltas || 60;
+                const ganhoEstimado = (melhorStint.media - mediaIdeal) * totalVoltas;
+                const insight = ganhoEstimado > 2
+                    ? `Usando ${pneuNome[pneuIdeal]} desde o início, você poderia ganhar até <strong>${ganhoEstimado.toFixed(0)}s</strong> no ritmo puro — sem contar paradas.`
+                    : `Seu melhor stint foi competitivo com o composto mais rápido da corrida. A diferença está nos boxes ou nas paradas estratégicas.`;
+
+                bloco3Html = `
+                <div class="licao-bloco licao-eSe">
+                    <div class="licao-titulo">🤔 E se…?</div>
+                    <div class="licao-ese-grid">
+                        <div class="licao-ese-item">
+                            <div class="licao-ese-label">Melhor stint seu</div>
+                            <div class="licao-ese-valor">${formatLapTime(melhorStint.media)}<span>/v</span></div>
+                            <div class="licao-ese-sub">${pneuNome[melhorStint.pneu]} · ${melhorStint.voltas}v</div>
+                        </div>
+                        <div class="licao-ese-arrow">→</div>
+                        <div class="licao-ese-item destaque">
+                            <div class="licao-ese-label">Pneu mais rápido da corrida</div>
+                            <div class="licao-ese-valor">${formatLapTime(mediaIdeal)}<span>/v</span></div>
+                            <div class="licao-ese-sub">${pneuNome[pneuIdeal]}</div>
+                        </div>
+                    </div>
+                    <p class="licao-insight">${insight}</p>
+                </div>`;
+            }
+        }
+
+        container.innerHTML = bloco1Html + bloco2Html + bloco3Html ||
+            '<p style="color:#555;text-align:center;padding:1rem">Dados insuficientes para análise.</p>';
     }
 
     /** Gráfico: jogadores vs vencedor */
