@@ -1903,14 +1903,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.voltasNoPneuAtual++;
             }
 
+            // Coleta lapData para TODOS os participantes (salva top 3 no final)
+            // Para os pilotos do jogador, também salva a posição na volta
+            if (!p.lapData) p.lapData = [];
+            const entradaLap = {
+                lap: raceData.voltaAtual,
+                lapTime: tempoDaVoltaFinal,
+                tire: pneuAntesDaVolta,
+                pitStop: fezPitStop
+            };
             if (p.isPlayer) {
-                p.lapData.push({
-                    lap: raceData.voltaAtual,
-                    lapTime: tempoDaVoltaFinal,
-                    tire: pneuAntesDaVolta,
-                    pitStop: fezPitStop
-                });
+                // Posição atual na corrida (baseada na ordenação por tempoTotal)
+                const posAtual = raceData.participantes
+                    .filter(x => x.tempoTotal !== Infinity)
+                    .sort((a, b) => a.tempoTotal - b.tempoTotal)
+                    .findIndex(x => x.piloto.id === p.piloto.id) + 1;
+                entradaLap.posicao = posAtual > 0 ? posAtual : null;
             }
+            p.lapData.push(entradaLap);
         });
     }
 
@@ -2405,10 +2415,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- INÍCIO DO CÓDIGO FALTANTE ---
 
         // 1. Salva o resultado da corrida para ser exibido na aba Campeonato
+        // Salva lapData completo para top 3 e para pilotos do jogador.
+        // Para os demais, descarta lapData para economizar espaço em localStorage.
+        const top3Ids = new Set(resultados.slice(0, 3).map(p => p.piloto.id));
         const dadosParaSalvar = {
             ano: gameState.campeonato.ano,
             nomePista,
-            resultadoFinal: resultados.map(p => ({...p, lapData: p.lapData || [] })),
+            resultadoFinal: resultados.map(p => ({
+                ...p,
+                lapData: (p.isPlayer || top3Ids.has(p.piloto.id)) ? (p.lapData || []) : []
+            })),
             melhorVolta: { piloto: pilotoMelhorVoltaNome, tempo: raceData.melhorVolta }
         };
         gameState.campeonato.resultadosCorridas.push(dadosParaSalvar);
@@ -4470,157 +4486,402 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ================================================================
+    //  TELEMETRIA — funções principais
+    // ================================================================
+
+    // Instâncias dos charts de telemetria (para destruir ao reabrir)
+    let telemChartEquipe = null;
+    let telemChartVencedor = null;
+    let telemChartPosicao = null;
+    let telemRaceIndex = null; // índice da corrida aberta no modal
+
+    /** Renderiza os cards da aba Telemetria */
+    function renderAbaTelemetria() {
+        const container = document.getElementById('telemetria-container');
+        if (!container) return;
+
+        const corridas = gameState.campeonato.resultadosCorridas;
+        if (!corridas || corridas.length === 0) {
+            container.innerHTML = '<p class="telem-empty">Nenhuma corrida disputada ainda. Complete ao menos uma corrida para ver a telemetria.</p>';
+            return;
+        }
+
+        container.innerHTML = [...corridas].reverse().map((corrida, revIdx) => {
+            const index = corridas.length - 1 - revIdx;
+            const top3 = corrida.resultadoFinal.slice(0, 3);
+            const podioHtml = top3.map((p, i) => {
+                const isPlayer = p.isPlayer;
+                return `<li>
+                    <span class="telem-pos-badge telem-pos-${i+1}">${i+1}</span>
+                    <span style="${isPlayer ? 'color:#e10600;font-weight:700' : ''}">${p.piloto.nome}</span>
+                    <span style="color:#888;font-size:0.78em;margin-left:4px">${p.equipe}</span>
+                </li>`;
+            }).join('');
+
+            const vrHtml = corrida.melhorVolta?.piloto
+                ? `<div class="telem-volta-rapida">⚡ ${corrida.melhorVolta.piloto} — ${formatLapTime(corrida.melhorVolta.tempo)}</div>`
+                : '';
+
+            return `<div class="telem-card">
+                <div class="telem-card-header">
+                    <div>
+                        <div class="telem-card-title">🏁 ${corrida.nomePista}</div>
+                    </div>
+                    <span class="telem-card-ano">${corrida.ano || ''}</span>
+                </div>
+                <div class="telem-card-body">
+                    <ol class="telem-podio">${podioHtml}</ol>
+                    ${vrHtml}
+                </div>
+                <div class="telem-card-footer">
+                    <button class="btn-telem-abrir" data-action="abrir-telemetria" data-race-index="${index}">
+                        📊 Analisar
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    /** Abre o modal de telemetria para uma corrida */
     function openTelemetryModal(raceIndex) {
         const corrida = gameState.campeonato.resultadosCorridas[raceIndex];
         if (!corrida) return;
 
-        document.getElementById('telemetry-modal-title').textContent = `Telemetria: ${corrida.nomePista}`;
+        telemRaceIndex = raceIndex;
 
-        const pilotosJogador = corrida.resultadoFinal.filter(p => p.isPlayer);
-        if (pilotosJogador.length < 2) {
-            alert("Dados de telemetria insuficientes (requer 2 pilotos).");
-            return;
-        }
+        // Preenche o header
+        document.getElementById('telemetry-modal-title').textContent = corrida.nomePista;
+        const top3 = corrida.resultadoFinal.slice(0,3).map(p => p.piloto.nome).join(' · ');
+        document.getElementById('telem-meta').textContent = `${corrida.ano || ''} · Pódio: ${top3}`;
 
-        // Prepara dados para o gráfico e tabela
-        const piloto1 = pilotosJogador[0];
-        const piloto2 = pilotosJogador[1];
+        // Saldo
+        const saldoEl = document.getElementById('telem-saldo-info');
+        if (saldoEl) saldoEl.textContent = `Saldo disponível: R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}`;
 
-        renderTelemetryChart(piloto1, piloto2);
-        renderTelemetryTable(piloto1, piloto2);
+        // Reseta tab para "equipe"
+        document.querySelectorAll('.telem-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.telem-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector('[data-telem-tab="equipe"]').classList.add('active');
+        document.getElementById('telem-panel-equipe').classList.add('active');
+
+        // Renderiza painel gratuito
+        renderTelemEquipe(corrida);
+
+        // Estado do painel premium (verificar se já foi comprado)
+        const jaPago = corrida.premiumDesbloqueado === true;
+        document.getElementById('telem-premium-lock').classList.toggle('hidden', jaPago);
+        document.getElementById('telem-premium-content').classList.toggle('hidden', !jaPago);
+        if (jaPago) renderTelemPremium(corrida);
+
+        // Atualiza botão de compra
+        const btnComprar = document.getElementById('btn-comprar-telemetria-premium');
+        if (btnComprar) btnComprar.disabled = gameState.escuderia.dinheiro < 25000;
 
         document.getElementById('telemetry-modal').classList.remove('hidden');
     }
 
     function closeTelemetryModal() {
         document.getElementById('telemetry-modal').classList.add('hidden');
-        if (telemetryChartInstance) {
-            telemetryChartInstance.destroy();
-            telemetryChartInstance = null;
-        }
+        [telemChartEquipe, telemChartVencedor, telemChartPosicao].forEach(c => { if (c) { c.destroy(); } });
+        telemChartEquipe = telemChartVencedor = telemChartPosicao = null;
     }
 
-    function renderTelemetryChart(piloto1, piloto2) {
-        const ctx = document.getElementById('telemetry-chart').getContext('2d');
-        if (telemetryChartInstance) {
-            telemetryChartInstance.destroy();
+    // ── PAINEL GRATUITO ──────────────────────────────────────────────
+
+    function renderTelemEquipe(corrida) {
+        const pilotosJogador = corrida.resultadoFinal.filter(p => p.isPlayer && p.lapData?.length > 0);
+        if (pilotosJogador.length === 0) {
+            document.getElementById('telem-panel-equipe').innerHTML = '<p style="color:#666;padding:2rem;text-align:center">Dados de telemetria da equipe não disponíveis para esta corrida.</p>';
+            return;
         }
+        const p1 = pilotosJogador[0];
+        const p2 = pilotosJogador[1] || null;
 
-        const labels = piloto1.lapData.map(d => d.lap);
+        // Destroi chart anterior
+        if (telemChartEquipe) { telemChartEquipe.destroy(); telemChartEquipe = null; }
 
-        // Pre-carrega imagens dos pneus para usar no gráfico
-        const pneuMacioImg = new Image(15, 15); pneuMacioImg.src = 'img/pneu-macio.png';
-        const pneuMedioImg = new Image(15, 15); pneuMedioImg.src = 'img/pneu-medio.png';
-        const pneuDuroImg = new Image(15, 15); pneuDuroImg.src = 'img/pneu-duro.png';
+        // Gráfico de tempo de volta
+        const labels = p1.lapData.map(d => d.lap);
+        const datasets = [];
+        const colors = ['#e10600', '#00bcd4'];
 
-        const getTireImage = (tire) => {
-            if (tire === 'macio') return pneuMacioImg;
-            if (tire === 'medio') return pneuMedioImg;
-            return pneuDuroImg;
-        };
+        [p1, p2].filter(Boolean).forEach((p, i) => {
+            datasets.push({
+                label: p.piloto.nome,
+                data: p.lapData.map(d => d.lapTime === Infinity ? null : d.lapTime),
+                borderColor: colors[i],
+                backgroundColor: colors[i] + '22',
+                tension: 0.2,
+                pointRadius: p.lapData.map(d => d.pitStop ? 7 : 3),
+                pointStyle: p.lapData.map(d => d.pitStop ? 'triangle' : 'circle'),
+                pointBackgroundColor: p.lapData.map(d => d.pitStop ? '#f0c040' : colors[i]),
+                spanGaps: true
+            });
+        });
 
-        telemetryChartInstance = new Chart(ctx, {
+        const ctx = document.getElementById('telemetry-chart').getContext('2d');
+        telemChartEquipe = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: piloto1.piloto.nome,
-                        data: piloto1.lapData.map(d => d.lapTime),
-                        borderColor: '#e10600',
-                        backgroundColor: '#e10600',
-                        tension: 0.1,
-                        pointStyle: piloto1.lapData.map(d => d.pitStop ? getTireImage(d.tire) : 'circle'),
-                        pointRadius: piloto1.lapData.map(d => d.pitStop ? 10 : 3),
-                        pointBackgroundColor: '#e10600'
-                    },
-                    {
-                        label: piloto2.piloto.nome,
-                        data: piloto2.lapData.map(d => d.lapTime),
-                        borderColor: '#008cba',
-                        backgroundColor: '#008cba',
-                        tension: 0.1,
-                        pointStyle: piloto2.lapData.map(d => d.pitStop ? getTireImage(d.tire) : 'circle'),
-                        pointRadius: piloto2.lapData.map(d => d.pitStop ? 10 : 3),
-                        pointBackgroundColor: '#008cba'
-                    }
-                ]
-            },
+            data: { labels, datasets },
             options: {
-                responsive: true,
+                responsive: true, maintainAspectRatio: true,
                 plugins: {
-                    title: { display: true, text: 'Tempo de Volta por Piloto' },
+                    legend: { labels: { color: '#ccc', font: { size: 11 } } },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) label += ': ';
-                                if (context.parsed.y !== null) {
-                                    label += formatLapTime(context.parsed.y);
-                                }
-                                return label;
-                            }
+                            label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y ? formatLapTime(ctx.parsed.y) : 'DNF'}` +
+                                (p1.lapData[ctx.dataIndex]?.pitStop ? ' 🔧 PIT' : '')
                         }
                     }
                 },
                 scales: {
-                    y: {
-                        title: { display: true, text: 'Tempo da Volta (s)' },
-                        ticks: {
-                            callback: function(value) {
-                                return formatLapTime(value);
-                            }
-                        }
-                    },
-                    x: {
-                        title: { display: true, text: 'Volta' }
-                    }
+                    x: { ticks: { color: '#555' }, grid: { color: '#111125' }, title: { display: true, text: 'Volta', color: '#666' } },
+                    y: { ticks: { color: '#555', callback: v => formatLapTime(v) }, grid: { color: '#111125' },
+                         title: { display: true, text: 'Tempo (s)', color: '#666' } }
+                }
+            }
+        });
+
+        // Tabela
+        const container = document.getElementById('telemetry-table-container');
+        const totalLaps = Math.max(p1.lapData.length, p2 ? p2.lapData.length : 0);
+        const melhor1 = Math.min(...p1.lapData.map(d => d.lapTime === Infinity ? 999 : d.lapTime));
+        const melhor2 = p2 ? Math.min(...p2.lapData.map(d => d.lapTime === Infinity ? 999 : d.lapTime)) : 999;
+
+        let rows = '';
+        for (let i = 0; i < totalLaps; i++) {
+            const d1 = p1.lapData[i];
+            const d2 = p2 ? p2.lapData[i] : null;
+            const t1Fmt = d1 ? (d1.lapTime === Infinity ? 'DNF' : formatLapTime(d1.lapTime)) : '—';
+            const t2Fmt = d2 ? (d2.lapTime === Infinity ? 'DNF' : formatLapTime(d2.lapTime)) : '—';
+            const isMelhor1 = d1 && d1.lapTime === melhor1;
+            const isMelhor2 = d2 && d2.lapTime === melhor2;
+            const pneu1 = d1 ? `<span class="tyre-indicator tyre-${d1.tire}" style="font-size:0.75rem">${d1.tire.charAt(0).toUpperCase()}</span>` : '—';
+            const pneu2 = d2 ? `<span class="tyre-indicator tyre-${d2.tire}" style="font-size:0.75rem">${d2.tire.charAt(0).toUpperCase()}</span>` : '—';
+            const pit1 = d1?.pitStop ? '<span class="telem-pit-marker">PIT</span>' : '';
+            const pit2 = d2?.pitStop ? '<span class="telem-pit-marker">PIT</span>' : '';
+            rows += `<tr>
+                <td class="lap-num">${i+1}</td>
+                <td class="${isMelhor1 ? 'telem-fastest' : ''} ${d1?.pitStop ? 'is-pit' : ''}">${t1Fmt}${pit1}</td>
+                <td>${pneu1}</td>
+                <td class="${isMelhor2 ? 'telem-fastest' : ''} ${d2?.pitStop ? 'is-pit' : ''}">${t2Fmt}${pit2}</td>
+                <td>${pneu2}</td>
+            </tr>`;
+        }
+
+        container.innerHTML = `
+            <h4 class="telem-section-title">Volta a Volta</h4>
+            <div class="telem-table-wrap">
+                <table class="telem-table">
+                    <thead>
+                        <tr>
+                            <th>V</th>
+                            <th class="driver-col-1" colspan="2">${p1.piloto.nome}</th>
+                            <th class="driver-col-2" colspan="2">${p2 ? p2.piloto.nome : '—'}</th>
+                        </tr>
+                        <tr>
+                            <th></th><th>Tempo</th><th>Pneu</th><th>Tempo</th><th>Pneu</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    }
+
+    // ── PAINEL PREMIUM ───────────────────────────────────────────────
+
+    function renderTelemPremium(corrida) {
+        renderTelemVencedor(corrida);
+        renderTelemStrategyMap(corrida);
+        renderTelemStints(corrida);
+        renderTelemPosicao(corrida);
+    }
+
+    /** Gráfico: jogadores vs vencedor */
+    function renderTelemVencedor(corrida) {
+        if (telemChartVencedor) { telemChartVencedor.destroy(); telemChartVencedor = null; }
+
+        const pilotosJogador = corrida.resultadoFinal.filter(p => p.isPlayer && p.lapData?.length > 0);
+        const vencedor = corrida.resultadoFinal[0];
+        const vencedorTemLapData = vencedor && !vencedor.isPlayer && vencedor.lapData?.length > 0;
+
+        const todos = [...pilotosJogador];
+        if (vencedorTemLapData) todos.unshift(vencedor);
+
+        if (todos.length === 0) return;
+
+        const maxLaps = Math.max(...todos.map(p => p.lapData.length));
+        const labels = Array.from({length: maxLaps}, (_, i) => i + 1);
+        const coresVencedor = ['#f0c040', '#e10600', '#00bcd4'];
+
+        const datasets = todos.map((p, i) => ({
+            label: p.piloto.nome + (i === 0 && vencedorTemLapData ? ' 🏆' : ''),
+            data: p.lapData.map(d => d.lapTime === Infinity ? null : d.lapTime),
+            borderColor: coresVencedor[i] || '#888',
+            backgroundColor: (coresVencedor[i] || '#888') + '22',
+            tension: 0.2, pointRadius: 2, spanGaps: true,
+            borderDash: i === 0 && vencedorTemLapData ? [5, 3] : []
+        }));
+
+        const ctx = document.getElementById('telem-chart-vencedor').getContext('2d');
+        telemChartVencedor = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                plugins: { legend: { labels: { color: '#ccc', font: { size: 11 } } },
+                    tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y ? formatLapTime(c.parsed.y) : 'DNF'}` } }
+                },
+                scales: {
+                    x: { ticks: { color: '#555' }, grid: { color: '#111125' } },
+                    y: { ticks: { color: '#555', callback: v => formatLapTime(v) }, grid: { color: '#111125' } }
                 }
             }
         });
     }
 
-    function renderTelemetryTable(piloto1, piloto2) {
-        const container = document.getElementById('telemetry-table-container');
-        let tableHtml = `
-            <table class="telemetry-table">
-                <thead>
-                    <tr>
-                        <th>Volta</th>
-                        <th colspan="2">${piloto1.piloto.nome}</th>
-                        <th colspan="2">${piloto2.piloto.nome}</th>
-                    </tr>
-                    <tr>
-                        <th>#</th>
-                        <th>Tempo</th>
-                        <th>Pneu</th>
-                        <th>Tempo</th>
-                        <th>Pneu</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+    /** Barras de stint horizontal estilo F1 */
+    function renderTelemStrategyMap(corrida) {
+        const container = document.getElementById('telem-strategy-map');
+        const totalVoltas = corrida.resultadoFinal.reduce((max, p) => {
+            const last = p.lapData?.at(-1)?.lap || 0;
+            return Math.max(max, last);
+        }, 60);
 
-        const totalLaps = Math.max(piloto1.lapData.length, piloto2.lapData.length);
-        for (let i = 0; i < totalLaps; i++) {
-            const d1 = piloto1.lapData[i];
-            const d2 = piloto2.lapData[i];
-            const pneuD1 = d1 ? `<span class="tyre-indicator tyre-${d1.tire}">${d1.tire.charAt(0).toUpperCase()}</span>` : '---';
-            const pneuD2 = d2 ? `<span class="tyre-indicator tyre-${d2.tire}">${d2.tire.charAt(0).toUpperCase()}</span>` : '---';
+        // Pega top 10 + pilotos do jogador
+        const top10Ids = new Set(corrida.resultadoFinal.slice(0, 10).map(p => p.piloto.id));
+        const pilotos = corrida.resultadoFinal.filter(p => top10Ids.has(p.piloto.id));
 
-            tableHtml += `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td><span class="lap-time">${d1 ? formatLapTime(d1.lapTime) : '---'}</span></td>
-                    <td>${pneuD1}</td>
-                    <td><span class="lap-time">${d2 ? formatLapTime(d2.lapTime) : '---'}</span></td>
-                    <td>${pneuD2}</td>
-                </tr>
-            `;
-        }
+        const rows = pilotos.map(p => {
+            const isPlayer = p.isPlayer;
+            // Reconstrói stints a partir da estratégia
+            const stints = [];
+            const est = p.estrategia || { pneuInicial: 'duro', paradas: [] };
+            let voltaInicio = 1;
+            const paradas = [...(est.paradas || [])].sort((a,b) => a.pararNaVolta - b.pararNaVolta);
 
-        tableHtml += `</tbody></table>`;
-        container.innerHTML = tableHtml;
+            paradas.forEach(parada => {
+                stints.push({ inicio: voltaInicio, fim: parada.pararNaVolta - 1, pneu: est.pneuInicial });
+                voltaInicio = parada.pararNaVolta;
+                est.pneuInicial = parada.colocarPneu; // avança composto
+            });
+            stints.push({ inicio: voltaInicio, fim: totalVoltas, pneu: est.pneuInicial });
+
+            const segmentos = stints.map(s => {
+                const largura = ((s.fim - s.inicio + 1) / totalVoltas * 100).toFixed(2);
+                const voltas = s.fim - s.inicio + 1;
+                return `<div class="telem-stint-seg tire-${s.pneu}" style="width:${largura}%"
+                    title="${s.pneu} · ${voltas}v (${s.inicio}-${s.fim})">
+                    ${voltas > 5 ? s.pneu.charAt(0).toUpperCase() : ''}
+                </div>`;
+            }).join('');
+
+            return `<div class="telem-strat-row">
+                <span class="telem-strat-name ${isPlayer ? 'player-driver' : ''}" title="${p.piloto.nome}">${p.piloto.nome}</span>
+                <div class="telem-strat-bar-wrap">${segmentos}</div>
+                <span class="telem-strat-paradas" title="Paradas">${p.paradas}x</span>
+            </div>`;
+        }).join('');
+
+        container.innerHTML = `<div class="telem-strategy-map">${rows}</div>`;
+    }
+
+    /** Cards de análise de stints */
+    function renderTelemStints(corrida) {
+        const container = document.getElementById('telem-stints-analysis');
+        const pilotos = corrida.resultadoFinal.filter(p => p.isPlayer && p.lapData?.length > 0);
+        if (pilotos.length === 0) { container.innerHTML = '<p style="color:#555">Dados de stints não disponíveis.</p>'; return; }
+
+        let melhorMediaGlobal = Infinity;
+        const cards = [];
+
+        pilotos.forEach((p, pilotoIdx) => {
+            const corClasse = pilotoIdx === 0 ? 'p1' : 'p2';
+            // Identifica stints a partir do lapData (pit = início de novo stint)
+            const stints = [];
+            let stintAtual = [];
+            let pneuStint = p.lapData[0]?.tire || 'duro';
+
+            p.lapData.forEach((d, i) => {
+                if (d.pitStop && i > 0) {
+                    if (stintAtual.length > 0) stints.push({ voltas: stintAtual, pneu: pneuStint });
+                    stintAtual = [d];
+                    pneuStint = d.tire;
+                } else {
+                    stintAtual.push(d);
+                }
+            });
+            if (stintAtual.length > 0) stints.push({ voltas: stintAtual, pneu: pneuStint });
+
+            stints.forEach((stint, i) => {
+                const temposValidos = stint.voltas.map(d => d.lapTime).filter(t => t !== Infinity && t > 0);
+                if (temposValidos.length === 0) return;
+                const media = temposValidos.reduce((s, t) => s + t, 0) / temposValidos.length;
+                const melhor = Math.min(...temposValidos);
+                if (media < melhorMediaGlobal) melhorMediaGlobal = media;
+
+                cards.push({ piloto: p.piloto.nome, corClasse, stintNum: i + 1, pneu: stint.pneu,
+                    voltas: stint.voltas.length, media, melhor, isBest: false });
+            });
+        });
+
+        // Marca o melhor stint
+        cards.forEach(c => { c.isBest = Math.abs(c.media - melhorMediaGlobal) < 0.001; });
+
+        container.innerHTML = `<div class="telem-stints-grid">${cards.map(c => `
+            <div class="telem-stint-card ${c.isBest ? 'best-stint' : ''}">
+                <div class="telem-stint-card-header">
+                    <span class="telem-stint-driver ${c.corClasse}">${c.piloto}</span>
+                    <span class="telem-stint-badge ${c.isBest ? 'gold' : ''}">Stint ${c.stintNum} ${c.isBest ? '⚡' : ''}</span>
+                </div>
+                <span class="tyre-indicator tyre-${c.pneu}" style="font-size:0.75rem">${c.pneu.charAt(0).toUpperCase()}</span>
+                <div style="margin-top:0.4rem">
+                    <div class="telem-stint-avg">${formatLapTime(c.media)}</div>
+                    <div class="telem-stint-meta">⌀ por volta · ${c.voltas}v · melhor ${formatLapTime(c.melhor)}</div>
+                </div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    /** Gráfico de evolução de posição */
+    function renderTelemPosicao(corrida) {
+        if (telemChartPosicao) { telemChartPosicao.destroy(); telemChartPosicao = null; }
+        const pilotos = corrida.resultadoFinal.filter(p => p.isPlayer && p.lapData?.length > 0);
+        if (pilotos.length === 0) return;
+
+        const cores = ['#e10600', '#00bcd4'];
+        const datasets = pilotos.map((p, i) => {
+            const posData = p.lapData.map(d => d.posicao || null);
+            return {
+                label: p.piloto.nome,
+                data: posData,
+                borderColor: cores[i],
+                backgroundColor: cores[i] + '22',
+                tension: 0.2, pointRadius: 2, spanGaps: true
+            };
+        });
+
+        const maxLaps = Math.max(...pilotos.map(p => p.lapData.length));
+        const ctx = document.getElementById('telem-chart-posicao').getContext('2d');
+        telemChartPosicao = new Chart(ctx, {
+            type: 'line',
+            data: { labels: Array.from({length: maxLaps}, (_, i) => i+1), datasets },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                plugins: { legend: { labels: { color: '#ccc' } } },
+                scales: {
+                    x: { ticks: { color: '#555' }, grid: { color: '#111125' } },
+                    y: {
+                        reverse: true,
+                        min: 1,
+                        ticks: { color: '#555', stepSize: 1, callback: v => `P${v}` },
+                        grid: { color: '#111125' },
+                        title: { display: true, text: 'Posição', color: '#666' }
+                    }
+                }
+            }
+        });
     }
 
 
@@ -4638,6 +4899,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAbaPersonalizacao();
         renderAbaMarketing();
         renderAbaInstalacoes();
+        renderAbaTelemetria();
     };
 
 
@@ -4669,11 +4931,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'galeria': renderAbaGaleria(); break;
                 case 'personalizacao': renderAbaPersonalizacao(); break;
                 case 'marketing': renderAbaMarketing(); break;
+                case 'telemetria': renderAbaTelemetria(); break;
             }
             return;
         }
 
-        if (target.matches('.modal-close-btn') || target.id === 'part-selector-modal' || target.id === 'project-modal' || target.id === 'telemetry-modal') {
+        if (target.matches('.modal-close-btn') || target.id === 'btn-close-telemetry' || target.id === 'part-selector-modal' || target.id === 'project-modal' || target.id === 'telemetry-modal') {
             closePartSelectorModal();
             closeTelemetryModal();
             document.getElementById('project-modal').classList.add('hidden');
@@ -4820,23 +5083,34 @@ document.addEventListener('DOMContentLoaded', () => {
             saveGame();
         }
         else if (target.matches('.btn-aceitar-patrocinio')) aceitarOfertaPatrocinio(parseInt(target.dataset.ofertaId));
-        else if (action === 'ver-telemetria') {
+        else if (action === 'abrir-telemetria') {
             const raceIndex = parseInt(target.dataset.raceIndex);
-            const corrida = gameState.campeonato.resultadosCorridas[raceIndex];
-            const anoDaCorrida = corrida.ano || gameState.campeonato.ano;
-            const custo = anoDaCorrida <= 2025 ? 1000 : 20000;
-
-            if (gameState.escuderia.dinheiro >= custo) {
-                // Esta parte só é executada se o jogador TIVER dinheiro.
-                if (confirm(`Deseja comprar o relatório de telemetria desta corrida por R$ ${custo.toLocaleString('pt-BR')}?`)) {
-                    gameState.escuderia.dinheiro -= custo;
-                    openTelemetryModal(raceIndex);
-                    renderEscuderia();
-                }
-            } else {
-                // E esta parte é executada se o jogador NÃO TIVER dinheiro.
-                alert(`Dinheiro insuficiente! Custo do relatório: R$ ${custo.toLocaleString('pt-BR')}`);
+            openTelemetryModal(raceIndex);
+        }
+        else if (target.id === 'btn-comprar-telemetria-premium') {
+            if (telemRaceIndex === null) return;
+            const corrida = gameState.campeonato.resultadosCorridas[telemRaceIndex];
+            if (!corrida) return;
+            if (gameState.escuderia.dinheiro < 25000) {
+                alert('Saldo insuficiente! Necessário R$ 25.000.');
+                return;
             }
+            if (confirm('Desbloquear Análise Completa de Telemetria por R$ 25.000?')) {
+                gameState.escuderia.dinheiro -= 25000;
+                corrida.premiumDesbloqueado = true;
+                document.getElementById('telem-premium-lock').classList.add('hidden');
+                document.getElementById('telem-premium-content').classList.remove('hidden');
+                renderTelemPremium(corrida);
+                renderEscuderia();
+                saveGame();
+            }
+        }
+        else if (target.matches('[data-telem-tab]')) {
+            const tab = target.dataset.telemTab;
+            document.querySelectorAll('.telem-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.telem-panel').forEach(p => p.classList.remove('active'));
+            target.classList.add('active');
+            document.getElementById(`telem-panel-${tab}`).classList.add('active');
         }
         else if (target.matches('.btn-mode')) {
             if (!animacaoAtiva) return;

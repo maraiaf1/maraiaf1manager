@@ -22,6 +22,7 @@
             <button class="tab-btn" data-tab="carro">Carro</button>
             <button class="tab-btn" data-tab="corrida">Corrida</button>
             <button class="tab-btn" data-tab="campeonato">Campeonato</button>
+            <button class="tab-btn" data-tab="telemetria">📊 Telemetria</button>
         </nav>
     </header>
 
@@ -234,6 +235,14 @@
 
         <div id="corrida" class="tab-pane"></div>
 
+        <div id="telemetria" class="tab-pane">
+            <div class="telemetria-header">
+                <h2>Centro de Telemetria</h2>
+                <p class="telemetria-subtitle">Análise de desempenho por corrida. Relatório básico gratuito • Análise completa por R$ 25.000</p>
+            </div>
+            <div id="telemetria-container"></div>
+        </div>
+
         <div id="campeonato" class="tab-pane">
             <h2>Campeonato de <span class="campeonato-ano-display">2025</span></h2>
 
@@ -350,16 +359,92 @@
         </div>
     </div>
 
+    <!-- MODAL TELEMETRIA REDESENHADO -->
     <div id="telemetry-modal" class="hidden">
-        <div class="modal-content wide">
-            <span class="modal-close-btn">&times;</span>
-            <h3 id="telemetry-modal-title">Telemetria da Corrida</h3>
+        <div class="telem-modal-overlay">
+            <div class="telem-modal-content">
+                <!-- Header -->
+                <div class="telem-modal-header">
+                    <div class="telem-header-left">
+                        <div class="telem-modal-badge">TELEMETRIA</div>
+                        <h2 id="telemetry-modal-title">Corrida</h2>
+                        <div class="telem-modal-meta" id="telem-meta"></div>
+                    </div>
+                    <button class="telem-close-btn" id="btn-close-telemetry">&times;</button>
+                </div>
 
-            <div>
-                <canvas id="telemetry-chart"></canvas>
+                <!-- Tabs -->
+                <div class="telem-tabs">
+                    <button class="telem-tab active" data-telem-tab="equipe">
+                        🏎️ Minha Equipe
+                        <span class="telem-tab-badge free">Gratuito</span>
+                    </button>
+                    <button class="telem-tab" data-telem-tab="premium" id="btn-telem-premium-tab">
+                        📡 Análise Completa
+                        <span class="telem-tab-badge premium">R$ 25.000</span>
+                    </button>
+                </div>
+
+                <!-- Painel EQUIPE (gratuito) -->
+                <div class="telem-panel active" id="telem-panel-equipe">
+                    <div class="telem-section">
+                        <h4 class="telem-section-title">Tempo de Volta — Comparativo</h4>
+                        <div class="telem-chart-wrapper">
+                            <canvas id="telemetry-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="telem-section" id="telemetry-table-container"></div>
+                </div>
+
+                <!-- Painel PREMIUM -->
+                <div class="telem-panel" id="telem-panel-premium">
+                    <!-- Lock screen (antes da compra) -->
+                    <div id="telem-premium-lock" class="telem-premium-lock">
+                        <div class="telem-lock-icon">📡</div>
+                        <h3>Análise Completa de Telemetria</h3>
+                        <p>Desbloqueie insights avançados desta corrida:</p>
+                        <ul class="telem-features-list">
+                            <li>📈 Comparação volta a volta com o vencedor</li>
+                            <li>🏎️ Mapa visual de estratégias (stints de todos os pilotos)</li>
+                            <li>⚡ Análise do melhor stint da corrida</li>
+                            <li>📊 Evolução de posição por volta</li>
+                        </ul>
+                        <div class="telem-lock-price">R$ 25.000</div>
+                        <button class="btn-telem-comprar" id="btn-comprar-telemetria-premium">
+                            Desbloquear Análise Completa
+                        </button>
+                        <p class="telem-lock-saldo" id="telem-saldo-info"></p>
+                    </div>
+
+                    <!-- Conteúdo premium (após a compra) -->
+                    <div id="telem-premium-content" class="hidden">
+                        <!-- Comparação com vencedor -->
+                        <div class="telem-section">
+                            <h4 class="telem-section-title">📈 Comparação com o Vencedor</h4>
+                            <div class="telem-chart-wrapper">
+                                <canvas id="telem-chart-vencedor"></canvas>
+                            </div>
+                        </div>
+                        <!-- Mapa de estratégias -->
+                        <div class="telem-section">
+                            <h4 class="telem-section-title">🏎️ Mapa de Estratégias</h4>
+                            <div id="telem-strategy-map"></div>
+                        </div>
+                        <!-- Melhor stint -->
+                        <div class="telem-section">
+                            <h4 class="telem-section-title">⚡ Análise de Stints</h4>
+                            <div id="telem-stints-analysis"></div>
+                        </div>
+                        <!-- Evolução de posição -->
+                        <div class="telem-section">
+                            <h4 class="telem-section-title">📊 Evolução de Posição</h4>
+                            <div class="telem-chart-wrapper">
+                                <canvas id="telem-chart-posicao"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div id="telemetry-table-container" class="margin-top-large"></div>
         </div>
     </div>
     <script src="script.js"></script>
