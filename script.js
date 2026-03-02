@@ -4715,14 +4715,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const labels = Array.from({length: maxLaps}, (_, i) => i + 1);
         const coresVencedor = ['#f0c040', '#e10600', '#00bcd4'];
 
-        const datasets = todos.map((p, i) => ({
-            label: p.piloto.nome + (i === 0 && vencedorTemLapData ? ' 🏆' : ''),
-            data: p.lapData.map(d => d.lapTime === Infinity ? null : d.lapTime),
-            borderColor: coresVencedor[i] || '#888',
-            backgroundColor: (coresVencedor[i] || '#888') + '22',
-            tension: 0.2, pointRadius: 2, spanGaps: true,
-            borderDash: i === 0 && vencedorTemLapData ? [5, 3] : []
-        }));
+        const pneuLabel = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
+
+        const datasets = todos.map((p, i) => {
+            const cor = coresVencedor[i] || '#888';
+            const isVencedor = i === 0 && vencedorTemLapData;
+            return {
+                label: p.piloto.nome + (isVencedor ? ' 🏆' : ''),
+                data: p.lapData.map(d => d.lapTime === Infinity ? null : d.lapTime),
+                borderColor: cor,
+                backgroundColor: cor + '22',
+                tension: 0.2,
+                pointRadius: p.lapData.map(d => d.pitStop ? 8 : 2),
+                pointStyle: p.lapData.map(d => d.pitStop ? 'triangle' : 'circle'),
+                pointBackgroundColor: p.lapData.map(d => d.pitStop ? '#f0c040' : cor),
+                spanGaps: true,
+                borderDash: isVencedor ? [5, 3] : []
+            };
+        });
 
         const ctx = document.getElementById('telem-chart-vencedor').getContext('2d');
         telemChartVencedor = new Chart(ctx, {
@@ -4730,8 +4740,22 @@ document.addEventListener('DOMContentLoaded', () => {
             data: { labels, datasets },
             options: {
                 responsive: true, maintainAspectRatio: true,
-                plugins: { legend: { labels: { color: '#ccc', font: { size: 11 } } },
-                    tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y ? formatLapTime(c.parsed.y) : 'DNF'}` } }
+                plugins: {
+                    legend: { labels: { color: '#ccc', font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(c) {
+                                const p = todos[c.datasetIndex];
+                                const lap = p?.lapData?.[c.dataIndex];
+                                let txt = `${c.dataset.label}: ${c.parsed.y ? formatLapTime(c.parsed.y) : 'DNF'}`;
+                                if (lap) {
+                                    txt += `  ${pneuLabel[lap.tire] || lap.tire}`;
+                                    if (lap.pitStop) txt += '  🔧 PIT';
+                                }
+                                return txt;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: { ticks: { color: '#555' }, grid: { color: '#111125' } },
@@ -4742,6 +4766,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /** Barras de stint horizontal estilo F1 */
+    /**
+     * Reconstrói os stints reais de um piloto a partir do lapData.
+     * Retorna array de { inicio, fim, pneu } com voltas absolutas.
+     * Fonte de verdade mais confiável que p.estrategia (que reflete apenas
+     * os stops planejados restantes, não o histórico completo).
+     */
+    function stintsDoLapData(lapData) {
+        if (!lapData || lapData.length === 0) return [];
+        const stints = [];
+        let inicioStint = lapData[0].lap;
+        let pneuStint   = lapData[0].tire;
+
+        lapData.forEach((d, i) => {
+            if (d.pitStop) {
+                // Este lap fecha o stint atual (pit ocorreu ao final)
+                stints.push({ inicio: inicioStint, fim: d.lap, pneu: pneuStint });
+                const proximo = lapData[i + 1];
+                inicioStint = proximo ? proximo.lap : d.lap + 1;
+                pneuStint   = proximo ? proximo.tire : pneuStint;
+            }
+        });
+        // Último stint (sem pit ao final)
+        const ultimo = lapData[lapData.length - 1];
+        stints.push({ inicio: inicioStint, fim: ultimo.lap, pneu: pneuStint });
+        return stints;
+    }
+
     function renderTelemStrategyMap(corrida) {
         const container = document.getElementById('telem-strategy-map');
         const totalVoltas = corrida.resultadoFinal.reduce((max, p) => {
@@ -4755,19 +4806,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const rows = pilotos.map(p => {
             const isPlayer = p.isPlayer;
-            // Reconstrói stints a partir da estratégia (SEM mutar o objeto original)
-            const stints = [];
-            const est = p.estrategia || { pneuInicial: 'duro', paradas: [] };
-            let voltaInicio = 1;
-            let pneuCorrente = est.pneuInicial; // variável local — não toca em est
-            const paradas = [...(est.paradas || [])].sort((a,b) => a.pararNaVolta - b.pararNaVolta);
 
-            paradas.forEach(parada => {
-                stints.push({ inicio: voltaInicio, fim: parada.pararNaVolta - 1, pneu: pneuCorrente });
-                voltaInicio = parada.pararNaVolta;
-                pneuCorrente = parada.colocarPneu; // avança composto só localmente
-            });
-            stints.push({ inicio: voltaInicio, fim: totalVoltas, pneu: pneuCorrente });
+            // Preferência: reconstrói do lapData (registro real da corrida).
+            // Fallback: usa p.estrategia apenas para pilotos sem lapData (IA fora do top 3).
+            let stints;
+            if (p.lapData && p.lapData.length > 0) {
+                stints = stintsDoLapData(p.lapData);
+            } else {
+                // Fallback — estratégia planejada (pode estar incompleta se paradas foram consumidas)
+                stints = [];
+                const est = p.estrategia || { pneuInicial: 'duro', paradas: [] };
+                let voltaInicio = 1;
+                let pneuCorrente = est.pneuInicial;
+                const paradas = [...(est.paradas || [])].sort((a,b) => a.pararNaVolta - b.pararNaVolta);
+                paradas.forEach(parada => {
+                    stints.push({ inicio: voltaInicio, fim: parada.pararNaVolta - 1, pneu: pneuCorrente });
+                    voltaInicio = parada.pararNaVolta;
+                    pneuCorrente = parada.colocarPneu;
+                });
+                stints.push({ inicio: voltaInicio, fim: totalVoltas, pneu: pneuCorrente });
+            }
 
             const segmentos = stints.map(s => {
                 const largura = ((s.fim - s.inicio + 1) / totalVoltas * 100).toFixed(2);
@@ -4799,24 +4857,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pilotos.forEach((p, pilotoIdx) => {
             const corClasse = pilotoIdx === 0 ? 'p1' : 'p2';
-            // Identifica stints a partir do lapData.
-            // Nota: d.tire = pneu usado DURANTE o lap (antes do pit).
-            // Quando pitStop=true, o lap ainda pertence ao stint atual;
-            // o NOVO stint começa no lap seguinte com o tire do próximo entry.
-            const stints = [];
-            let stintAtual = [];
-            let pneuStint = p.lapData[0]?.tire || 'duro';
 
-            p.lapData.forEach((d, i) => {
-                stintAtual.push(d);
-                if (d.pitStop) {
-                    stints.push({ voltas: stintAtual, pneu: pneuStint });
-                    stintAtual = [];
-                    // Novo composto = tire do próximo lap (o pneu colocado no pit)
-                    pneuStint = p.lapData[i + 1]?.tire || pneuStint;
-                }
+            // Usa stintsDoLapData para obter {inicio, fim, pneu}
+            // e mapeia para os laps correspondentes no lapData
+            const stintRanges = stintsDoLapData(p.lapData);
+            const stints = stintRanges.map(s => {
+                const voltas = p.lapData.filter(d => d.lap >= s.inicio && d.lap <= s.fim);
+                return { voltas, pneu: s.pneu };
             });
-            if (stintAtual.length > 0) stints.push({ voltas: stintAtual, pneu: pneuStint });
 
             stints.forEach((stint, i) => {
                 const temposValidos = stint.voltas.map(d => d.lapTime).filter(t => t !== Infinity && t > 0);
