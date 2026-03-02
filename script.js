@@ -1904,23 +1904,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Coleta lapData para TODOS os participantes (salva top 3 no final)
-            // Para os pilotos do jogador, também salva a posição na volta
             if (!p.lapData) p.lapData = [];
-            const entradaLap = {
+            p.lapData.push({
                 lap: raceData.voltaAtual,
                 lapTime: tempoDaVoltaFinal,
                 tire: pneuAntesDaVolta,
-                pitStop: fezPitStop
-            };
-            if (p.isPlayer) {
-                // Posição atual na corrida (baseada na ordenação por tempoTotal)
-                const posAtual = raceData.participantes
-                    .filter(x => x.tempoTotal !== Infinity)
-                    .sort((a, b) => a.tempoTotal - b.tempoTotal)
-                    .findIndex(x => x.piloto.id === p.piloto.id) + 1;
-                entradaLap.posicao = posAtual > 0 ? posAtual : null;
+                pitStop: fezPitStop,
+                posicao: null  // preenchido abaixo, após o forEach completo
+            });
+        });
+
+        // Calcula posição DEPOIS que TODOS os participantes foram simulados nesta volta.
+        // Só assim o sort por tempoTotal é confiável para todos.
+        const ativosOrdenados = raceData.participantes
+            .filter(x => x.tempoTotal !== Infinity)
+            .sort((a, b) => a.tempoTotal - b.tempoTotal);
+
+        raceData.participantes.forEach(p => {
+            if (!p.isPlayer || p.tempoTotal === Infinity) return;
+            const lapEntry = p.lapData[p.lapData.length - 1];
+            if (lapEntry && lapEntry.lap === raceData.voltaAtual) {
+                lapEntry.posicao = ativosOrdenados.findIndex(x => x.piloto.id === p.piloto.id) + 1;
             }
-            p.lapData.push(entradaLap);
         });
     }
 
@@ -4151,30 +4156,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderResultadosCorridas() {
-        console.log("--- [DEBUG] Renderizando Resultados das Corridas ---");
         const container = document.getElementById('resultados-corridas-container');
         if (!container) return;
 
-        container.innerHTML = gameState.campeonato.resultadosCorridas.map((corrida, index) => {
-            console.group(`--- [DEBUG] Processando Card da Corrida: ${corrida.nomePista} ---`);
-            console.log("Dados da corrida sendo renderizada:", corrida);
-
-            const podioHtml = `<ol>${corrida.resultadoFinal.slice(0, 22).map(p => `<li>${p.piloto.nome} (${p.equipe})</li>`).join('')}</ol>`;
-            const melhorVoltaHtml = (corrida.melhorVolta && corrida.melhorVolta.piloto) ? `<p class="volta-rapida-info">⏱️ <strong>Volta Rápida:</strong> ${corrida.melhorVolta.piloto} (${formatLapTime(corrida.melhorVolta.tempo)})</p>` : '';
-
-            const anoDaCorrida = corrida.ano || gameState.campeonato.ano;
-            const custoTelemetria = anoDaCorrida <= 2025 ? 1000 : 20000;
-            console.log(`Ano da Corrida: ${anoDaCorrida}, Custo da Telemetria: ${custoTelemetria}`);
-
-            const botaoTelemetria = `<button class="btn-telemetria" data-action="ver-telemetria" data-race-index="${index}">Ver Telemetria (R$ ${custoTelemetria.toLocaleString('pt-BR')})</button>`;
-            console.log("HTML do botão gerado.");
-            console.groupEnd();
+        container.innerHTML = gameState.campeonato.resultadosCorridas.map((corrida) => {
+            const podioHtml = `<ol>${corrida.resultadoFinal.map(p => `<li>${p.piloto.nome} (${p.equipe})</li>`).join('')}</ol>`;
+            const melhorVoltaHtml = (corrida.melhorVolta && corrida.melhorVolta.piloto)
+                ? `<p class="volta-rapida-info">⏱️ <strong>Volta Rápida:</strong> ${corrida.melhorVolta.piloto} (${formatLapTime(corrida.melhorVolta.tempo)})</p>`
+                : '';
 
             return `<div class="resultado-corrida-box">
                         <h4>${corrida.nomePista}</h4>
                         ${podioHtml}
                         ${melhorVoltaHtml}
-                        ${botaoTelemetria}
                     </div>`;
         }).join('');
     }
