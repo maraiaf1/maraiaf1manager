@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const catalogoInstalacoes = {
         simulador: {
-            nome: "Simulador de Pilotos", icone: "🪖",
+            nome: "Simulador de Pilotos", icone: "🏎️",
             descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos. Simuladores de última geração.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo. Construa o simulador para começar a evoluir seus pilotos mais rápido." },
