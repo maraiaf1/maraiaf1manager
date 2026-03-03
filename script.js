@@ -4765,7 +4765,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             stints.forEach((s, si) => {
                 const voltasStint = p.lapData.filter(d => d.lap >= s.inicio && d.lap <= s.fim);
-                const temposValidos = voltasStint.filter(d => d.lapTime !== Infinity && d.lapTime > 0);
+                // Exclui a volta do pit stop: o lapTime inclui o tempo nos boxes (~22s+)
+                // e não representa o ritmo do pneu — distorceria o gráfico
+                const temposValidos = voltasStint.filter(d => d.lapTime !== Infinity && d.lapTime > 0 && !d.pitStop);
                 if (temposValidos.length < 2) return;
 
                 const duracao = voltasStint.length;
@@ -4776,8 +4778,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Curva teórica para este composto e gerenciamento
                 const teoria = curvaTeórica(s.pneu, fatorGer, duracao + 5);
                 const teóriaMaxVoltas = teoria.length;
-                const voltaCliffTeórico = teoria.findIndex(pt => pt.zona === 'cliff') + 1;
-                const voltaOtimaTeo = teoria.findIndex(pt => pt.zona !== 'otima');
+                const cliffIdx = teoria.findIndex(pt => pt.zona === 'cliff');
+                const voltaCliffTeórico = cliffIdx >= 0 ? cliffIdx + 1 : teoria.length + 1;
+                const otimaIdx = teoria.findIndex(pt => pt.zona !== 'otima');
+                const voltaOtimaTeo = otimaIdx >= 0 ? otimaIdx : teoria.length;
 
                 // Cliff real detectado
                 const cliffReal = detectarCliffReal(temposValidos);
