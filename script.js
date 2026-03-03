@@ -4691,7 +4691,241 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTelemStints(corrida);
         renderTelemPosicao(corrida);
         renderTelemPitStops(corrida);
+        renderTelemDegradacao(corrida);
         renderTelemLicoes(corrida);
+    }
+
+    /** ── Análise de Degradação de Pneus ───────────────────────────── */
+    function renderTelemDegradacao(corrida) {
+        const container = document.getElementById('telem-degradacao');
+        const pilotosJogador = corrida.resultadoFinal.filter(p => p.isPlayer && p.lapData?.length > 0);
+
+        if (pilotosJogador.length === 0) {
+            container.innerHTML = '<p style="color:#555;text-align:center;padding:1rem">Dados não disponíveis.</p>';
+            return;
+        }
+
+        /**
+         * Calcula a curva teórica de degradação para um composto.
+         * Retorna array de { volta, durabilidade, penalidade, zona }
+         * usando a mesma fórmula do motor de simulação.
+         */
+        function curvaTeórica(composto, fatorGer, maxVoltas) {
+            const desgastePorVolta = pneus[composto].desgastePorVolta * fatorGer;
+            let dur = 100;
+            const pontos = [];
+            for (let v = 1; v <= maxVoltas && dur > 0; v++) {
+                const desgasteSofrido = 100 - dur;
+                let pen;
+                if (desgasteSofrido <= 65) {
+                    pen = desgasteSofrido * 0.01;
+                } else {
+                    const exc = desgasteSofrido - 65;
+                    pen = 0.65 + Math.pow(exc, 1.5) * 0.01;
+                }
+                const zona = desgasteSofrido <= 40 ? 'otima' : desgasteSofrido <= 65 ? 'degradacao' : 'cliff';
+                pontos.push({ volta: v, durabilidade: Math.max(0, dur), penalidade: pen, zona });
+                dur -= desgastePorVolta;
+            }
+            return pontos;
+        }
+
+        /**
+         * Detecta o "cliff" real no lapData:
+         * primeiro lap onde a média móvel de 3 voltas supera
+         * melhorTempoStint * 1.012 por ≥2 voltas consecutivas.
+         */
+        function detectarCliffReal(voltas) {
+            const tempos = voltas.map(d => d.lapTime).filter(t => t !== Infinity && t > 0);
+            if (tempos.length < 4) return null;
+            const melhor = Math.min(...tempos);
+            const limiar = melhor * 1.012;
+            let consecutivos = 0;
+            for (let i = 2; i < voltas.length; i++) {
+                if (voltas[i].lapTime > limiar) {
+                    consecutivos++;
+                    if (consecutivos >= 2) return i - 1; // índice no stint
+                } else {
+                    consecutivos = 0;
+                }
+            }
+            return null;
+        }
+
+        // Gera um card + mini-gráfico por stint, por piloto
+        const cards = [];
+        const pneuNome = { macio: 'Macio 🔴', medio: 'Médio 🟡', duro: 'Duro ⚪' };
+        const pneuCor = { macio: '#e8002d', medio: '#ffd700', duro: '#e0e0e0' };
+
+        pilotosJogador.forEach((p, pi) => {
+            const corPiloto = pi === 0 ? '#e10600' : '#00bcd4';
+            const gerPneus = p.piloto.gerenciamentoPneus || 80;
+            const fatorGer = 1 - gerPneus / 300;
+            const stints = stintsDoLapData(p.lapData);
+
+            stints.forEach((s, si) => {
+                const voltasStint = p.lapData.filter(d => d.lap >= s.inicio && d.lap <= s.fim);
+                const temposValidos = voltasStint.filter(d => d.lapTime !== Infinity && d.lapTime > 0);
+                if (temposValidos.length < 2) return;
+
+                const duracao = voltasStint.length;
+                const melhor = Math.min(...temposValidos.map(d => d.lapTime));
+                const pior   = Math.max(...temposValidos.map(d => d.lapTime));
+                const media  = temposValidos.reduce((a, d) => a + d.lapTime, 0) / temposValidos.length;
+
+                // Curva teórica para este composto e gerenciamento
+                const teoria = curvaTeórica(s.pneu, fatorGer, duracao + 5);
+                const teóriaMaxVoltas = teoria.length;
+                const voltaCliffTeórico = teoria.findIndex(pt => pt.zona === 'cliff') + 1;
+                const voltaOtimaTeo = teoria.findIndex(pt => pt.zona !== 'otima');
+
+                // Cliff real detectado
+                const cliffReal = detectarCliffReal(temposValidos);
+                const voltaCliffReal = cliffReal !== null ? cliffReal + 1 : null;
+
+                // Degradação total observada (último tempo - melhor tempo)
+                const degradacaoObservada = pior - melhor;
+
+                // Projeção teórica: penalidade na última volta real
+                const penUltimaVolta = teoria[duracao - 1]?.penalidade ?? teoria.at(-1)?.penalidade ?? 0;
+
+                cards.push({
+                    id: `deg-chart-${pi}-${si}`,
+                    piloto: p.piloto.nome,
+                    corPiloto,
+                    stintNum: si + 1,
+                    composto: s.pneu,
+                    duracao,
+                    melhor, pior, media,
+                    degradacaoObservada,
+                    voltaCliffTeórico,
+                    voltaOtimaTeo: voltaOtimaTeo > 0 ? voltaOtimaTeo : teóriaMaxVoltas,
+                    voltaCliffReal,
+                    teóriaMaxVoltas,
+                    penUltimaVolta,
+                    lapTimes: temposValidos.map(d => d.lapTime),
+                    teoriaPens: teoria.map(pt => pt.penalidade),
+                    teoriaZonas: teoria.map(pt => pt.zona),
+                });
+            });
+        });
+
+        if (cards.length === 0) {
+            container.innerHTML = '<p style="color:#555;text-align:center;padding:1rem">Nenhum stint com dados suficientes.</p>';
+            return;
+        }
+
+        // Renderiza o HTML dos cards
+        container.innerHTML = `<div class="deg-grid">${cards.map(c => `
+            <div class="deg-card">
+                <div class="deg-card-header">
+                    <span class="deg-piloto" style="color:${c.corPiloto}">${c.piloto}</span>
+                    <span class="deg-stint-label">Stint ${c.stintNum}</span>
+                    <span class="tyre-indicator tyre-${c.composto}" style="font-size:0.72rem">${c.composto.charAt(0).toUpperCase()}</span>
+                </div>
+                <canvas id="${c.id}" class="deg-chart-canvas"></canvas>
+                <div class="deg-stats-row">
+                    <div class="deg-stat">
+                        <span class="deg-stat-label">Duração</span>
+                        <span class="deg-stat-value">${c.duracao}v</span>
+                    </div>
+                    <div class="deg-stat">
+                        <span class="deg-stat-label">Proj. ótima</span>
+                        <span class="deg-stat-value ${c.duracao > c.voltaOtimaTeo ? 'warn' : 'ok'}">&lt;${c.voltaOtimaTeo}v</span>
+                    </div>
+                    <div class="deg-stat">
+                        <span class="deg-stat-label">Proj. cliff</span>
+                        <span class="deg-stat-value ${c.duracao >= c.voltaCliffTeórico ? 'bad' : 'ok'}">${c.voltaCliffTeórico}v</span>
+                    </div>
+                    <div class="deg-stat">
+                        <span class="deg-stat-label">Cliff real</span>
+                        <span class="deg-stat-value ${c.voltaCliffReal ? 'warn' : 'ok'}">${c.voltaCliffReal ? `v${c.voltaCliffReal}` : '—'}</span>
+                    </div>
+                    <div class="deg-stat">
+                        <span class="deg-stat-label">Degradação</span>
+                        <span class="deg-stat-value ${c.degradacaoObservada > 2 ? 'bad' : 'ok'}">+${c.degradacaoObservada.toFixed(2)}s</span>
+                    </div>
+                </div>
+                <div class="deg-barra-zonas" title="Verde: ótima · Amarelo: degradação · Vermelho: cliff">
+                    <div class="deg-zona-seg zona-otima"  style="width:${(c.voltaOtimaTeo/c.teóriaMaxVoltas*100).toFixed(1)}%"  title="Ótima: v1–${c.voltaOtimaTeo}"></div>
+                    <div class="deg-zona-seg zona-deg"    style="width:${((c.voltaCliffTeórico - c.voltaOtimaTeo)/c.teóriaMaxVoltas*100).toFixed(1)}%" title="Degradação: v${c.voltaOtimaTeo}–${c.voltaCliffTeórico}"></div>
+                    <div class="deg-zona-seg zona-cliff"  style="width:${((c.teóriaMaxVoltas - c.voltaCliffTeórico)/c.teóriaMaxVoltas*100).toFixed(1)}%" title="Cliff: v${c.voltaCliffTeórico}+"></div>
+                    ${c.duracao <= c.teóriaMaxVoltas ? `<div class="deg-marker-duracao" style="left:${(c.duracao/c.teóriaMaxVoltas*100).toFixed(1)}%" title="Saiu na v${c.duracao}"></div>` : ''}
+                </div>
+                <div class="deg-barra-labels">
+                    <span>v1</span>
+                    <span>v${c.voltaOtimaTeo} <span class="deg-zone-tag otima">ótima</span></span>
+                    <span>v${c.voltaCliffTeórico} <span class="deg-zone-tag cliff">cliff</span></span>
+                </div>
+            </div>`).join('')}
+        </div>`;
+
+        // Monta os mini-gráficos após inserir o HTML
+        setTimeout(() => {
+            cards.forEach(c => {
+                const ctx = document.getElementById(c.id)?.getContext('2d');
+                if (!ctx) return;
+
+                const labels = c.lapTimes.map((_, i) => i + 1);
+
+                // Linha teórica: melhorTempoReal + penalidade teórica
+                const baseTeórico = c.melhor; // aproximação: melhor tempo = sem desgaste
+                const linhaTeórica = c.teoriaPens.slice(0, c.duracao).map(p => parseFloat((baseTeórico + p).toFixed(3)));
+
+                // Zonas de background por volta
+                const zonaCores = c.teoriaZonas.slice(0, c.duracao).map(z =>
+                    z === 'otima' ? 'rgba(56,142,60,0.08)' : z === 'degradacao' ? 'rgba(245,127,23,0.08)' : 'rgba(183,28,28,0.08)'
+                );
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'Real',
+                                data: c.lapTimes.map(t => parseFloat(t.toFixed(3))),
+                                borderColor: c.corPiloto,
+                                backgroundColor: 'transparent',
+                                tension: 0.2,
+                                pointRadius: c.lapTimes.map((_, i) => (c.voltaCliffReal && i === c.voltaCliffReal - 1) ? 6 : 2),
+                                pointBackgroundColor: c.lapTimes.map((_, i) => (c.voltaCliffReal && i === c.voltaCliffReal - 1) ? '#ff5252' : c.corPiloto),
+                            },
+                            {
+                                label: 'Projeção',
+                                data: linhaTeórica,
+                                borderColor: '#555',
+                                backgroundColor: 'transparent',
+                                borderDash: [4, 3],
+                                tension: 0.2,
+                                pointRadius: 0,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx2 => `${ctx2.dataset.label}: ${formatLapTime(ctx2.parsed.y)}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#444', font: { size: 9 }, maxTicksLimit: 8 },
+                                grid: { color: '#0e0e1e' }
+                            },
+                            y: {
+                                ticks: { color: '#444', font: { size: 9 }, callback: v => formatLapTime(v) },
+                                grid: { color: '#0e0e1e' }
+                            }
+                        }
+                    }
+                });
+            });
+        }, 50);
     }
 
     /** ── Gráfico de tempo total nos boxes ─────────────────────────── */

@@ -2924,3 +2924,99 @@ font-size: 0.8em;
 .licao-ese-valor span { font-size: 0.75rem; color: #555; }
 .licao-ese-sub { font-size: 0.72rem; color: #888; margin-top: 0.2rem; }
 .licao-ese-arrow { font-size: 1.2rem; color: #444; flex-shrink: 0; }
+
+/* ============================================================
+   TELEMETRIA — DEGRADAÇÃO DE PNEUS
+   ============================================================ */
+
+.deg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+.deg-card {
+    background: #080812;
+    border: 1px solid #1e1e30;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.deg-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.deg-piloto { font-size: 0.82rem; font-weight: 700; flex: 1; }
+.deg-stint-label { font-size: 0.72rem; color: #555; background: #111125; padding: 0.1rem 0.5rem; border-radius: 10px; }
+
+.deg-chart-canvas {
+    width: 100% !important;
+    height: 120px !important;
+    display: block;
+}
+
+/* Stats row */
+.deg-stats-row {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+.deg-stat {
+    flex: 1;
+    min-width: 55px;
+    background: #0d0d1e;
+    border-radius: 6px;
+    padding: 0.35rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+}
+.deg-stat-label { font-size: 0.6rem; color: #555; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; }
+.deg-stat-value { font-size: 0.8rem; font-weight: 700; color: #fff; }
+.deg-stat-value.ok   { color: #81c784; }
+.deg-stat-value.warn { color: #f0c040; }
+.deg-stat-value.bad  { color: #e57373; }
+
+/* Barra de zonas */
+.deg-barra-zonas {
+    display: flex;
+    height: 10px;
+    border-radius: 5px;
+    overflow: visible;
+    position: relative;
+    background: #0e0e1e;
+}
+.deg-zona-seg { height: 100%; transition: width 0.3s; }
+.zona-otima   { background: rgba(56,142,60,0.5); border-radius: 5px 0 0 5px; }
+.zona-deg     { background: rgba(245,127,23,0.5); }
+.zona-cliff   { background: rgba(183,28,28,0.5); border-radius: 0 5px 5px 0; }
+.deg-marker-duracao {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 16px;
+    background: #fff;
+    border-radius: 1px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 4px rgba(255,255,255,0.5);
+}
+
+.deg-barra-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: #444;
+}
+.deg-zone-tag {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0 0.3rem;
+    border-radius: 3px;
+}
+.deg-zone-tag.otima { color: #81c784; }
+.deg-zone-tag.cliff { color: #e57373; }
