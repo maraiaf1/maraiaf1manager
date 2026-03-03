@@ -2057,12 +2057,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // ── 2. IA: pit durante o SC + nova estratégia ────────────────
         raceData.participantes.forEach(p => {
             if (!p.isPlayer && p.tempoTotal !== Infinity) {
-                // Reconstrói os compostos já usados por este piloto até o momento
-                // (pneu inicial + paradas já realizadas conforme stintAtual)
-                const compositosJaUsados = new Set([p.estrategia.pneuInicial]);
-                for (let i = 0; i < p.stintAtual; i++) {
-                    if (p.estrategia.paradas[i]) {
-                        compositosJaUsados.add(p.estrategia.paradas[i].colocarPneu);
+                // Detecta compostos reais usados via lapData (fonte mais confiável).
+                // Fallback para estratégia original caso lapData não exista (IA sem registro).
+                const compositosJaUsados = new Set();
+                if (p.lapData && p.lapData.length > 0) {
+                    p.lapData.forEach(d => { if (d.tire) compositosJaUsados.add(d.tire); });
+                } else {
+                    // Fallback: reconstrói pelo histórico de estratégia
+                    compositosJaUsados.add(p.estrategia.pneuInicial);
+                    for (let i = 0; i < p.stintAtual; i++) {
+                        if (p.estrategia.paradas[i]) compositosJaUsados.add(p.estrategia.paradas[i].colocarPneu);
                     }
                 }
                 compositosJaUsados.add(p.pneuAtual); // pneu em uso agora
@@ -2121,37 +2125,52 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // ── 3. Player: pit automático durante o SC ───────────────────
-        // Salva os compostos já usados ANTES do pit do SC (para validação contextual)
+        // ── 3. Player: calcula opções do SC (pit ou ficar) ─────────────
+        // NÃO aplica pit automaticamente — o jogador decide no modal.
+        // Calcula para cada carro:
+        //   - podeFilcar: pneu chega ao final E já usou 2 compostos
+        //   - deveParar: flag para forçar pit no modal (sem opção de ficar)
         raceData.scContexto = {};
         gameState.carros.forEach((carro) => {
             if (!carro.pilotoId) return;
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
             if (!participante || participante.tempoTotal === Infinity) return;
 
-            // Compostos usados antes do SC: pneu inicial da corrida + todos os pneus colocados em paradas
-            const pneusAntesSC = new Set((participante.lapData || []).map(d => d.tire));
-            pneusAntesSC.add(participante.pneuAtual); // pneu em uso no momento do SC
-            raceData.scContexto[carro.pilotoId] = { pneusJaUsados: pneusAntesSC };
+            // Compostos reais já usados (via lapData)
+            const compositosUsados = new Set((participante.lapData || []).map(d => d.tire));
+            compositosUsados.add(participante.pneuAtual);
+            const regulamentoCumprido = compositosUsados.size >= 2;
 
-            // Gera nova estratégia automática como ponto de partida
-            // Passa o modo de agressividade do participante para o cálculo
+            // Capacidade do pneu atual chegar ao final
+            const voltasQueAguenta = Math.floor(
+                participante.durabilidadePneu / pneus[participante.pneuAtual].desgastePorVolta
+            );
+            const pneuChegaAoFinal = voltasQueAguenta >= voltasRestantes;
+
+            // Pode ficar na pista só se:
+            // 1) O pneu aguenta até o final E
+            // 2) O regulamento de 2 compostos já foi cumprido
+            const podeFicar = pneuChegaAoFinal && regulamentoCumprido;
+
+            // Gera estratégia automática como ponto de partida caso pare
             const modo = participante.modoAgressividade || 'padrão';
             const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes, modo);
 
-            // Aplica o pit de SC — o novaEst.pneuInicial já entra na contagem de compostos
-            participante.tempoTotal += 22;
-            participante.pneuAtual = novaEst.pneuInicial;
-            participante.durabilidadePneu = 100;
-            participante.penalidadeCombustivel = 2.8;
-            participante.paradas++;
-            participante.voltasNoPneuAtual = 1;
-            participante.voltasPneuDestruido = 0;
-            participante.stintAtual = 0;
+            // Salva contexto para uso no modal e no fechar
+            raceData.scContexto[carro.pilotoId] = {
+                podeFicar,
+                regulamentoCumprido,
+                pneuChegaAoFinal,
+                voltasQueAguenta,
+                novaEst,
+                pneuOriginal: participante.pneuAtual,
+                durabilidadeOriginal: participante.durabilidadePneu,
+                // Estratégia proposta como ponto de partida para o editor
+                estrategiaProposta: JSON.parse(JSON.stringify(novaEst))
+            };
 
-            // Sincroniza estratégia no gameState e no participante
+            // Pré-configura a estratégia do editor com a proposta (não aplica pit ainda)
             carro.estrategia = JSON.parse(JSON.stringify(novaEst));
-            participante.estrategia = JSON.parse(JSON.stringify(novaEst));
         });
 
         // Reordena e atualiza a tabela com as novas posições
@@ -2181,6 +2200,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
             if (!participante || participante.tempoTotal === Infinity) return '';
 
+            const ctx = raceData.scContexto?.[carro.pilotoId] || {};
+            const podeFicar = ctx.podeFicar || false;
+            const pneuAtualNome = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' }[participante.pneuAtual] || participante.pneuAtual;
+            const durAtual = Math.round(participante.durabilidadePneu);
+
+            // Decisão atual: ficar ou parar (default: parar)
+            const decisaoAtual = carro._scDecisao || 'parar';
+            const ficando = decisaoAtual === 'ficar';
+
+            // Razão pela qual não pode ficar (para exibir no botão)
+            let razaoObrigatorio = '';
+            if (!ctx.pneuChegaAoFinal) razaoObrigatorio = `pneu aguenta só ${ctx.voltasQueAguenta}v das ${voltasRestantes}v restantes`;
+            else if (!ctx.regulamentoCumprido) razaoObrigatorio = 'ainda não usou 2 compostos diferentes';
+
+            // Editor de pit (só mostra se decisão for "parar")
             const paradaInputs = carro.estrategia.paradas.map((parada, paradaIndex) => `
                 <div class="stint-definition">
                     <label>Parada ${paradaIndex + 1}</label>
@@ -2206,23 +2240,24 @@ document.addEventListener('DOMContentLoaded', () => {
                             data-parada-index="${paradaIndex}">✕</button>
                 </div>`).join('');
 
-            // Contexto SC: informa compostos já usados para relaxar as regras 1 e 3
-            const ctxSC = raceData.safetyCarAtivo ? { voltaAtual: raceData.voltaAtual } : null;
-            const erros = getErrosEstrategia(carro.estrategia, ctxSC);
+            const ctxSC = { voltaAtual: raceData.voltaAtual };
+            const erros = ficando ? [] : getErrosEstrategia(carro.estrategia, ctxSC);
             const aviso = erros.length > 0
                 ? `<div class="strategy-warning">${erros.map(e => `<p>⚠️ ${e}</p>`).join('')}</div>`
-                : `<p class="strategy-ok">✅ Estratégia válida.</p>`;
+                : ficando ? `<p class="strategy-ok">✅ Continuando na pista com ${pneuAtualNome} (${durAtual}% durabilidade).</p>`
+                           : `<p class="strategy-ok">✅ Estratégia válida.</p>`;
 
-            const pneuAtualNome = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' }[participante.pneuAtual] || participante.pneuAtual;
+            const btnFicar = podeFicar
+                ? `<button class="btn-sc-ficar ${ficando ? 'active' : ''}" data-action="sc-ficar" data-car-index="${carroIndex}">
+                       ${ficando ? '✅ Na pista' : '🟢 Não Parar'}
+                   </button>`
+                : `<button class="btn-sc-ficar disabled" disabled title="Obrigatório parar: ${razaoObrigatorio}">
+                       🔴 Parada obrigatória
+                   </button>`;
 
-            return `<div class="strategy-box">
-                <h4>Carro ${carroIndex + 1} — ${pilotoNome}
-                    <small style="font-weight:400; color:#aaa; font-size:0.8em;">
-                        | Pneu atual: ${pneuAtualNome} | Voltas restantes: ${voltasRestantes}
-                    </small>
-                </h4>
+            const editorPit = ficando ? '' : `
                 <div class="stint-definition initial-stint">
-                    <label>Pneu colocado no SC</label>
+                    <label>Pneu para colocar no SC</label>
                     <div class="stint-inputs">
                         <select class="pneu-select-inicial strategy-control" data-car-index="${carroIndex}">
                             <option value="macio" ${carro.estrategia.pneuInicial === 'macio' ? 'selected' : ''}>Macio 🔴</option>
@@ -2234,7 +2269,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${paradaInputs}
                 <div class="strategy-actions">
                     <button class="btn-add-stint strategy-control" data-car-index="${carroIndex}">+ Adicionar Parada</button>
+                </div>`;
+
+            return `<div class="strategy-box">
+                <div class="sc-decisao-header">
+                    <h4>Carro ${carroIndex + 1} — ${pilotoNome}
+                        <small style="font-weight:400; color:#aaa; font-size:0.8em;">
+                            | ${pneuAtualNome} ${durAtual}% | ${voltasRestantes}v restantes
+                        </small>
+                    </h4>
+                    <div class="sc-decisao-btns">
+                        <button class="btn-sc-parar ${!ficando ? 'active' : ''}" data-action="sc-parar" data-car-index="${carroIndex}">
+                            🔧 Parar nos Boxes
+                        </button>
+                        ${btnFicar}
+                    </div>
                 </div>
+                ${editorPit}
                 ${aviso}
             </div>`;
         }).join('');
@@ -2314,7 +2365,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * Fecha o modal e retoma a corrida.
      */
     function fecharModalSafetyCar() {
-        // Para o timer caso ainda esteja rodando
         if (scTimerId) {
             clearInterval(scTimerId);
             scTimerId = null;
@@ -2323,19 +2373,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('safety-car-modal');
         if (modal) modal.classList.add('hidden');
 
-        // Sincroniza estratégia do gameState → participante (caso o usuário tenha editado na sidebar)
+        // Aplica a decisão de cada carro: parar ou continuar na pista
         gameState.carros.forEach((carro) => {
             if (!carro.pilotoId) return;
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
-            if (participante && participante.tempoTotal !== Infinity) {
+            if (!participante || participante.tempoTotal === Infinity) return;
+
+            const decisao = carro._scDecisao || 'parar'; // default: para se não decidiu
+            const ctx = raceData.scContexto?.[carro.pilotoId] || {};
+
+            if (decisao === 'ficar' && ctx.podeFicar) {
+                // ── Fica na pista: restaura pneu original, mantém estratégia restante ──
+                participante.pneuAtual = ctx.pneuOriginal;
+                participante.durabilidadePneu = ctx.durabilidadeOriginal;
+                // Mantém stintAtual e estratégia como estavam antes do SC
                 participante.estrategia = JSON.parse(JSON.stringify(carro.estrategia));
-                participante.stintAtual = 0;
-                // CORREÇÃO: sincroniza o pneu atual com o que o usuário escolheu no modal.
-                // pneuInicial da estratégia pós-SC = o pneu colocado durante o pit do safety car.
+            } else {
+                // ── Para nos boxes: aplica pit com o pneu escolhido no modal ──
+                const pitstopBase = raceData.pista?.pitstopTime ?? 22;
+                const reducao = gameState.instalacoes.treinoDeBox * 0.5;
+                const tempoPit = Math.max(18, pitstopBase - reducao);
+                participante.tempoTotal += tempoPit;
                 participante.pneuAtual = carro.estrategia.pneuInicial;
-                participante.durabilidadePneu = 100;   // pneu acabou de ser colocado
+                participante.durabilidadePneu = 100;
+                participante.penalidadeCombustivel = 2.8;
+                participante.paradas++;
                 participante.voltasNoPneuAtual = 1;
+                participante.voltasPneuDestruido = 0;
+                participante.stintAtual = 0;
+                participante.estrategia = JSON.parse(JSON.stringify(carro.estrategia));
             }
+
+            // Limpa a flag de decisão
+            delete carro._scDecisao;
         });
 
         // Desabilita os controles de estratégia novamente
@@ -5624,6 +5694,40 @@ document.addEventListener('DOMContentLoaded', () => {
             saveGame();
         }
         else if (target.matches('.btn-aceitar-patrocinio')) aceitarOfertaPatrocinio(parseInt(target.dataset.ofertaId));
+        else if (action === 'sc-parar') {
+            const carroIndex = parseInt(target.dataset.carIndex);
+            const carro = gameState.carros[carroIndex];
+            if (carro) {
+                carro._scDecisao = 'parar';
+                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                // Restaura estratégia proposta (com pit)
+                const ctx = raceData.scContexto?.[carro.pilotoId];
+                if (ctx?.estrategiaProposta) {
+                    carro.estrategia = JSON.parse(JSON.stringify(ctx.estrategiaProposta));
+                }
+                renderEstrategiaModalSC(voltasRestantes);
+            }
+        }
+        else if (action === 'sc-ficar') {
+            const carroIndex = parseInt(target.dataset.carIndex);
+            const carro = gameState.carros[carroIndex];
+            if (carro) {
+                const ctx = raceData.scContexto?.[carro.pilotoId];
+                if (ctx?.podeFicar) {
+                    carro._scDecisao = 'ficar';
+                    // Quando fica, a estratégia mantém o pneu original
+                    const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
+                    if (participante) {
+                        carro.estrategia = {
+                            pneuInicial: participante.pneuAtual,
+                            paradas: []
+                        };
+                    }
+                    const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                    renderEstrategiaModalSC(voltasRestantes);
+                }
+            }
+        }
         else if (action === 'abrir-telemetria') {
             const raceIndex = parseInt(target.dataset.raceIndex);
             openTelemetryModal(raceIndex);

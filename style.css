@@ -3020,3 +3020,41 @@ font-size: 0.8em;
 }
 .deg-zone-tag.otima { color: #81c784; }
 .deg-zone-tag.cliff { color: #e57373; }
+
+/* ============================================================
+   SC MODAL — botões Parar / Não Parar
+   ============================================================ */
+.sc-decisao-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.8rem;
+}
+.sc-decisao-header h4 { margin: 0; flex: 1; }
+
+.sc-decisao-btns {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.btn-sc-parar,
+.btn-sc-ficar {
+    border: none;
+    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.15s, opacity 0.2s;
+    opacity: 0.5;
+}
+.btn-sc-parar { background: #c0392b; color: #fff; }
+.btn-sc-ficar { background: #27ae60; color: #fff; }
+.btn-sc-parar.active  { opacity: 1; box-shadow: 0 0 0 2px #fff3; }
+.btn-sc-ficar.active  { opacity: 1; box-shadow: 0 0 0 2px #fff3; }
+.btn-sc-parar:hover:not(.active) { opacity: 0.75; }
+.btn-sc-ficar:hover:not(.active):not(.disabled) { opacity: 0.75; }
+.btn-sc-ficar.disabled { background: #555; color: #999; cursor: not-allowed; opacity: 0.6; }
