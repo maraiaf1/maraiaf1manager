@@ -217,11 +217,90 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const catalogoInstalacoes = {
-        simulador: { nome: "Simulador de Pilotos", descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos.", bonusPorNivel: "+5% de bônus na evolução de pilotos", custos: [0, 5000000, 12000000, 25000000] },
-        tunelDeVento: { nome: "Túnel de Vento", descricao: "Uma instalação crucial para o desenvolvimento e teste de peças aerodinâmicas.", bonusPorNivel: "-10% no custo de projetos aerodinâmicos", custos: [0, 4000000, 10000000, 22000000] },
-        treinoDeBox: { nome: "Centro de Treinamento da Equipe de Box", descricao: "Equipamentos e treinamento especializado para tornar sua equipe de pit stop a mais rápida do grid.", bonusPorNivel: "-0.5s no tempo de pit stop", custos: [0, 3000000, 8000000, 18000000] },
-        marketing: { nome: "Departamento de Marketing e Hospitalidade", descricao: "Estrutura para receber patrocinadores e promover a marca da equipe globalmente.", bonusPorNivel: "+ chance de melhores patrocínios e vendas", custos: [0, 2000000, 5000000, 10000000] },
-        ers: { nome: "Centro de Otimização de ERS", descricao: "Melhora a potência da bateria ERS quando ativada, garantindo um bônus de desempenho maior.", bonusPorNivel: "+ bônus de tempo por volta com ERS ativo", custos: [0, 0, 7500000, 18000000] }
+        simulador: {
+            nome: "Simulador de Pilotos", icone: "🎮",
+            descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos. Simuladores de última geração.",
+            niveis: [
+                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo. Construa o simulador para começar a evoluir seus pilotos mais rápido." },
+                { custo: 500000,   titulo: "Básico",          descricao: "+5% de desempenho extra nos treinos dos pilotos. Ideal para equipes iniciantes." },
+                { custo: 1000000,  titulo: "Intermediário",   descricao: "+8% de desempenho extra nos treinos. O custo ainda é acessível." },
+                { custo: 5000000,  titulo: "Avançado",        descricao: "+10% de desempenho extra nos treinos. Simuladores de alta fidelidade." },
+                { custo: 15000000, titulo: "Elite",           descricao: "+12% de desempenho. Desbloqueia 2 slots de piloto reserva para treinar simultaneamente." },
+                { custo: 50000000, titulo: "Estado da Arte",  descricao: "+15% de desempenho. 2 pilotos reserva + sem limite de idade para evolução de pilotos." }
+            ]
+        },
+        tunelDeVento: {
+            nome: "Túnel de Vento", icone: "💨",
+            descricao: "Uma instalação crucial para o desenvolvimento e teste de peças aerodinâmicas. Reduz custo e tempo de preparo.",
+            niveis: [
+                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
+                { custo: 500000,   titulo: "Básico",          descricao: "-5% no preço das peças aerodinâmicas (Asa Dianteira, Asa Traseira, Chassi)." },
+                { custo: 2500000,  titulo: "Intermediário",   descricao: "-10% no preço das peças aerodinâmicas." },
+                { custo: 5000000,  titulo: "Avançado",        descricao: "-12% no preço. Reduz em 1 corrida o tempo de preparo de peças aero." },
+                { custo: 15000000, titulo: "Elite",           descricao: "-15% no preço. Reduz entre 1 e 2 corridas o tempo de preparo de peças aero." },
+                { custo: 50000000, titulo: "Estado da Arte",  descricao: "-25% no preço. Reduz entre 2 e 5 corridas o tempo de preparo (roleta: 10% → 5 corridas, 40% → 4 corridas, 50% → 2 corridas)." }
+            ]
+        },
+        treinoDeBox: {
+            nome: "Centro de Treinamento da Equipe de Box", icone: "🔧",
+            descricao: "Equipamentos e treinamento especializado para tornar sua equipe de pit stop a mais rápida do grid.",
+            niveis: [
+                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
+                { custo: 500000,   titulo: "Básico",          descricao: "Reduz entre 0.1s e 0.3s por parada." },
+                { custo: 2500000,  titulo: "Intermediário",   descricao: "Reduz entre 0.3s e 0.5s por parada." },
+                { custo: 5000000,  titulo: "Avançado",        descricao: "Reduz entre 0.5s e 0.6s por parada." },
+                { custo: 15000000, titulo: "Elite",           descricao: "Reduz entre 0.6s e 0.8s por parada." },
+                { custo: 30000000, titulo: "Estado da Arte",  descricao: "Reduz entre 0.8s e 1.0s por parada. A equipe de box mais veloz do grid!" }
+            ]
+        },
+        marketing: {
+            nome: "Departamento de Marketing e Hospitalidade", icone: "📣",
+            descricao: "Estrutura para receber patrocinadores e promover a marca da equipe globalmente.",
+            niveis: [
+                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
+                { custo: 500000,   titulo: "Básico",          descricao: "+5% de bônus nas vendas de merchandise e chances de patrocínio." },
+                { custo: 2500000,  titulo: "Intermediário",   descricao: "+8% de bônus nas vendas e patrocínios." },
+                { custo: 10000000, titulo: "Avançado",        descricao: "+15% de bônus. Hospitality suite de alto padrão." },
+                { custo: 25000000, titulo: "Elite",           descricao: "+20% de bônus. Presença global da marca." },
+                { custo: 50000000, titulo: "Estado da Arte",  descricao: "+25% de bônus. Departamento de marketing de nível de grande construtora." }
+            ]
+        },
+        ers: {
+            nome: "Centro de Otimização de ERS", icone: "⚡",
+            descricao: "Melhora a potência da bateria ERS quando ativada, garantindo um bônus de desempenho maior por volta.",
+            niveis: [
+                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
+                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
+                { custo: 7500000,  titulo: "Otimizado",        descricao: "-0.300s por volta com ERS ativo. Gestão energética aprimorada." },
+                { custo: 10000000, titulo: "Avançado",         descricao: "-0.500s por volta com ERS ativo." },
+                { custo: 25000000, titulo: "Elite",            descricao: "-0.700s por volta com ERS ativo." },
+                { custo: 50000000, titulo: "Estado da Arte",   descricao: "Entre -0.750s e -0.900s por volta com ERS ativo. Potência máxima!" }
+            ]
+        },
+        centroMotores: {
+            nome: "Centro de Desenvolvimento de Motores", icone: "🏁",
+            descricao: "A alma de uma corrida. Crucial para o desenvolvimento de motores mais potentes e duradouros.",
+            niveis: [
+                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
+                { custo: 500000,   titulo: "Básico",          descricao: "Motores 5% mais resistentes. Reduz 0–2 corridas no preparo de motores." },
+                { custo: 2500000,  titulo: "Intermediário",   descricao: "Motores 10% mais resistentes + +1 de força. Reduz 1–2 corridas no preparo." },
+                { custo: 10000000, titulo: "Avançado",        descricao: "Motores 14% mais resistentes + +2 de força. Reduz 1–3 corridas no preparo." },
+                { custo: 25000000, titulo: "Elite",           descricao: "Motores 15% mais resistentes. Reduz 2–3 corridas no preparo." },
+                { custo: 50000000, titulo: "Estado da Arte",  descricao: "Motores 25% mais resistentes. Reduz 3–5 corridas no preparo. Domínio total!" }
+            ]
+        },
+        centroSuspensoes: {
+            nome: "Centro de Desenvolvimento de Suspensões", icone: "⚙️",
+            descricao: "Suspensões equilibradas fazem o carro performar melhor em qualquer circuito. Reduz custo e desgaste.",
+            niveis: [
+                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
+                { custo: 500000,   titulo: "Básico",          descricao: "Suspensões 5% mais resistentes + 5% de desconto na compra de suspensões." },
+                { custo: 2500000,  titulo: "Intermediário",   descricao: "Suspensões 10% mais resistentes + +1 de força + 10% de desconto." },
+                { custo: 10000000, titulo: "Avançado",        descricao: "Suspensões 14% mais resistentes + +2 de força + 15% de desconto." },
+                { custo: 25000000, titulo: "Elite",           descricao: "Suspensões 15% mais resistentes + 20% de desconto." },
+                { custo: 50000000, titulo: "Estado da Arte",  descricao: "Suspensões 25% mais resistentes + 25% de desconto. Manuseio perfeito!" }
+            ]
+        }
     };
 
     const catalogoMarketing = {
@@ -334,7 +413,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 tunelDeVento: 0,
                 treinoDeBox: 0,
                 marketing: 0,
-                ers: 1
+                ers: 1,
+                centroMotores: 0,
+                centroSuspensoes: 0
             },
             marketing: {
                 'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
@@ -550,12 +631,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                 }
                 if (!gameState.instalacoes) {
-                    gameState.instalacoes = { simulador: 0, tunelDeVento: 0, treinoDeBox: 0, marketing: 0, ers: 1 };
+                    gameState.instalacoes = { simulador: 0, tunelDeVento: 0, treinoDeBox: 0, marketing: 0, ers: 1, centroMotores: 0, centroSuspensoes: 0 };
                 }
                 // Adiciona a instalação ERS a saves antigos
                 if (gameState.instalacoes.ers === undefined) {
                     gameState.instalacoes.ers = 1;
                 }
+                // Adiciona novas instalações a saves antigos
+                if (gameState.instalacoes.centroMotores === undefined) gameState.instalacoes.centroMotores = 0;
+                if (gameState.instalacoes.centroSuspensoes === undefined) gameState.instalacoes.centroSuspensoes = 0;
+                // Limita instalações antigas ao novo máximo (5) para compatibilidade
+                ['simulador','tunelDeVento','treinoDeBox','marketing'].forEach(k => {
+                    if (gameState.instalacoes[k] > 5) gameState.instalacoes[k] = 5;
+                });
 
 
                 for (const key in gameState.marketing) {
@@ -1023,13 +1111,41 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI(); saveGame();
     }
 
+    // Retorna redução de corridas no tempo de preparo de peças aero pelo Túnel de Vento
+    function calcularReducaoTunelTempo() {
+        const nivel = gameState.instalacoes.tunelDeVento;
+        if (nivel <= 2) return 0;
+        if (nivel === 3) return 1;
+        if (nivel === 4) return 1 + Math.round(Math.random()); // 1 ou 2
+        if (nivel >= 5) {
+            const roleta = Math.random();
+            if (roleta < 0.10) return 5;
+            if (roleta < 0.50) return 4;
+            return 2;
+        }
+        return 0;
+    }
+
+    // Retorna redução de corridas no preparo de motores pelo Centro de Motores
+    function calcularReducaoMotoresTempo() {
+        const nivel = gameState.instalacoes.centroMotores;
+        if (nivel <= 0) return 0;
+        if (nivel === 1) return Math.round(Math.random() * 2);         // 0–2
+        if (nivel === 2) return 1 + Math.round(Math.random());         // 1–2
+        if (nivel === 3) return 1 + Math.round(Math.random() * 2);     // 1–3
+        if (nivel === 4) return 2 + Math.round(Math.random());         // 2–3
+        if (nivel >= 5) return 3 + Math.round(Math.random() * 2);     // 3–5
+        return 0;
+    }
+
     function iniciarNovoProjeto(especialistaId, tipoPeca, duracao) {
         const especialista = especialistasDisponiveis.find(e => e.id === especialistaId);
         if (!especialista) { alert("Especialista não encontrado!"); return; }
         let custoTotal = (especialista.nivel * duracao * CUSTO_BASE_PROJETO) * 0.45;
         const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
         if (pecasAero.includes(tipoPeca)) {
-            const reducaoCusto = 1.0 - (gameState.instalacoes.tunelDeVento * 0.10);
+            const _tunelDescPorNivel = [0, 0.05, 0.10, 0.12, 0.15, 0.25];
+            const reducaoCusto = 1.0 - (_tunelDescPorNivel[gameState.instalacoes.tunelDeVento] || 0);
             custoTotal *= reducaoCusto;
         }
         if (duracao === 10) {
@@ -1037,8 +1153,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (gameState.escuderia.dinheiro < custoTotal) { alert(`Dinheiro insuficiente! Custo do projeto: R$ ${custoTotal.toLocaleString('pt-BR')}`); return; }
         gameState.escuderia.dinheiro -= custoTotal;
-        gameState.projetosEmAndamento.push({ id: Date.now(), tipoPeca, nomeEspecialista: especialista.nome, nivelEspecialista: especialista.nivel, duracaoOriginal: duracao, duracaoRestante: duracao, status: 'em_andamento' });
-        alert(`Investimento de R$ ${custoTotal.toLocaleString('pt-BR')} realizado!\nProjeto para desenvolver "${tipoPeca}" iniciado com ${especialista.nome}.`);
+
+        // Aplica redução de tempo de preparo
+        let duracaoFinal = duracao;
+        const pecasAeroNomes = ["Asa Dianteira", "Asa Traseira", "Chassi"];
+        if (pecasAeroNomes.includes(tipoPeca)) {
+            duracaoFinal = Math.max(1, duracao - calcularReducaoTunelTempo());
+        }
+        if (tipoPeca === "Motor") {
+            duracaoFinal = Math.max(1, duracao - calcularReducaoMotoresTempo());
+        }
+
+        gameState.projetosEmAndamento.push({ id: Date.now(), tipoPeca, nomeEspecialista: especialista.nome, nivelEspecialista: especialista.nivel, duracaoOriginal: duracao, duracaoRestante: duracaoFinal, status: 'em_andamento' });
+        const msgReducao = duracaoFinal < duracao ? ` (reduzido de ${duracao} para ${duracaoFinal} corridas pelas instalações!)` : '';
+        alert(`Investimento de R$ ${custoTotal.toLocaleString('pt-BR')} realizado!\nProjeto para desenvolver "${tipoPeca}" iniciado com ${especialista.nome}.${msgReducao}`);
         updateUI(); saveGame();
     }
 
@@ -1393,7 +1521,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Aplica desconto do túnel de vento
                 const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
                 if (pecasAero.includes(tipoPeca)) {
-                    const reducaoCusto = 1.0 - (gameState.instalacoes.tunelDeVento * 0.10);
+                    const _tunelDescPorNivel2 = [0, 0.05, 0.10, 0.12, 0.15, 0.25];
+                    const reducaoCusto = 1.0 - (_tunelDescPorNivel2[gameState.instalacoes.tunelDeVento] || 0);
                     custoPeca *= reducaoCusto;
                 }
                 if (duracao === 10) {
@@ -1437,6 +1566,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm(`Iniciar um projeto completo de ${duracao} corrida(s) para todas as 5 categorias de peças por R$ ${custoFinal.toLocaleString('pt-BR')}?`)) {
             gameState.escuderia.dinheiro -= custoFinal;
 
+            // 🎲 Dado bônus: chance de reduzir até 3 corridas no tempo de desenvolvimento
+            const dadoRolado = Math.floor(Math.random() * 6) + 1; // 1–6
+            const reducaoDado = dadoRolado >= 5 ? 3 : dadoRolado >= 3 ? 2 : dadoRolado >= 2 ? 1 : 0;
+
             const especialistas = {
                 "Motor": gameState.escuderia.especialistas.find(e => e.tipo === "Engenheiro de Motor"),
                 "Asa Dianteira": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
@@ -1447,18 +1580,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             for (const tipoPeca in especialistas) {
                 const especialista = especialistas[tipoPeca];
+                const pecasAeroNomes = ["Asa Dianteira", "Asa Traseira", "Chassi"];
+
+                // Aplica reduções de instalações específicas por tipo de peça
+                let reducaoInstalacao = 0;
+                if (pecasAeroNomes.includes(tipoPeca)) reducaoInstalacao = calcularReducaoTunelTempo();
+                if (tipoPeca === "Motor") reducaoInstalacao = calcularReducaoMotoresTempo();
+
+                const duracaoFinal = Math.max(1, duracao - reducaoDado - reducaoInstalacao);
+
                 gameState.projetosEmAndamento.push({
                     id: Date.now() + Math.random(),
                     tipoPeca,
                     nomeEspecialista: especialista.nome,
                     nivelEspecialista: especialista.nivel,
                     duracaoOriginal: duracao,
-                    duracaoRestante: duracao,
+                    duracaoRestante: duracaoFinal,
                     status: 'em_andamento'
                 });
             }
 
-            alert("Projetos iniciados! O desenvolvimento de um novo conjunto completo de peças começou.");
+            let msgDado = '';
+            if (reducaoDado > 0) {
+                msgDado = `\n🎲 Dado bônus: ${dadoRolado} — redução de ${reducaoDado} corrida(s) no desenvolvimento!`;
+            } else {
+                msgDado = `\n🎲 Dado bônus: ${dadoRolado} — sem redução extra desta vez.`;
+            }
+
+            alert(`Projetos iniciados! O desenvolvimento de um novo conjunto completo de peças começou.${msgDado}`);
             updateUI();
             saveGame();
         }
@@ -1702,6 +1851,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }, raceData.intervalo);
     }
 
+    // Retorna a redução de pit stop baseada no nível do centro de treinamento (valor aleatório dentro da faixa)
+    function calcularReducaoPitStop() {
+        const nivel = gameState.instalacoes.treinoDeBox;
+        const faixas = [[0,0],[0.1,0.3],[0.3,0.5],[0.5,0.6],[0.6,0.8],[0.8,1.0]];
+        const [min, max] = faixas[nivel] || [0, 0];
+        return min + Math.random() * (max - min);
+    }
+
+    // Retorna o bônus de ERS em segundos por volta baseado no nível
+    function calcularBonusERS() {
+        const nivel = gameState.instalacoes.ers;
+        const bonusPorNivel = [0, 0.200, 0.300, 0.500, 0.700];
+        if (nivel >= 5) return 0.750 + Math.random() * 0.150; // 0.750 a 0.900
+        return bonusPorNivel[nivel] || 0;
+    }
+
     function calcularTempoVolta(participante, pista, multiPneu, penDesgaste, penCombustivel, bonusERS = 0) {
         const carro = participante.atributos;
         const piloto = participante.piloto;
@@ -1731,10 +1896,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let bonusERS = 0;
             if (p.isPlayer && p.ers) {
                 if (p.ers.ativo) {
-                    const nivelERS = gameState.instalacoes.ers;
-                    if (nivelERS === 1) bonusERS = 0.400;
-                    else if (nivelERS === 2) bonusERS = 0.550;
-                    else if (nivelERS >= 3) bonusERS = 0.850;
+                    bonusERS = calcularBonusERS();
                     if (bonusERS > 0) p.ersBonusAtivoNestaVolta = true;
                     p.ers.cicloDeCarregamento--;
                     p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;  //quantidade de voltas com o ERS ligado (p.ers.cicloDeCarregamento = 3)
@@ -1785,7 +1947,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (paradaInfo && paradaInfo.pararNaVolta === raceData.voltaAtual) {
                 fezPitStop = true;
-                const reducaoPitStop = gameState.instalacoes.treinoDeBox * 0.5;
+                const reducaoPitStop = calcularReducaoPitStop();
                 const tempoDePitFinal = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop);
 
                 // Usa as penalidades já calculadas
@@ -1829,7 +1991,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (voltasRestantes > 2) {
                             // PIT DE EMERGÊNCIA: custo normal de pit + 5s de penalidade
                             // (para simular a entrada não-planejada e o risco de unsafe release)
-                            const reducaoPitStop = p.isPlayer ? gameState.instalacoes.treinoDeBox * 0.5 : 0;
+                            const reducaoPitStop = p.isPlayer ? calcularReducaoPitStop() : 0;
                             const tempoPitEmergencia = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop) + 5;
                             const tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
                             tempoDaVoltaFinal = tempoDaVoltaBase + tempoPitEmergencia;
@@ -2391,7 +2553,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // ── Para nos boxes: aplica pit com o pneu escolhido no modal ──
                 const pitstopBase = raceData.pista?.pitstopTime ?? 22;
-                const reducao = gameState.instalacoes.treinoDeBox * 0.5;
+                const reducao = calcularReducaoPitStop();
                 const tempoPit = Math.max(18, pitstopBase - reducao);
                 participante.tempoTotal += tempoPit;
                 participante.pneuAtual = carro.estrategia.pneuInicial;
@@ -2723,26 +2885,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const nivelAtual = gameState.instalacoes[instalacaoId];
-        const maxLevel = instalacaoData.custos.length - 1;
+        const maxLevel = instalacaoData.niveis.length - 1;
 
         if (nivelAtual >= maxLevel) {
             alert("Esta instalação já está no nível máximo!");
             return;
         }
 
-        const custoProximoNivel = instalacaoData.custos[nivelAtual + 1];
+        // ERS nivel 1 é padrão (grátis), so skip to level 2
+        const proximoNivel = (instalacaoId === 'ers' && nivelAtual === 1) ? 2 : nivelAtual + 1;
+        const custoProximoNivel = instalacaoData.niveis[proximoNivel].custo;
+
         if (gameState.escuderia.dinheiro < custoProximoNivel) {
             alert(`Dinheiro insuficiente! Custo para melhorar: R$ ${custoProximoNivel.toLocaleString('pt-BR')}`);
             return;
         }
 
-        if (confirm(`Deseja melhorar "${instalacaoData.nome}" para o Nível ${nivelAtual + 1} por R$ ${custoProximoNivel.toLocaleString('pt-BR')}?`)) {
+        const tituloProximo = instalacaoData.niveis[proximoNivel].titulo;
+        if (confirm(`Deseja melhorar "${instalacaoData.nome}" para o Nível ${proximoNivel} — ${tituloProximo} por R$ ${custoProximoNivel.toLocaleString('pt-BR')}?`)) {
             gameState.escuderia.dinheiro -= custoProximoNivel;
-            gameState.instalacoes[instalacaoId]++;
+            gameState.instalacoes[instalacaoId] = proximoNivel;
 
-            alert(`"${instalacaoData.nome}" melhorada para o Nível ${nivelAtual + 1} com sucesso!`);
-            updateUI(); // Atualiza a interface para refletir a mudança
-            saveGame(); // Salva o progresso
+            alert(`"${instalacaoData.nome}" melhorada para o Nível ${proximoNivel} — ${tituloProximo} com sucesso!`);
+            updateUI();
+            saveGame();
         }
     }
 
@@ -2856,7 +3022,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 let chanceFinalVenda = Math.min(chanceBase * modPreco * modDesempenho, 0.95);
-                const bonusVendas = 1.0 + (gameState.instalacoes.marketing * 0.05);
+                const _mktBonusPorNivel = [0, 0.05, 0.08, 0.15, 0.20, 0.25];
+                const bonusVendas = 1.0 + (_mktBonusPorNivel[gameState.instalacoes.marketing] || 0);
                 chanceFinalVenda *= bonusVendas;
 
                 const LIMIAR_LIQUIDACAO = 5; // Quando restam ≤ N unidades, vende tudo automaticamente
@@ -2918,7 +3085,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             let crescimentoTotal = crescimentoBase + bonusDesempenho;
-            const bonusSimulador = 1.0 + (gameState.instalacoes.simulador * 0.05);
+            const _simBonusPorNivel = [0, 0.05, 0.08, 0.10, 0.12, 0.15];
+            const bonusSimulador = 1.0 + (_simBonusPorNivel[gameState.instalacoes.simulador] || 0);
             crescimentoTotal *= bonusSimulador;
             if (treinadorContratado) {
                 if (piloto.status === 'Jogador') crescimentoTotal *= 2.75;
@@ -3019,8 +3187,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
         const nivelTunel = gameState.instalacoes.tunelDeVento;
         if (pecasAero.includes(tipoPeca) && nivelTunel > 0) {
-            const percentualReducao = nivelTunel * 10;
-            const multiplicadorReducao = 1.0 - (nivelTunel * 0.10);
+            const _tunelDescPorNivel3 = [0, 5, 10, 12, 15, 25];
+            const percentualReducao = _tunelDescPorNivel3[nivelTunel] || 0;
+            const multiplicadorReducao = 1.0 - (percentualReducao / 100);
             custoEstimado *= multiplicadorReducao;
             infoDescontoEl.innerHTML = `<p style="color: #28a745; font-size: 0.9em; font-weight: bold;">Desconto do Túnel de Vento (Nvl ${nivelTunel}): -${percentualReducao}%</p>`;
         }
@@ -3526,32 +3695,99 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.innerHTML = Object.entries(catalogoInstalacoes).map(([id, data]) => {
             const nivelAtual = gameState.instalacoes[id];
-            const maxLevel = data.custos.length - 1;
-            let custoHtml = '';
-            let botaoHtml = '';
+            const maxLevel = data.niveis.length - 1;
 
-            if (id === 'ers' && nivelAtual === 1) {
-                 custoHtml = `<p><strong>Custo para Nível ${nivelAtual + 1}:</strong> R$ ${data.custos[nivelAtual + 1].toLocaleString('pt-BR')}</p>`;
-                 const temDinheiro = gameState.escuderia.dinheiro >= data.custos[nivelAtual + 1];
-                 botaoHtml = `<button class="btn-corrida btn-real" data-action="melhorar-instalacao" data-instalacao-id="${id}" ${temDinheiro ? '' : 'disabled'}>Melhorar</button>`;
-            } else if (nivelAtual >= maxLevel) {
-                custoHtml = `<p><strong>Nível Máximo Atingido</strong></p>`;
-                botaoHtml = `<button class="btn-corrida btn-real" disabled>Nível Máximo</button>`;
-            } else {
-                const custoProximoNivel = data.custos[nivelAtual + 1];
-                const temDinheiro = gameState.escuderia.dinheiro >= custoProximoNivel;
-                custoHtml = `<p><strong>Custo para Nível ${nivelAtual + 1}:</strong> R$ ${custoProximoNivel.toLocaleString('pt-BR')}</p>`;
-                botaoHtml = `<button class="btn-corrida btn-real" data-action="melhorar-instalacao" data-instalacao-id="${id}" ${temDinheiro ? '' : 'disabled'}>Melhorar</button>`;
+            // ERS começa no nível 1 (padrão de série), o próximo pagável é o 2
+            const nivelMinimo = (id === 'ers') ? 1 : 0;
+            const proximoNivel = (id === 'ers' && nivelAtual === 1) ? 2 : nivelAtual + 1;
+            const estaNoMaximo = nivelAtual >= maxLevel;
+
+            // Custo do próximo nível
+            let custoProximo = null;
+            let temDinheiro = false;
+            if (!estaNoMaximo && data.niveis[proximoNivel]) {
+                custoProximo = data.niveis[proximoNivel].custo;
+                temDinheiro = gameState.escuderia.dinheiro >= custoProximo;
             }
 
+            // Barra de progresso de níveis
+            const stepsHtml = data.niveis.slice(nivelMinimo).map((nivel, idx) => {
+                const nivelReal = idx + nivelMinimo;
+                const adquirido = nivelReal <= nivelAtual;
+                const ehAtual = nivelReal === nivelAtual;
+                const ehProximo = nivelReal === proximoNivel && !estaNoMaximo;
+                let cls = 'inst-step';
+                if (adquirido) cls += ' adquirido';
+                if (ehAtual) cls += ' nivel-atual';
+                if (ehProximo) cls += ' proximo';
+                const checkmark = adquirido ? '✓' : nivelReal;
+                return `<div class="${cls}" title="Nível ${nivelReal}: ${nivel.titulo}">${checkmark}</div>`;
+            }).join('<div class="inst-step-linha"></div>');
+
+            // Info do nível atual
+            const infoAtual = data.niveis[nivelAtual];
+            // Info do próximo nível
+            const infoProximo = !estaNoMaximo ? data.niveis[proximoNivel] : null;
+
+            // Lista de todos os níveis
+            const listaNiveisHtml = data.niveis.slice(nivelMinimo).map((nivel, idx) => {
+                const nivelReal = idx + nivelMinimo;
+                const adquirido = nivelReal <= nivelAtual;
+                const ehAtual = nivelReal === nivelAtual;
+                let tagClass = adquirido ? 'inst-nivel-tag adquirido' : 'inst-nivel-tag bloqueado';
+                if (ehAtual) tagClass += ' atual';
+                const custoTexto = nivel.custo === 0 ? 'Incluso' : `R$ ${nivel.custo.toLocaleString('pt-BR')}`;
+                const lockIcon = adquirido ? '🔓' : '🔒';
+                return `
+                    <div class="${tagClass}">
+                        <div class="inst-nivel-header">
+                            <span class="inst-nivel-num">${lockIcon} Nível ${nivelReal} — ${nivel.titulo}</span>
+                            <span class="inst-nivel-custo">${custoTexto}</span>
+                        </div>
+                        <div class="inst-nivel-desc">${nivel.descricao}</div>
+                    </div>`;
+            }).join('');
+
+            // Botão de ação
+            let botaoHtml = '';
+            if (estaNoMaximo) {
+                botaoHtml = `<button class="btn-corrida btn-real" disabled>🏆 Nível Máximo</button>`;
+            } else if (custoProximo !== null) {
+                botaoHtml = `<button class="btn-corrida btn-real" data-action="melhorar-instalacao" data-instalacao-id="${id}" ${temDinheiro ? '' : 'disabled'}>
+                    ${temDinheiro ? '⬆️' : '💸'} Melhorar para Nível ${proximoNivel} — R$ ${custoProximo.toLocaleString('pt-BR')}
+                </button>`;
+            }
+
+            const cardStatusClass = nivelAtual > 0 ? 'inst-card-ativa' : 'inst-card-inativa';
+
             return `
-                <div class="instalacao-card">
-                    <h4>${data.nome}</h4>
-                    <p>Nível Atual: <span class="level-display">${id === 'ers' ? nivelAtual : nivelAtual} / ${maxLevel}</span></p>
-                    <p>${data.descricao}</p>
-                    <p><strong>Bônus por Nível:</strong> ${data.bonusPorNivel}</p>
-                    <div class="custo-info">
-                        ${custoHtml}
+                <div class="instalacao-card ${cardStatusClass}">
+                    <div class="inst-card-header">
+                        <span class="inst-icone">${data.icone}</span>
+                        <div class="inst-titulo-bloco">
+                            <h4>${data.nome}</h4>
+                            <p class="inst-descricao-curta">${data.descricao}</p>
+                        </div>
+                        <div class="inst-nivel-badge nivel-${nivelAtual}">
+                            ${nivelAtual === 0 ? 'NÃO<br>CONSTRUÍDO' : `NÍVEL<br><strong>${nivelAtual}</strong>`}
+                        </div>
+                    </div>
+
+                    <div class="inst-progress-bar">
+                        ${stepsHtml}
+                    </div>
+
+                    <div class="inst-status-atual">
+                        <strong>Status atual:</strong> ${infoAtual.titulo} — <em>${infoAtual.descricao}</em>
+                    </div>
+
+                    <details class="inst-detalhes">
+                        <summary>📋 Ver todos os níveis</summary>
+                        <div class="inst-niveis-lista">${listaNiveisHtml}</div>
+                    </details>
+
+                    <div class="inst-acoes">
+                        ${infoProximo ? `<div class="inst-proximo-info">⬆️ Próximo: <strong>${infoProximo.titulo}</strong> — ${infoProximo.descricao}</div>` : `<div class="inst-maximo-info">🏆 Instalação no nível máximo!</div>`}
                         ${botaoHtml}
                     </div>
                 </div>
@@ -3652,6 +3888,7 @@ document.addEventListener('DOMContentLoaded', () => {
                          <div>
                             <h4>Projeto de Conjunto Completo</h4>
                             <p>Inicie simultaneamente o desenvolvimento de 1 Motor, 1 Chassi, 1 Suspensão, 1 Asa Dianteira e 1 Asa Traseira. O custo total tem um acréscimo de 50% pela conveniência.</p>
+                            <p style="color: #e67e22; font-size: 0.9em;">🎲 <strong>Bônus especial:</strong> Um dado é lançado ao iniciar e pode reduzir o tempo em até <strong>3 corridas</strong>! Dado 2+: −1 corrida · Dado 3+: −2 corridas · Dado 5+: −3 corridas.</p>
                         </div>
                         <div class="pd-controles">
                              <select id="pd-project-duration" class="form-group" data-action="calcular-custo-pd">
