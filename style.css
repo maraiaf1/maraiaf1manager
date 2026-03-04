@@ -1655,10 +1655,10 @@ input[type="range"] {
 
 #meus-pilotos-container {
     display: grid;
-    grid-template-columns: 2fr 2fr 2fr 4fr;
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     align-items: stretch;
-    margin-bottom: 2rem; /* Adiciona um pouco de espaço abaixo da seção dos seus pilotos */
+    margin-bottom: 2rem;
 }
 
 .piloto-card.reserva {
@@ -1686,6 +1686,8 @@ input[type="range"] {
     padding: 1rem 1.4rem;
     margin-bottom: 1.2rem;
     flex-wrap: nowrap;
+    /* Span all columns when inside a grid */
+    grid-column: 1 / -1;
 }
 .olheiro-action-bar > div {
     flex: 1;

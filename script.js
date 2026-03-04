@@ -4167,6 +4167,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const restricaoIdade = nivelSimulador >= 5 ? 'Qualquer idade.' : 'Menos de 23 anos.';
         const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
 
+        // ── Card central: emblema da equipe (posição 3 de 5) ──
+        meusPilotosContainer.innerHTML += `<div class="equipe-emblema-card"><div id="emblema-display-pilotos-aba"></div></div>`;
+
         // Renderiza reservas existentes
         reservasAtuais.forEach((r, i) => {
             meusPilotosContainer.innerHTML += gerarCardPilotoHtml(r, `Reserva ${reservasAtuais.length > 1 ? i + 1 : ''}`.trim(), vagaNaEquipePrincipal);
@@ -4182,8 +4185,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>Vaga Bloqueada</h4><p style="font-size:0.9em;">Contrate um Treinador de Pilotos ou construa o Simulador até o Nível 4 para desbloquear.</p></div></div>`;
         }
-
-        meusPilotosContainer.innerHTML += `<div class="equipe-emblema-card"><div id="emblema-display-pilotos-aba"></div></div>`;
 
         // Botão do Olheiro
         const olheiroContratado2 = gameState.escuderia.especialistas.find(e => e.tipo === 'Olheiro');
