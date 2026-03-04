@@ -1675,6 +1675,24 @@ input[type="range"] {
     border: 2px dashed #e0e0e0;
     min-height: 200px;
 }
+.olheiro-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+}
+.olheiro-action-bar strong { font-size: 1em; }
+.olheiro-action-bar .btn-corrida {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .emblema-slot-pilotos {
     width: 120px;
     height: 120px;

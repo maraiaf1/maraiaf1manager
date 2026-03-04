@@ -748,6 +748,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const meusPilotos = gameState.pilotos.filter(p => p.status === 'Jogador' || p.status === 'Reserva');
         const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
+        const nivelSimulador = gameState.instalacoes.simulador;
+        // Simulador nível 4+ também desbloqueia vaga de reserva (sem precisar do Treinador)
+        const vagaReservaDesbloqueada = treinadorContratado || nivelSimulador >= 4;
 
         if (meusPilotos.filter(p => p.status === 'Jogador').length < 2) {
             if (gameState.escuderia.dinheiro < pilotoParaContratar.precoContrato) {
@@ -766,13 +769,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (treinadorContratado) {
+        if (vagaReservaDesbloqueada) {
             if (meusPilotos.some(p => p.status === 'Reserva')) {
                 alert("Você já tem um piloto reserva. Dispense-o antes de contratar um novo.");
                 return;
             }
-            if (pilotoParaContratar.idade >= 23) {
-                alert(`Para a vaga de reserva, o piloto deve ter menos de 23 anos. ${pilotoParaContratar.nome} tem ${pilotoParaContratar.idade}.`);
+            // Simulador nível 5 remove o limite de idade
+            if (nivelSimulador < 5 && pilotoParaContratar.idade >= 23) {
+                alert(`Para a vaga de reserva, o piloto deve ter menos de 23 anos. ${pilotoParaContratar.nome} tem ${pilotoParaContratar.idade} anos.\n💡 Dica: O Simulador Nível 5 remove este limite de idade!`);
                 return;
             }
             if (gameState.escuderia.dinheiro < pilotoParaContratar.precoContrato) {
@@ -781,13 +785,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             gameState.escuderia.dinheiro -= pilotoParaContratar.precoContrato;
             pilotoParaContratar.status = 'Reserva';
-            alert(`Jovem talento ${pilotoParaContratar.nome} contratado como Piloto Reserva! Ele começará a treinar imediatamente.`);
+            const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
+            alert(`Piloto ${pilotoParaContratar.nome} contratado como Piloto Reserva! (Vaga desbloqueada pelo ${origemVaga})`);
             updateUI();
             saveGame();
             return;
         }
 
-        alert("Você já tem 2 pilotos na equipe principal. Contrate um Treinador de Pilotos para abrir uma vaga de piloto reserva.");
+        alert("Você já tem 2 pilotos na equipe principal.\n\nPara abrir uma vaga de reserva, contrate um Treinador de Pilotos ou construa o Simulador de Pilotos até o Nível 4.");
     }
 
     function dispensarPiloto(pilotoId) {
@@ -1061,6 +1066,32 @@ document.addEventListener('DOMContentLoaded', () => {
         novosDoMercado.forEach(piloto => {
             piloto.status = 'Disponível';
         });
+    }
+
+    const CUSTO_OLHEIRO_MERCADO = 5000000;
+
+    function acionarOlheiro() {
+        if (gameState.escuderia.dinheiro < CUSTO_OLHEIRO_MERCADO) {
+            alert(`Dinheiro insuficiente! O olheiro cobra R$ ${CUSTO_OLHEIRO_MERCADO.toLocaleString('pt-BR')} para vasculhar o mercado.`);
+            return;
+        }
+
+        const olheiroContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Olheiro');
+        const qtdPilotos = olheiroContratado ? 10 + Math.floor(Math.random() * 4) : 7;
+
+        if (!confirm(`Acionar o olheiro para buscar novos pilotos no mercado por R$ ${CUSTO_OLHEIRO_MERCADO.toLocaleString('pt-BR')}?\n${olheiroContratado ? `🔍 Com o Olheiro contratado, ${qtdPilotos} novos pilotos serão encontrados!` : `🔍 ${qtdPilotos} novos pilotos serão trazidos ao mercado.`}`)) return;
+
+        gameState.escuderia.dinheiro -= CUSTO_OLHEIRO_MERCADO;
+
+        // Esconde os disponíveis atuais e traz novos
+        gameState.pilotos.forEach(p => { if (p.status === 'Disponível') p.status = 'Indisponível'; });
+        const elegiveis = gameState.pilotos.filter(p => p.status === 'Indisponível');
+        elegiveis.sort(() => 0.5 - Math.random());
+        elegiveis.slice(0, qtdPilotos).forEach(p => { p.status = 'Disponível'; });
+
+        alert(`🔍 Olheiro em ação! ${qtdPilotos} novos pilotos foram encontrados no mercado.`);
+        updateUI();
+        saveGame();
     }
 
     function gerarOfertasDePatrocinio() {
@@ -4127,18 +4158,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const pilotoReserva = gameState.pilotos.find(p => p.status === 'Reserva');
         const vagaNaEquipePrincipal = !pilotoCarro1 || !pilotoCarro2;
         const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
+        const nivelSimulador = gameState.instalacoes.simulador;
+        const vagaReservaDesbloqueada = treinadorContratado || nivelSimulador >= 4;
         if (pilotoReserva) {
             meusPilotosContainer.innerHTML += gerarCardPilotoHtml(pilotoReserva, 'Reserva', vagaNaEquipePrincipal);
         } else {
-            if (treinadorContratado) {
-                meusPilotosContainer.innerHTML += '<div class="piloto-card vaga-reserva"><div><h4>Vaga de Piloto Reserva</h4><p style="font-size: 0.9em;">Contrate um piloto com menos de 23 anos do mercado.</p></div></div>';
+            if (vagaReservaDesbloqueada) {
+                const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
+                const restricaoIdade = nivelSimulador >= 5 ? 'Qualquer idade.' : 'Piloto deve ter menos de 23 anos.';
+                meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>Vaga de Piloto Reserva</h4><p style="font-size: 0.9em;">Desbloqueada pelo ${origemVaga}. ${restricaoIdade}</p></div></div>`;
             } else {
-                meusPilotosContainer.innerHTML += '<div class="piloto-card vaga-reserva"><div><h4>Vaga Bloqueada</h4><p style="font-size: 0.9em;">Contrate um Treinador de Pilotos para desbloquear esta vaga.</p></div></div>';
+                meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>Vaga Bloqueada</h4><p style="font-size: 0.9em;">Contrate um Treinador de Pilotos ou construa o Simulador até o Nível 4 para desbloquear.</p></div></div>`;
             }
         }
 
         meusPilotosContainer.innerHTML += `<div class="equipe-emblema-card"><div id="emblema-display-pilotos-aba"></div></div>`;
+
+        // Botão do Olheiro
+        const olheiroContratado2 = gameState.escuderia.especialistas.find(e => e.tipo === 'Olheiro');
+        const temDinheiroOlheiro = gameState.escuderia.dinheiro >= CUSTO_OLHEIRO_MERCADO;
+        const olheiroBonusTexto = olheiroContratado2 ? ' <span style="color:#28a745;font-size:0.85em;">🔍 Olheiro contratado: mais e melhores pilotos!</span>' : '';
+        mercadoPilotosContainer.innerHTML = `
+            <div class="olheiro-action-bar">
+                <div>
+                    <strong>🔍 Olheiro</strong> — Acione para vasculhar o mercado e trazer novos pilotos disponíveis.${olheiroBonusTexto}
+                </div>
+                <button class="btn-corrida btn-real" data-action="acionar-olheiro" ${temDinheiroOlheiro ? '' : 'disabled'}>
+                    ${temDinheiroOlheiro ? '🔍' : '💸'} Atualizar Mercado — R$ ${CUSTO_OLHEIRO_MERCADO.toLocaleString('pt-BR')}
+                </button>
+            </div>`;
+
         const pilotosDeMercado = gameState.pilotos.filter(p => p.status === 'Disponível');
+        if (pilotosDeMercado.length === 0) {
+            mercadoPilotosContainer.innerHTML += '<p style="text-align:center; color:#888; margin-top:1rem;">Nenhum piloto disponível no momento. Acione o Olheiro para buscar novos talentos.</p>';
+        }
         pilotosDeMercado.forEach(piloto => { mercadoPilotosContainer.innerHTML += gerarCardPilotoHtml(piloto); });
         const pilotosAtivosIA = gameState.pilotos.filter(p => p.status !== 'Jogador' && p.status !== 'Reserva' && p.status !== 'Disponível' && p.status !== 'Indisponível');
         const equipesOrdenadas = [...equipesIA].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -5794,6 +5847,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (action === 'contratar-piloto') contratarPiloto(parseInt(target.dataset.pilotoId));
         else if (action === 'dispensar-piloto') dispensarPiloto(parseInt(target.dataset.pilotoId));
         else if (action === 'promover-piloto') promoverPilotoReserva(parseInt(target.dataset.pilotoId));
+        else if (action === 'acionar-olheiro') acionarOlheiro();
         else if (target.matches('#btn-salvar-nome')) {
             mudarNomeEquipe();
         }
