@@ -140,11 +140,26 @@ background-color: #c82333;
 .car-selector-nav { margin-bottom: 1.5rem; border-bottom: 1px solid #ccc; }
 .car-selector-btn { background: none; border: none; padding: 0.8rem 1.2rem; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; }
 .car-selector-btn.active { border-bottom-color: #1e1e1e; font-weight: bold; }
-#car-slots-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; margin-bottom: 2rem; }
+#car-slots-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1rem; margin-bottom: 0; }
 .slot-card {
     /* ... outros estilos ... */
     transition: border-left-color 0.3s; /* Transição suave da cor */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
 }
+.slot-card h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    color: #555;
+    letter-spacing: 0.05em;
+}
+.slot-card .btn-trocar-peca { margin-top: auto; }
 
 /* Cor VERMELHA para quando o slot está VAZIO */
 .slot-card.vazio {
@@ -155,6 +170,29 @@ background-color: #c82333;
 .slot-card.equipado {
     border-left: 5px solid #008cba;
 }
+
+/* Divisor visual entre equipado e inventário */
+.garagem-grid-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.garagem-section-label {
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    padding: 0.8rem 0 0.2rem;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 0.5rem;
+}
+.garagem-section-label:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0.2rem;
+}
+
 .pecas-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
 .peca-card { background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; font-size: 0.9rem; }
 .perf-indicator { display: inline-block; font-weight: 700; font-size: 0.82rem; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; letter-spacing: 0.03em; }
@@ -824,27 +862,31 @@ font-size: 0.8rem;
 /* --- Estilos para o Novo Layout do Inventário --- */
 #inventory-columns-container {
     display: grid;
-    /* Cria 5 colunas com o mesmo tamanho */
     grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem; /* Espaçamento entre as colunas */
-    margin-top: 1rem;
-    align-items: start; /* Alinha as colunas no topo */
+    gap: 1rem;
+    margin-top: 0;
+    align-items: start;
 }
 
 .inventory-column {
     display: flex;
     flex-direction: column;
-    gap: 1rem; /* Espaçamento entre as peças na mesma coluna */
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem;
     background-color: #f8f9fa;
     border-radius: 8px;
+    border-top: 3px solid #e0e0e0;
 }
 
 .inventory-column h4 {
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.5rem 0;
     text-align: center;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.4rem;
 }
 
 /* --- Estilos para Botões de Ação nos Cards --- */
