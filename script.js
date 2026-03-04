@@ -749,9 +749,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const meusPilotos = gameState.pilotos.filter(p => p.status === 'Jogador' || p.status === 'Reserva');
         const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
         const nivelSimulador = gameState.instalacoes.simulador;
-        // Simulador nível 4+ também desbloqueia vaga de reserva (sem precisar do Treinador)
         const vagaReservaDesbloqueada = treinadorContratado || nivelSimulador >= 4;
+        // Nível 4+ permite 2 reservas; nível <4 apenas 1
+        const maxReservas = nivelSimulador >= 4 ? 2 : 1;
+        const reservasAtuais = gameState.pilotos.filter(p => p.status === 'Reserva');
 
+        // Vagas na equipe principal (pilotos titulares)
         if (meusPilotos.filter(p => p.status === 'Jogador').length < 2) {
             if (gameState.escuderia.dinheiro < pilotoParaContratar.precoContrato) {
                 alert(`Dinheiro insuficiente! Custo do contrato: R$ ${pilotoParaContratar.precoContrato.toLocaleString('pt-BR')}`);
@@ -760,18 +763,19 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.escuderia.dinheiro -= pilotoParaContratar.precoContrato;
             pilotoParaContratar.status = 'Jogador';
             const carroVago = gameState.carros.find(c => c.pilotoId === null);
-            if (carroVago) {
-                carroVago.pilotoId = pilotoParaContratar.id;
-            }
+            if (carroVago) carroVago.pilotoId = pilotoParaContratar.id;
             alert(`Piloto ${pilotoParaContratar.nome} contratado para a equipe principal!`);
-            updateUI();
-            saveGame();
+            updateUI(); saveGame();
             return;
         }
 
+        // Vaga de reserva
         if (vagaReservaDesbloqueada) {
-            if (meusPilotos.some(p => p.status === 'Reserva')) {
-                alert("Você já tem um piloto reserva. Dispense-o antes de contratar um novo.");
+            if (reservasAtuais.length >= maxReservas) {
+                const msg = maxReservas === 2
+                    ? "Você já tem 2 pilotos reserva (máximo do Simulador Nível 4/5). Dispense um antes de contratar outro."
+                    : `Você já tem um piloto reserva. Dispense-o antes de contratar um novo.\n💡 Simulador Nível 4 desbloqueia uma 2ª vaga de reserva!`;
+                alert(msg);
                 return;
             }
             // Simulador nível 5 remove o limite de idade
@@ -787,8 +791,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pilotoParaContratar.status = 'Reserva';
             const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
             alert(`Piloto ${pilotoParaContratar.nome} contratado como Piloto Reserva! (Vaga desbloqueada pelo ${origemVaga})`);
-            updateUI();
-            saveGame();
+            updateUI(); saveGame();
             return;
         }
 
@@ -4155,21 +4158,29 @@ document.addEventListener('DOMContentLoaded', () => {
             meusPilotosContainer.innerHTML += '<div class="piloto-card" style="display: flex; align-items: center; justify-content: center; color: #888; border-style: dashed;"><h4>Vaga para Piloto 2</h4></div>';
         }
 
-        const pilotoReserva = gameState.pilotos.find(p => p.status === 'Reserva');
+        const reservasAtuais = gameState.pilotos.filter(p => p.status === 'Reserva');
         const vagaNaEquipePrincipal = !pilotoCarro1 || !pilotoCarro2;
         const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
         const nivelSimulador = gameState.instalacoes.simulador;
         const vagaReservaDesbloqueada = treinadorContratado || nivelSimulador >= 4;
-        if (pilotoReserva) {
-            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(pilotoReserva, 'Reserva', vagaNaEquipePrincipal);
-        } else {
-            if (vagaReservaDesbloqueada) {
-                const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
-                const restricaoIdade = nivelSimulador >= 5 ? 'Qualquer idade.' : 'Piloto deve ter menos de 23 anos.';
-                meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>Vaga de Piloto Reserva</h4><p style="font-size: 0.9em;">Desbloqueada pelo ${origemVaga}. ${restricaoIdade}</p></div></div>`;
-            } else {
-                meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>Vaga Bloqueada</h4><p style="font-size: 0.9em;">Contrate um Treinador de Pilotos ou construa o Simulador até o Nível 4 para desbloquear.</p></div></div>`;
+        const maxReservas = nivelSimulador >= 4 ? 2 : 1;
+        const restricaoIdade = nivelSimulador >= 5 ? 'Qualquer idade.' : 'Menos de 23 anos.';
+        const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
+
+        // Renderiza reservas existentes
+        reservasAtuais.forEach((r, i) => {
+            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(r, `Reserva ${reservasAtuais.length > 1 ? i + 1 : ''}`.trim(), vagaNaEquipePrincipal);
+        });
+
+        // Renderiza vagas de reserva vazias
+        if (vagaReservaDesbloqueada) {
+            const vagasVazias = maxReservas - reservasAtuais.length;
+            for (let i = 0; i < vagasVazias; i++) {
+                const labelVaga = maxReservas > 1 ? `Vaga de Reserva ${reservasAtuais.length + i + 1}` : 'Vaga de Piloto Reserva';
+                meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>${labelVaga}</h4><p style="font-size:0.9em;">Desbloqueada pelo ${origemVaga}. ${restricaoIdade}</p></div></div>`;
             }
+        } else {
+            meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>Vaga Bloqueada</h4><p style="font-size:0.9em;">Contrate um Treinador de Pilotos ou construa o Simulador até o Nível 4 para desbloquear.</p></div></div>`;
         }
 
         meusPilotosContainer.innerHTML += `<div class="equipe-emblema-card"><div id="emblema-display-pilotos-aba"></div></div>`;
