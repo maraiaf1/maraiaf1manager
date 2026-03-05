@@ -1832,7 +1832,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
         });
-        raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole, safetyCarAtivo: false, pendingSafetyCar: false, safetyCarMotivo: '' };
+        raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole, safetyCarAtivo: false, pendingSafetyCar: false, safetyCarMotivo: '', historicoSC: [] };
         redimensionarCanvas();
         renderTabelaAoVivo();
         animacaoAtiva = true;
@@ -2239,6 +2239,15 @@ document.addEventListener('DOMContentLoaded', () => {
         raceTimerId = null;
         raceData.safetyCarAtivo = true;
 
+        // Registra no histórico
+        if (!raceData.historicoSC) raceData.historicoSC = [];
+        raceData.historicoSC.push({
+            volta: raceData.voltaAtual,
+            totalVoltas: raceData.totalVoltas,
+            motivo: raceData.safetyCarMotivo || 'Incidente na pista'
+        });
+        renderHistoricoSC();
+
         const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
 
         // ── 1. Comprime o campo ──────────────────────────────────────
@@ -2540,6 +2549,36 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Aplica estratégia gerada automaticamente para os carros do jogador.
      */
+    function renderHistoricoSC() {
+        const container = document.getElementById('sc-historico-container');
+        if (!container || !raceData) return;
+        const historico = raceData.historicoSC || [];
+        if (historico.length === 0) { container.innerHTML = ''; return; }
+
+        const rows = historico.map((entry, i) => {
+            const iconeMotivo = entry.motivo.includes('pneu') ? '💥' : entry.motivo.includes('mecân') ? '🔧' : '⚠️';
+            return `
+                <tr>
+                    <td class="sc-hist-num">${i + 1}º SC</td>
+                    <td class="sc-hist-volta">Volta <strong>${entry.volta}</strong> / ${entry.totalVoltas}</td>
+                    <td class="sc-hist-barra"><div class="sc-hist-progress" style="width:${Math.round((entry.volta / entry.totalVoltas) * 100)}%"></div></td>
+                    <td class="sc-hist-motivo">${iconeMotivo} ${entry.motivo}</td>
+                </tr>`;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="sc-historico-card">
+                <div class="sc-historico-header">
+                    <span class="sc-hist-icon">🚗🟡</span>
+                    <span>Histórico de Safety Car</span>
+                    <span class="sc-hist-count">${historico.length}× acionado</span>
+                </div>
+                <table class="sc-historico-table">
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    }
+
     function aplicarEstrategiaAutoPosSC(voltasRestantes) {
         gameState.carros.forEach((carro) => {
             if (!carro.pilotoId) return;
@@ -4338,6 +4377,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </thead>
                             <tbody></tbody>
                         </table>
+                        <div id="sc-historico-container"></div>
                     </div>
                 </div>
                 <div class="setup-coluna" id="coluna-direita-corrida">

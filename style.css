@@ -3179,3 +3179,78 @@ font-size: 0.8em;
 .btn-sc-parar:hover:not(.active) { opacity: 0.75; }
 .btn-sc-ficar:hover:not(.active):not(.disabled) { opacity: 0.75; }
 .btn-sc-ficar.disabled { background: #555; color: #999; cursor: not-allowed; opacity: 0.6; }
+/* === HISTÓRICO DE SAFETY CAR === */
+#sc-historico-container {
+    margin-top: 1.2rem;
+}
+.sc-historico-card {
+    background: #1a1a2e;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #ffc10730;
+}
+.sc-historico-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    background: linear-gradient(90deg, #1a1a2e 0%, #2d2010 100%);
+    border-bottom: 1px solid #ffc10740;
+    font-weight: 700;
+    font-size: 0.88em;
+    color: #ffc107;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.sc-hist-icon { font-size: 1.1em; }
+.sc-hist-count {
+    margin-left: auto;
+    background: #ffc107;
+    color: #1a1a2e;
+    border-radius: 20px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.8em;
+    font-weight: 800;
+}
+.sc-historico-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.sc-historico-table tbody tr {
+    border-bottom: 1px solid #ffffff0d;
+    transition: background 0.15s;
+}
+.sc-historico-table tbody tr:last-child { border-bottom: none; }
+.sc-historico-table tbody tr:hover { background: #ffffff08; }
+.sc-historico-table td {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85em;
+    vertical-align: middle;
+    color: #ddd;
+}
+.sc-hist-num {
+    color: #ffc107;
+    font-weight: 800;
+    white-space: nowrap;
+    width: 52px;
+}
+.sc-hist-volta {
+    white-space: nowrap;
+    width: 110px;
+    color: #aaa;
+}
+.sc-hist-volta strong { color: #fff; }
+.sc-hist-barra {
+    width: 120px;
+    padding: 0.5rem 0.8rem;
+}
+.sc-hist-progress {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #ffc107, #ff9800);
+    min-width: 4px;
+}
+.sc-hist-motivo {
+    color: #ccc;
+    font-size: 0.83em;
+}
