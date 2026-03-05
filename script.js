@@ -2765,21 +2765,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 4. Salva estatísticas para a aba Galeria
+        // 4. Salva estatísticas para a aba Galeria (todos os pilotos, IA e jogador)
         resultados.forEach((resultado, index) => {
-            if (resultado.isPlayer) {
-                const nomePiloto = resultado.piloto.nome;
-                if (!gameState.galeria.estatisticasPilotos[nomePiloto]) {
-                    gameState.galeria.estatisticasPilotos[nomePiloto] = { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
-                }
-                const stats = gameState.galeria.estatisticasPilotos[nomePiloto];
-                stats.corridas++;
-                if (index === 0) stats.vitorias++;
-                if (index < 3) stats.podios++;
-                const posicao = index + 1;
-                if (pontosPorPosicao[posicao]) {
-                    stats.pontos += pontosPorPosicao[posicao];
-                }
+            const nomePiloto = resultado.piloto.nome;
+            if (!gameState.galeria.estatisticasPilotos[nomePiloto]) {
+                gameState.galeria.estatisticasPilotos[nomePiloto] = { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
+            }
+            const stats = gameState.galeria.estatisticasPilotos[nomePiloto];
+            stats.corridas++;
+            if (index === 0) stats.vitorias++;
+            if (index < 3) stats.podios++;
+            const posicao = index + 1;
+            if (pontosPorPosicao[posicao]) {
+                stats.pontos += pontosPorPosicao[posicao];
             }
         });
 
