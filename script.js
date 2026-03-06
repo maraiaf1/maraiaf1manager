@@ -2488,6 +2488,30 @@ document.addEventListener('DOMContentLoaded', () => {
             delete carro._scDecisao;
         });
 
+        // Guarda resumo das decisões do SC para exibir no painel de estratégia
+        raceData.ultimoSCResumo = gameState.carros
+            .filter(c => c.pilotoId)
+            .map((carro, i) => {
+                const decisao = carro._scDecisaoAplicada || carro._scDecisao || 'manter-planejar';
+                const ctx = raceData.scContexto?.[carro.pilotoId] || {};
+                const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
+                const pneuNomeMap = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
+                const descDecisao = {
+                    'manter-planejar': `Ficou na pista (${pneuNomeMap[ctx.pneuAtual] || ctx.pneuAtual}) — novas paradas planejadas`,
+                    'trocar-planejar': `Trocou para ${pneuNomeMap[carro.estrategia?.pneuInicial]} (+6s) — novas paradas planejadas`,
+                    'manter-final':    `Ficou na pista (${pneuNomeMap[ctx.pneuAtual] || ctx.pneuAtual}) — sem mais paradas`,
+                    'trocar-final':    `Trocou para ${pneuNomeMap[carro.estrategia?.pneuInicial]} (+6s) — sem mais paradas`,
+                }[decisao] || decisao;
+                return {
+                    pilotoNome: piloto?.nome || `Carro ${i + 1}`,
+                    decisao,
+                    descDecisao,
+                    paradas: carro.estrategia?.paradas || [],
+                    pneuInicial: carro.estrategia?.pneuInicial,
+                };
+            });
+        raceData.voltaSCAtivado = raceData.voltaAtual;
+
         // Desabilita os controles de estratégia novamente
         document.querySelectorAll('.strategy-control').forEach(el => { el.disabled = true; });
 
@@ -4109,6 +4133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div id="radio-display-box" class="radio-message"></div>
                         </div>
                         <button id="btn-fechar-resultados" class="btn-corrida btn-fechar hidden">Ver Próxima Corrida</button>
+                        <div id="sc-race-banner" class="sc-race-banner hidden"></div>
                         <h3 id="display-volta"></h3>
                         <table id="tabela-resultados">
                             <thead>
@@ -4175,6 +4200,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTabelaAoVivo() {
         const voltaParaExibir = Math.min(raceData.voltaAtual, raceData.totalVoltas);
         document.getElementById('display-volta').textContent = `VOLTA ${voltaParaExibir} / ${raceData.totalVoltas}`;
+
+        // SC banner abaixo do display de volta
+        const scBanner = document.getElementById('sc-race-banner');
+        if (scBanner) {
+            if (raceData.safetyCarAtivo) {
+                scBanner.classList.remove('hidden');
+                scBanner.innerHTML = `
+                    <span class="sc-banner-icon">🚨</span>
+                    <span class="sc-banner-text">SAFETY CAR ATIVO</span>
+                    <span class="sc-banner-motivo">${raceData.safetyCarMotivo || 'Incidente na pista'}</span>
+                    <span class="sc-banner-volta">Volta ${raceData.voltaAtual}</span>`;
+            } else {
+                scBanner.classList.add('hidden');
+            }
+        }
+
         const tabelaBody = document.querySelector("#tabela-resultados tbody");
         if (!tabelaBody) return;
 
@@ -4530,6 +4571,31 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEstrategiaModalSC(voltasRestantes);
         }
 
+        // ── Resumo do Safety Car (se houve um nesta corrida) ────────────
+        let scResumoHtml = '';
+        if (raceData?.ultimoSCResumo?.length > 0) {
+            const pneuNomeMap = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
+            const cardsResumo = raceData.ultimoSCResumo.map(r => {
+                const proximasParadas = r.paradas.length > 0
+                    ? r.paradas.map(p => `v${p.pararNaVolta} → ${pneuNomeMap[p.colocarPneu] || p.colocarPneu}`).join(' · ')
+                    : 'Sem mais paradas';
+                return `<div class="sc-resumo-card">
+                    <div class="sc-resumo-piloto">${r.pilotoNome}</div>
+                    <div class="sc-resumo-decisao">${r.descDecisao}</div>
+                    <div class="sc-resumo-paradas">📅 ${proximasParadas}</div>
+                </div>`;
+            }).join('');
+            scResumoHtml = `
+                <div class="sc-resumo-banner">
+                    <div class="sc-resumo-header">
+                        <span class="sc-resumo-icon">🚨</span>
+                        <span>Novas Estratégias — Safety Car v${raceData.voltaSCAtivado || '?'}</span>
+                        <button class="sc-resumo-fechar" data-action="fechar-sc-resumo" title="Fechar">✕</button>
+                    </div>
+                    ${cardsResumo}
+                </div>`;
+        }
+
         // Preserva o estado aberto/fechado do guia Pirelli entre re-renders
         const guiaAberto = container.dataset.guiaPirelliAberto === 'true';
 
@@ -4544,7 +4610,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        container.innerHTML = guiaBotaoHtml + gameState.carros.map((carro, carroIndex) => {
+        container.innerHTML = scResumoHtml + guiaBotaoHtml + gameState.carros.map((carro, carroIndex) => {
             const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
             const pilotoNome = piloto ? piloto.nome : "VAGO";
 
@@ -5774,6 +5840,10 @@ document.addEventListener('DOMContentLoaded', () => {
             saveGame();
         }
         else if (target.matches('.btn-aceitar-patrocinio')) aceitarOfertaPatrocinio(parseInt(target.dataset.ofertaId));
+        else if (action === 'fechar-sc-resumo') {
+            if (raceData) delete raceData.ultimoSCResumo;
+            renderEstrategiaUI();
+        }
         else if (action === 'sc-opcao') {
             const carroIndex = parseInt(target.dataset.carIndex);
             const opcao = target.dataset.opcao;
