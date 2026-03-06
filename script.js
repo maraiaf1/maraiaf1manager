@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.0";
+    const VERSAO_JOGO = "21.0.1";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -247,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let animacaoAtiva = false;
     let garagemState = { carroSelecionadoIndex: 0 };
     let raceData = {};
+    let pilotosMonitorados = []; // IDs dos pilotos IA monitorados (máx. 2)
     let sortState = { column: 'preco', direction: 'asc' };
     let projetoAtual = {};
     let gapsAnteriores = {};
@@ -1640,6 +1641,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('info-pre-corrida-esquerda').classList.remove('hidden');
         document.getElementById('info-pre-corrida-direita').classList.remove('hidden');
 
+        // Inicializa o card de watchlist
+        pilotosMonitorados = [];
+        const watchlistCard = document.getElementById('watchlist-card');
+        if (watchlistCard) {
+            watchlistCard.classList.remove('hidden');
+            popularSelectWatchlist();
+            renderWatchlistCard();
+        }
+
         // 5. Prepara os dados e inicia os loops da corrida
         const finalParticipants = gridDeLargada.map((p, index) => {
             const gridPenalty = index * 0.200;
@@ -1688,6 +1698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
                 renderTabelaAoVivo();
+                if (pilotosMonitorados.length > 0) renderWatchlistCard();
                 gerarMensagensDeRadio();
                 raceData.voltaAtual++; // Incrementa a volta normalmente
 
@@ -1938,6 +1949,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(raceTimerId);
         raceTimerId = null;
         animacaoAtiva = false;
+        pilotosMonitorados = []; // Zera o watchlist ao fim da corrida
 
         animarBandeirada().then(() => {
             document.getElementById('corrida').classList.remove('race-in-progress');
@@ -4156,6 +4168,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3>Estratégia de Corrida</h3>
                         <div id="strategy-container"></div>
                     </div>
+                    <div id="watchlist-card" class="watchlist-card hidden">
+                        <div class="watchlist-header">
+                            <span class="watchlist-title">👁️ Monitorar Pilotos</span>
+                            <span class="watchlist-slots-info" id="watchlist-slots-info">0 / 2</span>
+                        </div>
+                        <div id="watchlist-pilotos"></div>
+                        <div class="watchlist-add" id="watchlist-add-container">
+                            <select id="watchlist-select">
+                                <option value="">+ Adicionar piloto...</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -4203,6 +4227,90 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- FIM DA LÓGICA ATUALIZADA ---
 
         renderEstrategiaUI();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // WATCHLIST — Monitoramento de pilotos IA durante a corrida
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function popularSelectWatchlist() {
+        const sel = document.getElementById('watchlist-select');
+        if (!sel || !raceData.participantes) return;
+        // Apenas pilotos IA, ordenados por nome
+        const pilotosIA = raceData.participantes
+            .filter(p => !p.isPlayer)
+            .map(p => ({ id: p.piloto.id, nome: p.piloto.nome, equipe: p.equipe }))
+            .sort((a, b) => a.nome.localeCompare(b.nome));
+        sel.innerHTML = '<option value="">+ Adicionar piloto...</option>' +
+            pilotosIA.map(p => `<option value="${p.id}">${p.nome} (${p.equipe})</option>`).join('');
+    }
+
+    function renderWatchlistCard() {
+        const container = document.getElementById('watchlist-pilotos');
+        const slotsInfo = document.getElementById('watchlist-slots-info');
+        const addContainer = document.getElementById('watchlist-add-container');
+        if (!container) return;
+
+        slotsInfo.textContent = `${pilotosMonitorados.length} / 2`;
+
+        if (pilotosMonitorados.length === 0) {
+            container.innerHTML = '<p class="watchlist-vazio">Nenhum piloto monitorado.<br>Selecione abaixo ou clique em 👁️ na tabela.</p>';
+        } else {
+            container.innerHTML = pilotosMonitorados.map(id => {
+                const p = raceData.participantes?.find(x => x.piloto.id === id);
+                if (!p) return '';
+                const cor = getCorDaEquipe(p.equipe);
+                const pos = raceData.participantes
+                    .filter(x => x.tempoTotal !== Infinity)
+                    .sort((a, b) => a.tempoTotal - b.tempoTotal)
+                    .findIndex(x => x.piloto.id === id) + 1;
+                const isDNF = p.tempoTotal === Infinity;
+                const lider = raceData.participantes.find(x => x.tempoTotal !== Infinity);
+                const gap = (!isDNF && lider && pos > 1) ? `+${(p.tempoTotal - lider.tempoTotal).toFixed(3)}s` : (isDNF ? 'DNF' : 'Líder');
+                const pneuIcon = { macio: '🔴', medio: '🟡', duro: '⚪' }[p.pneuAtual] || '⚫';
+                return `<div class="watchlist-piloto-item" style="border-left: 4px solid ${cor}; background: ${hexToRgba(cor, 0.08)}">
+                    <div class="watchlist-piloto-info">
+                        <span class="watchlist-pos" style="color:${cor}">P${isDNF ? '—' : pos}</span>
+                        <span class="watchlist-nome">${p.piloto.nome}</span>
+                        <span class="watchlist-equipe">${p.equipe}</span>
+                    </div>
+                    <div class="watchlist-piloto-stats">
+                        <span>${pneuIcon} ${p.voltasNoPneuAtual}v</span>
+                        <span class="watchlist-gap ${isDNF ? 'watchlist-dnf' : ''}">${gap}</span>
+                    </div>
+                    <button class="watchlist-remove-btn" data-piloto-id="${id}" title="Remover">✕</button>
+                </div>`;
+            }).join('');
+        }
+
+        // Esconde o select se já tiver 2 pilotos
+        if (addContainer) {
+            addContainer.style.display = pilotosMonitorados.length >= 2 ? 'none' : 'block';
+        }
+    }
+
+    function hexToRgba(cor, alpha) {
+        // Suporta rgb(...) e #hex
+        const rgbMatch = cor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (rgbMatch) return `rgba(${rgbMatch[1]},${rgbMatch[2]},${rgbMatch[3]},${alpha})`;
+        const hexMatch = cor.replace('#', '').match(/.{2}/g);
+        if (hexMatch) return `rgba(${hexMatch.map(h => parseInt(h, 16)).join(',')},${alpha})`;
+        return `rgba(108,117,125,${alpha})`;
+    }
+
+    function toggleMonitorarPiloto(pilotoId) {
+        const id = parseInt(pilotoId);
+        const p = raceData.participantes?.find(x => x.piloto.id === id);
+        if (!p || p.isPlayer) return;
+        const idx = pilotosMonitorados.indexOf(id);
+        if (idx !== -1) {
+            pilotosMonitorados.splice(idx, 1);
+        } else {
+            if (pilotosMonitorados.length >= 2) return;
+            pilotosMonitorados.push(id);
+        }
+        renderWatchlistCard();
+        renderTabelaAoVivo(); // Atualiza cores na tabela
     }
 
     function renderTabelaAoVivo() {
@@ -4254,9 +4362,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const celulaPneuHtml = `<div class="pneu-cell-container"><span class="tyre-indicator tyre-${res.pneuAtual}">${res.pneuAtual.charAt(0).toUpperCase()}</span> <span class="pneu-lap-counter">(${res.voltasNoPneuAtual}v)</span></div>`;
             const isFastestLap = res.piloto.nome === raceData.pilotoMelhorVolta && raceData.melhorVolta !== Infinity;
             const ultimaVoltaClasse = res.ersBonusAtivoNestaVolta ? 'ers-active-lap' : '';
-            return `<tr class="${res.isPlayer ? 'player-row' : ''}" style="border-left-color: ${cor};">
+
+            // Watchlist: classe e estilo de fundo para pilotos monitorados
+            const isMonitorado = pilotosMonitorados.includes(res.piloto.id);
+            const watchClass = isMonitorado ? 'watched-row' : '';
+            const watchBg = isMonitorado ? `background-color: ${hexToRgba(cor, 0.15)};` : '';
+            const watchIcon = !res.isPlayer
+                ? `<span class="watch-eye-btn ${isMonitorado ? 'watched' : ''}" data-action="toggle-watch" data-piloto-id="${res.piloto.id}" title="${isMonitorado ? 'Remover monitoramento' : 'Monitorar piloto'}">👁️</span>`
+                : '';
+
+            return `<tr class="${res.isPlayer ? 'player-row' : ''} ${watchClass}" style="border-left-color: ${cor}; ${watchBg}">
                 <td>${pos}</td>
-                <td>${res.piloto.nome}${isFastestLap ? '<span class="fastest-lap-icon">⏱️</span>' : ''}</td>
+                <td>${watchIcon}${res.piloto.nome}${isFastestLap ? '<span class="fastest-lap-icon">⏱️</span>' : ''}</td>
                 <td>${res.equipe}</td>
                 <td>${res.paradas}</td>
                 <td>${celulaPneuHtml}</td>
@@ -5670,12 +5787,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /****************    5.0 eventos listener ********************/
 
+    // Watchlist: toggle pelo ícone 👁️ na tabela ou pelo botão ✕ no card
     document.body.addEventListener('click', (e) => {
         const target = e.target;
         const action = target.dataset.action;
 
-        if (action === 'desbloquear-pd') desbloquearCentroPD();
-        else if (action === 'iniciar-projeto-completo') iniciarProjetoCompleto();
+        // Toggle monitoramento pelo ícone 👁️ na tabela
+        if (action === 'toggle-watch') {
+            toggleMonitorarPiloto(target.dataset.pilotoId);
+            return;
+        }
+        // Remover monitoramento pelo botão ✕ no card
+        if (target.matches('.watchlist-remove-btn')) {
+            toggleMonitorarPiloto(target.dataset.pilotoId);
+            return;
+        }
 
         if (target.matches('.tab-btn')) {
             const tabName = target.dataset.tab;
@@ -6004,6 +6130,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.addEventListener('change', (e) => {
         const target = e.target;
+        // Watchlist: adicionar piloto pelo select
+        if (target.id === 'watchlist-select' && target.value) {
+            toggleMonitorarPiloto(target.value);
+            target.value = ''; // Reset select
+            return;
+        }
         if (target.matches('.pneu-select-inicial, .pneu-select-parada')) {
             const carroIndex = parseInt(target.dataset.carIndex);
             if (isNaN(carroIndex)) return;
