@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ============================================================
+    // VERSÃO DO JOGO — altere aqui para atualizar na tela
+    // ============================================================
+    const VERSAO_JOGO = "21.0.0";
+
 
     // --- 1. DADOS GLOBAIS ---
     const CUSTO_MUDAR_NOME = 250000;
