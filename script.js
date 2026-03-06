@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.1";
+    const VERSAO_JOGO = "21.0.2";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -1698,7 +1698,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
                 renderTabelaAoVivo();
-                if (pilotosMonitorados.length > 0) renderWatchlistCard();
                 gerarMensagensDeRadio();
                 raceData.voltaAtual++; // Incrementa a volta normalmente
 
@@ -4266,7 +4265,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     .findIndex(x => x.piloto.id === id) + 1;
                 const isDNF = p.tempoTotal === Infinity;
                 const lider = raceData.participantes.find(x => x.tempoTotal !== Infinity);
-                const gap = (!isDNF && lider && pos > 1) ? `+${(p.tempoTotal - lider.tempoTotal).toFixed(3)}s` : (isDNF ? 'DNF' : 'Líder');
+                let gapLabel, gapValue;
+                if (isDNF) {
+                    gapLabel = ''; gapValue = 'DNF';
+                } else if (pos === 1) {
+                    gapLabel = ''; gapValue = '🏆 Líder';
+                } else {
+                    const gapSeg = (p.tempoTotal - lider.tempoTotal).toFixed(3);
+                    gapLabel = 'Δ líder'; gapValue = `+${gapSeg}s`;
+                }
                 const pneuIcon = { macio: '🔴', medio: '🟡', duro: '⚪' }[p.pneuAtual] || '⚫';
                 return `<div class="watchlist-piloto-item" style="border-left: 4px solid ${cor}; background: ${hexToRgba(cor, 0.08)}">
                     <div class="watchlist-piloto-info">
@@ -4276,7 +4283,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="watchlist-piloto-stats">
                         <span>${pneuIcon} ${p.voltasNoPneuAtual}v</span>
-                        <span class="watchlist-gap ${isDNF ? 'watchlist-dnf' : ''}">${gap}</span>
+                        <span class="watchlist-gap-row">
+                            ${gapLabel ? `<span class="watchlist-gap-label">${gapLabel}</span>` : ''}
+                            <span class="watchlist-gap ${isDNF ? 'watchlist-dnf' : ''}">${gapValue}</span>
+                        </span>
                     </div>
                     <button class="watchlist-remove-btn" data-piloto-id="${id}" title="Remover">✕</button>
                 </div>`;
@@ -4388,6 +4398,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 modeButtons.forEach(btn => { btn.disabled = false; });
             }
         }
+        // Atualiza o watchlist sempre que a tabela atualizar (inclusive durante SC)
+        if (pilotosMonitorados.length > 0) renderWatchlistCard();
     }
 
     function renderAbaCampeonato() {
@@ -6116,15 +6128,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const carro = gameState.carros[carroIndex];
             const ultimaParada = carro.estrategia.paradas.length > 0 ? carro.estrategia.paradas.at(-1).pararNaVolta : 0;
             carro.estrategia.paradas.push({ pararNaVolta: ultimaParada + 15, colocarPneu: 'duro' });
-            renderEstrategiaUI();
-            saveGame();
+            if (raceData.safetyCarAtivo) {
+                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                renderEstrategiaModalSC(voltasRestantes);
+            } else {
+                renderEstrategiaUI();
+                saveGame();
+            }
         }
         else if (target.matches('.btn-remover-stint')) {
             const carroIndex = parseInt(target.dataset.carIndex);
             const paradaIndex = parseInt(target.dataset.paradaIndex);
             gameState.carros[carroIndex].estrategia.paradas.splice(paradaIndex, 1);
-            renderEstrategiaUI();
-            saveGame();
+            if (raceData.safetyCarAtivo) {
+                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                renderEstrategiaModalSC(voltasRestantes);
+            } else {
+                renderEstrategiaUI();
+                saveGame();
+            }
         }
     });
 
@@ -6145,8 +6167,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 gameState.carros[carroIndex].estrategia.pneuInicial = target.value;
             }
-            renderEstrategiaUI();
-            saveGame();
+            if (raceData.safetyCarAtivo) {
+                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                renderEstrategiaModalSC(voltasRestantes);
+            } else {
+                renderEstrategiaUI();
+                saveGame();
+            }
         } else if (target.matches('#filtro-tipo-peca')) {
             renderAbaNegociacoes();
         } else if (target.matches('#project-part-type, #project-duration')) {
