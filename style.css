@@ -140,26 +140,11 @@ background-color: #c82333;
 .car-selector-nav { margin-bottom: 1.5rem; border-bottom: 1px solid #ccc; }
 .car-selector-btn { background: none; border: none; padding: 0.8rem 1.2rem; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; }
 .car-selector-btn.active { border-bottom-color: #1e1e1e; font-weight: bold; }
-#car-slots-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1rem; margin-bottom: 0; }
+#car-slots-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; margin-bottom: 2rem; }
 .slot-card {
     /* ... outros estilos ... */
     transition: border-left-color 0.3s; /* Transição suave da cor */
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    font-size: 0.9rem;
-    display: flex;
-    flex-direction: column;
 }
-.slot-card h4 {
-    margin: 0 0 0.5rem;
-    font-size: 0.85em;
-    text-transform: uppercase;
-    color: #555;
-    letter-spacing: 0.05em;
-}
-.slot-card .btn-trocar-peca { margin-top: auto; }
 
 /* Cor VERMELHA para quando o slot está VAZIO */
 .slot-card.vazio {
@@ -170,29 +155,6 @@ background-color: #c82333;
 .slot-card.equipado {
     border-left: 5px solid #008cba;
 }
-
-/* Divisor visual entre equipado e inventário */
-.garagem-grid-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-.garagem-section-label {
-    font-size: 0.78em;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #888;
-    padding: 0.8rem 0 0.2rem;
-    border-top: 1px solid #e0e0e0;
-    margin-top: 0.5rem;
-}
-.garagem-section-label:first-child {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 0.2rem;
-}
-
 .pecas-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
 .peca-card { background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; font-size: 0.9rem; }
 .perf-indicator { display: inline-block; font-weight: 700; font-size: 0.82rem; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; letter-spacing: 0.03em; }
@@ -288,130 +250,41 @@ font-size: 0.8rem;
 
 .instalacoes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 1.5rem;
     margin-top: 1.5rem;
 }
 
-/* === CARD BASE === */
 .instalacao-card {
-    background: #fff;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 1.4rem;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    transition: box-shadow 0.2s, border-color 0.2s;
-}
-.instalacao-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-.inst-card-ativa  { border-left: 5px solid #28a745; }
-.inst-card-inativa { border-left: 5px solid #adb5bd; }
-
-/* === HEADER === */
-.inst-card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-}
-.inst-icone { font-size: 2rem; line-height: 1; flex-shrink: 0; }
-.inst-titulo-bloco { flex: 1; }
-.inst-titulo-bloco h4 { margin: 0 0 0.3rem; color: #1a1a2e; font-size: 1rem; }
-.inst-descricao-curta { margin: 0; font-size: 0.82em; color: #666; }
-
-/* === BADGE DE NÍVEL === */
-.inst-nivel-badge {
-    text-align: center;
-    font-size: 0.72em;
-    text-transform: uppercase;
-    font-weight: 700;
-    border-radius: 8px;
-    padding: 0.4rem 0.7rem;
-    line-height: 1.3;
-    flex-shrink: 0;
-    min-width: 64px;
-}
-.inst-nivel-badge.nivel-0 { background: #f0f0f0; color: #888; }
-.inst-nivel-badge.nivel-1 { background: #e3f2fd; color: #1565c0; }
-.inst-nivel-badge.nivel-2 { background: #e8f5e9; color: #2e7d32; }
-.inst-nivel-badge.nivel-3 { background: #fff3e0; color: #e65100; }
-.inst-nivel-badge.nivel-4 { background: #fce4ec; color: #ad1457; }
-.inst-nivel-badge.nivel-5 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
-
-/* === BARRA DE PROGRESSO DE NÍVEIS === */
-.inst-progress-bar {
-    display: flex;
-    align-items: center;
-    padding: 0.4rem 0;
-}
-.inst-step {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: #f0f0f0;
-    border: 2px solid #ddd;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.78em; font-weight: 700; color: #aaa;
-    flex-shrink: 0; cursor: default;
-    transition: all 0.2s;
-}
-.inst-step.adquirido { background: #28a745; border-color: #1e7e34; color: #fff; }
-.inst-step.nivel-atual { background: #007bff; border-color: #0056b3; color: #fff; transform: scale(1.15); box-shadow: 0 0 0 3px rgba(0,123,255,0.25); }
-.inst-step.proximo { background: #fff; border-color: #fd7e14; color: #fd7e14; border-style: dashed; }
-.inst-step-linha { flex: 1; height: 3px; background: #e0e0e0; min-width: 8px; }
-.inst-step.adquirido + .inst-step-linha { background: #28a745; }
-
-/* === STATUS ATUAL === */
-.inst-status-atual {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 0.6rem 0.9rem;
-    font-size: 0.88em;
-    color: #333;
-    border-left: 3px solid #007bff;
 }
 
-/* === DETALHES / ACCORDION === */
-.inst-detalhes { font-size: 0.88em; }
-.inst-detalhes summary {
-    cursor: pointer;
-    color: #007bff;
-    font-weight: 600;
-    padding: 0.3rem 0;
-    list-style: none;
-    user-select: none;
+.instalacao-card h4 {
+    margin-top: 0;
+    color: #1e1e1e;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.8rem;
 }
-.inst-detalhes summary::-webkit-details-marker { display: none; }
-.inst-detalhes[open] summary { color: #0056b3; }
-.inst-niveis-lista { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.6rem; }
 
-.inst-nivel-tag {
-    border-radius: 8px;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid #e0e0e0;
+.instalacao-card .level-display {
+    font-weight: bold;
+    color: #008cba;
 }
-.inst-nivel-tag.adquirido { background: #f0fff4; border-color: #28a745; }
-.inst-nivel-tag.adquirido.atual { background: #e3f2fd; border-color: #007bff; }
-.inst-nivel-tag.bloqueado { background: #f8f8f8; opacity: 0.75; }
-.inst-nivel-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 0.25rem;
-}
-.inst-nivel-num { font-weight: 700; font-size: 0.85em; }
-.inst-nivel-custo { font-size: 0.8em; color: #555; font-weight: 600; }
-.inst-nivel-desc { font-size: 0.82em; color: #555; }
 
-/* === AÇÕES === */
-.inst-acoes { margin-top: 0.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
-.inst-proximo-info {
-    font-size: 0.84em; color: #444; background: #fffbf0;
-    border: 1px dashed #fd7e14; border-radius: 6px; padding: 0.4rem 0.7rem;
+.instalacao-card p {
+    flex-grow: 1; /* Faz a descrição ocupar o espaço disponível */
 }
-.inst-maximo-info {
-    font-size: 0.84em; color: #155724; background: #d4edda;
-    border: 1px solid #c3e6cb; border-radius: 6px; padding: 0.4rem 0.7rem;
-    text-align: center; font-weight: 600;
+
+.instalacao-card .custo-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
 }
-.inst-acoes .btn-corrida { width: 100%; margin-top: 0.3rem; }
 
 .strategy-box {
     background-color: #f1f1fa;
@@ -862,31 +735,27 @@ font-size: 0.8rem;
 /* --- Estilos para o Novo Layout do Inventário --- */
 #inventory-columns-container {
     display: grid;
+    /* Cria 5 colunas com o mesmo tamanho */
     grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
-    margin-top: 0;
-    align-items: start;
+    gap: 1.5rem; /* Espaçamento entre as colunas */
+    margin-top: 1rem;
+    align-items: start; /* Alinha as colunas no topo */
 }
 
 .inventory-column {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.75rem;
+    gap: 1rem; /* Espaçamento entre as peças na mesma coluna */
+    padding: 1rem;
     background-color: #f8f9fa;
     border-radius: 8px;
-    border-top: 3px solid #e0e0e0;
 }
 
 .inventory-column h4 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 1rem 0;
     text-align: center;
-    font-size: 0.78em;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #666;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 0.4rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
 }
 
 /* --- Estilos para Botões de Ação nos Cards --- */
@@ -1697,10 +1566,10 @@ input[type="range"] {
 
 #meus-pilotos-container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 2fr 2fr 2fr 4fr;
     gap: 1rem;
     align-items: stretch;
-    margin-bottom: 2rem;
+    margin-bottom: 2rem; /* Adiciona um pouco de espaço abaixo da seção dos seus pilotos */
 }
 
 .piloto-card.reserva {
@@ -1717,32 +1586,6 @@ input[type="range"] {
     border: 2px dashed #e0e0e0;
     min-height: 200px;
 }
-.olheiro-action-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    color: #fff;
-    border-radius: 10px;
-    padding: 1rem 1.4rem;
-    margin-bottom: 1.2rem;
-    flex-wrap: nowrap;
-    /* Span all columns when inside a grid */
-    grid-column: 1 / -1;
-}
-.olheiro-action-bar > div {
-    flex: 1;
-    font-size: 0.92em;
-    line-height: 1.5;
-}
-.olheiro-action-bar strong { font-size: 1em; }
-.olheiro-action-bar .btn-corrida {
-    white-space: nowrap;
-    flex-shrink: 0;
-    min-width: 260px;
-}
-
 .emblema-slot-pilotos {
     width: 120px;
     height: 120px;
@@ -2177,7 +2020,43 @@ font-size: 0.8em;
 
 /* Instalações */
 
-/* instalacoes styles moved above */
+.instalacoes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.instalacao-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.instalacao-card h4 {
+    margin-top: 0;
+    color: #1e1e1e;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.8rem;
+}
+
+.instalacao-card .level-display {
+    font-weight: bold;
+    color: #008cba;
+}
+
+.instalacao-card p {
+    flex-grow: 1; /* Faz a descrição ocupar o espaço disponível */
+}
+
+.instalacao-card .custo-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
 
 /* === NOVOS ESTILOS PARA ERS === */
 
@@ -3179,78 +3058,118 @@ font-size: 0.8em;
 .btn-sc-parar:hover:not(.active) { opacity: 0.75; }
 .btn-sc-ficar:hover:not(.active):not(.disabled) { opacity: 0.75; }
 .btn-sc-ficar.disabled { background: #555; color: #999; cursor: not-allowed; opacity: 0.6; }
-/* === HISTÓRICO DE SAFETY CAR === */
-#sc-historico-container {
-    margin-top: 1.2rem;
+
+/* ============================================================
+   SC MODAL — 4 opções de decisão
+   ============================================================ */
+.sc-strategy-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
-.sc-historico-card {
-    background: #1a1a2e;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #ffc10730;
+
+.sc-piloto-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #1e1e30;
 }
-.sc-historico-header {
+.sc-piloto-header strong { font-size: 1rem; color: #fff; }
+.sc-piloto-status  { font-size: 0.8rem; color: #aaa; }
+.sc-compostos-info { font-size: 0.75rem; color: #666; font-style: italic; }
+
+/* Grade das 4 opções */
+.sc-opcoes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.btn-sc-opcao {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.7rem 1rem;
-    background: linear-gradient(90deg, #1a1a2e 0%, #2d2010 100%);
-    border-bottom: 1px solid #ffc10740;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    border: 2px solid #1e1e30;
+    background: #0d0d1e;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    min-height: 56px;
+}
+.btn-sc-opcao:hover:not(:disabled):not(.bloqueado) {
+    border-color: #444;
+    background: #111125;
+}
+.btn-sc-opcao.active {
+    border-color: #e10600;
+    background: #1a0808;
+}
+.btn-sc-opcao.bloqueado {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.sc-opcao-emoji { font-size: 1.2rem; flex-shrink: 0; }
+.sc-opcao-texto { display: flex; flex-direction: column; gap: 0.1rem; }
+.sc-opcao-texto strong { font-size: 0.8rem; color: #ddd; font-weight: 700; }
+.sc-opcao-texto small  { font-size: 0.68rem; color: #666; line-height: 1.3; }
+.btn-sc-opcao.active .sc-opcao-texto strong { color: #fff; }
+.btn-sc-opcao.active .sc-opcao-texto small  { color: #aaa; }
+
+/* Conteúdo da opção selecionada */
+.sc-conteudo-opcao {
+    background: #080812;
+    border: 1px solid #1e1e30;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sc-opcao-info {
+    font-size: 0.82rem;
+    color: #999;
+    line-height: 1.5;
+    padding: 0.5rem 0.75rem;
+    background: #0d0d1e;
+    border-radius: 6px;
+    border-left: 3px solid #333;
+}
+.sc-opcao-info.sc-info-pit { border-left-color: #e10600; }
+.sc-opcao-info.sc-info-ok  { border-left-color: #27ae60; color: #aaa; }
+
+.sc-custo-tempo {
     font-weight: 700;
-    font-size: 0.88em;
-    color: #ffc107;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    color: #f0c040;
+    margin-left: 0.3rem;
 }
-.sc-hist-icon { font-size: 1.1em; }
-.sc-hist-count {
-    margin-left: auto;
-    background: #ffc107;
-    color: #1a1a2e;
-    border-radius: 20px;
-    padding: 0.15rem 0.6rem;
-    font-size: 0.8em;
-    font-weight: 800;
+
+/* Selector de pneu inline (trocar agora) */
+.sc-pneu-agora {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    background: #0d0d1e;
+    border-radius: 6px;
+    border: 1px solid #1e1e30;
+    flex-wrap: wrap;
 }
-.sc-historico-table {
-    width: 100%;
-    border-collapse: collapse;
+.sc-pneu-label { font-size: 0.8rem; color: #aaa; }
+.sc-select-inline {
+    padding: 0.3rem 0.5rem;
+    border-radius: 5px;
+    background: #111125;
+    border: 1px solid #333;
+    color: #fff;
+    font-size: 0.82rem;
 }
-.sc-historico-table tbody tr {
-    border-bottom: 1px solid #ffffff0d;
-    transition: background 0.15s;
-}
-.sc-historico-table tbody tr:last-child { border-bottom: none; }
-.sc-historico-table tbody tr:hover { background: #ffffff08; }
-.sc-historico-table td {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.85em;
-    vertical-align: middle;
-    color: #ddd;
-}
-.sc-hist-num {
-    color: #ffc107;
-    font-weight: 800;
-    white-space: nowrap;
-    width: 52px;
-}
-.sc-hist-volta {
-    white-space: nowrap;
-    width: 110px;
-    color: #aaa;
-}
-.sc-hist-volta strong { color: #fff; }
-.sc-hist-barra {
-    width: 120px;
-    padding: 0.5rem 0.8rem;
-}
-.sc-hist-progress {
-    height: 6px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #ffc107, #ff9800);
-    min-width: 4px;
-}
-.sc-hist-motivo {
-    color: #ccc;
-    font-size: 0.83em;
+
+.sc-paradas-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
 }

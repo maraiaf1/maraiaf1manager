@@ -124,25 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
         "GP de Abu Dhabi (Yas Marina)": [{ x: 360, y: 190 }, 	{ x: 360, y: 350 }, 	{ x: 370, y: 360 }, 	{ x: 420, y: 360 }, 	{ x: 430, y: 350 }, 	{ x: 440, y: 320 }, 	{ x: 450, y: 300 }, 	{ x: 470, y: 290 }, 	{ x: 490, y: 300 }, 	{ x: 520, y: 320 }, 	{ x: 540, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 630, y: 320 }, 	{ x: 630, y: 310 }, 	{ x: 620, y: 290 }, 	{ x: 330, y: 80 }, 	{ x: 330, y: 120 }, 	{ x: 300, y: 120 }, 	{ x: 270, y: 130 }, 	{ x: 240, y: 160 }, 	{ x: 170, y: 240 }, 	{ x: 130, y: 320 }, 	{ x: 120, y: 340 }, 	{ x: 120, y: 360 }, 	{ x: 130, y: 370 }, 	{ x: 150, y: 380 }, 	{ x: 170, y: 370 }, 	{ x: 180, y: 340 }, 	{ x: 180, y: 280 }, 	{ x: 190, y: 260 }, 	{ x: 210, y: 230 }, 	{ x: 240, y: 230 }, 	{ x: 250, y: 240 }, 	{ x: 250, y: 270 }, 	{ x: 260, y: 280 }, 	{ x: 280, y: 290 }, 	{ x: 290, y: 280 }, 	{ x: 290, y: 180 }, 	{ x: 300, y: 160 }, 	{ x: 340, y: 140 }, 	{ x: 350, y: 140 }, 	{ x: 360, y: 150 }, 	{ x: 360, y: 190 }]
     };
     const pneus = {
-        macio: { nome: 'Macio', multiplicadorPerformance: 1.30, desgastePorVolta: 5.25, duracaoIdeal: 0.33, voltasGratis: 0  },
-        medio: { nome: 'Médio', multiplicadorPerformance: 1.00, desgastePorVolta: 3.00, duracaoIdeal: 0.45, voltasGratis: 0  },
-        duro:  { nome: 'Duro',  multiplicadorPerformance: 0.988,desgastePorVolta: 1.90, duracaoIdeal: 0.65, voltasGratis: 10 }
+        macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.99, duracaoIdeal: 0.33 },
+        medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 3.0, duracaoIdeal: 0.45 },
+        duro: { nome: 'Duro', multiplicadorPerformance: 0.988, desgastePorVolta: 1.9, duracaoIdeal: 0.65 }
     };
-
-    // ---------------------------------------------------------------------------
-    // BÔNUS DE TEMPERATURA DO PNEU DURO POR PISTA
-    // Em pistas de alta aderência (>0.7) a pista aquece o pneu duro — ganha ritmo.
-    // Em pistas de baixa aderência (<0.5) o duro fica frio e perde agarre.
-    // Retorna segundos a SUBTRAIR do tempo de volta (positivo = duro mais rápido).
-    // ---------------------------------------------------------------------------
-    function calcularBonusDuroPista(demandaAderencia) {
-        if (demandaAderencia >= 0.7) {
-            return ((demandaAderencia - 0.7) / 0.2) * 0.40;
-        } else if (demandaAderencia < 0.5) {
-            return -((0.5 - demandaAderencia) / 0.2) * 0.20;
-        }
-        return 0.0;
-    }
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
     const especialistaHabilidades = {
         "Aerodinamicista": ["Asa Dianteira", "Asa Traseira"],
@@ -232,99 +217,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const catalogoInstalacoes = {
-        simulador: {
-            nome: "Simulador de Pilotos", icone: "🏎️",
-            descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos. Simuladores de última geração.",
-            niveis: [
-                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo. Construa o simulador para começar a evoluir seus pilotos mais rápido." },
-                { custo: 500000,   titulo: "Básico",          descricao: "+5% de desempenho extra nos treinos dos pilotos. Ideal para equipes iniciantes." },
-                { custo: 1000000,  titulo: "Intermediário",   descricao: "+8% de desempenho extra nos treinos. O custo ainda é acessível." },
-                { custo: 5000000,  titulo: "Avançado",        descricao: "+10% de desempenho extra nos treinos. Simuladores de alta fidelidade." },
-                { custo: 15000000, titulo: "Elite",           descricao: "+12% de desempenho. Desbloqueia 2 slots de piloto reserva para treinar simultaneamente." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "+15% de desempenho. 2 pilotos reserva + sem limite de idade para evolução de pilotos." }
-            ]
-        },
-        tunelDeVento: {
-            nome: "Túnel de Vento", icone: "💨",
-            descricao: "Uma instalação crucial para o desenvolvimento e teste de peças aerodinâmicas. Reduz custo e tempo de preparo.",
-            niveis: [
-                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "-5% no preço das peças aerodinâmicas (Asa Dianteira, Asa Traseira, Chassi)." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "-10% no preço das peças aerodinâmicas." },
-                { custo: 5000000,  titulo: "Avançado",        descricao: "-12% no preço. Reduz em 1 corrida o tempo de preparo de peças aero." },
-                { custo: 15000000, titulo: "Elite",           descricao: "-15% no preço. Reduz entre 1 e 2 corridas o tempo de preparo de peças aero." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "-25% no preço. Reduz entre 2 e 5 corridas o tempo de preparo (roleta: 10% → 5 corridas, 40% → 4 corridas, 50% → 2 corridas)." }
-            ]
-        },
-        treinoDeBox: {
-            nome: "Centro de Treinamento da Equipe de Box", icone: "🔧",
-            descricao: "Equipamentos e treinamento especializado para tornar sua equipe de pit stop a mais rápida do grid.",
-            niveis: [
-                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "Reduz entre 0.1s e 0.3s por parada." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "Reduz entre 0.3s e 0.5s por parada." },
-                { custo: 5000000,  titulo: "Avançado",        descricao: "Reduz entre 0.5s e 0.6s por parada." },
-                { custo: 15000000, titulo: "Elite",           descricao: "Reduz entre 0.6s e 0.8s por parada." },
-                { custo: 30000000, titulo: "Estado da Arte",  descricao: "Reduz entre 0.8s e 1.0s por parada. A equipe de box mais veloz do grid!" }
-            ]
-        },
-        marketing: {
-            nome: "Departamento de Marketing e Hospitalidade", icone: "📣",
-            descricao: "Estrutura para receber patrocinadores e promover a marca da equipe globalmente.",
-            niveis: [
-                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "+5% de bônus nas vendas de merchandise e chances de patrocínio." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "+8% de bônus nas vendas e patrocínios." },
-                { custo: 10000000, titulo: "Avançado",        descricao: "+15% de bônus. Hospitality suite de alto padrão." },
-                { custo: 25000000, titulo: "Elite",           descricao: "+20% de bônus. Presença global da marca." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "+25% de bônus. Departamento de marketing de nível de grande construtora." }
-            ]
-        },
-        ers: {
-            nome: "Centro de Otimização de ERS", icone: "⚡",
-            descricao: "Melhora a potência da bateria ERS quando ativada, garantindo um bônus de desempenho maior por volta.",
-            niveis: [
-                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
-                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
-                { custo: 7500000,  titulo: "Otimizado",        descricao: "-0.300s por volta com ERS ativo. Gestão energética aprimorada." },
-                { custo: 10000000, titulo: "Avançado",         descricao: "-0.500s por volta com ERS ativo." },
-                { custo: 25000000, titulo: "Elite",            descricao: "-0.700s por volta com ERS ativo." },
-                { custo: 50000000, titulo: "Estado da Arte",   descricao: "Entre -0.750s e -0.900s por volta com ERS ativo. Potência máxima!" }
-            ]
-        },
-        centroMotores: {
-            nome: "Centro de Desenvolvimento de Motores", icone: "🏁",
-            descricao: "A alma de uma corrida. Crucial para o desenvolvimento de motores mais potentes e duradouros.",
-            niveis: [
-                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "Motores 5% mais resistentes. Reduz 0–2 corridas no preparo de motores." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "Motores 10% mais resistentes + +1 de força. Reduz 1–2 corridas no preparo." },
-                { custo: 10000000, titulo: "Avançado",        descricao: "Motores 14% mais resistentes + +2 de força. Reduz 1–3 corridas no preparo." },
-                { custo: 25000000, titulo: "Elite",           descricao: "Motores 15% mais resistentes. Reduz 2–3 corridas no preparo." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "Motores 25% mais resistentes. Reduz 3–5 corridas no preparo. Domínio total!" }
-            ]
-        },
-        centroSuspensoes: {
-            nome: "Centro de Desenvolvimento de Suspensões", icone: "⚙️",
-            descricao: "Suspensões equilibradas fazem o carro performar melhor em qualquer circuito. Reduz custo e desgaste.",
-            niveis: [
-                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "Suspensões 5% mais resistentes + 5% de desconto na compra de suspensões." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "Suspensões 10% mais resistentes + +1 de força + 10% de desconto." },
-                { custo: 10000000, titulo: "Avançado",        descricao: "Suspensões 14% mais resistentes + +2 de força + 15% de desconto." },
-                { custo: 25000000, titulo: "Elite",           descricao: "Suspensões 15% mais resistentes + 20% de desconto." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "Suspensões 25% mais resistentes + 25% de desconto. Manuseio perfeito!" }
-            ]
-        }
+        simulador: { nome: "Simulador de Pilotos", descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos.", bonusPorNivel: "+5% de bônus na evolução de pilotos", custos: [0, 5000000, 12000000, 25000000] },
+        tunelDeVento: { nome: "Túnel de Vento", descricao: "Uma instalação crucial para o desenvolvimento e teste de peças aerodinâmicas.", bonusPorNivel: "-10% no custo de projetos aerodinâmicos", custos: [0, 4000000, 10000000, 22000000] },
+        treinoDeBox: { nome: "Centro de Treinamento da Equipe de Box", descricao: "Equipamentos e treinamento especializado para tornar sua equipe de pit stop a mais rápida do grid.", bonusPorNivel: "-0.5s no tempo de pit stop", custos: [0, 3000000, 8000000, 18000000] },
+        marketing: { nome: "Departamento de Marketing e Hospitalidade", descricao: "Estrutura para receber patrocinadores e promover a marca da equipe globalmente.", bonusPorNivel: "+ chance de melhores patrocínios e vendas", custos: [0, 2000000, 5000000, 10000000] },
+        ers: { nome: "Centro de Otimização de ERS", descricao: "Melhora a potência da bateria ERS quando ativada, garantindo um bônus de desempenho maior.", bonusPorNivel: "+ bônus de tempo por volta com ERS ativo", custos: [0, 0, 7500000, 18000000] }
     };
 
     const catalogoMarketing = {
-        'Chaveiro': { nome: 'Chaveiro', img: 'img/marketing/chaveiro.png', custo_desbloqueio: 0, custo_producao: 5, preco_venda_minimo: 8 },
-        'Bonés': { nome: 'Bonés', img: 'img/marketing/bones.png', custo_desbloqueio: 200000, custo_producao: 30, preco_venda_minimo: 40 },
-        'Camisa': { nome: 'Camisa', img: 'img/marketing/camisa.png', custo_desbloqueio: 300000, custo_producao: 75, preco_venda_minimo: 90 },
-        'Carro em miniatura': { nome: 'Carro em miniatura', img: 'img/marketing/miniatura.png', custo_desbloqueio: 500000, custo_producao: 150, preco_venda_minimo: 170 },
-        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 3000, preco_venda_minimo: 3300 },
-        'Combo Presentes': { nome: 'Combo Presentes', img: 'img/marketing/combo.png', custo_desbloqueio: 5000000, custo_producao: 7500, preco_venda_minimo: 7900 }
+        'Chaveiro': { nome: 'Chaveiro', img: 'img/marketing/chaveiro.png', custo_desbloqueio: 0, custo_producao: 5, preco_venda_minimo: 5 },
+        'Bonés': { nome: 'Bonés', img: 'img/marketing/bones.png', custo_desbloqueio: 200000, custo_producao: 30, preco_venda_minimo: 30 },
+        'Camisa': { nome: 'Camisa', img: 'img/marketing/camisa.png', custo_desbloqueio: 300000, custo_producao: 75, preco_venda_minimo: 75 },
+        'Carro em miniatura': { nome: 'Carro em miniatura', img: 'img/marketing/miniatura.png', custo_desbloqueio: 500000, custo_producao: 150, preco_venda_minimo: 150 },
+        'Anel com joia': { nome: 'Anel com joia', img: 'img/marketing/anel.png', custo_desbloqueio: 1000000, custo_producao: 3000, preco_venda_minimo: 3000 },
+        'Combo Presentes': { nome: 'Combo Presentes', img: 'img/marketing/combo.png', custo_desbloqueio: 5000000, custo_producao: 7500, preco_venda_minimo: 7500 }
     };
 
     const carIcon = new Image(); carIcon.src = 'img/carf1.png';
@@ -405,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         atualizarMercadoDePilotos(pilotosDoJogo);
 
         gameState = {
-            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 5000000, especialistas: [], emblema: {
+            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 1500000, especialistas: [], emblema: {
                 forma: 'circle.svg',
                 corForma: '#ff0000',
                 icone: 'asterik.svg',
@@ -428,17 +334,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 tunelDeVento: 0,
                 treinoDeBox: 0,
                 marketing: 0,
-                ers: 1,
-                centroMotores: 0,
-                centroSuspensoes: 0
+                ers: 1
             },
             marketing: {
-                'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 8, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 40, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 90, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 170, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3300, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
-                'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7900, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Bonés': { desbloqueado: false, inventario: 0, preco_venda_definido: 30, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Camisa': { desbloqueado: false, inventario: 0, preco_venda_definido: 75, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Carro em miniatura': { desbloqueado: false, inventario: 0, preco_venda_definido: 150, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Anel com joia': { desbloqueado: false, inventario: 0, preco_venda_definido: 3000, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
+                'Combo Presentes': { desbloqueado: false, inventario: 0, preco_venda_definido: 7500, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
             },
             pilotos: pilotosDoJogo,
             todasAsPecas: [
@@ -462,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function gerarPilotoSubstituto() {
-        const nomes = ["T. Maraia", "J. Santos", "M. Oliveira", "L. Pereira", "F. Almeida", "R. Costa", "N. Bitencourt", "R. Ruffo", "Zé Santos", "H. Carvalho", "R. Bitten",  "Fefu", "M. Bispo"];
+        const nomes = ["T. Maraia", "J. Santos", "M. Oliveira", "L. Pereira", "G. Almeida", "R. Costa", "N. Bitencourt", "R. Ruffo"];
         const novoPiloto = {
             id: Date.now(),
             rosto: 'img/Pilotos/default.png',
@@ -646,19 +550,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                 }
                 if (!gameState.instalacoes) {
-                    gameState.instalacoes = { simulador: 0, tunelDeVento: 0, treinoDeBox: 0, marketing: 0, ers: 1, centroMotores: 0, centroSuspensoes: 0 };
+                    gameState.instalacoes = { simulador: 0, tunelDeVento: 0, treinoDeBox: 0, marketing: 0, ers: 1 };
                 }
                 // Adiciona a instalação ERS a saves antigos
                 if (gameState.instalacoes.ers === undefined) {
                     gameState.instalacoes.ers = 1;
                 }
-                // Adiciona novas instalações a saves antigos
-                if (gameState.instalacoes.centroMotores === undefined) gameState.instalacoes.centroMotores = 0;
-                if (gameState.instalacoes.centroSuspensoes === undefined) gameState.instalacoes.centroSuspensoes = 0;
-                // Limita instalações antigas ao novo máximo (5) para compatibilidade
-                ['simulador','tunelDeVento','treinoDeBox','marketing'].forEach(k => {
-                    if (gameState.instalacoes[k] > 5) gameState.instalacoes[k] = 5;
-                });
 
 
                 for (const key in gameState.marketing) {
@@ -763,13 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const meusPilotos = gameState.pilotos.filter(p => p.status === 'Jogador' || p.status === 'Reserva');
         const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
-        const nivelSimulador = gameState.instalacoes.simulador;
-        const vagaReservaDesbloqueada = treinadorContratado || nivelSimulador >= 4;
-        // Nível 4+ permite 2 reservas; nível <4 apenas 1
-        const maxReservas = nivelSimulador >= 4 ? 2 : 1;
-        const reservasAtuais = gameState.pilotos.filter(p => p.status === 'Reserva');
 
-        // Vagas na equipe principal (pilotos titulares)
         if (meusPilotos.filter(p => p.status === 'Jogador').length < 2) {
             if (gameState.escuderia.dinheiro < pilotoParaContratar.precoContrato) {
                 alert(`Dinheiro insuficiente! Custo do contrato: R$ ${pilotoParaContratar.precoContrato.toLocaleString('pt-BR')}`);
@@ -778,24 +669,22 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.escuderia.dinheiro -= pilotoParaContratar.precoContrato;
             pilotoParaContratar.status = 'Jogador';
             const carroVago = gameState.carros.find(c => c.pilotoId === null);
-            if (carroVago) carroVago.pilotoId = pilotoParaContratar.id;
+            if (carroVago) {
+                carroVago.pilotoId = pilotoParaContratar.id;
+            }
             alert(`Piloto ${pilotoParaContratar.nome} contratado para a equipe principal!`);
-            updateUI(); saveGame();
+            updateUI();
+            saveGame();
             return;
         }
 
-        // Vaga de reserva
-        if (vagaReservaDesbloqueada) {
-            if (reservasAtuais.length >= maxReservas) {
-                const msg = maxReservas === 2
-                    ? "Você já tem 2 pilotos reserva (máximo do Simulador Nível 4/5). Dispense um antes de contratar outro."
-                    : `Você já tem um piloto reserva. Dispense-o antes de contratar um novo.\n💡 Simulador Nível 4 desbloqueia uma 2ª vaga de reserva!`;
-                alert(msg);
+        if (treinadorContratado) {
+            if (meusPilotos.some(p => p.status === 'Reserva')) {
+                alert("Você já tem um piloto reserva. Dispense-o antes de contratar um novo.");
                 return;
             }
-            // Simulador nível 5 remove o limite de idade
-            if (nivelSimulador < 5 && pilotoParaContratar.idade >= 23) {
-                alert(`Para a vaga de reserva, o piloto deve ter menos de 23 anos. ${pilotoParaContratar.nome} tem ${pilotoParaContratar.idade} anos.\n💡 Dica: O Simulador Nível 5 remove este limite de idade!`);
+            if (pilotoParaContratar.idade >= 23) {
+                alert(`Para a vaga de reserva, o piloto deve ter menos de 23 anos. ${pilotoParaContratar.nome} tem ${pilotoParaContratar.idade}.`);
                 return;
             }
             if (gameState.escuderia.dinheiro < pilotoParaContratar.precoContrato) {
@@ -804,13 +693,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             gameState.escuderia.dinheiro -= pilotoParaContratar.precoContrato;
             pilotoParaContratar.status = 'Reserva';
-            const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
-            alert(`Piloto ${pilotoParaContratar.nome} contratado como Piloto Reserva! (Vaga desbloqueada pelo ${origemVaga})`);
-            updateUI(); saveGame();
+            alert(`Jovem talento ${pilotoParaContratar.nome} contratado como Piloto Reserva! Ele começará a treinar imediatamente.`);
+            updateUI();
+            saveGame();
             return;
         }
 
-        alert("Você já tem 2 pilotos na equipe principal.\n\nPara abrir uma vaga de reserva, contrate um Treinador de Pilotos ou construa o Simulador de Pilotos até o Nível 4.");
+        alert("Você já tem 2 pilotos na equipe principal. Contrate um Treinador de Pilotos para abrir uma vaga de piloto reserva.");
     }
 
     function dispensarPiloto(pilotoId) {
@@ -1086,32 +975,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const CUSTO_OLHEIRO_MERCADO = 5000000;
-
-    function acionarOlheiro() {
-        if (gameState.escuderia.dinheiro < CUSTO_OLHEIRO_MERCADO) {
-            alert(`Dinheiro insuficiente! O olheiro cobra R$ ${CUSTO_OLHEIRO_MERCADO.toLocaleString('pt-BR')} para vasculhar o mercado.`);
-            return;
-        }
-
-        const olheiroContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Olheiro');
-        const qtdPilotos = olheiroContratado ? 10 + Math.floor(Math.random() * 4) : 7;
-
-        if (!confirm(`Acionar o olheiro para buscar novos pilotos no mercado por R$ ${CUSTO_OLHEIRO_MERCADO.toLocaleString('pt-BR')}?\n${olheiroContratado ? `🔍 Com o Olheiro contratado, ${qtdPilotos} novos pilotos serão encontrados!` : `🔍 ${qtdPilotos} novos pilotos serão trazidos ao mercado.`}`)) return;
-
-        gameState.escuderia.dinheiro -= CUSTO_OLHEIRO_MERCADO;
-
-        // Esconde os disponíveis atuais e traz novos
-        gameState.pilotos.forEach(p => { if (p.status === 'Disponível') p.status = 'Indisponível'; });
-        const elegiveis = gameState.pilotos.filter(p => p.status === 'Indisponível');
-        elegiveis.sort(() => 0.5 - Math.random());
-        elegiveis.slice(0, qtdPilotos).forEach(p => { p.status = 'Disponível'; });
-
-        alert(`🔍 Olheiro em ação! ${qtdPilotos} novos pilotos foram encontrados no mercado.`);
-        updateUI();
-        saveGame();
-    }
-
     function gerarOfertasDePatrocinio() {
         const espacosDisponiveis = 4 - (gameState.patrocinio.ativos.length + gameState.patrocinio.ofertas.length);
         if (espacosDisponiveis <= 0 || Math.random() > 0.80) return;
@@ -1160,41 +1023,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI(); saveGame();
     }
 
-    // Retorna redução de corridas no tempo de preparo de peças aero pelo Túnel de Vento
-    function calcularReducaoTunelTempo() {
-        const nivel = gameState.instalacoes.tunelDeVento;
-        if (nivel <= 2) return 0;
-        if (nivel === 3) return 1;
-        if (nivel === 4) return 1 + Math.round(Math.random()); // 1 ou 2
-        if (nivel >= 5) {
-            const roleta = Math.random();
-            if (roleta < 0.10) return 5;
-            if (roleta < 0.50) return 4;
-            return 2;
-        }
-        return 0;
-    }
-
-    // Retorna redução de corridas no preparo de motores pelo Centro de Motores
-    function calcularReducaoMotoresTempo() {
-        const nivel = gameState.instalacoes.centroMotores;
-        if (nivel <= 0) return 0;
-        if (nivel === 1) return Math.round(Math.random() * 2);         // 0–2
-        if (nivel === 2) return 1 + Math.round(Math.random());         // 1–2
-        if (nivel === 3) return 1 + Math.round(Math.random() * 2);     // 1–3
-        if (nivel === 4) return 2 + Math.round(Math.random());         // 2–3
-        if (nivel >= 5) return 3 + Math.round(Math.random() * 2);     // 3–5
-        return 0;
-    }
-
     function iniciarNovoProjeto(especialistaId, tipoPeca, duracao) {
         const especialista = especialistasDisponiveis.find(e => e.id === especialistaId);
         if (!especialista) { alert("Especialista não encontrado!"); return; }
         let custoTotal = (especialista.nivel * duracao * CUSTO_BASE_PROJETO) * 0.45;
         const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
         if (pecasAero.includes(tipoPeca)) {
-            const _tunelDescPorNivel = [0, 0.05, 0.10, 0.12, 0.15, 0.25];
-            const reducaoCusto = 1.0 - (_tunelDescPorNivel[gameState.instalacoes.tunelDeVento] || 0);
+            const reducaoCusto = 1.0 - (gameState.instalacoes.tunelDeVento * 0.10);
             custoTotal *= reducaoCusto;
         }
         if (duracao === 10) {
@@ -1202,20 +1037,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (gameState.escuderia.dinheiro < custoTotal) { alert(`Dinheiro insuficiente! Custo do projeto: R$ ${custoTotal.toLocaleString('pt-BR')}`); return; }
         gameState.escuderia.dinheiro -= custoTotal;
-
-        // Aplica redução de tempo de preparo
-        let duracaoFinal = duracao;
-        const pecasAeroNomes = ["Asa Dianteira", "Asa Traseira", "Chassi"];
-        if (pecasAeroNomes.includes(tipoPeca)) {
-            duracaoFinal = Math.max(1, duracao - calcularReducaoTunelTempo());
-        }
-        if (tipoPeca === "Motor") {
-            duracaoFinal = Math.max(1, duracao - calcularReducaoMotoresTempo());
-        }
-
-        gameState.projetosEmAndamento.push({ id: Date.now(), tipoPeca, nomeEspecialista: especialista.nome, nivelEspecialista: especialista.nivel, duracaoOriginal: duracao, duracaoRestante: duracaoFinal, status: 'em_andamento' });
-        const msgReducao = duracaoFinal < duracao ? ` (reduzido de ${duracao} para ${duracaoFinal} corridas pelas instalações!)` : '';
-        alert(`Investimento de R$ ${custoTotal.toLocaleString('pt-BR')} realizado!\nProjeto para desenvolver "${tipoPeca}" iniciado com ${especialista.nome}.${msgReducao}`);
+        gameState.projetosEmAndamento.push({ id: Date.now(), tipoPeca, nomeEspecialista: especialista.nome, nivelEspecialista: especialista.nivel, duracaoOriginal: duracao, duracaoRestante: duracao, status: 'em_andamento' });
+        alert(`Investimento de R$ ${custoTotal.toLocaleString('pt-BR')} realizado!\nProjeto para desenvolver "${tipoPeca}" iniciado com ${especialista.nome}.`);
         updateUI(); saveGame();
     }
 
@@ -1570,8 +1393,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Aplica desconto do túnel de vento
                 const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
                 if (pecasAero.includes(tipoPeca)) {
-                    const _tunelDescPorNivel2 = [0, 0.05, 0.10, 0.12, 0.15, 0.25];
-                    const reducaoCusto = 1.0 - (_tunelDescPorNivel2[gameState.instalacoes.tunelDeVento] || 0);
+                    const reducaoCusto = 1.0 - (gameState.instalacoes.tunelDeVento * 0.10);
                     custoPeca *= reducaoCusto;
                 }
                 if (duracao === 10) {
@@ -1615,10 +1437,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm(`Iniciar um projeto completo de ${duracao} corrida(s) para todas as 5 categorias de peças por R$ ${custoFinal.toLocaleString('pt-BR')}?`)) {
             gameState.escuderia.dinheiro -= custoFinal;
 
-            // 🎲 Dado bônus: chance de reduzir até 3 corridas no tempo de desenvolvimento
-            const dadoRolado = Math.floor(Math.random() * 6) + 1; // 1–6
-            const reducaoDado = dadoRolado >= 5 ? 3 : dadoRolado >= 3 ? 2 : dadoRolado >= 2 ? 1 : 0;
-
             const especialistas = {
                 "Motor": gameState.escuderia.especialistas.find(e => e.tipo === "Engenheiro de Motor"),
                 "Asa Dianteira": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
@@ -1629,34 +1447,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             for (const tipoPeca in especialistas) {
                 const especialista = especialistas[tipoPeca];
-                const pecasAeroNomes = ["Asa Dianteira", "Asa Traseira", "Chassi"];
-
-                // Aplica reduções de instalações específicas por tipo de peça
-                let reducaoInstalacao = 0;
-                if (pecasAeroNomes.includes(tipoPeca)) reducaoInstalacao = calcularReducaoTunelTempo();
-                if (tipoPeca === "Motor") reducaoInstalacao = calcularReducaoMotoresTempo();
-
-                const duracaoFinal = Math.max(1, duracao - reducaoDado - reducaoInstalacao);
-
                 gameState.projetosEmAndamento.push({
                     id: Date.now() + Math.random(),
                     tipoPeca,
                     nomeEspecialista: especialista.nome,
                     nivelEspecialista: especialista.nivel,
                     duracaoOriginal: duracao,
-                    duracaoRestante: duracaoFinal,
+                    duracaoRestante: duracao,
                     status: 'em_andamento'
                 });
             }
 
-            let msgDado = '';
-            if (reducaoDado > 0) {
-                msgDado = `\n🎲 Dado bônus: ${dadoRolado} — redução de ${reducaoDado} corrida(s) no desenvolvimento!`;
-            } else {
-                msgDado = `\n🎲 Dado bônus: ${dadoRolado} — sem redução extra desta vez.`;
-            }
-
-            alert(`Projetos iniciados! O desenvolvimento de um novo conjunto completo de peças começou.${msgDado}`);
+            alert("Projetos iniciados! O desenvolvimento de um novo conjunto completo de peças começou.");
             updateUI();
             saveGame();
         }
@@ -1847,7 +1649,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
         });
-        raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole, safetyCarAtivo: false, pendingSafetyCar: false, safetyCarMotivo: '', historicoSC: [] };
+        raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole, safetyCarAtivo: false, pendingSafetyCar: false, safetyCarMotivo: '' };
         redimensionarCanvas();
         renderTabelaAoVivo();
         animacaoAtiva = true;
@@ -1900,22 +1702,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, raceData.intervalo);
     }
 
-    // Retorna a redução de pit stop baseada no nível do centro de treinamento (valor aleatório dentro da faixa)
-    function calcularReducaoPitStop() {
-        const nivel = gameState.instalacoes.treinoDeBox;
-        const faixas = [[0,0],[0.1,0.3],[0.3,0.5],[0.5,0.6],[0.6,0.8],[0.8,1.0]];
-        const [min, max] = faixas[nivel] || [0, 0];
-        return min + Math.random() * (max - min);
-    }
-
-    // Retorna o bônus de ERS em segundos por volta baseado no nível
-    function calcularBonusERS() {
-        const nivel = gameState.instalacoes.ers;
-        const bonusPorNivel = [0, 0.200, 0.300, 0.500, 0.700];
-        if (nivel >= 5) return 0.750 + Math.random() * 0.150; // 0.750 a 0.900
-        return bonusPorNivel[nivel] || 0;
-    }
-
     function calcularTempoVolta(participante, pista, multiPneu, penDesgaste, penCombustivel, bonusERS = 0) {
         const carro = participante.atributos;
         const piloto = participante.piloto;
@@ -1924,9 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pontuacaoCarro = ((carro.potencia * pista.demandaMotor) + (carro.aerodinamica * pista.demandaAero) + (carro.aderencia * pista.demandaAderencia)) * multiPneu;
         const fatorDesempenho = pontuacaoCarro / 100;
         const fatorSorte = (Math.random() - 0.5) * (0.6 * fatorConsistencia);
-        // Bônus do pneu duro em pistas de alta aderência (pneu na janela ideal de temperatura)
-        const bonusDuro = (participante.pneuAtual === 'duro') ? calcularBonusDuroPista(pista.demandaAderencia) : 0;
-        return pista.tempoBaseVolta - fatorDesempenho - bonusHabilidade + penDesgaste + penCombustivel + fatorSorte - bonusERS - bonusDuro;
+        return pista.tempoBaseVolta - fatorDesempenho - bonusHabilidade + penDesgaste + penCombustivel + fatorSorte - bonusERS;
     }
 
 
@@ -1947,7 +1731,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let bonusERS = 0;
             if (p.isPlayer && p.ers) {
                 if (p.ers.ativo) {
-                    bonusERS = calcularBonusERS();
+                    const nivelERS = gameState.instalacoes.ers;
+                    if (nivelERS === 1) bonusERS = 0.400;
+                    else if (nivelERS === 2) bonusERS = 0.550;
+                    else if (nivelERS >= 3) bonusERS = 0.850;
                     if (bonusERS > 0) p.ersBonusAtivoNestaVolta = true;
                     p.ers.cicloDeCarregamento--;
                     p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;  //quantidade de voltas com o ERS ligado (p.ers.cicloDeCarregamento = 3)
@@ -1998,7 +1785,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (paradaInfo && paradaInfo.pararNaVolta === raceData.voltaAtual) {
                 fezPitStop = true;
-                const reducaoPitStop = calcularReducaoPitStop();
+                const reducaoPitStop = gameState.instalacoes.treinoDeBox * 0.5;
                 const tempoDePitFinal = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop);
 
                 // Usa as penalidades já calculadas
@@ -2042,7 +1829,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (voltasRestantes > 2) {
                             // PIT DE EMERGÊNCIA: custo normal de pit + 5s de penalidade
                             // (para simular a entrada não-planejada e o risco de unsafe release)
-                            const reducaoPitStop = p.isPlayer ? calcularReducaoPitStop() : 0;
+                            const reducaoPitStop = p.isPlayer ? gameState.instalacoes.treinoDeBox * 0.5 : 0;
                             const tempoPitEmergencia = Math.max(18, raceData.pista.pitstopTime - reducaoPitStop) + 5;
                             const tempoDaVoltaBase = calcularTempoVolta(p, raceData.pista, pneuAtual.multiplicadorPerformance, penalidadeDesgaste, penalidadeCombustivelAtualizada, bonusERS);
                             tempoDaVoltaFinal = tempoDaVoltaBase + tempoPitEmergencia;
@@ -2256,15 +2043,6 @@ document.addEventListener('DOMContentLoaded', () => {
         raceTimerId = null;
         raceData.safetyCarAtivo = true;
 
-        // Registra no histórico
-        if (!raceData.historicoSC) raceData.historicoSC = [];
-        raceData.historicoSC.push({
-            volta: raceData.voltaAtual,
-            totalVoltas: raceData.totalVoltas,
-            motivo: raceData.safetyCarMotivo || 'Incidente na pista'
-        });
-        renderHistoricoSC();
-
         const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
 
         // ── 1. Comprime o campo ──────────────────────────────────────
@@ -2347,52 +2125,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // ── 3. Player: calcula opções do SC (pit ou ficar) ─────────────
-        // NÃO aplica pit automaticamente — o jogador decide no modal.
-        // Calcula para cada carro:
-        //   - podeFilcar: pneu chega ao final E já usou 2 compostos
-        //   - deveParar: flag para forçar pit no modal (sem opção de ficar)
+        // ── 3. Player: calcula contexto do SC para cada carro ───────────
+        // Não aplica nada ainda — o jogador decide no modal.
         raceData.scContexto = {};
         gameState.carros.forEach((carro) => {
             if (!carro.pilotoId) return;
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
             if (!participante || participante.tempoTotal === Infinity) return;
 
-            // Compostos reais já usados (via lapData)
-            const compositosUsados = new Set((participante.lapData || []).map(d => d.tire));
-            compositosUsados.add(participante.pneuAtual);
-            const regulamentoCumprido = compositosUsados.size >= 2;
+            // Compostos reais já usados até agora (via lapData)
+            const compositosJaUsados = new Set((participante.lapData || []).map(d => d.tire));
+            compositosJaUsados.add(participante.pneuAtual);
+            const regulamentoCumprido = compositosJaUsados.size >= 2;
 
-            // Capacidade do pneu atual chegar ao final
+            // Durabilidade do pneu atual
             const voltasQueAguenta = Math.floor(
                 participante.durabilidadePneu / pneus[participante.pneuAtual].desgastePorVolta
             );
             const pneuChegaAoFinal = voltasQueAguenta >= voltasRestantes;
 
-            // Pode ficar na pista só se:
-            // 1) O pneu aguenta até o final E
-            // 2) O regulamento de 2 compostos já foi cumprido
-            const podeFicar = pneuChegaAoFinal && regulamentoCumprido;
-
-            // Gera estratégia automática como ponto de partida caso pare
+            // Gera estratégia sugerida para cada cenário como ponto de partida
             const modo = participante.modoAgressividade || 'padrão';
-            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes, modo);
+            const estrategiaSugeridaComPit = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes, modo);
 
-            // Salva contexto para uso no modal e no fechar
-            raceData.scContexto[carro.pilotoId] = {
-                podeFicar,
-                regulamentoCumprido,
-                pneuChegaAoFinal,
-                voltasQueAguenta,
-                novaEst,
-                pneuOriginal: participante.pneuAtual,
-                durabilidadeOriginal: participante.durabilidadePneu,
-                // Estratégia proposta como ponto de partida para o editor
-                estrategiaProposta: JSON.parse(JSON.stringify(novaEst))
+            // Estratégia "manter pneu + planejar" — mantém pneu atual, paradas futuras
+            const estrategiaSugeridaSemPit = {
+                pneuInicial: participante.pneuAtual,
+                paradas: pneuChegaAoFinal ? [] : estrategiaSugeridaComPit.paradas
             };
 
-            // Pré-configura a estratégia do editor com a proposta (não aplica pit ainda)
-            carro.estrategia = JSON.parse(JSON.stringify(novaEst));
+            raceData.scContexto[carro.pilotoId] = {
+                // Estado atual
+                pneuAtual: participante.pneuAtual,
+                durabilidadeAtual: participante.durabilidadePneu,
+                voltasQueAguenta,
+                pneuChegaAoFinal,
+                regulamentoCumprido,
+                compositosJaUsados: [...compositosJaUsados],
+                // Estratégias sugeridas por opção
+                estrategiaSugeridaComPit,
+                estrategiaSugeridaSemPit,
+            };
+
+            // Inicializa decisão e estratégia do editor para opção 1 (manter + planejar)
+            carro._scDecisao = 'manter-planejar';
+            carro.estrategia = JSON.parse(JSON.stringify(estrategiaSugeridaSemPit));
         });
 
         // Reordena e atualiza a tabela com as novas posições
@@ -2415,6 +2192,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('sc-strategy-container');
         if (!container) return;
 
+        const pneuNome = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
+
         container.innerHTML = gameState.carros.map((carro, carroIndex) => {
             if (!carro.pilotoId) return '';
             const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
@@ -2423,92 +2202,159 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!participante || participante.tempoTotal === Infinity) return '';
 
             const ctx = raceData.scContexto?.[carro.pilotoId] || {};
-            const podeFicar = ctx.podeFicar || false;
-            const pneuAtualNome = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' }[participante.pneuAtual] || participante.pneuAtual;
-            const durAtual = Math.round(participante.durabilidadePneu);
+            const decisao = carro._scDecisao || 'manter-planejar';
+            const durAtual = Math.round(ctx.durabilidadeAtual || participante.durabilidadePneu);
+            const pneuAtual = ctx.pneuAtual || participante.pneuAtual;
+            const compositosUsados = new Set(ctx.compositosJaUsados || [pneuAtual]);
 
-            // Decisão atual: ficar ou parar (default: parar)
-            const decisaoAtual = carro._scDecisao || 'parar';
-            const ficando = decisaoAtual === 'ficar';
+            // ── Determina disponibilidade de cada opção ────────────────
+            // Opção 3 (manter + final): pneu aguenta E regulamento cumprido
+            const op3Disponivel = ctx.pneuChegaAoFinal && ctx.regulamentoCumprido;
+            // Opção 4 (trocar + final): pneu escolhido dura até o fim E cobre 2 compostos
+            const pneuEscolhidoOp24 = carro.estrategia?.pneuInicial || 'medio';
+            const voltasPneuNovo = Math.floor(100 / pneus[pneuEscolhidoOp24].desgastePorVolta);
+            const novoPneuChegaAoFinal = voltasPneuNovo >= voltasRestantes;
+            const novoPneuDiferente = pneuEscolhidoOp24 !== pneuAtual;
+            const op4CumpreRegulamento = novoPneuDiferente || ctx.regulamentoCumprido;
+            const op4Disponivel = novoPneuChegaAoFinal && op4CumpreRegulamento;
 
-            // Razão pela qual não pode ficar (para exibir no botão)
-            let razaoObrigatorio = '';
-            if (!ctx.pneuChegaAoFinal) razaoObrigatorio = `pneu aguenta só ${ctx.voltasQueAguenta}v das ${voltasRestantes}v restantes`;
-            else if (!ctx.regulamentoCumprido) razaoObrigatorio = 'ainda não usou 2 compostos diferentes';
+            // ── Mensagens de bloqueio ──────────────────────────────────
+            const op3Motivo = !ctx.pneuChegaAoFinal
+                ? `Pneu aguenta apenas ${ctx.voltasQueAguenta}v das ${voltasRestantes}v restantes`
+                : `Ainda não usou 2 compostos diferentes (usado: ${[...compositosUsados].join(', ')})`;
+            const op4Motivo = !novoPneuChegaAoFinal
+                ? `${pneuNome[pneuEscolhidoOp24]} dura ${voltasPneuNovo}v — insuficiente para ${voltasRestantes}v`
+                : `Precisa escolher composto diferente de ${pneuNome[pneuAtual]}`;
 
-            // Editor de pit (só mostra se decisão for "parar")
-            const paradaInputs = carro.estrategia.paradas.map((parada, paradaIndex) => `
-                <div class="stint-definition">
-                    <label>Parada ${paradaIndex + 1}</label>
-                    <div class="stint-inputs">
-                        <span>Na volta:</span>
-                        <input type="number" class="volta-input strategy-control"
-                               value="${parada.pararNaVolta}"
-                               min="${raceData.voltaAtual}"
-                               max="${raceData.totalVoltas}"
-                               data-car-index="${carroIndex}"
-                               data-parada-index="${paradaIndex}">
-                        <span>Pneu:</span>
-                        <select class="pneu-select-parada strategy-control"
+            // ── Validação de regulamento para opções com paradas futuras ─
+            function validarCompostos(estrategia, trocouAgora) {
+                const todosCompostos = new Set(compositosUsados);
+                if (trocouAgora) todosCompostos.add(estrategia.pneuInicial);
+                (estrategia.paradas || []).forEach(p => todosCompostos.add(p.colocarPneu));
+                if (todosCompostos.size < 2) {
+                    const usados = [...todosCompostos].map(c => pneuNome[c]).join(', ');
+                    return `⚠️ Plano usa apenas 1 composto (${usados}). Adicione uma parada com composto diferente.`;
+                }
+                return null;
+            }
+
+            // ── Editor de estratégia futura (paradas) ─────────────────
+            function editorParadas(mostrarPneuInicial, trocouAgora) {
+                const selectorInicial = mostrarPneuInicial ? `
+                    <div class="sc-pneu-agora">
+                        <span class="sc-pneu-label">Pneu a colocar agora:</span>
+                        <select class="pneu-select-inicial strategy-control sc-select-inline" data-car-index="${carroIndex}">
+                            ${['macio','medio','duro'].map(c => `<option value="${c}" ${carro.estrategia.pneuInicial===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
+                        </select>
+                    </div>` : '';
+
+                const paradaRows = carro.estrategia.paradas.map((parada, pi) => `
+                    <div class="stint-definition">
+                        <label>Parada ${pi + 1}</label>
+                        <div class="stint-inputs">
+                            <span>Volta:</span>
+                            <input type="number" class="volta-input strategy-control"
+                                   value="${parada.pararNaVolta}"
+                                   min="${raceData.voltaAtual + 1}"
+                                   max="${raceData.totalVoltas - 1}"
+                                   data-car-index="${carroIndex}"
+                                   data-parada-index="${pi}">
+                            <span>Pneu:</span>
+                            <select class="pneu-select-parada strategy-control"
+                                    data-car-index="${carroIndex}"
+                                    data-parada-index="${pi}">
+                                ${['macio','medio','duro'].map(c => `<option value="${c}" ${parada.colocarPneu===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
+                            </select>
+                        </div>
+                        <button class="btn-remover-stint strategy-control"
                                 data-car-index="${carroIndex}"
-                                data-parada-index="${paradaIndex}">
-                            <option value="macio" ${parada.colocarPneu === 'macio' ? 'selected' : ''}>Macio 🔴</option>
-                            <option value="medio" ${parada.colocarPneu === 'medio' ? 'selected' : ''}>Médio 🟡</option>
-                            <option value="duro"  ${parada.colocarPneu === 'duro'  ? 'selected' : ''}>Duro ⚪</option>
+                                data-parada-index="${pi}">✕</button>
+                    </div>`).join('');
+
+                const erroComp = validarCompostos(carro.estrategia, trocouAgora);
+                const aviso = erroComp
+                    ? `<div class="strategy-warning"><p>${erroComp}</p></div>`
+                    : `<p class="strategy-ok">✅ Regulamento de compostos: OK</p>`;
+
+                return `${selectorInicial}
+                    <div class="sc-paradas-editor">
+                        ${paradaRows}
+                        <div class="strategy-actions">
+                            <button class="btn-add-stint strategy-control" data-car-index="${carroIndex}">+ Adicionar Parada</button>
+                        </div>
+                    </div>
+                    ${aviso}`;
+            }
+
+            // ── Conteúdo específico por opção ──────────────────────────
+            let conteudo = '';
+            if (decisao === 'manter-planejar') {
+                conteudo = `
+                    <div class="sc-opcao-info">
+                        Continua na pista com ${pneuNome[pneuAtual]} (${durAtual}% — aguenta ~${ctx.voltasQueAguenta}v).
+                        Planeje suas próximas paradas abaixo.
+                    </div>
+                    ${editorParadas(false, false)}`;
+            } else if (decisao === 'trocar-planejar') {
+                conteudo = `
+                    <div class="sc-opcao-info sc-info-pit">
+                        Pit stop no SC <span class="sc-custo-tempo">+~6s</span> (tempo reduzido em relação ao pit normal).
+                        Escolha o pneu e planeje a estratégia.
+                    </div>
+                    ${editorParadas(true, true)}`;
+            } else if (decisao === 'manter-final') {
+                conteudo = `
+                    <div class="sc-opcao-info sc-info-ok">
+                        ✅ Continua na pista com ${pneuNome[pneuAtual]} (${durAtual}%) até o final. Sem mais paradas.
+                        <br><small>Compostos usados: ${[...compositosUsados].map(c => pneuNome[c]).join(' + ')}</small>
+                    </div>`;
+            } else if (decisao === 'trocar-final') {
+                const seletor = `
+                    <div class="sc-pneu-agora">
+                        <span class="sc-pneu-label">Pneu a colocar agora:</span>
+                        <select class="pneu-select-inicial strategy-control sc-select-inline" data-car-index="${carroIndex}">
+                            ${['macio','medio','duro'].map(c => `<option value="${c}" ${carro.estrategia.pneuInicial===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
                         </select>
-                    </div>
-                    <button class="btn-remover-stint strategy-control"
-                            data-car-index="${carroIndex}"
-                            data-parada-index="${paradaIndex}">✕</button>
-                </div>`).join('');
+                        <span class="sc-custo-tempo">+~6s</span>
+                    </div>`;
+                const erroComp = (!novoPneuDiferente && !ctx.regulamentoCumprido)
+                    ? `<div class="strategy-warning"><p>⚠️ Precisa escolher composto diferente de ${pneuNome[pneuAtual]}</p></div>`
+                    : !novoPneuChegaAoFinal
+                        ? `<div class="strategy-warning"><p>⚠️ ${pneuNome[pneuEscolhidoOp24]} dura ${voltasPneuNovo}v — insuficiente para as ${voltasRestantes}v restantes</p></div>`
+                        : `<p class="strategy-ok">✅ Pneu cobre as ${voltasRestantes}v restantes. Sem mais paradas.</p>`;
+                conteudo = seletor + erroComp;
+            }
 
-            const ctxSC = { voltaAtual: raceData.voltaAtual };
-            const erros = ficando ? [] : getErrosEstrategia(carro.estrategia, ctxSC);
-            const aviso = erros.length > 0
-                ? `<div class="strategy-warning">${erros.map(e => `<p>⚠️ ${e}</p>`).join('')}</div>`
-                : ficando ? `<p class="strategy-ok">✅ Continuando na pista com ${pneuAtualNome} (${durAtual}% durabilidade).</p>`
-                           : `<p class="strategy-ok">✅ Estratégia válida.</p>`;
+            // ── Botões das 4 opções ────────────────────────────────────
+            const opcoes = [
+                { id: 'manter-planejar', emoji: '🟡', label: 'Manter + Planejar',   sub: 'Fica na pista, define próximas paradas',   ok: true },
+                { id: 'trocar-planejar', emoji: '🔧', label: 'Trocar + Planejar',   sub: `Pit agora (+~6s), define próximas paradas`, ok: true },
+                { id: 'manter-final',    emoji: '✅', label: 'Manter + Ir ao Final', sub: op3Disponivel ? `Pneu aguenta ${ctx.voltasQueAguenta}v ≥ ${voltasRestantes}v` : op3Motivo, ok: op3Disponivel },
+                { id: 'trocar-final',    emoji: '🏁', label: 'Trocar + Ir ao Final', sub: op4Disponivel ? `Pit agora (+~6s), sem mais paradas`  : op4Motivo, ok: op4Disponivel },
+            ];
 
-            const btnFicar = podeFicar
-                ? `<button class="btn-sc-ficar ${ficando ? 'active' : ''}" data-action="sc-ficar" data-car-index="${carroIndex}">
-                       ${ficando ? '✅ Na pista' : '🟢 Não Parar'}
-                   </button>`
-                : `<button class="btn-sc-ficar disabled" disabled title="Obrigatório parar: ${razaoObrigatorio}">
-                       🔴 Parada obrigatória
-                   </button>`;
+            const botoesHtml = opcoes.map(op => `
+                <button class="btn-sc-opcao ${decisao === op.id ? 'active' : ''} ${!op.ok ? 'bloqueado' : ''}"
+                        data-action="sc-opcao"
+                        data-car-index="${carroIndex}"
+                        data-opcao="${op.id}"
+                        ${!op.ok ? 'disabled' : ''}
+                        title="${op.sub}">
+                    <span class="sc-opcao-emoji">${op.emoji}</span>
+                    <span class="sc-opcao-texto">
+                        <strong>${op.label}</strong>
+                        <small>${op.sub}</small>
+                    </span>
+                </button>`).join('');
 
-            const editorPit = ficando ? '' : `
-                <div class="stint-definition initial-stint">
-                    <label>Pneu para colocar no SC</label>
-                    <div class="stint-inputs">
-                        <select class="pneu-select-inicial strategy-control" data-car-index="${carroIndex}">
-                            <option value="macio" ${carro.estrategia.pneuInicial === 'macio' ? 'selected' : ''}>Macio 🔴</option>
-                            <option value="medio" ${carro.estrategia.pneuInicial === 'medio' ? 'selected' : ''}>Médio 🟡</option>
-                            <option value="duro"  ${carro.estrategia.pneuInicial === 'duro'  ? 'selected' : ''}>Duro ⚪</option>
-                        </select>
-                    </div>
+            return `<div class="strategy-box sc-strategy-box">
+                <div class="sc-piloto-header">
+                    <strong>Carro ${carroIndex + 1} — ${pilotoNome}</strong>
+                    <span class="sc-piloto-status">${pneuNome[pneuAtual]} · ${durAtual}% · ~${ctx.voltasQueAguenta}v · ${voltasRestantes}v restantes</span>
+                    <span class="sc-compostos-info">Compostos usados: ${[...compositosUsados].map(c => pneuNome[c]).join(' + ')}</span>
                 </div>
-                ${paradaInputs}
-                <div class="strategy-actions">
-                    <button class="btn-add-stint strategy-control" data-car-index="${carroIndex}">+ Adicionar Parada</button>
-                </div>`;
-
-            return `<div class="strategy-box">
-                <div class="sc-decisao-header">
-                    <h4>Carro ${carroIndex + 1} — ${pilotoNome}
-                        <small style="font-weight:400; color:#aaa; font-size:0.8em;">
-                            | ${pneuAtualNome} ${durAtual}% | ${voltasRestantes}v restantes
-                        </small>
-                    </h4>
-                    <div class="sc-decisao-btns">
-                        <button class="btn-sc-parar ${!ficando ? 'active' : ''}" data-action="sc-parar" data-car-index="${carroIndex}">
-                            🔧 Parar nos Boxes
-                        </button>
-                        ${btnFicar}
-                    </div>
-                </div>
-                ${editorPit}
-                ${aviso}
+                <div class="sc-opcoes-grid">${botoesHtml}</div>
+                <div class="sc-conteudo-opcao">${conteudo}</div>
             </div>`;
         }).join('');
     }
@@ -2566,49 +2412,26 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Aplica estratégia gerada automaticamente para os carros do jogador.
      */
-    function renderHistoricoSC() {
-        const container = document.getElementById('sc-historico-container');
-        if (!container || !raceData) return;
-        const historico = raceData.historicoSC || [];
-        if (historico.length === 0) { container.innerHTML = ''; return; }
-
-        const rows = historico.map((entry, i) => {
-            const iconeMotivo = entry.motivo.includes('pneu') ? '💥' : entry.motivo.includes('mecân') ? '🔧' : '⚠️';
-            return `
-                <tr>
-                    <td class="sc-hist-num">${i + 1}º SC</td>
-                    <td class="sc-hist-volta">Volta <strong>${entry.volta}</strong> / ${entry.totalVoltas}</td>
-                    <td class="sc-hist-barra"><div class="sc-hist-progress" style="width:${Math.round((entry.volta / entry.totalVoltas) * 100)}%"></div></td>
-                    <td class="sc-hist-motivo">${iconeMotivo} ${entry.motivo}</td>
-                </tr>`;
-        }).join('');
-
-        container.innerHTML = `
-            <div class="sc-historico-card">
-                <div class="sc-historico-header">
-                    <span class="sc-hist-icon">🚗🟡</span>
-                    <span>Histórico de Safety Car</span>
-                    <span class="sc-hist-count">${historico.length}× acionado</span>
-                </div>
-                <table class="sc-historico-table">
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>`;
-    }
-
     function aplicarEstrategiaAutoPosSC(voltasRestantes) {
+        // Chamado quando o timer esgota sem decisão do jogador.
+        // Comportamento: se o pneu aguenta e regulamento OK → fica na pista.
+        // Caso contrário → troca de pneu agora.
         gameState.carros.forEach((carro) => {
             if (!carro.pilotoId) return;
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
             if (!participante || participante.tempoTotal === Infinity) return;
 
-            const modo = participante.modoAgressividade || 'padrão';
-            const novaEst = gerarEstrategiaPosSC(raceData.voltaAtual, voltasRestantes, modo);
-            // Mantém o pneu que já foi colocado no pit do SC
-            novaEst.pneuInicial = participante.pneuAtual;
-
-            carro.estrategia = JSON.parse(JSON.stringify(novaEst));
-            participante.estrategia = JSON.parse(JSON.stringify(novaEst));
+            const ctx = raceData.scContexto?.[carro.pilotoId] || {};
+            if (!carro._scDecisao) {
+                // Auto-decide com base na situação
+                if (ctx.pneuChegaAoFinal && ctx.regulamentoCumprido) {
+                    carro._scDecisao = 'manter-final';
+                    carro.estrategia = { pneuInicial: ctx.pneuAtual, paradas: [] };
+                } else {
+                    carro._scDecisao = 'trocar-planejar';
+                    carro.estrategia = JSON.parse(JSON.stringify(ctx.estrategiaSugeridaComPit || { pneuInicial: 'medio', paradas: [] }));
+                }
+            }
         });
         renderEstrategiaUI();
     }
@@ -2625,27 +2448,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('safety-car-modal');
         if (modal) modal.classList.add('hidden');
 
-        // Aplica a decisão de cada carro: parar ou continuar na pista
+        // Aplica a decisão de cada carro
         gameState.carros.forEach((carro) => {
             if (!carro.pilotoId) return;
             const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
             if (!participante || participante.tempoTotal === Infinity) return;
 
-            const decisao = carro._scDecisao || 'parar'; // default: para se não decidiu
+            const decisao = carro._scDecisao || 'manter-planejar';
             const ctx = raceData.scContexto?.[carro.pilotoId] || {};
+            const fazPit = decisao === 'trocar-planejar' || decisao === 'trocar-final';
 
-            if (decisao === 'ficar' && ctx.podeFicar) {
-                // ── Fica na pista: restaura pneu original, mantém estratégia restante ──
-                participante.pneuAtual = ctx.pneuOriginal;
-                participante.durabilidadePneu = ctx.durabilidadeOriginal;
-                // Mantém stintAtual e estratégia como estavam antes do SC
-                participante.estrategia = JSON.parse(JSON.stringify(carro.estrategia));
-            } else {
-                // ── Para nos boxes: aplica pit com o pneu escolhido no modal ──
-                const pitstopBase = raceData.pista?.pitstopTime ?? 22;
-                const reducao = calcularReducaoPitStop();
-                const tempoPit = Math.max(18, pitstopBase - reducao);
-                participante.tempoTotal += tempoPit;
+            if (fazPit) {
+                // Pit no SC: custo reduzido (~6s) — só o delta da pit lane, não o tempo completo
+                // Em SC o carro não perde uma volta inteira, apenas o tempo extra da pit lane
+                const deltaSC = 6;
+                participante.tempoTotal += deltaSC;
                 participante.pneuAtual = carro.estrategia.pneuInicial;
                 participante.durabilidadePneu = 100;
                 participante.penalidadeCombustivel = 2.8;
@@ -2653,10 +2470,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 participante.voltasNoPneuAtual = 1;
                 participante.voltasPneuDestruido = 0;
                 participante.stintAtual = 0;
-                participante.estrategia = JSON.parse(JSON.stringify(carro.estrategia));
+            } else {
+                // Fica na pista: restaura pneu original intacto
+                participante.pneuAtual = ctx.pneuAtual || participante.pneuAtual;
+                participante.durabilidadePneu = ctx.durabilidadeAtual || participante.durabilidadePneu;
             }
 
-            // Limpa a flag de decisão
+            // Estratégia futura: sem paradas se escolheu "ir ao final"
+            if (decisao === 'manter-final' || decisao === 'trocar-final') {
+                participante.estrategia = { pneuInicial: participante.pneuAtual, paradas: [] };
+                carro.estrategia     = { pneuInicial: participante.pneuAtual, paradas: [] };
+            } else {
+                participante.estrategia = JSON.parse(JSON.stringify(carro.estrategia));
+                participante.stintAtual = fazPit ? 0 : participante.stintAtual;
+            }
+
             delete carro._scDecisao;
         });
 
@@ -2782,19 +2610,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 4. Salva estatísticas para a aba Galeria (todos os pilotos, IA e jogador)
+        // 4. Salva estatísticas para a aba Galeria
         resultados.forEach((resultado, index) => {
-            const nomePiloto = resultado.piloto.nome;
-            if (!gameState.galeria.estatisticasPilotos[nomePiloto]) {
-                gameState.galeria.estatisticasPilotos[nomePiloto] = { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
-            }
-            const stats = gameState.galeria.estatisticasPilotos[nomePiloto];
-            stats.corridas++;
-            if (index === 0) stats.vitorias++;
-            if (index < 3) stats.podios++;
-            const posicao = index + 1;
-            if (pontosPorPosicao[posicao]) {
-                stats.pontos += pontosPorPosicao[posicao];
+            if (resultado.isPlayer) {
+                const nomePiloto = resultado.piloto.nome;
+                if (!gameState.galeria.estatisticasPilotos[nomePiloto]) {
+                    gameState.galeria.estatisticasPilotos[nomePiloto] = { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
+                }
+                const stats = gameState.galeria.estatisticasPilotos[nomePiloto];
+                stats.corridas++;
+                if (index === 0) stats.vitorias++;
+                if (index < 3) stats.podios++;
+                const posicao = index + 1;
+                if (pontosPorPosicao[posicao]) {
+                    stats.pontos += pontosPorPosicao[posicao];
+                }
             }
         });
 
@@ -2973,30 +2803,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const nivelAtual = gameState.instalacoes[instalacaoId];
-        const maxLevel = instalacaoData.niveis.length - 1;
+        const maxLevel = instalacaoData.custos.length - 1;
 
         if (nivelAtual >= maxLevel) {
             alert("Esta instalação já está no nível máximo!");
             return;
         }
 
-        // ERS nivel 1 é padrão (grátis), so skip to level 2
-        const proximoNivel = (instalacaoId === 'ers' && nivelAtual === 1) ? 2 : nivelAtual + 1;
-        const custoProximoNivel = instalacaoData.niveis[proximoNivel].custo;
-
+        const custoProximoNivel = instalacaoData.custos[nivelAtual + 1];
         if (gameState.escuderia.dinheiro < custoProximoNivel) {
             alert(`Dinheiro insuficiente! Custo para melhorar: R$ ${custoProximoNivel.toLocaleString('pt-BR')}`);
             return;
         }
 
-        const tituloProximo = instalacaoData.niveis[proximoNivel].titulo;
-        if (confirm(`Deseja melhorar "${instalacaoData.nome}" para o Nível ${proximoNivel} — ${tituloProximo} por R$ ${custoProximoNivel.toLocaleString('pt-BR')}?`)) {
+        if (confirm(`Deseja melhorar "${instalacaoData.nome}" para o Nível ${nivelAtual + 1} por R$ ${custoProximoNivel.toLocaleString('pt-BR')}?`)) {
             gameState.escuderia.dinheiro -= custoProximoNivel;
-            gameState.instalacoes[instalacaoId] = proximoNivel;
+            gameState.instalacoes[instalacaoId]++;
 
-            alert(`"${instalacaoData.nome}" melhorada para o Nível ${proximoNivel} — ${tituloProximo} com sucesso!`);
-            updateUI();
-            saveGame();
+            alert(`"${instalacaoData.nome}" melhorada para o Nível ${nivelAtual + 1} com sucesso!`);
+            updateUI(); // Atualiza a interface para refletir a mudança
+            saveGame(); // Salva o progresso
         }
     }
 
@@ -3110,8 +2936,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 let chanceFinalVenda = Math.min(chanceBase * modPreco * modDesempenho, 0.95);
-                const _mktBonusPorNivel = [0, 0.05, 0.08, 0.15, 0.20, 0.25];
-                const bonusVendas = 1.0 + (_mktBonusPorNivel[gameState.instalacoes.marketing] || 0);
+                const bonusVendas = 1.0 + (gameState.instalacoes.marketing * 0.05);
                 chanceFinalVenda *= bonusVendas;
 
                 const LIMIAR_LIQUIDACAO = 5; // Quando restam ≤ N unidades, vende tudo automaticamente
@@ -3173,8 +2998,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             let crescimentoTotal = crescimentoBase + bonusDesempenho;
-            const _simBonusPorNivel = [0, 0.05, 0.08, 0.10, 0.12, 0.15];
-            const bonusSimulador = 1.0 + (_simBonusPorNivel[gameState.instalacoes.simulador] || 0);
+            const bonusSimulador = 1.0 + (gameState.instalacoes.simulador * 0.05);
             crescimentoTotal *= bonusSimulador;
             if (treinadorContratado) {
                 if (piloto.status === 'Jogador') crescimentoTotal *= 2.75;
@@ -3275,9 +3099,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
         const nivelTunel = gameState.instalacoes.tunelDeVento;
         if (pecasAero.includes(tipoPeca) && nivelTunel > 0) {
-            const _tunelDescPorNivel3 = [0, 5, 10, 12, 15, 25];
-            const percentualReducao = _tunelDescPorNivel3[nivelTunel] || 0;
-            const multiplicadorReducao = 1.0 - (percentualReducao / 100);
+            const percentualReducao = nivelTunel * 10;
+            const multiplicadorReducao = 1.0 - (nivelTunel * 0.10);
             custoEstimado *= multiplicadorReducao;
             infoDescontoEl.innerHTML = `<p style="color: #28a745; font-size: 0.9em; font-weight: bold;">Desconto do Túnel de Vento (Nvl ${nivelTunel}): -${percentualReducao}%</p>`;
         }
@@ -3783,99 +3606,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.innerHTML = Object.entries(catalogoInstalacoes).map(([id, data]) => {
             const nivelAtual = gameState.instalacoes[id];
-            const maxLevel = data.niveis.length - 1;
-
-            // ERS começa no nível 1 (padrão de série), o próximo pagável é o 2
-            const nivelMinimo = (id === 'ers') ? 1 : 0;
-            const proximoNivel = (id === 'ers' && nivelAtual === 1) ? 2 : nivelAtual + 1;
-            const estaNoMaximo = nivelAtual >= maxLevel;
-
-            // Custo do próximo nível
-            let custoProximo = null;
-            let temDinheiro = false;
-            if (!estaNoMaximo && data.niveis[proximoNivel]) {
-                custoProximo = data.niveis[proximoNivel].custo;
-                temDinheiro = gameState.escuderia.dinheiro >= custoProximo;
-            }
-
-            // Barra de progresso de níveis
-            const stepsHtml = data.niveis.slice(nivelMinimo).map((nivel, idx) => {
-                const nivelReal = idx + nivelMinimo;
-                const adquirido = nivelReal <= nivelAtual;
-                const ehAtual = nivelReal === nivelAtual;
-                const ehProximo = nivelReal === proximoNivel && !estaNoMaximo;
-                let cls = 'inst-step';
-                if (adquirido) cls += ' adquirido';
-                if (ehAtual) cls += ' nivel-atual';
-                if (ehProximo) cls += ' proximo';
-                const checkmark = adquirido ? '✓' : nivelReal;
-                return `<div class="${cls}" title="Nível ${nivelReal}: ${nivel.titulo}">${checkmark}</div>`;
-            }).join('<div class="inst-step-linha"></div>');
-
-            // Info do nível atual
-            const infoAtual = data.niveis[nivelAtual];
-            // Info do próximo nível
-            const infoProximo = !estaNoMaximo ? data.niveis[proximoNivel] : null;
-
-            // Lista de todos os níveis
-            const listaNiveisHtml = data.niveis.slice(nivelMinimo).map((nivel, idx) => {
-                const nivelReal = idx + nivelMinimo;
-                const adquirido = nivelReal <= nivelAtual;
-                const ehAtual = nivelReal === nivelAtual;
-                let tagClass = adquirido ? 'inst-nivel-tag adquirido' : 'inst-nivel-tag bloqueado';
-                if (ehAtual) tagClass += ' atual';
-                const custoTexto = nivel.custo === 0 ? 'Incluso' : `R$ ${nivel.custo.toLocaleString('pt-BR')}`;
-                const lockIcon = adquirido ? '🔓' : '🔒';
-                return `
-                    <div class="${tagClass}">
-                        <div class="inst-nivel-header">
-                            <span class="inst-nivel-num">${lockIcon} Nível ${nivelReal} — ${nivel.titulo}</span>
-                            <span class="inst-nivel-custo">${custoTexto}</span>
-                        </div>
-                        <div class="inst-nivel-desc">${nivel.descricao}</div>
-                    </div>`;
-            }).join('');
-
-            // Botão de ação
+            const maxLevel = data.custos.length - 1;
+            let custoHtml = '';
             let botaoHtml = '';
-            if (estaNoMaximo) {
-                botaoHtml = `<button class="btn-corrida btn-real" disabled>🏆 Nível Máximo</button>`;
-            } else if (custoProximo !== null) {
-                botaoHtml = `<button class="btn-corrida btn-real" data-action="melhorar-instalacao" data-instalacao-id="${id}" ${temDinheiro ? '' : 'disabled'}>
-                    ${temDinheiro ? '⬆️' : '💸'} Melhorar para Nível ${proximoNivel} — R$ ${custoProximo.toLocaleString('pt-BR')}
-                </button>`;
-            }
 
-            const cardStatusClass = nivelAtual > 0 ? 'inst-card-ativa' : 'inst-card-inativa';
+            if (id === 'ers' && nivelAtual === 1) {
+                 custoHtml = `<p><strong>Custo para Nível ${nivelAtual + 1}:</strong> R$ ${data.custos[nivelAtual + 1].toLocaleString('pt-BR')}</p>`;
+                 const temDinheiro = gameState.escuderia.dinheiro >= data.custos[nivelAtual + 1];
+                 botaoHtml = `<button class="btn-corrida btn-real" data-action="melhorar-instalacao" data-instalacao-id="${id}" ${temDinheiro ? '' : 'disabled'}>Melhorar</button>`;
+            } else if (nivelAtual >= maxLevel) {
+                custoHtml = `<p><strong>Nível Máximo Atingido</strong></p>`;
+                botaoHtml = `<button class="btn-corrida btn-real" disabled>Nível Máximo</button>`;
+            } else {
+                const custoProximoNivel = data.custos[nivelAtual + 1];
+                const temDinheiro = gameState.escuderia.dinheiro >= custoProximoNivel;
+                custoHtml = `<p><strong>Custo para Nível ${nivelAtual + 1}:</strong> R$ ${custoProximoNivel.toLocaleString('pt-BR')}</p>`;
+                botaoHtml = `<button class="btn-corrida btn-real" data-action="melhorar-instalacao" data-instalacao-id="${id}" ${temDinheiro ? '' : 'disabled'}>Melhorar</button>`;
+            }
 
             return `
-                <div class="instalacao-card ${cardStatusClass}">
-                    <div class="inst-card-header">
-                        <span class="inst-icone">${data.icone}</span>
-                        <div class="inst-titulo-bloco">
-                            <h4>${data.nome}</h4>
-                            <p class="inst-descricao-curta">${data.descricao}</p>
-                        </div>
-                        <div class="inst-nivel-badge nivel-${nivelAtual}">
-                            ${nivelAtual === 0 ? 'NÃO<br>CONSTRUÍDO' : `NÍVEL<br><strong>${nivelAtual}</strong>`}
-                        </div>
-                    </div>
-
-                    <div class="inst-progress-bar">
-                        ${stepsHtml}
-                    </div>
-
-                    <div class="inst-status-atual">
-                        <strong>Status atual:</strong> ${infoAtual.titulo} — <em>${infoAtual.descricao}</em>
-                    </div>
-
-                    <details class="inst-detalhes">
-                        <summary>📋 Ver todos os níveis</summary>
-                        <div class="inst-niveis-lista">${listaNiveisHtml}</div>
-                    </details>
-
-                    <div class="inst-acoes">
-                        ${infoProximo ? `<div class="inst-proximo-info">⬆️ Próximo: <strong>${infoProximo.titulo}</strong> — ${infoProximo.descricao}</div>` : `<div class="inst-maximo-info">🏆 Instalação no nível máximo!</div>`}
+                <div class="instalacao-card">
+                    <h4>${data.nome}</h4>
+                    <p>Nível Atual: <span class="level-display">${id === 'ers' ? nivelAtual : nivelAtual} / ${maxLevel}</span></p>
+                    <p>${data.descricao}</p>
+                    <p><strong>Bônus por Nível:</strong> ${data.bonusPorNivel}</p>
+                    <div class="custo-info">
+                        ${custoHtml}
                         ${botaoHtml}
                     </div>
                 </div>
@@ -3976,7 +3732,6 @@ document.addEventListener('DOMContentLoaded', () => {
                          <div>
                             <h4>Projeto de Conjunto Completo</h4>
                             <p>Inicie simultaneamente o desenvolvimento de 1 Motor, 1 Chassi, 1 Suspensão, 1 Asa Dianteira e 1 Asa Traseira. O custo total tem um acréscimo de 50% pela conveniência.</p>
-                            <p style="color: #e67e22; font-size: 0.9em;">🎲 <strong>Bônus especial:</strong> Um dado é lançado ao iniciar e pode reduzir o tempo em até <strong>3 corridas</strong>! Dado 2+: −1 corrida · Dado 3+: −2 corridas · Dado 5+: −3 corridas.</p>
                         </div>
                         <div class="pd-controles">
                              <select id="pd-project-duration" class="form-group" data-action="calcular-custo-pd">
@@ -4212,52 +3967,21 @@ document.addEventListener('DOMContentLoaded', () => {
             meusPilotosContainer.innerHTML += '<div class="piloto-card" style="display: flex; align-items: center; justify-content: center; color: #888; border-style: dashed;"><h4>Vaga para Piloto 2</h4></div>';
         }
 
-        const reservasAtuais = gameState.pilotos.filter(p => p.status === 'Reserva');
+        const pilotoReserva = gameState.pilotos.find(p => p.status === 'Reserva');
         const vagaNaEquipePrincipal = !pilotoCarro1 || !pilotoCarro2;
         const treinadorContratado = gameState.escuderia.especialistas.find(e => e.tipo === 'Treinador de Pilotos');
-        const nivelSimulador = gameState.instalacoes.simulador;
-        const vagaReservaDesbloqueada = treinadorContratado || nivelSimulador >= 4;
-        const maxReservas = nivelSimulador >= 4 ? 2 : 1;
-        const restricaoIdade = nivelSimulador >= 5 ? 'Qualquer idade.' : 'Menos de 23 anos.';
-        const origemVaga = treinadorContratado ? 'Treinador de Pilotos' : `Simulador Nível ${nivelSimulador}`;
-
-        // ── Card central: emblema da equipe (posição 3 de 5) ──
-        meusPilotosContainer.innerHTML += `<div class="equipe-emblema-card"><div id="emblema-display-pilotos-aba"></div></div>`;
-
-        // Renderiza reservas existentes
-        reservasAtuais.forEach((r, i) => {
-            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(r, `Reserva ${reservasAtuais.length > 1 ? i + 1 : ''}`.trim(), vagaNaEquipePrincipal);
-        });
-
-        // Renderiza vagas de reserva vazias
-        if (vagaReservaDesbloqueada) {
-            const vagasVazias = maxReservas - reservasAtuais.length;
-            for (let i = 0; i < vagasVazias; i++) {
-                const labelVaga = maxReservas > 1 ? `Vaga de Reserva ${reservasAtuais.length + i + 1}` : 'Vaga de Piloto Reserva';
-                meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>${labelVaga}</h4><p style="font-size:0.9em;">Desbloqueada pelo ${origemVaga}. ${restricaoIdade}</p></div></div>`;
-            }
+        if (pilotoReserva) {
+            meusPilotosContainer.innerHTML += gerarCardPilotoHtml(pilotoReserva, 'Reserva', vagaNaEquipePrincipal);
         } else {
-            meusPilotosContainer.innerHTML += `<div class="piloto-card vaga-reserva"><div><h4>Vaga Bloqueada</h4><p style="font-size:0.9em;">Contrate um Treinador de Pilotos ou construa o Simulador até o Nível 4 para desbloquear.</p></div></div>`;
+            if (treinadorContratado) {
+                meusPilotosContainer.innerHTML += '<div class="piloto-card vaga-reserva"><div><h4>Vaga de Piloto Reserva</h4><p style="font-size: 0.9em;">Contrate um piloto com menos de 23 anos do mercado.</p></div></div>';
+            } else {
+                meusPilotosContainer.innerHTML += '<div class="piloto-card vaga-reserva"><div><h4>Vaga Bloqueada</h4><p style="font-size: 0.9em;">Contrate um Treinador de Pilotos para desbloquear esta vaga.</p></div></div>';
+            }
         }
 
-        // Botão do Olheiro
-        const olheiroContratado2 = gameState.escuderia.especialistas.find(e => e.tipo === 'Olheiro');
-        const temDinheiroOlheiro = gameState.escuderia.dinheiro >= CUSTO_OLHEIRO_MERCADO;
-        const olheiroBonusTexto = olheiroContratado2 ? ' <span style="color:#28a745;font-size:0.85em;">🔍 Olheiro contratado: mais e melhores pilotos!</span>' : '';
-        mercadoPilotosContainer.innerHTML = `
-            <div class="olheiro-action-bar">
-                <div>
-                    <strong>🔍 Olheiro</strong> — Acione para vasculhar o mercado e trazer novos pilotos disponíveis.${olheiroBonusTexto}
-                </div>
-                <button class="btn-corrida btn-real" data-action="acionar-olheiro" ${temDinheiroOlheiro ? '' : 'disabled'}>
-                    ${temDinheiroOlheiro ? '🔍' : '💸'} Atualizar Mercado — R$ ${CUSTO_OLHEIRO_MERCADO.toLocaleString('pt-BR')}
-                </button>
-            </div>`;
-
+        meusPilotosContainer.innerHTML += `<div class="equipe-emblema-card"><div id="emblema-display-pilotos-aba"></div></div>`;
         const pilotosDeMercado = gameState.pilotos.filter(p => p.status === 'Disponível');
-        if (pilotosDeMercado.length === 0) {
-            mercadoPilotosContainer.innerHTML += '<p style="text-align:center; color:#888; margin-top:1rem;">Nenhum piloto disponível no momento. Acione o Olheiro para buscar novos talentos.</p>';
-        }
         pilotosDeMercado.forEach(piloto => { mercadoPilotosContainer.innerHTML += gerarCardPilotoHtml(piloto); });
         const pilotosAtivosIA = gameState.pilotos.filter(p => p.status !== 'Jogador' && p.status !== 'Reserva' && p.status !== 'Disponível' && p.status !== 'Indisponível');
         const equipesOrdenadas = [...equipesIA].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -4392,7 +4116,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             </thead>
                             <tbody></tbody>
                         </table>
-                        <div id="sc-historico-container"></div>
                     </div>
                 </div>
                 <div class="setup-coluna" id="coluna-direita-corrida">
@@ -5914,7 +5637,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (action === 'contratar-piloto') contratarPiloto(parseInt(target.dataset.pilotoId));
         else if (action === 'dispensar-piloto') dispensarPiloto(parseInt(target.dataset.pilotoId));
         else if (action === 'promover-piloto') promoverPilotoReserva(parseInt(target.dataset.pilotoId));
-        else if (action === 'acionar-olheiro') acionarOlheiro();
         else if (target.matches('#btn-salvar-nome')) {
             mudarNomeEquipe();
         }
@@ -6052,39 +5774,30 @@ document.addEventListener('DOMContentLoaded', () => {
             saveGame();
         }
         else if (target.matches('.btn-aceitar-patrocinio')) aceitarOfertaPatrocinio(parseInt(target.dataset.ofertaId));
-        else if (action === 'sc-parar') {
+        else if (action === 'sc-opcao') {
             const carroIndex = parseInt(target.dataset.carIndex);
+            const opcao = target.dataset.opcao;
             const carro = gameState.carros[carroIndex];
-            if (carro) {
-                carro._scDecisao = 'parar';
-                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
-                // Restaura estratégia proposta (com pit)
-                const ctx = raceData.scContexto?.[carro.pilotoId];
-                if (ctx?.estrategiaProposta) {
-                    carro.estrategia = JSON.parse(JSON.stringify(ctx.estrategiaProposta));
-                }
-                renderEstrategiaModalSC(voltasRestantes);
+            if (!carro) return;
+
+            const ctx = raceData.scContexto?.[carro.pilotoId] || {};
+            carro._scDecisao = opcao;
+
+            // Carrega estratégia sugerida para cada opção como ponto de partida
+            if (opcao === 'manter-planejar') {
+                carro.estrategia = JSON.parse(JSON.stringify(ctx.estrategiaSugeridaSemPit || { pneuInicial: ctx.pneuAtual, paradas: [] }));
+            } else if (opcao === 'trocar-planejar') {
+                carro.estrategia = JSON.parse(JSON.stringify(ctx.estrategiaSugeridaComPit || { pneuInicial: 'medio', paradas: [] }));
+            } else if (opcao === 'manter-final') {
+                carro.estrategia = { pneuInicial: ctx.pneuAtual, paradas: [] };
+            } else if (opcao === 'trocar-final') {
+                // Pré-seleciona um composto diferente do atual
+                const diferente = ['duro','medio','macio'].find(c => c !== ctx.pneuAtual) || 'medio';
+                carro.estrategia = { pneuInicial: diferente, paradas: [] };
             }
-        }
-        else if (action === 'sc-ficar') {
-            const carroIndex = parseInt(target.dataset.carIndex);
-            const carro = gameState.carros[carroIndex];
-            if (carro) {
-                const ctx = raceData.scContexto?.[carro.pilotoId];
-                if (ctx?.podeFicar) {
-                    carro._scDecisao = 'ficar';
-                    // Quando fica, a estratégia mantém o pneu original
-                    const participante = raceData.participantes.find(p => p.piloto.id === carro.pilotoId);
-                    if (participante) {
-                        carro.estrategia = {
-                            pneuInicial: participante.pneuAtual,
-                            paradas: []
-                        };
-                    }
-                    const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
-                    renderEstrategiaModalSC(voltasRestantes);
-                }
-            }
+
+            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+            renderEstrategiaModalSC(voltasRestantes);
         }
         else if (action === 'abrir-telemetria') {
             const raceIndex = parseInt(target.dataset.raceIndex);
