@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.3";
+    const VERSAO_JOGO = "21.0.2";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -2764,9 +2764,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Caixa de prêmio
         const posMedal = ['🥇','🥈','🥉'];
-        const medalha = posMedal[nossaPosicao - 1] || `${nossaPosicao}º`;
+        const medalha = posMedal[nossaPosicao - 1] || '';
+        const posLabel = medalha
+            ? `${medalha} ${nossaPosicao}º lugar`
+            : `${nossaPosicao}º lugar`;
         document.getElementById('se-prize-box').innerHTML = nossaPosicao > 0 && premioRecebido > 0
-            ? `<div class="se-prize-pos">${medalha} ${nossaPosicao}º lugar no Campeonato de Construtores</div>
+            ? `<div class="se-prize-pos">${posLabel} no Campeonato de Construtores</div>
                <div class="se-prize-valor">+ R$ ${premioRecebido.toLocaleString('pt-BR')}</div>
                <div class="se-prize-saldo">Saldo atual: R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</div>`
             : `<div class="se-prize-pos">Sem posição classificada este ano.</div>`;
