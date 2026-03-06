@@ -3433,3 +3433,251 @@ font-size: 0.8em;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
+/* ================================================================
+   MODAL FIM DE TEMPORADA
+   ================================================================ */
+
+#season-end-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(6px);
+}
+#season-end-modal.hidden { display: none; }
+
+.season-end-overlay {
+    width: 100%;
+    max-width: 860px;
+    margin: auto;
+}
+
+.season-end-content {
+    background: linear-gradient(160deg, #0d0d20 0%, #110b22 100%);
+    border: 1px solid #2a1f4a;
+    border-radius: 16px;
+    padding: 2rem 2rem 1.5rem;
+    box-shadow: 0 0 60px rgba(100, 30, 200, 0.25), 0 0 0 1px rgba(255,255,255,0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.season-end-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.season-end-trophy {
+    font-size: 3rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 16px gold);
+}
+
+.season-end-title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: #fff;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.season-end-subtitle {
+    font-size: 0.82rem;
+    color: #888;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Champion banners */
+.se-champion-banners {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.se-champion-banners.hidden { display: none; }
+
+.se-champion-badge {
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    animation: badge-pulse 2s ease-in-out infinite alternate;
+}
+.badge-construtores {
+    background: linear-gradient(90deg, #1a1000, #2a1c00, #1a1000);
+    border: 2px solid #c8900a;
+    color: #ffc107;
+}
+.badge-pilotos {
+    background: linear-gradient(90deg, #07001a, #120030, #07001a);
+    border: 2px solid #8b5cf6;
+    color: #c4b5fd;
+}
+@keyframes badge-pulse {
+    from { box-shadow: 0 0 8px rgba(200,144,10,0.3); }
+    to   { box-shadow: 0 0 20px rgba(200,144,10,0.6); }
+}
+
+/* Tables */
+.se-tables-row {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 1.2rem;
+}
+
+.se-table-block {
+    background: #09091a;
+    border: 1px solid #1c1c35;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.se-table-title {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #aaa;
+    border-bottom: 1px solid #1c1c35;
+    background: #0d0d22;
+}
+
+.se-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+.se-table thead tr {
+    background: #0a0a1c;
+}
+.se-table th {
+    padding: 0.45rem 0.7rem;
+    color: #555;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+}
+.se-table td {
+    padding: 0.45rem 0.7rem;
+    border-bottom: 1px solid #111128;
+    color: #ccc;
+}
+.se-table tr:last-child td { border-bottom: none; }
+.se-table tr.se-player-row td {
+    color: #fff;
+    font-weight: 700;
+    background: rgba(255, 200, 0, 0.05);
+}
+
+/* Prize section */
+.se-section-label {
+    margin: 0 0 0.6rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    font-weight: 700;
+}
+
+.se-prize-section, .se-projetos-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.se-prize-box {
+    background: #09091a;
+    border: 1px solid #1e3a1e;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.se-prize-pos {
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+.se-prize-valor {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #4ade80;
+    letter-spacing: 0.02em;
+}
+
+.se-prize-saldo {
+    font-size: 0.78rem;
+    color: #666;
+}
+
+/* Projects */
+.se-projetos-section.hidden { display: none; }
+
+.se-projetos-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.se-projeto-tag {
+    background: #0d1f0d;
+    border: 1px solid #1e3a1e;
+    color: #4ade80;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+}
+
+/* Footer */
+.se-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #1c1c35;
+}
+
+.se-footer-hint {
+    font-size: 0.78rem;
+    color: #666;
+    text-align: center;
+    margin: 0;
+    max-width: 500px;
+    line-height: 1.5;
+}
+
+.btn-se-fechar {
+    background: linear-gradient(135deg, #e10600, #9b0400);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.85rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px rgba(225, 6, 0, 0.35);
+}
+.btn-se-fechar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(225, 6, 0, 0.5);
+}

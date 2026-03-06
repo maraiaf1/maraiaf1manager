@@ -470,6 +470,57 @@
             </div>
         </div>
     </div>
+    <!-- MODAL FIM DE TEMPORADA -->
+    <div id="season-end-modal" class="hidden">
+        <div class="season-end-overlay">
+            <div class="season-end-content">
+                <div class="season-end-header">
+                    <div class="season-end-trophy">🏆</div>
+                    <h1 class="season-end-title">TEMPORADA <span id="se-ano"></span> ENCERRADA</h1>
+                    <p class="season-end-subtitle">Classificação Final do Campeonato</p>
+                </div>
+
+                <!-- Banners de campeão -->
+                <div id="se-champion-banners" class="se-champion-banners hidden"></div>
+
+                <!-- Tabelas -->
+                <div class="se-tables-row">
+                    <div class="se-table-block">
+                        <h3 class="se-table-title">🏗️ Construtores</h3>
+                        <table class="se-table">
+                            <thead><tr><th>Pos</th><th>Equipe</th><th>Pts</th></tr></thead>
+                            <tbody id="se-tbody-construtores"></tbody>
+                        </table>
+                    </div>
+                    <div class="se-table-block">
+                        <h3 class="se-table-title">🧑‍✈️ Pilotos</h3>
+                        <table class="se-table">
+                            <thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>Pts</th></tr></thead>
+                            <tbody id="se-tbody-pilotos"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Premiação -->
+                <div class="se-prize-section">
+                    <h3 class="se-section-label">💰 Premiação Recebida</h3>
+                    <div id="se-prize-box" class="se-prize-box"></div>
+                </div>
+
+                <!-- Projetos concluídos na pré-temporada -->
+                <div id="se-projetos-section" class="se-projetos-section hidden">
+                    <h3 class="se-section-label">🔧 Projetos Concluídos na Pré-Temporada</h3>
+                    <div id="se-projetos-list" class="se-projetos-list"></div>
+                </div>
+
+                <div class="se-footer">
+                    <p class="se-footer-hint">O prêmio já foi creditado. Use a pré-temporada para construir peças e instalar melhorias antes da próxima temporada.</p>
+                    <button id="btn-fechar-season-modal" class="btn-se-fechar">🚀 Começar a Pré-Temporada</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

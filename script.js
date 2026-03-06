@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.2";
+    const VERSAO_JOGO = "21.0.3";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -2501,6 +2501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 participante.stintAtual = fazPit ? 0 : participante.stintAtual;
             }
 
+            carro._scDecisaoAplicada = decisao; // salva antes de deletar
             delete carro._scDecisao;
         });
 
@@ -2671,56 +2672,126 @@ document.addEventListener('DOMContentLoaded', () => {
          // --- FIM DO CÓDIGO FALTANTE ---
     }
 
-    function processarFimDeTemporada() {
-        alert("FIM DA TEMPORADA!\n\nConfira a classificação final na Aba Campeonato e receba seus bônus de premiação!");
+    // ================================================================
+    //  FIM DE TEMPORADA — Modal de resultados + premiação
+    // ================================================================
+
+    /**
+     * Fase 1: chamada ao fechar os resultados da última corrida.
+     * Atribui prêmios, detecta campeões, conclui projetos em andamento
+     * e exibe o modal visual. NÃO reseta o estado ainda.
+     */
+    function exibirModalFimDeTemporada() {
+        const ano = gameState.campeonato.ano;
         const classificacaoConstrutores = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
-        const classificacaoPilotos = [...gameState.campeonato.classificacaoPilotos].sort((a, b) => b.pontos - a.pontos);
-        const equipeCampe = classificacaoConstrutores[0];
+        const classificacaoPilotos     = [...gameState.campeonato.classificacaoPilotos].sort((a, b) => b.pontos - a.pontos);
+        const equipeCampe   = classificacaoConstrutores[0];
         const pilotoCampeao = classificacaoPilotos[0];
 
-        if (equipeCampe && equipeCampe.equipe === gameState.escuderia.nome) {
-            gameState.galeria.titulosConstrutores.push(gameState.campeonato.ano);
-            alert(`🏆 PARABÉNS! Sua equipe, ${gameState.escuderia.nome}, é a CAMPEÃ DE CONSTRUTORES de ${gameState.campeonato.ano}!`);
+        // ── Títulos ──────────────────────────────────────────────────
+        const ganheiConstrutores = equipeCampe && equipeCampe.equipe === gameState.escuderia.nome;
+        if (ganheiConstrutores && !gameState.galeria.titulosConstrutores.includes(ano)) {
+            gameState.galeria.titulosConstrutores.push(ano);
         }
-
+        let ganheiPilotos = false;
         if (pilotoCampeao) {
             const pilotoDaCasa = gameState.pilotos.find(p => p.nome === pilotoCampeao.piloto && p.status === 'Jogador');
             if (pilotoDaCasa) {
-                gameState.galeria.titulosPilotos.push(gameState.campeonato.ano);
-                pilotoDaCasa.campeonatosGanhos.push(gameState.campeonato.ano);
-                alert(`🏆 INCRÍVEL! Seu piloto, ${pilotoCampeao.piloto}, é o CAMPEÃO MUNDIAL DE PILOTOS de ${gameState.campeonato.ano}!`);
+                ganheiPilotos = true;
+                if (!gameState.galeria.titulosPilotos.includes(ano)) {
+                    gameState.galeria.titulosPilotos.push(ano);
+                    pilotoDaCasa.campeonatosGanhos.push(ano);
+                }
             }
         }
 
+        // ── Premiação ────────────────────────────────────────────────
         const nossaPosicao = classificacaoConstrutores.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
-        const bonus = { 1: 7000000, 2: 4500000, 3: 3500000, 4: 2500000, 5: 1000000 };
-        if (nossaPosicao > 0 && bonus[nossaPosicao]) {
-            gameState.escuderia.dinheiro += bonus[nossaPosicao];
-            alert(`Parabéns pelo ${nossaPosicao}º lugar no Campeonato de Construtores! Você ganhou um bônus de R$ ${bonus[nossaPosicao].toLocaleString('pt-BR')}!`);
-        }
+        const tabelaBonus  = { 1: 20000000, 2: 17000000, 3: 14000000, 4: 12000000, 5: 10500000, 6: 9500000, 7: 8500000, 8: 7500000, 9: 6500000, 10: 5500000, 11: 4500000, 12: 3500000 };
+        const premioRecebido = tabelaBonus[nossaPosicao] || 0;
+        if (premioRecebido > 0) gameState.escuderia.dinheiro += premioRecebido;
 
-        const projetosConcluidosNaPreTemporada = [];
+        // ── Projetos concluídos no recesso ───────────────────────────
+        const projetosConcluidos = [];
         gameState.projetosEmAndamento.forEach(projeto => {
             if (projeto.status === 'em_andamento') {
                 projeto.duracaoRestante = 0;
                 projeto.status = 'concluido';
                 projeto.pecaConcluida = criarPecaDeProjeto(projeto);
-                if (projeto.pecaConcluida) {
-                    projetosConcluidosNaPreTemporada.push(projeto.pecaConcluida.nome);
-                }
+                if (projeto.pecaConcluida) projetosConcluidos.push(projeto.pecaConcluida.nome);
             }
         });
-        if (projetosConcluidosNaPreTemporada.length > 0) {
-            setTimeout(() => {
-                alert(`Desenvolvimento na Pré-Temporada!\n\nDurante o recesso, sua equipe de P&D finalizou os seguintes projetos:\n\n- ${projetosConcluidosNaPreTemporada.join('\n- ')}\n\nAs novas peças estão disponíveis na aba Escuderia.`);
-            }, 1500);
+
+        saveGame();
+
+        // ── Preenche o modal ──────────────────────────────────────────
+        document.getElementById('se-ano').textContent = ano;
+
+        // Banners de campeão
+        const bannersDiv = document.getElementById('se-champion-banners');
+        const banners = [];
+        if (ganheiConstrutores) banners.push(`<div class="se-champion-badge badge-construtores">🏆 CAMPEÃO DE CONSTRUTORES ${ano} — ${gameState.escuderia.nome}</div>`);
+        if (ganheiPilotos)      banners.push(`<div class="se-champion-badge badge-pilotos">🌟 CAMPEÃO MUNDIAL DE PILOTOS ${ano} — ${pilotoCampeao.piloto}</div>`);
+        if (banners.length > 0) {
+            bannersDiv.innerHTML = banners.join('');
+            bannersDiv.classList.remove('hidden');
+        } else {
+            bannersDiv.classList.add('hidden');
         }
 
+        // Tabela Construtores
+        document.getElementById('se-tbody-construtores').innerHTML = classificacaoConstrutores.map((e, i) => {
+            const cor = getCorDaEquipe(e.equipe);
+            const isPlayer = e.equipe === gameState.escuderia.nome;
+            return `<tr class="${isPlayer ? 'se-player-row' : ''}" style="border-left: 4px solid ${cor}">
+                <td>${i + 1}${i === 0 ? ' 🏆' : ''}</td>
+                <td>${e.equipe}</td>
+                <td>${e.pontos}</td>
+            </tr>`;
+        }).join('');
+
+        // Tabela Pilotos
+        document.getElementById('se-tbody-pilotos').innerHTML = classificacaoPilotos.map((p, i) => {
+            const cor = getCorDaEquipe(p.equipe);
+            const isPlayer = p.equipe === gameState.escuderia.nome;
+            return `<tr class="${isPlayer ? 'se-player-row' : ''}" style="border-left: 4px solid ${cor}">
+                <td>${i + 1}${i === 0 ? ' 🌟' : ''}</td>
+                <td>${p.piloto}</td>
+                <td>${p.equipe}</td>
+                <td>${p.pontos}</td>
+            </tr>`;
+        }).join('');
+
+        // Caixa de prêmio
+        const posMedal = ['🥇','🥈','🥉'];
+        const medalha = posMedal[nossaPosicao - 1] || `${nossaPosicao}º`;
+        document.getElementById('se-prize-box').innerHTML = nossaPosicao > 0 && premioRecebido > 0
+            ? `<div class="se-prize-pos">${medalha} ${nossaPosicao}º lugar no Campeonato de Construtores</div>
+               <div class="se-prize-valor">+ R$ ${premioRecebido.toLocaleString('pt-BR')}</div>
+               <div class="se-prize-saldo">Saldo atual: R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</div>`
+            : `<div class="se-prize-pos">Sem posição classificada este ano.</div>`;
+
+        // Projetos
+        const projetosSection = document.getElementById('se-projetos-section');
+        if (projetosConcluidos.length > 0) {
+            document.getElementById('se-projetos-list').innerHTML = projetosConcluidos.map(nome => `<span class="se-projeto-tag">✅ ${nome}</span>`).join('');
+            projetosSection.classList.remove('hidden');
+        } else {
+            projetosSection.classList.add('hidden');
+        }
+
+        document.getElementById('season-end-modal').classList.remove('hidden');
+    }
+
+    /**
+     * Fase 2: chamada ao clicar "Iniciar Nova Temporada".
+     * Reseta o estado, evolui IA, avança o ano. Sem alerts.
+     */
+    function processarFimDeTemporada() {
         processarReajusteSalarialEspecialistas();
         processarEnvelhecimentoPilotos();
         atualizarMercadoDePilotos(gameState.pilotos);
         evoluirCarrosIA();
-        alert("O mercado de pilotos foi atualizado para a nova temporada!");
 
         gameState.campeonato.ano++;
         gameState.campeonato.corridaAtualIndex = 0;
@@ -2772,7 +2843,7 @@ document.addEventListener('DOMContentLoaded', () => {
             detalhesReajuste.push(`${especialista.nome}: R$ ${salarioAntigo.toLocaleString('pt-BR')} -> R$ ${especialista.salario.toLocaleString('pt-BR')}`);
         });
         setTimeout(() => {
-            alert(`Reajuste Salarial de Fim de Temporada!\n\nCom base no seu ${nossaPosicao}º lugar no campeonato de construtores, os salários da sua equipe técnica foram reajustados em ${(percentualDeAumento * 100)}%:\n\n${detalhesReajuste.join('\n')}`);
+            // Reajuste silencioso — informado via modal de fim de temporada
         }, 1000);
     }
 
@@ -6075,27 +6146,22 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (target.matches('#btn-fechar-resultados')) {
             const isSeasonOver = gameState.campeonato.corridaAtualIndex >= calendarioCorridas.length;
             if (isSeasonOver) {
-                document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
-                const campTabBtn = document.querySelector('.tab-btn[data-tab="campeonato"]');
-                const campTabPane = document.getElementById('campeonato');
-                if (campTabBtn) campTabBtn.classList.add('active');
-                if (campTabPane) campTabPane.classList.add('active');
-                updateUI();
+                exibirModalFimDeTemporada();
             } else {
                 updateUI();
             }
         }
+        else if (target.matches('#btn-fechar-season-modal')) {
+            document.getElementById('season-end-modal').classList.add('hidden');
+            // Navega para aba campeonato para o jogador aproveitar a pré-temporada
+            document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
+            const campTabBtn = document.querySelector('.tab-btn[data-tab="campeonato"]');
+            const campTabPane = document.getElementById('campeonato');
+            if (campTabBtn) campTabBtn.classList.add('active');
+            if (campTabPane) campTabPane.classList.add('active');
+            updateUI();
+        }
         else if (target.matches('#btn-confirmar-sc')) {
-            // Valida as estratégias antes de confirmar
-            const carrosValidos = gameState.carros.every(c => {
-                if (!c.pilotoId) return true;
-                const ctxSC = raceData.safetyCarAtivo ? { voltaAtual: raceData.voltaAtual } : null;
-                return getErrosEstrategia(c.estrategia, ctxSC).length === 0;
-            });
-            if (!carrosValidos) {
-                alert('⚠️ Estratégia inválida! Verifique as configurações antes de confirmar.');
-                return;
-            }
             fecharModalSafetyCar();
         }
         else if (target.matches('#btn-sc-auto')) {
@@ -6126,8 +6192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (target.matches('.btn-add-stint')) {
             const carroIndex = parseInt(target.dataset.carIndex);
             const carro = gameState.carros[carroIndex];
-            const ultimaParada = carro.estrategia.paradas.length > 0 ? carro.estrategia.paradas.at(-1).pararNaVolta : 0;
-            carro.estrategia.paradas.push({ pararNaVolta: ultimaParada + 15, colocarPneu: 'duro' });
+            const voltaBase = carro.estrategia.paradas.length > 0 ? carro.estrategia.paradas.at(-1).pararNaVolta : (raceData?.voltaAtual || 0);
+            const voltaMax  = raceData ? raceData.totalVoltas - 1 : 999;
+            const novavolta = Math.min(voltaBase + 15, voltaMax);
+            carro.estrategia.paradas.push({ pararNaVolta: novavolta, colocarPneu: 'duro' });
             if (raceData.safetyCarAtivo) {
                 const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
                 renderEstrategiaModalSC(voltasRestantes);
