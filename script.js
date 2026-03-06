@@ -1950,6 +1950,12 @@ document.addEventListener('DOMContentLoaded', () => {
         animacaoAtiva = false;
         pilotosMonitorados = []; // Zera o watchlist ao fim da corrida
 
+        // Limpa o card de "Novas Estratégias" do Safety Car ao fim da corrida
+        if (raceData) {
+            delete raceData.ultimoSCResumo;
+            delete raceData.voltaSCAtivado;
+        }
+
         animarBandeirada().then(() => {
             document.getElementById('corrida').classList.remove('race-in-progress');
             processarResultados(raceData.participantes, raceData.pilotoMelhorVolta);
@@ -5943,7 +5949,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Watchlist: toggle pelo ícone 👁️ na tabela ou pelo botão ✕ no card
     document.body.addEventListener('click', (e) => {
-        const target = e.target;
+        // Resolve o alvo real: se clicou num filho (span, strong, small),
+        // sobe até o elemento com data-action para capturar corretamente
+        const target = e.target.closest('[data-action]') || e.target;
         const action = target.dataset.action;
 
         // Toggle monitoramento pelo ícone 👁️ na tabela
@@ -6257,6 +6265,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.campeonato.feriaVeraoFeita = true;
             saveGame();
             updateUI();
+        }
+        else if (target.matches('#btn-confirmar-sc')) {
+            fecharModalSafetyCar();
         }
         else if (target.matches('#btn-sc-auto')) {
             const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
