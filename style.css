@@ -3681,3 +3681,164 @@ font-size: 0.8em;
     transform: translateY(-2px);
     box-shadow: 0 6px 28px rgba(225, 6, 0, 0.5);
 }
+
+/* ================================================================
+   FÉRIAS DE VERÃO
+   ================================================================ */
+
+.ferias-container {
+    max-width: 680px;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ferias-header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: linear-gradient(135deg, #0a1628, #0d1f3c);
+    border: 1px solid #1a3a6a;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 0 30px rgba(30, 90, 200, 0.15);
+}
+
+.ferias-icon {
+    font-size: 3rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 10px rgba(255,220,50,0.5));
+}
+
+.ferias-title {
+    margin: 0 0 0.2rem;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.06em;
+}
+
+.ferias-subtitle {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #7a9ec8;
+    letter-spacing: 0.04em;
+}
+
+/* Info grid */
+.ferias-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+}
+
+.ferias-info-card {
+    background: #09091a;
+    border: 1px solid #1c1c35;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    text-align: center;
+}
+
+.ferias-info-icon { font-size: 1.4rem; }
+.ferias-info-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.06em; }
+.ferias-info-valor { font-size: 0.88rem; font-weight: 700; color: #ccc; }
+
+/* Projects */
+.ferias-projetos-section {
+    background: #09091a;
+    border: 1px solid #1c1c35;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+}
+
+.ferias-projetos-title {
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+}
+
+.ferias-projetos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ferias-projeto-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0.6rem;
+    background: #0d0d22;
+    border-radius: 6px;
+    border: 1px solid #1a1a30;
+}
+
+.ferias-proj-nome {
+    font-size: 0.82rem;
+    color: #ccc;
+}
+
+.ferias-proj-status {
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+.ferias-proj-status.conclui  { color: #4ade80; }
+.ferias-proj-status.continua { color: #f59e0b; }
+
+.ferias-sem-projetos {
+    font-size: 0.82rem;
+    color: #555;
+    margin: 0;
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+/* Footer */
+.ferias-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ferias-aviso {
+    font-size: 0.78rem;
+    color: #666;
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 520px;
+}
+
+.btn-ferias-encerrar {
+    background: linear-gradient(135deg, #e10600, #9b0400);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.9rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px rgba(225, 6, 0, 0.35);
+}
+.btn-ferias-encerrar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(225, 6, 0, 0.5);
+}

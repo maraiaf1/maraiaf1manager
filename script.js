@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.2";
+    const VERSAO_JOGO = "21.0.4";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -2711,16 +2711,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const premioRecebido = tabelaBonus[nossaPosicao] || 0;
         if (premioRecebido > 0) gameState.escuderia.dinheiro += premioRecebido;
 
-        // ── Projetos concluídos no recesso ───────────────────────────
-        const projetosConcluidos = [];
-        gameState.projetosEmAndamento.forEach(projeto => {
-            if (projeto.status === 'em_andamento') {
-                projeto.duracaoRestante = 0;
-                projeto.status = 'concluido';
-                projeto.pecaConcluida = criarPecaDeProjeto(projeto);
-                if (projeto.pecaConcluida) projetosConcluidos.push(projeto.pecaConcluida.nome);
-            }
-        });
+        // ── Projetos em andamento — só prévia no modal ───────────────
+        // A conclusão real ocorre ao clicar "Iniciar Nova Temporada"
+        const projetosEmAndamento = gameState.projetosEmAndamento
+            .filter(p => p.status === 'em_andamento')
+            .map(p => p.tipoPeca || p.nomeEspecialista || 'Projeto');
 
         saveGame();
 
@@ -2774,10 +2769,10 @@ document.addEventListener('DOMContentLoaded', () => {
                <div class="se-prize-saldo">Saldo atual: R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</div>`
             : `<div class="se-prize-pos">Sem posição classificada este ano.</div>`;
 
-        // Projetos
+        // Projetos — prévia do que será concluído no off-season
         const projetosSection = document.getElementById('se-projetos-section');
-        if (projetosConcluidos.length > 0) {
-            document.getElementById('se-projetos-list').innerHTML = projetosConcluidos.map(nome => `<span class="se-projeto-tag">✅ ${nome}</span>`).join('');
+        if (projetosEmAndamento.length > 0) {
+            document.getElementById('se-projetos-list').innerHTML = projetosEmAndamento.map(nome => `<span class="se-projeto-tag">🔧 ${nome} — concluirá no off-season</span>`).join('');
             projetosSection.classList.remove('hidden');
         } else {
             projetosSection.classList.add('hidden');
@@ -2788,9 +2783,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Fase 2: chamada ao clicar "Iniciar Nova Temporada".
-     * Reseta o estado, evolui IA, avança o ano. Sem alerts.
+     * Conclui projetos em andamento (off-season), reseta o estado, evolui IA, avança o ano.
      */
     function processarFimDeTemporada() {
+        // ── Conclui todos os projetos em andamento (passa o off-season) ──
+        gameState.projetosEmAndamento.forEach(projeto => {
+            if (projeto.status === 'em_andamento') {
+                projeto.duracaoRestante = 0;
+                projeto.status = 'concluido';
+                projeto.pecaConcluida = criarPecaDeProjeto(projeto);
+            }
+        });
+
         processarReajusteSalarialEspecialistas();
         processarEnvelhecimentoPilotos();
         atualizarMercadoDePilotos(gameState.pilotos);
@@ -2801,6 +2805,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.campeonato.classificacaoPilotos = [];
         gameState.campeonato.classificacaoConstrutores = [];
         gameState.campeonato.resultadosCorridas = [];
+        gameState.campeonato.feriaVeraoFeita = false;
     }
 
     function processarPagamentoDeSalarios() {
@@ -4193,6 +4198,69 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSeasonOver = gameState.campeonato.corridaAtualIndex >= calendarioCorridas.length;
         if (isSeasonOver) {
             corridaDiv.innerHTML = `<div class="corrida-start-container" style="text-align:center;"><h2>Temporada de ${gameState.campeonato.ano} Concluída!</h2><p>Visite a Aba Campeonato para ver a classificação final.</p><button id="btn-iniciar-nova-temporada" class="btn-corrida btn-real">Iniciar Temporada de ${gameState.campeonato.ano + 1}</button></div>`;
+            return;
+        }
+
+        // ── FÉRIAS DE VERÃO ─────────────────────────────────────────────
+        // Ocorrem entre a Hungria (índice 12) e a Holanda (índice 13).
+        // Mostradas uma única vez por temporada (flag feriaVeraoFeita).
+        const INDICE_FERIAS = 13; // índice da corrida que começa depois das férias
+        const isFeriasDeVerao = gameState.campeonato.corridaAtualIndex === INDICE_FERIAS
+                                && !gameState.campeonato.feriaVeraoFeita;
+        if (isFeriasDeVerao) {
+            // Calcula projetos em andamento e quantos serão concluídos
+            const projetosAtivos = gameState.projetosEmAndamento.filter(p => p.status === 'em_andamento');
+            const projetosRows = projetosAtivos.length > 0
+                ? projetosAtivos.map(p => {
+                    const restante = Math.max(0, p.duracaoRestante - 5);
+                    const conclui  = p.duracaoRestante <= 5;
+                    return `<div class="ferias-projeto-row">
+                        <span class="ferias-proj-nome">${p.tipoPeca}</span>
+                        <span class="ferias-proj-status ${conclui ? 'conclui' : 'continua'}">
+                            ${conclui ? '✅ Concluirá nas férias' : `⏳ Restam ${restante} corridas após`}
+                        </span>
+                    </div>`;
+                }).join('')
+                : `<p class="ferias-sem-projetos">Nenhum projeto em andamento no momento.</p>`;
+
+            corridaDiv.innerHTML = `
+                <div class="ferias-container">
+                    <div class="ferias-header">
+                        <span class="ferias-icon">🏖️</span>
+                        <div>
+                            <h2 class="ferias-title">FÉRIAS DE VERÃO DA F1</h2>
+                            <p class="ferias-subtitle">Pausa obrigatória entre o GP da Hungria e o GP da Holanda</p>
+                        </div>
+                    </div>
+
+                    <div class="ferias-info-grid">
+                        <div class="ferias-info-card">
+                            <div class="ferias-info-icon">📅</div>
+                            <div class="ferias-info-label">Duração</div>
+                            <div class="ferias-info-valor">~4 semanas</div>
+                        </div>
+                        <div class="ferias-info-card">
+                            <div class="ferias-info-icon">⚙️</div>
+                            <div class="ferias-info-label">Progresso de P&D</div>
+                            <div class="ferias-info-valor">+5 corridas equivalentes</div>
+                        </div>
+                        <div class="ferias-info-card">
+                            <div class="ferias-info-icon">💰</div>
+                            <div class="ferias-info-label">Salários</div>
+                            <div class="ferias-info-valor">Descontados normalmente</div>
+                        </div>
+                    </div>
+
+                    <div class="ferias-projetos-section">
+                        <h3 class="ferias-projetos-title">📦 Projetos em andamento</h3>
+                        <div class="ferias-projetos-list">${projetosRows}</div>
+                    </div>
+
+                    <div class="ferias-footer">
+                        <p class="ferias-aviso">Durante as férias, sua equipe de P&D continua trabalhando. Use esse tempo para contratar especialistas e iniciar novos projetos antes de retomar o campeonato.</p>
+                        <button id="btn-encerrar-ferias" class="btn-ferias-encerrar">🏁 Encerrar Férias e Ir para a Holanda</button>
+                    </div>
+                </div>`;
             return;
         }
 
@@ -6164,8 +6232,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (campTabPane) campTabPane.classList.add('active');
             updateUI();
         }
-        else if (target.matches('#btn-confirmar-sc')) {
-            fecharModalSafetyCar();
+        else if (target.matches('#btn-encerrar-ferias')) {
+            // Avança 5 ciclos de projetos (equivalente a 5 corridas de P&D)
+            const projetosConcluidos = [];
+            for (let ciclo = 0; ciclo < 5; ciclo++) {
+                gameState.projetosEmAndamento.forEach(projeto => {
+                    if (projeto.status === 'em_andamento') {
+                        projeto.duracaoRestante--;
+                        if (projeto.duracaoRestante <= 0) {
+                            projeto.status = 'concluido';
+                            projeto.pecaConcluida = criarPecaDeProjeto(projeto);
+                            if (projeto.pecaConcluida && !projetosConcluidos.includes(projeto.pecaConcluida.nome)) {
+                                projetosConcluidos.push(projeto.pecaConcluida.nome);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Desconta salários do período (1 ciclo — já é um custo considerável)
+            processarPagamentoDeSalarios();
+
+            // Marca férias como realizadas nesta temporada
+            gameState.campeonato.feriaVeraoFeita = true;
+            saveGame();
+            updateUI();
         }
         else if (target.matches('#btn-sc-auto')) {
             const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
