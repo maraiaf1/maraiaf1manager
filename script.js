@@ -3669,6 +3669,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderEscuderia() {
+        const elVersao = document.getElementById('versao-jogo');
+        if (elVersao) elVersao.textContent = `v${VERSAO_JOGO}`;
+
         document.getElementById('escuderia-nome').textContent = gameState.escuderia.nome;
         document.querySelectorAll('.escuderia-dinheiro-display').forEach(el => { el.textContent = gameState.escuderia.dinheiro.toLocaleString('pt-BR'); });
         document.getElementById('input-nome-escuderia').value = gameState.escuderia.nome;
