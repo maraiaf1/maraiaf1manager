@@ -124,14 +124,28 @@ document.addEventListener('DOMContentLoaded', () => {
         "GP de Abu Dhabi (Yas Marina)": [{ x: 360, y: 190 }, 	{ x: 360, y: 350 }, 	{ x: 370, y: 360 }, 	{ x: 420, y: 360 }, 	{ x: 430, y: 350 }, 	{ x: 440, y: 320 }, 	{ x: 450, y: 300 }, 	{ x: 470, y: 290 }, 	{ x: 490, y: 300 }, 	{ x: 520, y: 320 }, 	{ x: 540, y: 330 }, 	{ x: 610, y: 330 }, 	{ x: 630, y: 320 }, 	{ x: 630, y: 310 }, 	{ x: 620, y: 290 }, 	{ x: 330, y: 80 }, 	{ x: 330, y: 120 }, 	{ x: 300, y: 120 }, 	{ x: 270, y: 130 }, 	{ x: 240, y: 160 }, 	{ x: 170, y: 240 }, 	{ x: 130, y: 320 }, 	{ x: 120, y: 340 }, 	{ x: 120, y: 360 }, 	{ x: 130, y: 370 }, 	{ x: 150, y: 380 }, 	{ x: 170, y: 370 }, 	{ x: 180, y: 340 }, 	{ x: 180, y: 280 }, 	{ x: 190, y: 260 }, 	{ x: 210, y: 230 }, 	{ x: 240, y: 230 }, 	{ x: 250, y: 240 }, 	{ x: 250, y: 270 }, 	{ x: 260, y: 280 }, 	{ x: 280, y: 290 }, 	{ x: 290, y: 280 }, 	{ x: 290, y: 180 }, 	{ x: 300, y: 160 }, 	{ x: 340, y: 140 }, 	{ x: 350, y: 140 }, 	{ x: 360, y: 150 }, 	{ x: 360, y: 190 }]
     };
     const pneus = {
-        // voltasGratis: voltas iniciais do stint sem acumulação de penalidade de desgaste.
-        // O pneu duro tem mais borracha e demora mais para começar a degradar —
-        // as primeiras 10 voltas rodam como se o desgaste fosse zero para efeito de tempo.
-        // Macio e médio não têm essa graça: começam a degradar desde a volta 1.
         macio: { nome: 'Macio', multiplicadorPerformance: 1.35, desgastePorVolta: 4.99, duracaoIdeal: 0.33, voltasGratis: 0  },
         medio: { nome: 'Médio', multiplicadorPerformance: 1.00, desgastePorVolta: 3.00, duracaoIdeal: 0.45, voltasGratis: 0  },
         duro:  { nome: 'Duro',  multiplicadorPerformance: 0.988,desgastePorVolta: 1.90, duracaoIdeal: 0.65, voltasGratis: 10 }
     };
+
+    // ---------------------------------------------------------------------------
+    // BÔNUS DE TEMPERATURA DO PNEU DURO POR PISTA
+    // Na F1 real, o duro precisa de calor para funcionar na janela ideal.
+    // Em pistas de alta aderência (>0.7) a pista aquece o pneu — duro ganha ritmo.
+    // Em pistas de baixa aderência (<0.5) o duro fica frio e perde agarre.
+    // Retorna segundos a SUBTRAIR do tempo de volta (positivo = duro mais rápido).
+    // ---------------------------------------------------------------------------
+    function calcularBonusDuroPista(demandaAderencia) {
+        if (demandaAderencia >= 0.7) {
+            // linear: 0s em dem=0.7 → +0.40s/v em dem=0.9
+            return ((demandaAderencia - 0.7) / 0.2) * 0.40;
+        } else if (demandaAderencia < 0.5) {
+            // linear: 0s em dem=0.5 → -0.20s/v em dem=0.3
+            return -((0.5 - demandaAderencia) / 0.2) * 0.20;
+        }
+        return 0.0; // zona neutra 0.5–0.7: sem efeito
+    }
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
     const especialistaHabilidades = {
         "Aerodinamicista": ["Asa Dianteira", "Asa Traseira"],
@@ -1913,7 +1927,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const pontuacaoCarro = ((carro.potencia * pista.demandaMotor) + (carro.aerodinamica * pista.demandaAero) + (carro.aderencia * pista.demandaAderencia)) * multiPneu;
         const fatorDesempenho = pontuacaoCarro / 100;
         const fatorSorte = (Math.random() - 0.5) * (0.6 * fatorConsistencia);
-        return pista.tempoBaseVolta - fatorDesempenho - bonusHabilidade + penDesgaste + penCombustivel + fatorSorte - bonusERS;
+        // Bônus do pneu duro em pistas de alta aderência (pneu na janela ideal de temperatura)
+        const bonusDuro = (participante.pneuAtual === 'duro') ? calcularBonusDuroPista(pista.demandaAderencia) : 0;
+        return pista.tempoBaseVolta - fatorDesempenho - bonusHabilidade + penDesgaste + penCombustivel + fatorSorte - bonusERS - bonusDuro;
     }
 
 
@@ -1968,16 +1984,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let penalidadeDesgaste;
             const desgasteSofrido = 100 - p.durabilidadePneu;
-            // Se o pneu tem voltas grátis (ex: duro = 10), subtrai o desgaste equivalente
-            // a essas voltas antes de calcular a penalidade. O efeito é que as primeiras
-            // voltasGratis rodam sem penalidade nenhuma — o pneu está ainda "acertando"
-            // a borracha na pista e opera na sua janela ideal.
-            const desgasteGratis = (pneuAtual.voltasGratis || 0) * pneuAtual.desgastePorVolta * fatorGerenciamento;
-            const desgasteSofridoEfetivo = Math.max(0, desgasteSofrido - desgasteGratis);
-            if (desgasteSofridoEfetivo <= 65) {
-                penalidadeDesgaste = desgasteSofridoEfetivo * 0.01;
+            if (desgasteSofrido <= 65) {
+                penalidadeDesgaste = desgasteSofrido * 0.01;
             } else {
-                const desgasteExcedente = desgasteSofridoEfetivo - 65;
+                const desgasteExcedente = desgasteSofrido - 65;
                 penalidadeDesgaste = (65 * 0.01) + (Math.pow(desgasteExcedente, 1.5) * 0.01);
             }
 
