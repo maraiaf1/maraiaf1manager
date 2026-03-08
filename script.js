@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.8";
+    const VERSAO_JOGO = "21.0.9";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -6567,6 +6567,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.campeonato.feriaVeraoFeita = true;
             saveGame();
             updateUI();
+        }
+        else if (target.matches('#btn-confirmar-sc')) {
+            fecharModalSafetyCar();
         }
         else if (target.matches('#btn-sc-auto')) {
             const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
