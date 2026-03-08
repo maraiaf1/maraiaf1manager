@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.9";
+    const VERSAO_JOGO = "21.0.10";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -807,7 +807,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (piloto.idade >= 35 && piloto.status === 'Jogador') {
             if (confirm(`Tem certeza que deseja aposentar ${piloto.nome}?\nEle será adicionado ao Hall da Fama e removido permanentemente do jogo.`)) {
-                const _statsSnap = gameState.galeria.estatisticasPilotos[piloto.nome] || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
+                const _statsSnap = gameState.galeria.estatisticasPilotos[piloto.nome]
+                               || gameState.galeria.estatisticasTodosPilotos?.[piloto.nome]
+                               || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
                 gameState.galeria.hallDaFama.push({
                     piloto: JSON.parse(JSON.stringify(piloto)),
                     anoAposentadoria: gameState.campeonato.ano,
@@ -817,6 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         vitorias: _statsSnap.vitorias || 0,
                         podios: _statsSnap.podios || 0,
                         pontos: _statsSnap.pontos || 0,
+                        equipe: _statsSnap.equipe || gameState.escuderia.nome || '',
                         titulos: (piloto.campeonatosGanhos && piloto.campeonatosGanhos.length) || 0
                     }
                 });
@@ -884,7 +887,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const equipeDoPiloto = pilotoAposentado.status;
 
             if (equipeDoPiloto === 'Jogador') {
-                const _statsSnap2 = gameState.galeria.estatisticasPilotos[pilotoAposentado.nome] || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
+                const _statsSnap2 = gameState.galeria.estatisticasPilotos[pilotoAposentado.nome]
+                                 || gameState.galeria.estatisticasTodosPilotos?.[pilotoAposentado.nome]
+                                 || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
                 gameState.galeria.hallDaFama.push({
                     piloto: JSON.parse(JSON.stringify(pilotoAposentado)),
                     anoAposentadoria: gameState.campeonato.ano,
@@ -894,6 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         vitorias: _statsSnap2.vitorias || 0,
                         podios: _statsSnap2.podios || 0,
                         pontos: _statsSnap2.pontos || 0,
+                        equipe: _statsSnap2.equipe || gameState.escuderia.nome || '',
                         titulos: (pilotoAposentado.campeonatosGanhos && pilotoAposentado.campeonatosGanhos.length) || 0
                     }
                 });
@@ -905,7 +911,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert(`Um novo talento da sua academia, ${novoPiloto.nome}, assume o lugar!`);
                 }
             } else if (equipeDoPiloto !== 'Disponível' && equipeDoPiloto !== 'Indisponível') {
-                const _statsIA = gameState.galeria.estatisticasPilotos[pilotoAposentado.nome] || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
+                // IA: stats ficam em estatisticasTodosPilotos, não em estatisticasPilotos
+                const _statsIA = gameState.galeria.estatisticasTodosPilotos?.[pilotoAposentado.nome]
+                               || gameState.galeria.estatisticasPilotos[pilotoAposentado.nome]
+                               || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
                 gameState.galeria.hallDaFama.push({
                     piloto: JSON.parse(JSON.stringify(pilotoAposentado)),
                     anoAposentadoria: gameState.campeonato.ano,
@@ -914,6 +923,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         vitorias: _statsIA.vitorias || 0,
                         podios: _statsIA.podios || 0,
                         pontos: _statsIA.pontos || 0,
+                        equipe: _statsIA.equipe || pilotoAposentado.status || '',
                         titulos: (pilotoAposentado.campeonatosGanhos && pilotoAposentado.campeonatosGanhos.length) || 0
                     }
                 });
