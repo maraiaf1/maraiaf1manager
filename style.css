@@ -2261,269 +2261,266 @@ font-size: 0.8em;
 }
 
 /* ============================================================
-   SAFETY CAR MODAL
+   SAFETY CAR MODAL — layout 3 linhas
    ============================================================ */
 
 #safety-car-modal {
     position: fixed;
-    z-index: 200;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.75);
+    z-index: 2000;
+    inset: 0;
+    background: rgba(0,0,0,0.80);
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.4s ease;
+    animation: fadeIn 0.25s ease;
 }
+#safety-car-modal.hidden { display: none; }
 
 .sc-modal-content {
-    background: #1a1a2e;
-    border: 3px solid #f0c040;
-    border-radius: 16px;
-    padding: 2rem;
-    width: 90%;
-    max-width: 620px;
-    max-height: 90vh;
+    background: #13131f;
+    border: 2px solid #f0c040;
+    border-radius: 14px;
+    width: min(96vw, 820px);
+    max-height: 92vh;
     overflow-y: auto;
-    box-shadow: 0 0 40px rgba(240, 192, 64, 0.4), 0 8px 32px rgba(0,0,0,0.6);
-    animation: scSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 40px rgba(240,192,64,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
-@keyframes scSlideIn {
-    from { transform: translateY(-30px) scale(0.95); opacity: 0; }
-    to   { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-.sc-header {
+/* ── LINHA 1 ── */
+.sc-linha1 {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #f0c040;
+    padding: 0.75rem 1.1rem;
+    background: #0d0d18;
+    border-bottom: 1px solid #2a2a3a;
+    border-radius: 12px 12px 0 0;
+    flex-wrap: wrap;
 }
-
-.sc-icon-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 2rem;
-    animation: scPulse 1s ease-in-out infinite;
-}
-
-@keyframes scPulse {
-    0%, 100% { transform: scale(1); }
-    50%       { transform: scale(1.15); }
-}
-
-.sc-title-block { flex: 1; }
-
-.sc-title {
-    font-size: 2rem;
-    font-weight: 900;
-    color: #f0c040;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(240, 192, 64, 0.6);
-}
-
-.sc-motivo {
-    color: #ccc;
-    font-size: 0.9rem;
-    margin-top: 0.2rem;
-}
-
-.sc-info-bar {
+.sc-linha1-info {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    margin-bottom: 1.2rem;
-    font-size: 0.85rem;
-    color: #e0e0e0;
+    flex: 1;
     flex-wrap: wrap;
+    font-size: 0.82rem;
+    color: #bbb;
 }
-
-.sc-separator { color: #888; }
-
-.sc-pit-badge {
-    background: #2e7d32;
-    color: #a5d6a7;
-    padding: 0.15rem 0.6rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-/* TIMER */
-.sc-timer-section {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.sc-timer-label {
-    color: #aaa;
+.sc-badge-label {
+    font-weight: 800;
     font-size: 0.85rem;
-    margin-bottom: 0.4rem;
-}
-
-.sc-timer-display {
-    font-size: 3.5rem;
-    font-weight: 900;
     color: #f0c040;
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-    transition: color 0.3s;
+    letter-spacing: 0.5px;
 }
+.sc-l1-motivo { color: #ddd; }
+.sc-l1-sep    { color: #444; }
 
-.sc-timer-display.urgente { color: #ef5350; animation: timerPulse 0.5s ease infinite; }
-
-@keyframes timerPulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.5; }
+.sc-linha1-timer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
-
 .sc-timer-bar-bg {
-    background: #333;
-    border-radius: 8px;
-    height: 8px;
-    margin: 0.6rem auto;
-    max-width: 300px;
+    background: #2a2a3a;
+    border-radius: 6px;
+    height: 6px;
+    width: 100px;
     overflow: hidden;
 }
-
 .sc-timer-bar {
     height: 100%;
-    background: linear-gradient(90deg, #ef5350, #f0c040);
-    border-radius: 8px;
+    background: linear-gradient(90deg, #e10600, #f0c040);
+    border-radius: 6px;
     width: 100%;
     transition: width 1s linear;
 }
-
-.sc-timer-sub {
-    color: #666;
-    font-size: 0.75rem;
-    margin-top: 0.3rem;
-}
-
-/* STRATEGY SECTION */
-.sc-strategy-section { margin-bottom: 1.5rem; }
-
-.sc-strategy-title {
+.sc-timer-display {
+    font-size: 1.1rem;
+    font-weight: 900;
     color: #f0c040;
-    margin-bottom: 0.3rem;
-    font-size: 1rem;
+    min-width: 2ch;
+    text-align: right;
 }
+.sc-timer-display.urgente { color: #ef5350; animation: timerPulse 0.5s ease infinite; }
+.sc-timer-sub { font-size: 0.72rem; color: #888; }
+@keyframes timerPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-.sc-hint {
+.btn-sc-auto {
+    background: transparent;
     color: #888;
-    font-size: 0.8rem;
-    margin-bottom: 0.8rem;
+    border: 1px solid #333;
+    border-radius: 7px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+}
+.btn-sc-auto:hover { color: #ddd; border-color: #666; }
+
+/* ── LINHA 2 — 2 colunas ── */
+.sc-linha2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 0.85rem 0.85rem;
+    gap: 0.75rem;
 }
 
-#sc-strategy-container .strategy-box {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid #444;
+.sc-coluna {
+    background: #0d0d1e;
+    border: 1px solid #1e1e30;
     border-radius: 10px;
-    padding: 1rem;
-    margin-bottom: 0.8rem;
-    color: #e0e0e0;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
 }
 
-#sc-strategy-container .strategy-box h4 {
-    color: #f0c040;
-    margin-bottom: 0.8rem;
-    font-size: 0.95rem;
+.sc-col-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    border-bottom: 1px solid #1e1e30;
+    padding-bottom: 0.45rem;
 }
+.sc-col-header strong { font-size: 0.88rem; color: #fff; }
+.sc-col-compostos { font-size: 0.7rem; color: #666; }
 
-#sc-strategy-container .stint-definition {
+/* Grade 2×2 dos botões de opção */
+.sc-opcoes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+}
+.btn-sc-opcao {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-}
-
-#sc-strategy-container label {
-    color: #bbb;
-    font-size: 0.85rem;
-    min-width: 70px;
-}
-
-#sc-strategy-container input[type="number"],
-#sc-strategy-container select {
-    background: #2a2a3e;
-    border: 1px solid #555;
-    color: #fff;
-    border-radius: 6px;
-    padding: 0.3rem 0.5rem;
-    font-size: 0.85rem;
-}
-
-#sc-strategy-container .btn-add-stint,
-#sc-strategy-container .btn-remover-stint {
-    background: #333;
-    border: 1px solid #555;
-    color: #ccc;
-    border-radius: 6px;
-    padding: 0.3rem 0.7rem;
+    gap: 0.35rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 7px;
+    border: 1.5px solid #1e1e30;
+    background: #111125;
     cursor: pointer;
-    font-size: 0.8rem;
-    transition: background 0.2s;
+    font-size: 0.73rem;
+    color: #aaa;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
 }
+.btn-sc-opcao:hover:not(:disabled):not(.bloqueado) {
+    border-color: #555;
+    color: #ddd;
+    background: #16162a;
+}
+.btn-sc-opcao.active {
+    border-color: #e10600;
+    background: #1a0808;
+    color: #fff;
+    font-weight: 700;
+}
+.btn-sc-opcao.bloqueado { opacity: 0.3; cursor: not-allowed; }
+.sc-op-label { font-size: 0.71rem; }
 
-#sc-strategy-container .btn-add-stint:hover { background: #444; }
-#sc-strategy-container .btn-remover-stint { color: #ef5350; }
-#sc-strategy-container .btn-remover-stint:hover { background: #3e2222; }
-
-#sc-strategy-container .strategy-warning p { color: #ffb74d; font-size: 0.8rem; margin: 0.2rem 0; }
-#sc-strategy-container .strategy-ok { color: #81c784; font-size: 0.8rem; }
-
-/* ACTIONS */
-.sc-actions {
+/* Conteúdo abaixo dos botões */
+.sc-col-conteudo {
     display: flex;
-    gap: 0.8rem;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+}
+.sc-decisao-desc { color: #999; margin: 0; font-size: 0.78rem; }
+.sc-desc-ok       { color: #81c784; }
+
+.sc-pneu-agora {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     flex-wrap: wrap;
 }
+.sc-pneu-label  { font-size: 0.73rem; color: #888; }
+.sc-custo-tempo { font-size: 0.72rem; font-weight: 700; color: #f0c040; }
+.sc-select-inline {
+    padding: 0.25rem 0.4rem;
+    border-radius: 5px;
+    background: #111125;
+    border: 1px solid #333;
+    color: #fff;
+    font-size: 0.75rem;
+}
 
+/* Paradas compactas */
+.sc-parada-row {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: #aaa;
+}
+.sc-parada-label { color: #666; font-size: 0.7rem; min-width: 18px; }
+.sc-volta-compact {
+    width: 44px;
+    padding: 0.2rem 0.3rem;
+    border-radius: 4px;
+    background: #0d0d1e;
+    border: 1px solid #333;
+    color: #fff;
+    font-size: 0.75rem;
+    text-align: center;
+}
+.sc-btn-remover {
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0 0.2rem;
+}
+.sc-btn-remover:hover { color: #ef5350; }
+.sc-btn-add {
+    background: none;
+    border: 1px dashed #333;
+    color: #666;
+    border-radius: 5px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.72rem;
+    cursor: pointer;
+    margin-top: 0.1rem;
+    width: 100%;
+    text-align: center;
+    transition: color 0.15s, border-color 0.15s;
+}
+.sc-btn-add:hover { color: #ccc; border-color: #666; }
+
+.sc-aviso-erro { font-size: 0.72rem; color: #ef5350; margin: 0; }
+.sc-aviso-ok   { font-size: 0.72rem; color: #81c784; margin: 0; }
+
+/* ── LINHA 3 ── */
+.sc-linha3 {
+    padding: 0.7rem 0.85rem;
+    border-top: 1px solid #1e1e30;
+}
 .btn-sc-confirmar {
-    flex: 2;
+    width: 100%;
     background: #f0c040;
     color: #1a1a2e;
     border: none;
-    border-radius: 10px;
-    padding: 0.85rem 1.5rem;
-    font-size: 1rem;
+    border-radius: 9px;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
-    transition: transform 0.15s, background 0.2s;
-    letter-spacing: 0.5px;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.3px;
 }
-
 .btn-sc-confirmar:hover {
     background: #f5d060;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
-
-.btn-sc-auto {
-    flex: 1;
-    background: transparent;
-    color: #aaa;
-    border: 1px solid #555;
-    border-radius: 10px;
-    padding: 0.85rem 1rem;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-}
-
-.btn-sc-auto:hover {
-    background: rgba(255,255,255,0.07);
-    color: #fff;
-}
-
 
 /* ============================================================
    TELEMETRIA — ABA E CARDS

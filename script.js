@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.7";
+    const VERSAO_JOGO = "21.0.8";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -2395,7 +2395,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pneuNome = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
 
-        container.innerHTML = gameState.carros.map((carro, carroIndex) => {
+        // Gera o HTML de cada carro como coluna
+        const colunasHtml = gameState.carros.map((carro, carroIndex) => {
             if (!carro.pilotoId) return '';
             const piloto = gameState.pilotos.find(p => p.id === carro.pilotoId);
             const pilotoNome = piloto ? piloto.nome : 'VAGO';
@@ -2408,10 +2409,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const pneuAtual = ctx.pneuAtual || participante.pneuAtual;
             const compositosUsados = new Set(ctx.compositosJaUsados || [pneuAtual]);
 
-            // ── Determina disponibilidade de cada opção ────────────────
-            // Opção 3 (manter + final): pneu aguenta E regulamento cumprido
+            // Disponibilidade opções
             const op3Disponivel = ctx.pneuChegaAoFinal && ctx.regulamentoCumprido;
-            // Opção 4 (trocar + final): pneu escolhido dura até o fim E cobre 2 compostos
             const pneuEscolhidoOp24 = carro.estrategia?.pneuInicial || 'medio';
             const voltasPneuNovo = Math.floor(100 / pneus[pneuEscolhidoOp24].desgastePorVolta);
             const novoPneuChegaAoFinal = voltasPneuNovo >= voltasRestantes;
@@ -2419,146 +2418,119 @@ document.addEventListener('DOMContentLoaded', () => {
             const op4CumpreRegulamento = novoPneuDiferente || ctx.regulamentoCumprido;
             const op4Disponivel = novoPneuChegaAoFinal && op4CumpreRegulamento;
 
-            // ── Mensagens de bloqueio ──────────────────────────────────
             const op3Motivo = !ctx.pneuChegaAoFinal
-                ? `Pneu aguenta apenas ${ctx.voltasQueAguenta}v das ${voltasRestantes}v restantes`
-                : `Ainda não usou 2 compostos diferentes (usado: ${[...compositosUsados].join(', ')})`;
+                ? `Pneu aguenta ${ctx.voltasQueAguenta}v / ${voltasRestantes}v`
+                : `Faltam 2 compostos`;
             const op4Motivo = !novoPneuChegaAoFinal
-                ? `${pneuNome[pneuEscolhidoOp24]} dura ${voltasPneuNovo}v — insuficiente para ${voltasRestantes}v`
-                : `Precisa escolher composto diferente de ${pneuNome[pneuAtual]}`;
+                ? `${pneuNome[pneuEscolhidoOp24]} dura ${voltasPneuNovo}v`
+                : `Precisa composto diferente`;
 
-            // ── Validação de regulamento para opções com paradas futuras ─
             function validarCompostos(estrategia, trocouAgora) {
-                const todosCompostos = new Set(compositosUsados);
-                if (trocouAgora) todosCompostos.add(estrategia.pneuInicial);
-                (estrategia.paradas || []).forEach(p => todosCompostos.add(p.colocarPneu));
-                if (todosCompostos.size < 2) {
-                    const usados = [...todosCompostos].map(c => pneuNome[c]).join(', ');
-                    return `⚠️ Plano usa apenas 1 composto (${usados}). Adicione uma parada com composto diferente.`;
-                }
+                const todos = new Set(compositosUsados);
+                if (trocouAgora) todos.add(estrategia.pneuInicial);
+                (estrategia.paradas || []).forEach(p => todos.add(p.colocarPneu));
+                if (todos.size < 2) return `⚠️ Use 2 compostos diferentes`;
                 return null;
             }
 
-            // ── Editor de estratégia futura (paradas) ─────────────────
             function editorParadas(mostrarPneuInicial, trocouAgora) {
                 const selectorInicial = mostrarPneuInicial ? `
                     <div class="sc-pneu-agora">
-                        <span class="sc-pneu-label">Pneu a colocar agora:</span>
+                        <span class="sc-pneu-label">Pneu agora:</span>
                         <select class="pneu-select-inicial strategy-control sc-select-inline" data-car-index="${carroIndex}">
                             ${['macio','medio','duro'].map(c => `<option value="${c}" ${carro.estrategia.pneuInicial===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
                         </select>
+                        <span class="sc-custo-tempo">+6s</span>
                     </div>` : '';
 
                 const paradaRows = carro.estrategia.paradas.map((parada, pi) => `
-                    <div class="stint-definition">
-                        <label>Parada ${pi + 1}</label>
-                        <div class="stint-inputs">
-                            <span>Volta:</span>
-                            <input type="number" class="volta-input strategy-control"
-                                   value="${parada.pararNaVolta}"
-                                   min="${raceData.voltaAtual + 1}"
-                                   max="${raceData.totalVoltas - 1}"
-                                   data-car-index="${carroIndex}"
-                                   data-parada-index="${pi}">
-                            <span>Pneu:</span>
-                            <select class="pneu-select-parada strategy-control"
-                                    data-car-index="${carroIndex}"
-                                    data-parada-index="${pi}">
-                                ${['macio','medio','duro'].map(c => `<option value="${c}" ${parada.colocarPneu===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
-                            </select>
-                        </div>
-                        <button class="btn-remover-stint strategy-control"
+                    <div class="sc-parada-row">
+                        <span class="sc-parada-label">P${pi + 1}</span>
+                        <span>v</span>
+                        <input type="number" class="volta-input strategy-control sc-volta-compact"
+                               value="${parada.pararNaVolta}"
+                               min="${raceData.voltaAtual + 1}"
+                               max="${raceData.totalVoltas - 1}"
+                               data-car-index="${carroIndex}"
+                               data-parada-index="${pi}">
+                        <select class="pneu-select-parada strategy-control sc-select-inline"
+                                data-car-index="${carroIndex}"
+                                data-parada-index="${pi}">
+                            ${['macio','medio','duro'].map(c => `<option value="${c}" ${parada.colocarPneu===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
+                        </select>
+                        <button class="btn-remover-stint strategy-control sc-btn-remover"
                                 data-car-index="${carroIndex}"
                                 data-parada-index="${pi}">✕</button>
                     </div>`).join('');
 
                 const erroComp = validarCompostos(carro.estrategia, trocouAgora);
                 const aviso = erroComp
-                    ? `<div class="strategy-warning"><p>${erroComp}</p></div>`
-                    : `<p class="strategy-ok">✅ Regulamento de compostos: OK</p>`;
+                    ? `<p class="sc-aviso-erro">${erroComp}</p>`
+                    : `<p class="sc-aviso-ok">✅ Compostos OK</p>`;
 
                 return `${selectorInicial}
-                    <div class="sc-paradas-editor">
-                        ${paradaRows}
-                        <div class="strategy-actions">
-                            <button class="btn-add-stint strategy-control" data-car-index="${carroIndex}">+ Adicionar Parada</button>
-                        </div>
-                    </div>
+                    ${paradaRows}
+                    <button class="btn-add-stint strategy-control sc-btn-add" data-car-index="${carroIndex}">+ Parada</button>
                     ${aviso}`;
             }
 
-            // ── Conteúdo específico por opção ──────────────────────────
+            // Conteúdo por decisão
             let conteudo = '';
             if (decisao === 'manter-planejar') {
-                conteudo = `
-                    <div class="sc-opcao-info">
-                        Continua na pista com ${pneuNome[pneuAtual]} (${durAtual}% — aguenta ~${ctx.voltasQueAguenta}v).
-                        Planeje suas próximas paradas abaixo.
-                    </div>
+                conteudo = `<p class="sc-decisao-desc">Na pista · ${pneuNome[pneuAtual]} ${durAtual}% · ~${ctx.voltasQueAguenta}v</p>
                     ${editorParadas(false, false)}`;
             } else if (decisao === 'trocar-planejar') {
-                conteudo = `
-                    <div class="sc-opcao-info sc-info-pit">
-                        Pit stop no SC <span class="sc-custo-tempo">+~6s</span> (tempo reduzido em relação ao pit normal).
-                        Escolha o pneu e planeje a estratégia.
-                    </div>
-                    ${editorParadas(true, true)}`;
+                conteudo = editorParadas(true, true);
             } else if (decisao === 'manter-final') {
-                conteudo = `
-                    <div class="sc-opcao-info sc-info-ok">
-                        ✅ Continua na pista com ${pneuNome[pneuAtual]} (${durAtual}%) até o final. Sem mais paradas.
-                        <br><small>Compostos usados: ${[...compositosUsados].map(c => pneuNome[c]).join(' + ')}</small>
-                    </div>`;
+                conteudo = `<p class="sc-decisao-desc sc-desc-ok">✅ ${pneuNome[pneuAtual]} ${durAtual}% até o final<br>
+                    <small>${[...compositosUsados].map(c=>pneuNome[c]).join(' + ')}</small></p>`;
             } else if (decisao === 'trocar-final') {
-                const seletor = `
-                    <div class="sc-pneu-agora">
-                        <span class="sc-pneu-label">Pneu a colocar agora:</span>
-                        <select class="pneu-select-inicial strategy-control sc-select-inline" data-car-index="${carroIndex}">
-                            ${['macio','medio','duro'].map(c => `<option value="${c}" ${carro.estrategia.pneuInicial===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
-                        </select>
-                        <span class="sc-custo-tempo">+~6s</span>
-                    </div>`;
                 const erroComp = (!novoPneuDiferente && !ctx.regulamentoCumprido)
-                    ? `<div class="strategy-warning"><p>⚠️ Precisa escolher composto diferente de ${pneuNome[pneuAtual]}</p></div>`
+                    ? `<p class="sc-aviso-erro">⚠️ Escolha composto diferente de ${pneuNome[pneuAtual]}</p>`
                     : !novoPneuChegaAoFinal
-                        ? `<div class="strategy-warning"><p>⚠️ ${pneuNome[pneuEscolhidoOp24]} dura ${voltasPneuNovo}v — insuficiente para as ${voltasRestantes}v restantes</p></div>`
-                        : `<p class="strategy-ok">✅ Pneu cobre as ${voltasRestantes}v restantes. Sem mais paradas.</p>`;
-                conteudo = seletor + erroComp;
+                        ? `<p class="sc-aviso-erro">⚠️ ${pneuNome[pneuEscolhidoOp24]} não chega (${voltasPneuNovo}v/${voltasRestantes}v)</p>`
+                        : `<p class="sc-aviso-ok">✅ Pneu cobre ${voltasRestantes}v restantes</p>`;
+                conteudo = `<div class="sc-pneu-agora">
+                    <span class="sc-pneu-label">Pneu agora:</span>
+                    <select class="pneu-select-inicial strategy-control sc-select-inline" data-car-index="${carroIndex}">
+                        ${['macio','medio','duro'].map(c=>`<option value="${c}" ${carro.estrategia.pneuInicial===c?'selected':''}>${pneuNome[c]}</option>`).join('')}
+                    </select>
+                    <span class="sc-custo-tempo">+6s</span>
+                </div>${erroComp}`;
             }
 
-            // ── Botões das 4 opções ────────────────────────────────────
+            // 4 botões compactos
             const opcoes = [
-                { id: 'manter-planejar', emoji: '🟡', label: 'Manter + Planejar',   sub: 'Fica na pista, define próximas paradas',   ok: true },
-                { id: 'trocar-planejar', emoji: '🔧', label: 'Trocar + Planejar',   sub: `Pit agora (+~6s), define próximas paradas`, ok: true },
-                { id: 'manter-final',    emoji: '✅', label: 'Manter + Ir ao Final', sub: op3Disponivel ? `Pneu aguenta ${ctx.voltasQueAguenta}v ≥ ${voltasRestantes}v` : op3Motivo, ok: op3Disponivel },
-                { id: 'trocar-final',    emoji: '🏁', label: 'Trocar + Ir ao Final', sub: op4Disponivel ? `Pit agora (+~6s), sem mais paradas`  : op4Motivo, ok: op4Disponivel },
+                { id:'manter-planejar', emoji:'🟡', label:'Manter + Planejar', ok:true,          sub: `${pneuNome[pneuAtual]} ${durAtual}%` },
+                { id:'trocar-planejar', emoji:'🔧', label:'Trocar + Planejar', ok:true,          sub: `Pit +6s · plan. paradas` },
+                { id:'manter-final',    emoji:'✅', label:'Manter até o final', ok:op3Disponivel, sub: op3Disponivel ? `${ctx.voltasQueAguenta}v ok` : op3Motivo },
+                { id:'trocar-final',    emoji:'🏁', label:'Trocar + Final',    ok:op4Disponivel, sub: op4Disponivel ? `Pit +6s · sem paradas` : op4Motivo },
             ];
 
             const botoesHtml = opcoes.map(op => `
-                <button class="btn-sc-opcao ${decisao === op.id ? 'active' : ''} ${!op.ok ? 'bloqueado' : ''}"
+                <button class="btn-sc-opcao ${decisao===op.id?'active':''} ${!op.ok?'bloqueado':''}"
                         data-action="sc-opcao"
                         data-car-index="${carroIndex}"
                         data-opcao="${op.id}"
-                        ${!op.ok ? 'disabled' : ''}
+                        ${!op.ok?'disabled':''}
                         title="${op.sub}">
-                    <span class="sc-opcao-emoji">${op.emoji}</span>
-                    <span class="sc-opcao-texto">
-                        <strong>${op.label}</strong>
-                        <small>${op.sub}</small>
-                    </span>
+                    <span>${op.emoji}</span>
+                    <span class="sc-op-label">${op.label}</span>
                 </button>`).join('');
 
-            return `<div class="strategy-box sc-strategy-box">
-                <div class="sc-piloto-header">
-                    <strong>Carro ${carroIndex + 1} — ${pilotoNome}</strong>
-                    <span class="sc-piloto-status">${pneuNome[pneuAtual]} · ${durAtual}% · ~${ctx.voltasQueAguenta}v · ${voltasRestantes}v restantes</span>
-                    <span class="sc-compostos-info">Compostos usados: ${[...compositosUsados].map(c => pneuNome[c]).join(' + ')}</span>
+            return `<div class="sc-coluna">
+                <div class="sc-col-header">
+                    <strong>${pilotoNome}</strong>
+                    <span class="sc-col-compostos">${[...compositosUsados].map(c=>pneuNome[c]).join(' + ')}</span>
                 </div>
                 <div class="sc-opcoes-grid">${botoesHtml}</div>
-                <div class="sc-conteudo-opcao">${conteudo}</div>
+                <div class="sc-col-conteudo">${conteudo}</div>
             </div>`;
-        }).join('');
+        }).filter(Boolean);
+
+        container.innerHTML = colunasHtml.join('');
     }
+
 
     /**
      * Abre o modal do Safety Car e inicia o timer de 60 segundos.
