@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
         atualizarMercadoDePilotos(pilotosDoJogo);
 
         gameState = {
-            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 1000000, especialistas: [], emblema: {
+            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 10000000, especialistas: [], emblema: {
                 forma: 'circle.svg',
                 corForma: '#ff0000',
                 icone: 'asterik.svg',
