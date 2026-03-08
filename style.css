@@ -1325,6 +1325,38 @@ font-size: 0.8rem;
 .historico-tabela th {
     background-color: #f2f2f2;
 }
+
+/* Tabelas ordenáveis */
+.stats-ordenavel thead th {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: background-color 0.15s;
+}
+.stats-ordenavel thead th:hover {
+    background-color: #e8e8e8;
+}
+.stats-ordenavel thead th.col-ativa {
+    background-color: #fce8e8;
+    color: #c00;
+}
+.sort-icon {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 0.75em;
+    opacity: 0.6;
+    vertical-align: middle;
+}
+.col-ativa .sort-icon {
+    opacity: 1;
+}
+
+/* Subtítulo das seções de stats */
+.stats-subtitulo {
+    font-size: 0.85em;
+    color: #777;
+    margin: -0.3rem 0 0.5rem 0;
+}
 /* Em style.css */
 
 /* --- Estilos para o Canvas da Pista --- */

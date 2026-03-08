@@ -146,15 +146,34 @@
                 </div>
             </div>
             <div class="galeria-card">
-                <h3>Estatísticas Gerais dos Pilotos</h3>
-                <table id="tabela-estatisticas-pilotos" class="historico-tabela">
+                <h3>🏎️ Pilotos da Minha Equipe — Histórico</h3>
+                <p class="stats-subtitulo">Apenas pilotos que correram sob a sua bandeira ao longo da história.</p>
+                <table id="tabela-estatisticas-pilotos" class="historico-tabela stats-ordenavel">
                     <thead>
                         <tr>
-                            <th>Piloto</th>
-                            <th>Corridas</th>
-                            <th>Vitórias</th>
-                            <th>Pódios</th>
-                            <th>Pontos Totais</th>
+                            <th data-col="nome" data-tabela="jogador">Piloto <span class="sort-icon">↕</span></th>
+                            <th data-col="corridas" data-tabela="jogador">Corridas <span class="sort-icon">↕</span></th>
+                            <th data-col="vitorias" data-tabela="jogador">Vitórias <span class="sort-icon">↕</span></th>
+                            <th data-col="podios" data-tabela="jogador">Pódios <span class="sort-icon">↕</span></th>
+                            <th data-col="pontos" data-tabela="jogador">Pontos Totais <span class="sort-icon">↕</span></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="galeria-card" style="margin-top: 1.5rem;">
+                <h3>🌍 Estatísticas Gerais — Todos os Pilotos</h3>
+                <p class="stats-subtitulo">Todos os pilotos que disputaram ao menos uma corrida neste universo.</p>
+                <table id="tabela-estatisticas-todos" class="historico-tabela stats-ordenavel">
+                    <thead>
+                        <tr>
+                            <th data-col="nome" data-tabela="todos">Piloto <span class="sort-icon">↕</span></th>
+                            <th data-col="equipe" data-tabela="todos">Equipe <span class="sort-icon">↕</span></th>
+                            <th data-col="corridas" data-tabela="todos">Corridas <span class="sort-icon">↕</span></th>
+                            <th data-col="vitorias" data-tabela="todos">Vitórias <span class="sort-icon">↕</span></th>
+                            <th data-col="podios" data-tabela="todos">Pódios <span class="sort-icon">↕</span></th>
+                            <th data-col="pontos" data-tabela="todos">Pontos Totais <span class="sort-icon">↕</span></th>
                         </tr>
                     </thead>
                     <tbody></tbody>

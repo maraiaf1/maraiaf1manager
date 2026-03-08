@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.5";
+    const VERSAO_JOGO = "21.0.6";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
             projetosEmAndamento: [],
             patrocinio: { ofertas: [], ativos: [] },
             historicoAutodromos: {},
-            galeria: { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {} },
+            galeria: { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {}, estatisticasTodosPilotos: {} },
             instalacoes: {
                 simulador: 0,
                 tunelDeVento: 0,
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
                 if (!gameState.galeria) {
-                    gameState.galeria = { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {} };
+                    gameState.galeria = { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {}, estatisticasTodosPilotos: {} };
                 } else {
                     // Converte contadores antigos para o novo formato de array
                     if (typeof gameState.galeria.titulosConstrutores === 'number') {
@@ -2837,7 +2837,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // 4. Salva estatísticas para a aba Galeria
+        if (!gameState.galeria.estatisticasTodosPilotos) gameState.galeria.estatisticasTodosPilotos = {};
         resultados.forEach((resultado, index) => {
+            // Stats dos pilotos do jogador (seção exclusiva)
             if (resultado.isPlayer) {
                 const nomePiloto = resultado.piloto.nome;
                 if (!gameState.galeria.estatisticasPilotos[nomePiloto]) {
@@ -2848,10 +2850,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (index === 0) stats.vitorias++;
                 if (index < 3) stats.podios++;
                 const posicao = index + 1;
-                if (pontosPorPosicao[posicao]) {
-                    stats.pontos += pontosPorPosicao[posicao];
-                }
+                if (pontosPorPosicao[posicao]) stats.pontos += pontosPorPosicao[posicao];
             }
+            // Stats de TODOS os pilotos (seção geral)
+            const nomeGeral = resultado.piloto.nome;
+            if (!gameState.galeria.estatisticasTodosPilotos[nomeGeral]) {
+                gameState.galeria.estatisticasTodosPilotos[nomeGeral] = { corridas: 0, vitorias: 0, podios: 0, pontos: 0, equipe: resultado.equipe };
+            }
+            const statsGeral = gameState.galeria.estatisticasTodosPilotos[nomeGeral];
+            statsGeral.corridas++;
+            statsGeral.equipe = resultado.equipe; // atualiza para a equipe mais recente
+            if (index === 0) statsGeral.vitorias++;
+            if (index < 3) statsGeral.podios++;
+            const posGeral = index + 1;
+            if (pontosPorPosicao[posGeral]) statsGeral.pontos += pontosPorPosicao[posGeral];
         });
 
          // --- FIM DO CÓDIGO FALTANTE ---
@@ -4936,12 +4948,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // Estado de ordenação das tabelas de estatísticas
+    const _sortState = {
+        jogador: { col: 'corridas', dir: 'desc' },
+        todos:   { col: 'corridas', dir: 'desc' }
+    };
+
+    function _renderTabelaStats(tabela, dados, colunas, sortState) {
+        if (!tabela) return;
+        const tbody = tabela.querySelector('tbody');
+        const theadThs = tabela.querySelectorAll('thead th');
+
+        // Atualiza ícones de ordenação
+        theadThs.forEach(th => {
+            const icon = th.querySelector('.sort-icon');
+            if (!icon) return;
+            if (th.dataset.col === sortState.col) {
+                icon.textContent = sortState.dir === 'asc' ? '▲' : '▼';
+                th.classList.add('col-ativa');
+            } else {
+                icon.textContent = '↕';
+                th.classList.remove('col-ativa');
+            }
+        });
+
+        // Ordena
+        const sorted = [...dados].sort((a, b) => {
+            let va = a[sortState.col] ?? '';
+            let vb = b[sortState.col] ?? '';
+            if (typeof va === 'string') va = va.toLowerCase();
+            if (typeof vb === 'string') vb = vb.toLowerCase();
+            if (va < vb) return sortState.dir === 'asc' ? -1 : 1;
+            if (va > vb) return sortState.dir === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        if (sorted.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="' + colunas.length + '" style="text-align:center;color:#999;">Nenhum dado disponível ainda.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = sorted.map(row => {
+            return '<tr>' + colunas.map(col => {
+                const val = row[col] ?? '-';
+                if (col === 'pontos') return '<td>' + (typeof val === 'number' ? val.toLocaleString('pt-BR') : val) + '</td>';
+                return '<td>' + val + '</td>';
+            }).join('') + '</tr>';
+        }).join('');
+    }
+
+    function _ativarOrdenacao(tabela, tabelaKey, colunas) {
+        if (!tabela) return;
+        tabela.querySelectorAll('thead th').forEach(th => {
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', () => {
+                const col = th.dataset.col;
+                if (!col) return;
+                if (_sortState[tabelaKey].col === col) {
+                    _sortState[tabelaKey].dir = _sortState[tabelaKey].dir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    _sortState[tabelaKey].col = col;
+                    _sortState[tabelaKey].dir = 'desc';
+                }
+                const dados = _getDadosStats(tabelaKey);
+                _renderTabelaStats(tabela, dados, colunas, _sortState[tabelaKey]);
+            });
+        });
+    }
+
+    function _getDadosStats(tabelaKey) {
+        if (tabelaKey === 'jogador') {
+            return Object.entries(gameState.galeria.estatisticasPilotos || {}).map(([nome, s]) => ({
+                nome, corridas: s.corridas, vitorias: s.vitorias, podios: s.podios, pontos: s.pontos
+            }));
+        } else {
+            return Object.entries(gameState.galeria.estatisticasTodosPilotos || {}).map(([nome, s]) => ({
+                nome, equipe: s.equipe || '-', corridas: s.corridas, vitorias: s.vitorias, podios: s.podios, pontos: s.pontos
+            }));
+        }
+    }
+
+    let _statsOrdenacaoIniciada = false;
+
     function renderAbaGaleria() {
         const nomeEscuderiaEl = document.getElementById('escuderia-nome-galeria');
         const trofeusContainer = document.getElementById('gabinete-trofeus');
         const hallDaFamaContainer = document.getElementById('hall-da-fama');
-        const estatisticasTabelaBody = document.querySelector('#tabela-estatisticas-pilotos tbody');
-        if (!nomeEscuderiaEl || !trofeusContainer || !hallDaFamaContainer || !estatisticasTabelaBody) return;
+        const tabelaJogador = document.getElementById('tabela-estatisticas-pilotos');
+        const tabelaTodos   = document.getElementById('tabela-estatisticas-todos');
+        if (!nomeEscuderiaEl || !trofeusContainer || !hallDaFamaContainer) return;
 
         const emblemaGaleriaContainer = document.getElementById('emblema-display-galeria');
         if (emblemaGaleriaContainer) {
@@ -4991,16 +5086,16 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        const estatisticas = gameState.galeria.estatisticasPilotos || {};
-        estatisticasTabelaBody.innerHTML = Object.entries(estatisticas).map(([nome, stats]) => `
-            <tr>
-                <td>${nome}</td>
-                <td>${stats.corridas}</td>
-                <td>${stats.vitorias}</td>
-                <td>${stats.podios}</td>
-                <td>${stats.pontos}</td>
-            </tr>
-        `).join('');
+        // Ativa listeners de ordenação apenas uma vez
+        if (!_statsOrdenacaoIniciada) {
+            _ativarOrdenacao(tabelaJogador, 'jogador', ['nome', 'corridas', 'vitorias', 'podios', 'pontos']);
+            _ativarOrdenacao(tabelaTodos,   'todos',   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos']);
+            _statsOrdenacaoIniciada = true;
+        }
+
+        // Renderiza as tabelas com o estado de ordenação atual
+        _renderTabelaStats(tabelaJogador, _getDadosStats('jogador'), ['nome', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.jogador);
+        _renderTabelaStats(tabelaTodos,   _getDadosStats('todos'),   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.todos);
     }
 
     // ---------------------------------------------------------------------------
