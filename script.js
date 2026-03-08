@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.6";
+    const VERSAO_JOGO = "21.0.7";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
         atualizarMercadoDePilotos(pilotosDoJogo);
 
         gameState = {
-            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 1500000, especialistas: [], emblema: {
+            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 1000000, especialistas: [], emblema: {
                 forma: 'circle.svg',
                 corForma: '#ff0000',
                 icone: 'asterik.svg',
@@ -2904,7 +2904,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── Premiação ────────────────────────────────────────────────
         const nossaPosicao = classificacaoConstrutores.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
-        const tabelaBonus  = { 1: 20000000, 2: 17000000, 3: 14000000, 4: 12000000, 5: 10500000, 6: 9500000, 7: 8500000, 8: 7500000, 9: 6500000, 10: 5500000, 11: 4500000, 12: 3500000 };
+        const tabelaBonus  = { 1: 20000000, 2: 17000000, 3: 14000000, 4: 12000000, 5: 10500000, 6: 9500000, 7: 8500000, 8: 8000000, 9: 7500000, 10: 6500000, 11: 5500000, 12: 5000000 };
         const premioRecebido = tabelaBonus[nossaPosicao] || 0;
         if (premioRecebido > 0) gameState.escuderia.dinheiro += premioRecebido;
 
