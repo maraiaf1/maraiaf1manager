@@ -780,6 +780,16 @@ font-size: 0.8rem;
 .projetos-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
 .projeto-card { background-color: #fffde7; border: 1px solid #f0ad4e; border-left-width: 5px; border-radius: 8px; padding: 1rem; }
 .projeto-card h4 { margin-top: 0; color: #8a6d3b; }
+.projeto-card-concluido { background-color: #fff; border: 2px solid #28a745; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(40,167,69,0.15); }
+.projeto-card-header { background: linear-gradient(135deg, #28a745, #20c457); display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1rem; }
+.projeto-tipo-badge { color: #fff; font-weight: 700; font-size: 1rem; letter-spacing: 0.02em; }
+.projeto-nivel-badge { background: rgba(255,255,255,0.25); color: #fff; font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.5); }
+.projeto-card-body { padding: 1rem; }
+.projeto-peca-nome { margin: 0 0 0.3rem 0; font-size: 1.05rem; color: #1a1a1a; }
+.projeto-desenvolvido { margin: 0 0 0.75rem 0; font-size: 0.85rem; color: #555; }
+.projeto-acoes { margin-top: 1rem; border-top: 1px solid #e8e8e8; padding-top: 0.75rem; }
+.projeto-decisao-label { font-size: 0.85rem; color: #666; margin: 0 0 0.5rem 0; }
+.projeto-acoes .btn-ficar-com-peca, .projeto-acoes .btn-vender-peca { margin-right: 0.5rem; margin-top: 0.25rem; }
 .form-group { margin-bottom: 1.5rem; }
 .form-group label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
 .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; }

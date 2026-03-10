@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.10";
+    const VERSAO_JOGO = "21.0.11";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -4113,12 +4113,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!pecaVirtual) {
                     return `<div class="projeto-card-concluido" style="border-color: #dc3545;"><h4>Erro no Projeto: ${projeto.tipoPeca}</h4><p><strong>Modelo base não encontrado!</strong></p></div>`;
                 }
-                return `<div class="projeto-card-concluido" style="border-color: #28a745; padding: 1rem;">
-                            <h4>Projeto Concluído: ${pecaVirtual.nome} (Nvl ${pecaVirtual.nivel})</h4>
-                            ${gerarHtmlAtributosPeca(pecaVirtual)}
-                            <p style="margin-top: 1rem;">Decida o que fazer:</p>
-                            <button class="btn-ficar-com-peca" data-project-id="${projeto.id}">Ficar com a Peça</button>
-                            <button class="btn-vender-peca" data-project-id="${projeto.id}">Vender a Peça</button>
+                const iconesTipo = { 'Motor': '⚙️', 'Chassi': '🏎️', 'Asa Dianteira': '🔺', 'Asa Traseira': '🔻', 'Suspensão': '🔧' };
+                const icone = iconesTipo[pecaVirtual.tipo] || '🔩';
+                return `<div class="projeto-card-concluido">
+                            <div class="projeto-card-header">
+                                <span class="projeto-tipo-badge">${icone} ${pecaVirtual.tipo}</span>
+                                <span class="projeto-nivel-badge">Nível ${pecaVirtual.nivel}</span>
+                            </div>
+                            <div class="projeto-card-body">
+                                <h4 class="projeto-peca-nome">${pecaVirtual.nome}</h4>
+                                <p class="projeto-desenvolvido">Desenvolvido por: <strong>${projeto.nomeEspecialista}</strong></p>
+                                ${gerarHtmlAtributosPeca(pecaVirtual)}
+                                <div class="projeto-acoes">
+                                    <p class="projeto-decisao-label">Decida o que fazer com a peça:</p>
+                                    <button class="btn-ficar-com-peca" data-project-id="${projeto.id}">✅ Ficar com a Peça</button>
+                                    <button class="btn-vender-peca" data-project-id="${projeto.id}">💰 Vender a Peça</button>
+                                </div>
+                            </div>
                         </div>`;
             }
             if (projeto.status === 'a_venda') {
