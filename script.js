@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.10";
+    const VERSAO_JOGO = "21.0.13";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -443,6 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })),
             notificacoes: { pilotos: false, marketing: false },
             historicoMarketing: {},
+            historicoAnualMarketing: [],
             mercadoDePecas: [],
             carros: [
                 { id: 1, pilotoId: piloto1Jogador ? piloto1Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 26, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } },
@@ -512,6 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
                 if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
+                if (!gameState.historicoAnualMarketing) gameState.historicoAnualMarketing = [];
                 if (!gameState.galeria) {
                     gameState.galeria = { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {}, estatisticasTodosPilotos: {} };
                 } else {
@@ -2989,6 +2991,16 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.campeonato.classificacaoConstrutores = [];
         gameState.campeonato.resultadosCorridas = [];
         gameState.campeonato.feriaVeraoFeita = false;
+
+        // Arquiva o extrato do ano encerrado e reseta o histórico da temporada atual
+        if (!gameState.historicoAnualMarketing) gameState.historicoAnualMarketing = [];
+        const anoEncerrado = gameState.campeonato.ano - 1;
+        const snapItens = JSON.parse(JSON.stringify(gameState.historicoMarketing || {}));
+        const totalAno = Object.values(snapItens).reduce((s, v) => s + (v.totalReceita || 0), 0);
+        if (totalAno > 0) {
+            gameState.historicoAnualMarketing.push({ ano: anoEncerrado, itens: snapItens });
+        }
+        gameState.historicoMarketing = {};
     }
 
     function processarPagamentoDeSalarios() {
@@ -4173,148 +4185,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function abrirExtratoMarketing() {
+    function renderMarketingExtrato() {
         const hist = gameState.historicoMarketing || {};
         const itens = Object.keys(catalogoMarketing);
-        const totalGeralReceita = Object.values(hist).reduce((s, v) => s + (v.totalReceita || 0), 0);
-        const totalGeralUnidades = Object.values(hist).reduce((s, v) => s + (v.totalUnidades || 0), 0);
         const corridasJogadas = gameState.campeonato.corridaAtualIndex || 0;
 
-        // Dicas inteligentes
-        const dicas = [];
-        const itemMaisLucrativo = itens.reduce((best, nome) => (hist[nome]?.totalReceita || 0) > (hist[best]?.totalReceita || 0) ? nome : best, itens[0]);
-        const itemMaisVendido = itens.reduce((best, nome) => (hist[nome]?.totalUnidades || 0) > (hist[best]?.totalUnidades || 0) ? nome : best, itens[0]);
-        const itensNaoVendidos = itens.filter(n => gameState.marketing[n]?.desbloqueado && !(hist[n]?.totalUnidades > 0));
-        const nivelMkt = gameState.instalacoes?.marketing || 0;
-        const posConstrutores = [...(gameState.campeonato.classificacaoConstrutores || [])].sort((a, b) => b.pontos - a.pontos).findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
+        // --- Tabela Temporada Atual ---
+        const tbody = document.getElementById('mkt-tbody-temporada');
+        const tfoot = document.getElementById('mkt-tfoot-temporada');
+        if (!tbody) return;
 
-        if (totalGeralReceita === 0) {
-            dicas.push({ icon: '📦', texto: 'Nenhuma venda registrada ainda. Produza itens e dispute corridas para começar a gerar receita!' });
-        } else {
-            if (hist[itemMaisLucrativo]?.totalReceita > 0)
-                dicas.push({ icon: '🏆', texto: `<strong>${itemMaisLucrativo}</strong> é seu produto mais lucrativo, gerando R$ ${(hist[itemMaisLucrativo].totalReceita).toLocaleString('pt-BR')} na temporada.` });
-            if (hist[itemMaisVendido]?.totalUnidades > 0)
-                dicas.push({ icon: '📈', texto: `<strong>${itemMaisVendido}</strong> é o campeão em volume: <strong>${hist[itemMaisVendido].totalUnidades} unidades</strong> vendidas.` });
-        }
-        if (itensNaoVendidos.length > 0)
-            dicas.push({ icon: '💡', texto: `Você tem ${itensNaoVendidos.length} produto(s) desbloqueado(s) sem nenhuma venda: <strong>${itensNaoVendidos.join(', ')}</strong>. Produza um lote!` });
-        if (nivelMkt === 0)
-            dicas.push({ icon: '🏗️', texto: 'Construa o <strong>Departamento de Marketing</strong> nas Instalações para aumentar suas chances de venda em até 25%.' });
-        else if (nivelMkt < 5)
-            dicas.push({ icon: '⬆️', texto: `Seu Marketing está no nível ${nivelMkt}. Evoluir aumenta as chances de venda — o nível 5 garante +25% em todas as vendas.` });
-        if (posConstrutores > 5)
-            dicas.push({ icon: '🏎️', texto: 'Melhore sua posição no campeonato! Estar entre os 5 primeiros construtores aumenta a demanda pelos produtos premium.' });
-        if (posConstrutores > 0 && posConstrutores <= 3)
-            dicas.push({ icon: '💎', texto: 'Você está no top 3! É o melhor momento para produzir <strong>Anel com Joia</strong> e <strong>Combo Presentes</strong> — a demanda está alta.' });
-        if (gameState.marketing['Chaveiro']?.desbloqueado && gameState.marketing['Chaveiro'].inventario === 0)
-            dicas.push({ icon: '🔑', texto: 'O <strong>Chaveiro</strong> tem a maior taxa de venda base (60% por corrida). Mantenha sempre em estoque!' });
-
-        // Dados do gráfico
-        const chartData = itens.map(nome => ({
-            label: nome === 'Carro em miniatura' ? 'Miniatura' : nome === 'Combo Presentes' ? 'Combo' : nome === 'Anel com joia' ? 'Anel' : nome,
-            receita: hist[nome]?.totalReceita || 0,
-            unidades: hist[nome]?.totalUnidades || 0,
-        }));
-        const maxReceita = Math.max(...chartData.map(d => d.receita), 1);
-
-        const modal = document.createElement('div');
-        modal.id = 'extrato-marketing-modal';
-        modal.className = 'modal-overlay extrato-modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content extrato-modal-content">
-                <button class="modal-close-btn" id="fechar-extrato-btn">✕</button>
-                <h2>📊 Extrato de Marketing — Temporada ${gameState.campeonato.ano}</h2>
-                <div class="extrato-resumo-topo">
-                    <div class="extrato-stat-box"><span class="extrato-stat-valor">R$ ${totalGeralReceita.toLocaleString('pt-BR')}</span><span class="extrato-stat-label">Receita Total</span></div>
-                    <div class="extrato-stat-box"><span class="extrato-stat-valor">${totalGeralUnidades.toLocaleString('pt-BR')}</span><span class="extrato-stat-label">Unidades Vendidas</span></div>
-                    <div class="extrato-stat-box"><span class="extrato-stat-valor">${corridasJogadas}</span><span class="extrato-stat-label">Corridas Disputadas</span></div>
-                    <div class="extrato-stat-box"><span class="extrato-stat-valor">${corridasJogadas > 0 ? 'R$ ' + Math.floor(totalGeralReceita / corridasJogadas).toLocaleString('pt-BR') : '—'}</span><span class="extrato-stat-label">Média por Corrida</span></div>
-                </div>
-                <h3>Receita por Produto</h3>
-                <div class="extrato-chart-wrapper">
-                    <canvas id="extrato-chart-canvas" width="640" height="240"></canvas>
-                </div>
-                <h3>Detalhamento por Produto</h3>
-                <table class="extrato-tabela">
-                    <thead><tr><th>Produto</th><th>Unidades Vendidas</th><th>Receita Total</th><th>Corridas Ativas</th><th>Média por Corrida</th></tr></thead>
-                    <tbody>${itens.map(nome => {
-                        const h = hist[nome] || { totalUnidades: 0, totalReceita: 0, corridasAtivas: 0 };
-                        const bloqueado = !gameState.marketing[nome]?.desbloqueado;
-                        const media = h.corridasAtivas > 0 ? Math.floor(h.totalReceita / h.corridasAtivas) : 0;
-                        return `<tr class="${bloqueado ? 'extrato-row-bloqueado' : ''}">
-                            <td>${nome}${bloqueado ? ' 🔒' : ''}</td>
-                            <td>${h.totalUnidades.toLocaleString('pt-BR')}</td>
-                            <td>R$ ${h.totalReceita.toLocaleString('pt-BR')}</td>
-                            <td>${h.corridasAtivas}</td>
-                            <td>${media > 0 ? 'R$ ' + media.toLocaleString('pt-BR') : '—'}</td>
-                        </tr>`;
-                    }).join('')}</tbody>
-                </table>
-                <h3>💡 Dicas & Análise</h3>
-                <div class="extrato-dicas">${dicas.map(d => `<div class="extrato-dica"><span class="extrato-dica-icon">${d.icon}</span><p>${d.texto}</p></div>`).join('')}</div>
-            </div>`;
-        document.body.appendChild(modal);
-
-        // Posiciona o modal logo abaixo do botão
-        const btnExtrato = document.getElementById('btn-extrato-marketing');
-        if (btnExtrato) {
-            const rect = btnExtrato.getBoundingClientRect();
-            modal.style.alignItems = 'flex-start';
-            modal.style.paddingTop = (rect.bottom + window.scrollY + 10) + 'px';
-        }
-
-        // Desenha o gráfico de barras em canvas nativo
-        requestAnimationFrame(() => {
-            const canvas = document.getElementById('extrato-chart-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const W = canvas.width, H = canvas.height;
-            const padL = 72, padR = 20, padT = 28, padB = 52;
-            const chartW = W - padL - padR;
-            const gap = Math.floor(chartW / chartData.length);
-            const barW = Math.floor(gap * 0.55);
-            const colors = ['#e10600','#f0ad4e','#28a745','#008cba','#9b59b6','#e67e22'];
-
-            ctx.fillStyle = '#1e1e2e';
-            ctx.fillRect(0, 0, W, H);
-
-            // Linhas de grade
-            for (let i = 0; i <= 4; i++) {
-                const y = padT + (H - padT - padB) * (1 - i / 4);
-                const val = Math.floor(maxReceita * i / 4);
-                ctx.strokeStyle = '#2e2e4e'; ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
-                ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
-                ctx.fillText(val >= 1000000 ? 'R$'+(val/1000000).toFixed(1)+'M' : val >= 1000 ? 'R$'+(val/1000).toFixed(0)+'k' : 'R$'+val, padL - 6, y + 4);
-            }
-
-            // Barras
-            chartData.forEach((d, i) => {
-                const x = padL + i * gap + (gap - barW) / 2;
-                const barH = (H - padT - padB) * d.receita / maxReceita;
-                const y = H - padB - barH;
-                const grad = ctx.createLinearGradient(0, y, 0, H - padB);
-                grad.addColorStop(0, colors[i % colors.length]);
-                grad.addColorStop(1, colors[i % colors.length] + '55');
-                ctx.fillStyle = grad;
-                if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, barW, barH, [4,4,0,0]); ctx.fill(); }
-                else { ctx.fillRect(x, y, barW, barH); }
-
-                if (d.receita > 0) {
-                    ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
-                    const lbl = d.receita >= 1000000 ? 'R$'+(d.receita/1000000).toFixed(1)+'M' : d.receita >= 1000 ? 'R$'+(d.receita/1000).toFixed(0)+'k' : 'R$'+d.receita;
-                    ctx.fillText(lbl, x + barW / 2, Math.max(y - 5, padT + 12));
-                }
-                ctx.fillStyle = '#ccc'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(d.label, x + barW / 2, H - padB + 16);
-                ctx.fillStyle = '#777'; ctx.font = '10px sans-serif';
-                ctx.fillText(d.unidades + ' un.', x + barW / 2, H - padB + 30);
-            });
+        let totalUnidades = 0, totalReceita = 0;
+        const rows = itens.map(nome => {
+            const h = hist[nome] || { totalUnidades: 0, totalReceita: 0, corridasAtivas: 0 };
+            const bloqueado = !gameState.marketing[nome]?.desbloqueado;
+            const media = h.corridasAtivas > 0 ? Math.floor(h.totalReceita / h.corridasAtivas) : 0;
+            totalUnidades += h.totalUnidades;
+            totalReceita += h.totalReceita;
+            return `<tr class="${bloqueado ? 'mkt-row-bloqueado' : ''}">
+                <td>${nome}${bloqueado ? ' <span class="mkt-lock">🔒</span>' : ''}</td>
+                <td>${h.totalUnidades.toLocaleString('pt-BR')}</td>
+                <td>R$ ${h.totalReceita.toLocaleString('pt-BR')}</td>
+                <td>${h.corridasAtivas}</td>
+                <td>${media > 0 ? 'R$ ' + media.toLocaleString('pt-BR') : '—'}</td>
+            </tr>`;
         });
+        tbody.innerHTML = rows.join('');
+        tfoot.innerHTML = `<tr class="mkt-total-row">
+            <td><strong>Total</strong></td>
+            <td><strong>${totalUnidades.toLocaleString('pt-BR')}</strong></td>
+            <td><strong>R$ ${totalReceita.toLocaleString('pt-BR')}</strong></td>
+            <td><strong>${corridasJogadas}</strong></td>
+            <td><strong>${corridasJogadas > 0 ? 'R$ ' + Math.floor(totalReceita / corridasJogadas).toLocaleString('pt-BR') : '—'}</strong></td>
+        </tr>`;
 
-        document.getElementById('fechar-extrato-btn').addEventListener('click', () => modal.remove());
-        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        // --- Tabela Histórico por Temporada ---
+        const histAnual = gameState.historicoAnualMarketing || [];
+        const thead = document.getElementById('mkt-thead-historico');
+        const histBody = document.getElementById('mkt-tbody-historico');
+        if (!thead || !histBody) return;
+
+        if (histAnual.length === 0) {
+            thead.innerHTML = '<tr><th>Ano</th><th>Receita Total</th></tr>';
+            histBody.innerHTML = '<tr><td colspan="2" class="mkt-vazio">Nenhuma temporada concluída ainda.</td></tr>';
+            return;
+        }
+
+        // Cabeçalho dinâmico com colunas por produto
+        thead.innerHTML = `<tr><th>Ano</th>${itens.map(n => {
+            const label = n === 'Carro em miniatura' ? 'Miniatura' : n === 'Combo Presentes' ? 'Combo' : n === 'Anel com joia' ? 'Anel' : n;
+            return `<th>${label}</th>`;
+        }).join('')}<th>Total</th></tr>`;
+
+        histBody.innerHTML = histAnual.map(entrada => {
+            const total = itens.reduce((s, n) => s + (entrada.itens[n]?.totalReceita || 0), 0);
+            return `<tr>
+                <td><strong>${entrada.ano}</strong></td>
+                ${itens.map(n => `<td>R$ ${(entrada.itens[n]?.totalReceita || 0).toLocaleString('pt-BR')}</td>`).join('')}
+                <td class="mkt-total-cell"><strong>R$ ${total.toLocaleString('pt-BR')}</strong></td>
+            </tr>`;
+        }).join('');
     }
+
 
     function renderAbaMarketing() {
         const container = document.getElementById('marketing-items-container');
@@ -4404,6 +4336,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
+        renderMarketingExtrato();
     }
 
     function renderGaragem() {
@@ -6532,7 +6466,6 @@ document.addEventListener('DOMContentLoaded', () => {
             mudarNomeEquipe();
         }
         else if (target.matches('#btn-falencia')) declararFalencia();
-        else if (target.matches('#btn-extrato-marketing')) abrirExtratoMarketing();
         else if (target.matches('.btn-contratar')) {
             const esp = especialistasDisponiveis.find(e => e.id === parseInt(target.dataset.id));
             if (gameState.escuderia.dinheiro >= esp.salario) {
@@ -6546,6 +6479,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI(); saveGame();
         }
         else if (action === 'melhorar-instalacao') melhorarInstalacao(target.dataset.instalacaoId);
+        else if (action === 'desbloquear-pd') desbloquearCentroPD();
         else if (target.closest('.seletor-item')) {
             const seletor = target.closest('.seletor-item');
             gameState.escuderia.emblema[seletor.dataset.tipo] = seletor.dataset.valor;
