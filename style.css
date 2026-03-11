@@ -4023,6 +4023,7 @@ font-size: 0.8em;
 /* === Extrato Marketing === */
 .extrato-marketing-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .extrato-marketing-header h3 { margin: 0; }
+.extrato-modal-overlay { position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.55); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
 .btn-extrato-marketing { background: linear-gradient(135deg, #008cba, #005f80); color: #fff; border: none; border-radius: 8px; padding: 0.55rem 1.2rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
 .btn-extrato-marketing:hover { opacity: 0.85; }
 .extrato-modal-content { background: #1a1a2e; color: #eee; border-radius: 14px; padding: 2rem; max-width: 780px; width: 95%; max-height: 90vh; overflow-y: auto; position: relative; }

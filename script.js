@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.12";
+    const VERSAO_JOGO = "21.0.10";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -4219,7 +4219,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const modal = document.createElement('div');
         modal.id = 'extrato-marketing-modal';
-        modal.className = 'modal-overlay';
+        modal.className = 'modal-overlay extrato-modal-overlay';
         modal.innerHTML = `
             <div class="modal-content extrato-modal-content">
                 <button class="modal-close-btn" id="fechar-extrato-btn">✕</button>
@@ -4254,6 +4254,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="extrato-dicas">${dicas.map(d => `<div class="extrato-dica"><span class="extrato-dica-icon">${d.icon}</span><p>${d.texto}</p></div>`).join('')}</div>
             </div>`;
         document.body.appendChild(modal);
+
+        // Posiciona o modal logo abaixo do botão
+        const btnExtrato = document.getElementById('btn-extrato-marketing');
+        if (btnExtrato) {
+            const rect = btnExtrato.getBoundingClientRect();
+            modal.style.alignItems = 'flex-start';
+            modal.style.paddingTop = (rect.bottom + window.scrollY + 10) + 'px';
+        }
 
         // Desenha o gráfico de barras em canvas nativo
         requestAnimationFrame(() => {
