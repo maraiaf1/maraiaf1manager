@@ -443,6 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 corridasUsadas: 0,
                 atributosOriginais: JSON.parse(JSON.stringify(peca.atributos))
             })),
+            notificacoes: { pilotos: false, marketing: false },
             mercadoDePecas: [],
             carros: [
                 { id: 1, pilotoId: piloto1Jogador ? piloto1Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 26, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } },
@@ -506,6 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (gameState.escuderia.centroPDDesbloqueado === undefined) {
                     gameState.escuderia.centroPDDesbloqueado = false; //
+                }
+                if (!gameState.notificacoes) {
+                    gameState.notificacoes = { pilotos: false, marketing: false };
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
                 if (!gameState.galeria) {
@@ -3262,6 +3266,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Reseta a referência de lote quando o estoque vai a zero
                     if (itemJogo.inventario === 0) {
                         itemJogo.lote_referencia = 0;
+                        if (!gameState.notificacoes) gameState.notificacoes = {};
+                        gameState.notificacoes.marketing = true;
                     }
                     algumaVendaOcorreu = true;
                 }
@@ -3317,6 +3323,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         if (melhoriasJogador.length > 0) {
+            if (!gameState.notificacoes) gameState.notificacoes = {};
+            gameState.notificacoes.pilotos = true;
             setTimeout(() => {
                 alert("Relatório de Desenvolvimento de Pilotos:\n\nSeus pilotos evoluíram com o treinamento:\n\n" + melhoriasJogador.join('\n\n'));
             }, 3000);
@@ -4113,23 +4121,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!pecaVirtual) {
                     return `<div class="projeto-card-concluido" style="border-color: #dc3545;"><h4>Erro no Projeto: ${projeto.tipoPeca}</h4><p><strong>Modelo base não encontrado!</strong></p></div>`;
                 }
-                const iconesTipo = { 'Motor': '⚙️', 'Chassi': '🏎️', 'Asa Dianteira': '🔺', 'Asa Traseira': '🔻', 'Suspensão': '🔧' };
-                const icone = iconesTipo[pecaVirtual.tipo] || '🔩';
-                return `<div class="projeto-card-concluido">
-                            <div class="projeto-card-header">
-                                <span class="projeto-tipo-badge">${icone} ${pecaVirtual.tipo}</span>
-                                <span class="projeto-nivel-badge">Nível ${pecaVirtual.nivel}</span>
-                            </div>
-                            <div class="projeto-card-body">
-                                <h4 class="projeto-peca-nome">${pecaVirtual.nome}</h4>
-                                <p class="projeto-desenvolvido">Desenvolvido por: <strong>${projeto.nomeEspecialista}</strong></p>
-                                ${gerarHtmlAtributosPeca(pecaVirtual)}
-                                <div class="projeto-acoes">
-                                    <p class="projeto-decisao-label">Decida o que fazer com a peça:</p>
-                                    <button class="btn-ficar-com-peca" data-project-id="${projeto.id}">✅ Ficar com a Peça</button>
-                                    <button class="btn-vender-peca" data-project-id="${projeto.id}">💰 Vender a Peça</button>
-                                </div>
-                            </div>
+                return `<div class="projeto-card-concluido" style="border-color: #28a745; padding: 1rem;">
+                            <h4>Projeto Concluído: ${pecaVirtual.nome} (Nvl ${pecaVirtual.nivel})</h4>
+                            ${gerarHtmlAtributosPeca(pecaVirtual)}
+                            <p style="margin-top: 1rem;">Decida o que fazer:</p>
+                            <button class="btn-ficar-com-peca" data-project-id="${projeto.id}">Ficar com a Peça</button>
+                            <button class="btn-vender-peca" data-project-id="${projeto.id}">Vender a Peça</button>
                         </div>`;
             }
             if (projeto.status === 'a_venda') {
@@ -6253,6 +6250,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ---- 4. RENDERIZADORES DA UI ---------------
+    function atualizarNotificacoes() {
+        if (!gameState.notificacoes) gameState.notificacoes = { pilotos: false, marketing: false };
+
+        // --- Calcular estado de cada aba ---
+        const temProjetoConcluido = gameState.projetosEmAndamento.some(p => p.status === 'concluido');
+        const temOfertaPatrocinio = gameState.patrocinio.ofertas.length > 0;
+        const notifEscuderia = temProjetoConcluido || temOfertaPatrocinio;
+
+        const notifInstalacoes = Object.entries(catalogoInstalacoes).some(([id, data]) => {
+            const nivelAtual = gameState.instalacoes[id] ?? 0;
+            const maxLevel = data.niveis.length - 1;
+            if (nivelAtual >= maxLevel) return false;
+            const proximoCusto = data.niveis[nivelAtual + 1]?.custo;
+            return proximoCusto > 0 && gameState.escuderia.dinheiro >= proximoCusto;
+        });
+
+        const notifPilotos = !!gameState.notificacoes.pilotos;
+        const notifMarketing = !!gameState.notificacoes.marketing;
+
+        // --- Aplicar/remover badges nas abas ---
+        const abas = {
+            escuderia:   notifEscuderia,
+            instalacoes: notifInstalacoes,
+            pilotos:     notifPilotos,
+            marketing:   notifMarketing,
+        };
+
+        Object.entries(abas).forEach(([tabName, ativo]) => {
+            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (!btn) return;
+            const jaTemBadge = btn.querySelector('.notif-dot');
+            if (ativo && !jaTemBadge) {
+                const dot = document.createElement('span');
+                dot.className = 'notif-dot';
+                btn.appendChild(dot);
+            } else if (!ativo && jaTemBadge) {
+                jaTemBadge.remove();
+            }
+        });
+    }
+
     const updateUI = () => {
         console.log("[DEBUG] updateUI foi chamada.");
         renderEscuderia();
@@ -6267,6 +6305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAbaMarketing();
         renderAbaInstalacoes();
         renderAbaTelemetria();
+        atualizarNotificacoes();
     };
 
 
@@ -6294,6 +6333,13 @@ document.addEventListener('DOMContentLoaded', () => {
             target.classList.add('active');
             const abaAtiva = document.getElementById(tabName);
             if (abaAtiva) abaAtiva.classList.add('active');
+
+            // Limpar notificação da aba ao clicar
+            if (!gameState.notificacoes) gameState.notificacoes = {};
+            if (tabName === 'pilotos') gameState.notificacoes.pilotos = false;
+            if (tabName === 'marketing') gameState.notificacoes.marketing = false;
+            const dot = target.querySelector('.notif-dot');
+            if (dot) dot.remove();
 
             switch (tabName) {
                 case 'escuderia': renderEscuderia(); break;
