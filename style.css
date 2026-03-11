@@ -4028,9 +4028,9 @@ font-size: 0.8em;
 .mkt-tabela-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a44; margin-bottom: 1rem; }
 .mkt-tabela { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 .mkt-tabela thead th { background: #1e1e35; color: #bbb; padding: 0.6rem 0.9rem; text-align: left; font-weight: 600; white-space: nowrap; border-bottom: 2px solid #333; }
-.mkt-tabela tbody td { padding: 0.5rem 0.9rem; border-bottom: 1px solid #1e1e35; color: #ddd; }
+.mkt-tabela tbody td {  padding: 0.5rem 0.9rem;  border-bottom: 1px solid #1e1e35;  background: #fff;   /* fundo branco */  color: #000;        /* texto preto */}
 .mkt-tabela tbody tr:last-child td { border-bottom: none; }
-.mkt-tabela tbody tr:hover td { background: #1e1e35; }
+.mkt-tabela tbody tr:hover td {background: #f0f0f0; /* leve cinza no hover para destacar */ }
 .mkt-tabela tfoot td { padding: 0.55rem 0.9rem; background: #14142a; border-top: 2px solid #e10600; color: #fff; }
 .mkt-total-cell { color: #e10600; }
 .mkt-row-bloqueado td { color: #484860; font-style: italic; }
