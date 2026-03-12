@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.13";
+    const VERSAO_JOGO = "21.0.14";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -4121,8 +4121,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${aviso}
                 </div>
             `;
-            // Dispara o cálculo inicial
-            document.getElementById('pd-project-duration').dispatchEvent(new Event('change'));
+            // Dispara o cálculo inicial após o DOM renderizar
+            setTimeout(() => {
+                const sel = document.getElementById('pd-project-duration');
+                if (sel) sel.dispatchEvent(new Event('change'));
+            }, 0);
         }
     }
 
@@ -6480,6 +6483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (action === 'melhorar-instalacao') melhorarInstalacao(target.dataset.instalacaoId);
         else if (action === 'desbloquear-pd') desbloquearCentroPD();
+        else if (action === 'iniciar-projeto-completo') iniciarProjetoCompleto();
         else if (target.closest('.seletor-item')) {
             const seletor = target.closest('.seletor-item');
             gameState.escuderia.emblema[seletor.dataset.tipo] = seletor.dataset.valor;
