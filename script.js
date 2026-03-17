@@ -1110,8 +1110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function abrirModalVendaMassa(modo_origem) {
         const pecasEquipadasIds = new Set(gameState.carros.flatMap(c => Object.values(c.pecas)));
 
-        // origem 'inventario': peças no todasAsPecas não equipadas
-        // origem 'projetos': peças concluídas ainda em projetosEmAndamento
+        // 'inventario': peças no todasAsPecas não equipadas
+        // 'projetos'  : peças concluídas ainda em projetosEmAndamento (serão colocadas à venda, não debitadas)
         let pecasDisponiveis;
         if (modo_origem === 'projetos') {
             pecasDisponiveis = gameState.projetosEmAndamento
@@ -1131,8 +1131,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const tipos = ['Motor', 'Chassi', 'Asa Dianteira', 'Asa Traseira', 'Suspensão'];
         const niveisExistentes = [...new Set(pecasDisponiveis.map(p => p.nivel))].sort((a, b) => a - b);
 
+        // Referência ao modal criado abaixo (usada nas closures)
+        let modal;
+
         function calcularSelecao() {
-            const modo = modal.querySelector('input[name="modo-venda"]:checked')?.value || 'todas';
+            const modo   = modal.querySelector('input[name="modo-venda"]:checked')?.value || 'todas';
             const nivelExato = parseInt(modal.querySelector('#venda-nivel-exato')?.value || 0);
             const nivelAte   = parseInt(modal.querySelector('#venda-nivel-ate')?.value  || 0);
             const tipoSel    = modal.querySelector('#venda-tipo-filtro')?.value || 'todos';
@@ -1147,8 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function renderPreview() {
             const selecao = calcularSelecao();
-            const totalValor = selecao.reduce((s, p) => s + Math.floor(calcularPrecoPeca(p) * 0.7), 0);
-            const previewEl = modal.querySelector('#venda-preview');
+            const previewEl   = modal.querySelector('#venda-preview');
             const btnConfirmar = modal.querySelector('#btn-confirmar-venda-massa');
 
             if (selecao.length === 0) {
@@ -1156,6 +1158,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnConfirmar.disabled = true;
                 return;
             }
+
+            // Para projetos não mostramos valor fixo — será vendido aleatoriamente
+            const mostrarValor = modo_origem !== 'projetos';
+            const totalValor   = mostrarValor
+                ? selecao.reduce((s, p) => s + Math.floor(calcularPrecoPeca(p) * 0.7), 0)
+                : null;
 
             // Agrupa por tipo
             const agrupado = {};
@@ -1166,28 +1174,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 agrupado[p.tipo].niveis[p.nivel] = (agrupado[p.tipo].niveis[p.nivel] || 0) + 1;
             });
 
+            const valorHeader = mostrarValor ? '<th>Valor (70%)</th>' : '<th>Preço base</th>';
             const linhas = Object.entries(agrupado).map(([tipo, dados]) => {
                 const niveisStr = Object.entries(dados.niveis)
                     .sort((a, b) => Number(a[0]) - Number(b[0]))
                     .map(([nvl, qtd]) => `Nvl ${nvl}×${qtd}`).join(', ');
+                const valorCell = mostrarValor
+                    ? `<td class="venda-valor">R$ ${dados.valor.toLocaleString('pt-BR')}</td>`
+                    : `<td class="venda-valor venda-valor-estimado">~R$ ${dados.valor.toLocaleString('pt-BR')}</td>`;
                 return `<tr>
                     <td>${tipo}</td>
                     <td class="venda-niveis-col">${niveisStr}</td>
                     <td class="venda-qtd">${dados.qtd}</td>
-                    <td class="venda-valor">R$ ${dados.valor.toLocaleString('pt-BR')}</td>
+                    ${valorCell}
                 </tr>`;
             }).join('');
 
+            const rodapeValor = mostrarValor
+                ? `<td class="venda-valor"><strong>R$ ${totalValor.toLocaleString('pt-BR')}</strong></td>`
+                : `<td class="venda-valor venda-valor-estimado"><strong>Variável 🎲</strong></td>`;
+
             previewEl.innerHTML = `
                 <table class="venda-massa-tabela">
-                    <thead><tr><th>Tipo</th><th>Níveis</th><th>Qtd</th><th>Valor (70%)</th></tr></thead>
+                    <thead><tr><th>Tipo</th><th>Níveis</th><th>Qtd</th>${valorHeader}</tr></thead>
                     <tbody>${linhas}</tbody>
                     <tfoot><tr>
                         <td colspan="2"><strong>Total</strong></td>
                         <td class="venda-qtd"><strong>${selecao.length}</strong></td>
-                        <td class="venda-valor"><strong>R$ ${totalValor.toLocaleString('pt-BR')}</strong></td>
+                        ${rodapeValor}
                     </tr></tfoot>
-                </table>`;
+                </table>
+                ${modo_origem === 'projetos' ? '<p class="venda-aviso-mercado">⏳ As peças serão colocadas no mercado. A cada corrida, há 60% de chance de cada peça ser comprada por uma equipe adversária.</p>' : ''}`;
             btnConfirmar.disabled = false;
         }
 
@@ -1207,12 +1224,15 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPreview();
         }
 
-        const tituloModal = modo_origem === 'projetos' ? '🏷️ Vender Peças Prontas (Projetos)' : '🏷️ Venda em Massa — Inventário';
-        const subtitulo   = modo_origem === 'projetos'
-            ? 'Venda peças concluídas que ainda aguardam decisão. O valor é <strong>70%</strong> do preço de mercado.'
-            : 'Peças equipadas nos carros <strong>não</strong> serão afetadas. Valor de venda: <strong>70%</strong> do preço de mercado.';
+        const tituloModal = modo_origem === 'projetos'
+            ? '🏷️ Colocar Peças no Mercado'
+            : '🏷️ Venda em Massa — Inventário';
+        const subtitulo = modo_origem === 'projetos'
+            ? 'As peças selecionadas serão <strong>colocadas à venda no mercado</strong>. A cada corrida, equipes adversárias têm chance de comprá-las. O valor será creditado quando a venda ocorrer.'
+            : 'Peças equipadas nos carros <strong>não</strong> serão afetadas. O valor (70% do preço de mercado) é creditado imediatamente.';
+        const textoBotao = modo_origem === 'projetos' ? '📦 Colocar no Mercado' : '✅ Confirmar Venda';
 
-        const modal = document.createElement('div');
+        modal = document.createElement('div');
         modal.id = 'modal-venda-massa';
         modal.className = 'modal-overlay venda-massa-overlay';
         modal.innerHTML = `
@@ -1240,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div id="venda-preview" class="venda-preview-area"></div>
 
                 <div class="venda-massa-acoes">
-                    <button id="btn-confirmar-venda-massa" class="btn-confirmar-venda" disabled>✅ Confirmar Venda</button>
+                    <button id="btn-confirmar-venda-massa" class="btn-confirmar-venda" disabled>${textoBotao}</button>
                     <button id="btn-cancelar-venda-massa" class="btn-cancelar-venda">Cancelar</button>
                 </div>
             </div>`;
@@ -1256,21 +1276,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modal.querySelector('#btn-confirmar-venda-massa').addEventListener('click', () => {
             const selecao = calcularSelecao();
-            const totalValor = selecao.reduce((s, p) => s + Math.floor(calcularPrecoPeca(p) * 0.7), 0);
-            if (!confirm(`Vender ${selecao.length} peça(s) por R$ ${totalValor.toLocaleString('pt-BR')}?`)) return;
-
-            gameState.escuderia.dinheiro += totalValor;
 
             if (modo_origem === 'projetos') {
-                const projetoIdsRemover = new Set(selecao.map(p => p._projetoId));
-                gameState.projetosEmAndamento = gameState.projetosEmAndamento.filter(p => !projetoIdsRemover.has(p.id));
+                // Não debita — apenas marca como 'a_venda' para o sistema de corrida processar
+                const projetoIds = new Set(selecao.map(p => p._projetoId));
+                gameState.projetosEmAndamento.forEach(p => {
+                    if (projetoIds.has(p.id)) p.status = 'a_venda';
+                });
+                modal.remove();
+                alert(`📦 ${selecao.length} peça(s) colocada(s) no mercado!\n\nA cada corrida, há 60% de chance de cada peça ser comprada. Você será notificado quando houver vendas.`);
             } else {
+                // Inventário: débito imediato a 70%
+                const totalValor = selecao.reduce((s, p) => s + Math.floor(calcularPrecoPeca(p) * 0.7), 0);
+                if (!confirm(`Vender ${selecao.length} peça(s) por R$ ${totalValor.toLocaleString('pt-BR')} imediatamente?`)) return;
                 const idsRemover = new Set(selecao.map(p => p.instanceId));
                 gameState.todasAsPecas = gameState.todasAsPecas.filter(p => !idsRemover.has(p.instanceId));
+                gameState.escuderia.dinheiro += totalValor;
+                modal.remove();
+                alert(`✅ ${selecao.length} peça(s) vendida(s) por R$ ${totalValor.toLocaleString('pt-BR')}!`);
             }
 
-            modal.remove();
-            alert(`✅ ${selecao.length} peça(s) vendida(s) por R$ ${totalValor.toLocaleString('pt-BR')}!`);
             updateUI();
             saveGame();
         });
