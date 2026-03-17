@@ -524,6 +524,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (typeof gameState.galeria.titulosPilotos === 'number') {
                         gameState.galeria.titulosPilotos = [];
                     }
+                    // Migra saves antigos: converte anos puros para objetos {ano, piloto}
+                    gameState.galeria.titulosPilotos = gameState.galeria.titulosPilotos.map(t =>
+                        typeof t === 'object' ? t : { ano: t, piloto: '—' }
+                    );
                 }
 
                 gameState.pilotos = gameState.pilotos.filter(p => p !== null && typeof p === 'object');
@@ -3079,8 +3083,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const pilotoDaCasa = gameState.pilotos.find(p => p.nome === pilotoCampeao.piloto && p.status === 'Jogador');
             if (pilotoDaCasa) {
                 ganheiPilotos = true;
-                if (!gameState.galeria.titulosPilotos.includes(ano)) {
-                    gameState.galeria.titulosPilotos.push(ano);
+                const jaRegistrado = gameState.galeria.titulosPilotos.some(t =>
+                    (typeof t === 'object' ? t.ano : t) === ano
+                );
+                if (!jaRegistrado) {
+                    gameState.galeria.titulosPilotos.push({ ano, piloto: pilotoDaCasa.nome });
                     pilotoDaCasa.campeonatosGanhos.push(ano);
                 }
             }
@@ -5329,15 +5336,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!gameState.galeria.hallDaFama || gameState.galeria.hallDaFama.length === 0) {
             hallDaFamaContainer.innerHTML = '<h3>Hall da Fama</h3><p>Nenhum piloto foi adicionado ao Hall da Fama ainda.</p>';
         } else {
-            hallDaFamaContainer.innerHTML = '<h3>Hall da Fama</h3>' + gameState.galeria.hallDaFama.map((p) => {
-                const titulosCount = (p.statsCarreira && p.statsCarreira.titulos) || (p.piloto.campeonatosGanhos && p.piloto.campeonatosGanhos.length) || 0;
-                const trofeusPiloto = p.piloto.campeonatosGanhos && p.piloto.campeonatosGanhos.length > 0 ? p.piloto.campeonatosGanhos.map(ano => '\uD83C\uDFC6 ' + ano).join(' ') : '';
-                const stats = p.statsCarreira || { corridas: 0, vitorias: 0, podios: 0, pontos: 0, titulos: titulosCount };
-                return '<div class="piloto-fama">' +
-                    '<img src="' + (p.piloto.rosto || 'img/Pilotos/default.png') + '" alt="' + p.piloto.nome + '" class="piloto-rosto-fama">' +
-                    '<div class="piloto-fama-info">' +
-                        '<h4>' + p.piloto.nome + '</h4>' +
-                        '<p class="fama-aposentadoria">Aposentou-se em ' + p.anoAposentadoria + (trofeusPiloto ? ' · ' + trofeusPiloto : '') + '</p>' +
+            hallDaFamaContainer.innerHTML = '<h3>Hall da Fama</h3><div class="fama-grid">' +
+                gameState.galeria.hallDaFama.map((p) => {
+                    const titulosCount = (p.statsCarreira && p.statsCarreira.titulos) || (p.piloto.campeonatosGanhos && p.piloto.campeonatosGanhos.length) || 0;
+                    const trofeusPiloto = p.piloto.campeonatosGanhos && p.piloto.campeonatosGanhos.length > 0
+                        ? p.piloto.campeonatosGanhos.map(ano => '\uD83C\uDFC6 ' + ano).join(' ') : '';
+                    const stats = p.statsCarreira || { corridas: 0, vitorias: 0, podios: 0, pontos: 0, titulos: titulosCount };
+                    return '<div class="piloto-fama-card">' +
+                        '<img src="' + (p.piloto.rosto || 'img/Pilotos/default.png') + '" alt="' + p.piloto.nome + '" class="piloto-rosto-fama">' +
+                        '<div class="piloto-fama-nome">' + p.piloto.nome + '</div>' +
+                        '<div class="fama-aposentadoria">Apos. ' + p.anoAposentadoria + (trofeusPiloto ? '<br>' + trofeusPiloto : '') + '</div>' +
                         '<div class="fama-stats-grid">' +
                             '<div class="fama-stat"><span class="fama-stat-valor">' + stats.corridas + '</span><span class="fama-stat-label">Corridas</span></div>' +
                             '<div class="fama-stat"><span class="fama-stat-valor">' + stats.pontos.toLocaleString('pt-BR') + '</span><span class="fama-stat-label">Pontos</span></div>' +
@@ -5345,26 +5353,36 @@ document.addEventListener('DOMContentLoaded', () => {
                             '<div class="fama-stat"><span class="fama-stat-valor">' + stats.vitorias + '</span><span class="fama-stat-label">Vitórias</span></div>' +
                             '<div class="fama-stat fama-stat-titulos' + (titulosCount > 0 ? ' tem-titulo' : '') + '"><span class="fama-stat-valor">' + (titulosCount > 0 ? '\uD83C\uDFC6 ' : '') + titulosCount + '</span><span class="fama-stat-label">Títulos</span></div>' +
                         '</div>' +
-                    '</div>' +
-                '</div>';
-            }).join('');
+                    '</div>';
+                }).join('') +
+            '</div>';
         }
 
         nomeEscuderiaEl.textContent = gameState.escuderia.nome;
+
+        const _anoConstr = gameState.galeria.titulosConstrutores.join(', ') || 'Nenhum título';
+        const _titulosPilotos = gameState.galeria.titulosPilotos || [];
+        const _anosPiloto = _titulosPilotos.length > 0
+            ? _titulosPilotos.map(t => typeof t === 'object'
+                ? `<span class="trofeu-linha-piloto"><strong>${t.ano}</strong> <span class="trofeu-piloto-nome">${t.piloto}</span></span>`
+                : `<span class="trofeu-linha-piloto"><strong>${t}</strong></span>`
+            ).join('')
+            : '<span style="color:#999">Nenhum título</span>';
+
         trofeusContainer.innerHTML = `
             <h3>Gabinete de Troféus</h3>
             <div class="trofeu-container">
-                <div>
+                <div class="trofeu-bloco">
                     <div class="trofeu">🏆</div>
-                    <div>Construtores</div>
+                    <div class="trofeu-label">Construtores</div>
                     <div class="trofeu-contador">${gameState.galeria.titulosConstrutores.length || 0}</div>
-                    <div class="trofeu-anos">${gameState.galeria.titulosConstrutores.join(', ') || 'Nenhum título'}</div>
+                    <div class="trofeu-anos">${_anoConstr}</div>
                 </div>
-                <div>
+                <div class="trofeu-bloco">
                     <div class="trofeu">🏆</div>
-                    <div>Pilotos</div>
-                    <div class="trofeu-contador">${gameState.galeria.titulosPilotos.length || 0}</div>
-                    <div class="trofeu-anos">${gameState.galeria.titulosPilotos.join(', ') || 'Nenhum título'}</div>
+                    <div class="trofeu-label">Pilotos</div>
+                    <div class="trofeu-contador">${_titulosPilotos.length || 0}</div>
+                    <div class="trofeu-lista-pilotos">${_anosPiloto}</div>
                 </div>
             </div>
         `;
