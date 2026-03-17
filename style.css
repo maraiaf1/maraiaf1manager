@@ -4036,3 +4036,38 @@ font-size: 0.8em;
 .mkt-row-bloqueado td { color: #484860; font-style: italic; }
 .mkt-lock { font-size: 0.8rem; opacity: 0.6; }
 .mkt-vazio { text-align: center; color: #666; padding: 1.2rem !important; font-style: italic; }
+/* === Venda em Massa de Peças === */
+.inventario-label-row { display: flex; align-items: center; justify-content: space-between; }
+.btn-venda-massa { background: linear-gradient(135deg, #c0392b, #922b21); color: #fff; border: none; border-radius: 8px; padding: 0.45rem 1rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+.btn-venda-massa:hover { opacity: 0.85; }
+
+.venda-massa-modal-content { background: #1a1a2e; color: #eee; border-radius: 14px; padding: 2rem; max-width: 680px; width: 95%; max-height: 88vh; overflow-y: auto; position: relative; }
+.venda-massa-modal-content h2 { margin: 0 0 0.5rem; font-size: 1.3rem; color: #fff; }
+.venda-massa-subtitulo { font-size: 0.85rem; color: #999; margin: 0 0 1.5rem; line-height: 1.5; }
+.venda-massa-subtitulo strong { color: #ddd; }
+
+.venda-massa-filtros { background: #141428; border-radius: 10px; padding: 1.2rem; margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.85rem; }
+.venda-grupo-radio { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.venda-radio-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: #ccc; cursor: pointer; background: #1e1e35; border-radius: 6px; padding: 0.4rem 0.8rem; transition: background 0.15s; }
+.venda-radio-label:hover { background: #252545; }
+.venda-radio-label input { accent-color: #e10600; }
+.venda-ctrl-row { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: #bbb; }
+.venda-ctrl-row label { white-space: nowrap; }
+.venda-ctrl-row select { background: #1e1e35; color: #eee; border: 1px solid #333; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.9rem; flex: 1; }
+
+.venda-preview-area { min-height: 80px; margin-bottom: 1.2rem; }
+.venda-preview-vazio { text-align: center; color: #666; font-style: italic; padding: 1.5rem; }
+.venda-massa-tabela { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.venda-massa-tabela thead th { background: #1e1e35; color: #bbb; padding: 0.5rem 0.75rem; text-align: left; font-weight: 600; border-bottom: 2px solid #333; }
+.venda-massa-tabela tbody td { padding: 0.45rem 0.75rem; border-bottom: 1px solid #1e1e35; color: #ddd; }
+.venda-massa-tabela tbody tr:hover td { background: #1e1e35; }
+.venda-massa-tabela tfoot td { padding: 0.5rem 0.75rem; background: #141428; border-top: 2px solid #e10600; }
+.venda-qtd { text-align: center; }
+.venda-valor { text-align: right; color: #4CAF50; font-weight: 600; }
+
+.venda-massa-acoes { display: flex; gap: 1rem; justify-content: flex-end; padding-top: 0.5rem; border-top: 1px solid #2a2a44; }
+.btn-confirmar-venda { background: linear-gradient(135deg, #27ae60, #1e8449); color: #fff; border: none; border-radius: 8px; padding: 0.65rem 1.5rem; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+.btn-confirmar-venda:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-confirmar-venda:not(:disabled):hover { opacity: 0.88; }
+.btn-cancelar-venda { background: #252540; color: #ccc; border: 1px solid #333; border-radius: 8px; padding: 0.65rem 1.2rem; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; }
+.btn-cancelar-venda:hover { background: #2e2e55; }

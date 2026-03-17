@@ -1106,6 +1106,167 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.patrocinio.ofertas.push({ id: Date.now(), marca: marca.nome, valor, duracao });
     }
 
+    function abrirModalVendaMassa() {
+        const pecasEquipadasIds = new Set(gameState.carros.flatMap(c => Object.values(c.pecas)));
+        const pecasDisponiveis = gameState.todasAsPecas.filter(p => !pecasEquipadasIds.has(p.instanceId));
+
+        if (pecasDisponiveis.length === 0) {
+            alert('Nenhuma peça no inventário para vender.');
+            return;
+        }
+
+        const tipos = ['Motor', 'Chassi', 'Asa Dianteira', 'Asa Traseira', 'Suspensão'];
+        const niveisExistentes = [...new Set(pecasDisponiveis.map(p => p.nivel))].sort((a, b) => a - b);
+
+        function calcularSelecao(modo, nivelSel, tipoSel, nivelAte) {
+            return pecasDisponiveis.filter(p => {
+                const tipoOk = tipoSel === 'todos' || p.tipo === tipoSel;
+                if (modo === 'todas') return tipoOk;
+                if (modo === 'nivel_exato') return tipoOk && p.nivel === parseInt(nivelSel);
+                if (modo === 'nivel_ate') return tipoOk && p.nivel <= parseInt(nivelAte);
+                return false;
+            });
+        }
+
+        function renderPreview(modal) {
+            const modo = modal.querySelector('input[name="modo-venda"]:checked').value;
+            const nivelExato = parseInt(modal.querySelector('#venda-nivel-exato')?.value || 1);
+            const nivelAte = parseInt(modal.querySelector('#venda-nivel-ate')?.value || 1);
+            const tipoSel = modal.querySelector('#venda-tipo-filtro').value;
+
+            const selecao = calcularSelecao(modo, nivelExato, tipoSel, nivelAte);
+            const totalValor = selecao.reduce((s, p) => s + Math.floor(calcularPrecoPeca(p) * 0.7), 0);
+
+            // Agrupa por tipo para o preview
+            const agrupado = {};
+            selecao.forEach(p => {
+                if (!agrupado[p.tipo]) agrupado[p.tipo] = { qtd: 0, valor: 0, niveis: {} };
+                agrupado[p.tipo].qtd++;
+                agrupado[p.tipo].valor += Math.floor(calcularPrecoPeca(p) * 0.7);
+                agrupado[p.tipo].niveis[p.nivel] = (agrupado[p.tipo].niveis[p.nivel] || 0) + 1;
+            });
+
+            const previewEl = modal.querySelector('#venda-preview');
+            if (selecao.length === 0) {
+                previewEl.innerHTML = `<p class="venda-preview-vazio">Nenhuma peça corresponde ao filtro selecionado.</p>`;
+                modal.querySelector('#btn-confirmar-venda-massa').disabled = true;
+            } else {
+                const linhas = Object.entries(agrupado).map(([tipo, dados]) => {
+                    const niveisStr = Object.entries(dados.niveis)
+                        .sort((a, b) => a[0] - b[0])
+                        .map(([nvl, qtd]) => `Nvl ${nvl} ×${qtd}`)
+                        .join(', ');
+                    return `<tr>
+                        <td>${tipo}</td>
+                        <td>${niveisStr}</td>
+                        <td class="venda-qtd">${dados.qtd}</td>
+                        <td class="venda-valor">R$ ${dados.valor.toLocaleString('pt-BR')}</td>
+                    </tr>`;
+                }).join('');
+                previewEl.innerHTML = `
+                    <table class="venda-massa-tabela">
+                        <thead><tr><th>Tipo</th><th>Níveis</th><th>Qtd</th><th>Valor</th></tr></thead>
+                        <tbody>${linhas}</tbody>
+                        <tfoot><tr>
+                            <td colspan="2"><strong>Total</strong></td>
+                            <td class="venda-qtd"><strong>${selecao.length}</strong></td>
+                            <td class="venda-valor"><strong>R$ ${totalValor.toLocaleString('pt-BR')}</strong></td>
+                        </tr></tfoot>
+                    </table>`;
+                modal.querySelector('#btn-confirmar-venda-massa').disabled = false;
+                modal.querySelector('#btn-confirmar-venda-massa').dataset.totalValor = totalValor;
+            }
+        }
+
+        function buildControles(modal) {
+            const modo = modal.querySelector('input[name="modo-venda"]:checked').value;
+            const ctrl = modal.querySelector('#venda-controles-extras');
+            if (modo === 'todas') {
+                ctrl.innerHTML = '';
+            } else if (modo === 'nivel_exato') {
+                ctrl.innerHTML = `<div class="venda-ctrl-row"><label>Nível exato:</label>
+                    <select id="venda-nivel-exato">${niveisExistentes.map(n => `<option value="${n}">Nível ${n}</option>`).join('')}</select></div>`;
+            } else if (modo === 'nivel_ate') {
+                ctrl.innerHTML = `<div class="venda-ctrl-row"><label>Vender até o nível:</label>
+                    <select id="venda-nivel-ate">${niveisExistentes.map(n => `<option value="${n}">Nível ${n}</option>`).join('')}</select></div>`;
+            }
+            ctrl.querySelectorAll('select').forEach(sel => sel.addEventListener('change', () => renderPreview(modal)));
+            renderPreview(modal);
+        }
+
+        const modal = document.createElement('div');
+        modal.id = 'modal-venda-massa';
+        modal.className = 'modal-overlay';
+        modal.style.cssText = 'display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div class="modal-content venda-massa-modal-content">
+                <button class="modal-close-btn" id="fechar-venda-massa">✕</button>
+                <h2>🏷️ Venda em Massa de Peças</h2>
+                <p class="venda-massa-subtitulo">Peças equipadas nos carros <strong>não</strong> serão afetadas. O valor de venda é <strong>70%</strong> do preço de mercado.</p>
+
+                <div class="venda-massa-filtros">
+                    <div class="venda-grupo-radio">
+                        <label class="venda-radio-label"><input type="radio" name="modo-venda" value="todas"> Todas as peças</label>
+                        <label class="venda-radio-label"><input type="radio" name="modo-venda" value="nivel_ate" checked> Por nível (até o nível X)</label>
+                        <label class="venda-radio-label"><input type="radio" name="modo-venda" value="nivel_exato"> Por nível exato</label>
+                    </div>
+
+                    <div class="venda-ctrl-row">
+                        <label>Filtrar por tipo:</label>
+                        <select id="venda-tipo-filtro">
+                            <option value="todos">Todos os tipos</option>
+                            ${tipos.map(t => `<option value="${t}">${t}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <div id="venda-controles-extras"></div>
+                </div>
+
+                <div id="venda-preview" class="venda-preview-area"></div>
+
+                <div class="venda-massa-acoes">
+                    <button id="btn-confirmar-venda-massa" class="btn-confirmar-venda" disabled>✅ Confirmar Venda</button>
+                    <button id="btn-cancelar-venda-massa" class="btn-cancelar-venda">Cancelar</button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(modal);
+
+        // Inicializa controles e preview
+        buildControles(modal);
+
+        // Listeners dos radios
+        modal.querySelectorAll('input[name="modo-venda"]').forEach(r => r.addEventListener('change', () => buildControles(modal)));
+        modal.querySelector('#venda-tipo-filtro').addEventListener('change', () => renderPreview(modal));
+
+        // Fechar
+        modal.querySelector('#fechar-venda-massa').addEventListener('click', () => modal.remove());
+        modal.querySelector('#btn-cancelar-venda-massa').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+
+        // Confirmar venda
+        modal.querySelector('#btn-confirmar-venda-massa').addEventListener('click', () => {
+            const modo = modal.querySelector('input[name="modo-venda"]:checked').value;
+            const nivelExato = parseInt(modal.querySelector('#venda-nivel-exato')?.value || 1);
+            const nivelAte = parseInt(modal.querySelector('#venda-nivel-ate')?.value || 1);
+            const tipoSel = modal.querySelector('#venda-tipo-filtro').value;
+            const selecao = calcularSelecao(modo, nivelExato, tipoSel, nivelAte);
+            const totalValor = selecao.reduce((s, p) => s + Math.floor(calcularPrecoPeca(p) * 0.7), 0);
+
+            const tipoLabel = tipoSel === 'todos' ? 'de todos os tipos' : `do tipo ${tipoSel}`;
+            if (!confirm(`Vender ${selecao.length} peça(s) ${tipoLabel} por R$ ${totalValor.toLocaleString('pt-BR')}?`)) return;
+
+            const idsParaRemover = new Set(selecao.map(p => p.instanceId));
+            gameState.todasAsPecas = gameState.todasAsPecas.filter(p => !idsParaRemover.has(p.instanceId));
+            gameState.escuderia.dinheiro += totalValor;
+
+            modal.remove();
+            alert(`✅ ${selecao.length} peça(s) vendida(s) por R$ ${totalValor.toLocaleString('pt-BR')}!`);
+            updateUI();
+            saveGame();
+        });
+    }
+
     function venderPecaInventario(instanceId) {
         const pecaIndex = gameState.todasAsPecas.findIndex(p => p.instanceId === instanceId);
         if (pecaIndex === -1) { alert("Erro: Peça não encontrada!"); return; }
@@ -6469,6 +6630,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mudarNomeEquipe();
         }
         else if (target.matches('#btn-falencia')) declararFalencia();
+        else if (target.matches('#btn-venda-massa')) abrirModalVendaMassa();
         else if (target.matches('.btn-contratar')) {
             const esp = especialistasDisponiveis.find(e => e.id === parseInt(target.dataset.id));
             if (gameState.escuderia.dinheiro >= esp.salario) {
