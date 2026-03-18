@@ -3517,151 +3517,235 @@ font-size: 0.8em;
    WATCHLIST — Card de monitoramento de pilotos IA na corrida
    ═══════════════════════════════════════════════════════════ */
 
+/* ================================================================
+   MONITOR DE CORRIDA — Card lateral durante a corrida
+   ================================================================ */
+
 .watchlist-card {
     margin-top: 16px;
     border: 1px solid #3a3a3a;
     border-radius: 8px;
-    background: #1e1e1e;
+    background: #1a1a1a;
     color: #e0e0e0;
     overflow: hidden;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
 }
 
 .watchlist-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: #2a2a2a;
-    border-bottom: 1px solid #3a3a3a;
+    background: #242424;
+    border-bottom: 1px solid #333;
 }
 
 .watchlist-title {
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     letter-spacing: 0.03em;
 }
 
-.watchlist-slots-info {
-    background: #444;
-    color: #ccc;
-    border-radius: 10px;
-    padding: 1px 8px;
-    font-size: 0.78rem;
-    font-weight: bold;
-}
-
-.watchlist-vazio {
-    padding: 12px;
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    font-size: 0.82rem;
-    margin: 0;
-}
-
-.watchlist-piloto-item {
+/* Título de seção dentro do card */
+.wl-secao-titulo {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #999;
+    background: #222;
     border-bottom: 1px solid #2e2e2e;
-    position: relative;
-    transition: background 0.2s;
 }
 
-.watchlist-piloto-info {
+/* Separador entre seções */
+.wl-separador {
+    height: 1px;
+    background: #2e2e2e;
+    margin: 4px 0;
+}
+
+/* Linha de duelo: [card] [diff] [card] */
+.wl-duelo-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 8px 6px;
+}
+
+/* Mini-card de cada piloto */
+.wl-mini-card {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    align-items: center;
+    gap: 3px;
+    background: #252525;
+    border-radius: 6px;
+    padding: 7px 5px 6px;
+    text-align: center;
     min-width: 0;
 }
 
-.watchlist-pos {
-    font-weight: bold;
-    font-size: 1rem;
+.wl-mini-vazio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #222;
+    border-radius: 6px;
+    color: #555;
+    font-size: 1.2rem;
+    min-height: 80px;
+}
+
+.wl-mini-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #777;
     line-height: 1;
 }
 
-.watchlist-nome {
-    font-weight: bold;
-    font-size: 0.88rem;
+.wl-mini-nome {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #e0e0e0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 90px;
+    line-height: 1.2;
 }
 
-.watchlist-equipe {
-    color: #999;
-    font-size: 0.75rem;
+.wl-mini-pos {
+    font-size: 1.1rem;
+    font-weight: 900;
+    line-height: 1;
 }
 
-.watchlist-piloto-stats {
+.wl-mini-pneu {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.wl-pneu-badge {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #111;
+    text-align: center;
+    line-height: 18px;
+    flex-shrink: 0;
+}
+
+.wl-pneu-voltas {
+    font-size: 0.72rem;
+    color: #aaa;
+}
+
+.wl-mini-gap {
+    font-size: 0.7rem;
+    color: #bbb;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* Badge central com diferença de posição e tempo */
+.wl-diff-badge {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-    font-size: 0.78rem;
-    color: #bbb;
-    min-width: 70px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 6px;
+    min-width: 52px;
 }
 
-.watchlist-gap {
+.wl-diff-pos {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.wl-diff-seg {
+    font-size: 0.72rem;
     font-family: 'Courier New', monospace;
-    font-weight: bold;
+    font-weight: 700;
+}
+
+/* Toggle P1 / P2 na seção IA */
+.wl-ref-toggle {
+    display: flex;
+    gap: 3px;
+    margin-left: auto;
+}
+
+.wl-ref-btn {
+    background: #333;
+    border: 1px solid #444;
+    color: #aaa;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1.6;
+}
+
+.wl-ref-btn:hover { background: #3a3a3a; color: #ddd; }
+
+.wl-ref-btn.ativo {
+    background: #e10600;
+    border-color: #e10600;
+    color: #fff;
+}
+
+/* Botão remover rival IA */
+.wl-ia-remove {
+    text-align: center;
+    padding: 4px 8px 8px;
+}
+
+/* Mensagem vazia */
+.watchlist-vazio {
+    padding: 12px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
     font-size: 0.78rem;
-    color: #e0e0e0;
+    margin: 0;
 }
 
-.watchlist-dnf {
-    color: #ff5252 !important;
-}
-
+/* Botão de remover (reusado) */
 .watchlist-remove-btn {
     background: none;
-    border: none;
-    color: #666;
+    border: 1px solid #3a3a3a;
+    color: #777;
     cursor: pointer;
-    font-size: 0.8rem;
-    padding: 2px 4px;
-    border-radius: 3px;
-    line-height: 1;
-    transition: color 0.15s, background 0.15s;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
 .watchlist-remove-btn:hover {
     color: #ff5252;
-    background: rgba(255,82,82,0.1);
-}
-
-.watchlist-add {
-    padding: 8px 10px;
-}
-
-.watchlist-add select {
-    width: 100%;
-    background: #2a2a2a;
-    color: #e0e0e0;
-    border: 1px solid #444;
-    border-radius: 5px;
-    padding: 5px 8px;
-    font-size: 0.82rem;
-    cursor: pointer;
-}
-
-.watchlist-add select:focus {
-    outline: none;
-    border-color: #666;
+    border-color: #ff5252;
+    background: rgba(255,82,82,0.08);
 }
 
 /* Linha monitorada na tabela de corrida */
-#tabela-resultados .watched-row {
-    font-weight: 600;
-}
-
-#tabela-resultados .watched-row td:first-child {
-    font-weight: bold;
-}
+#tabela-resultados .watched-row { font-weight: 600; }
+#tabela-resultados .watched-row td:first-child { font-weight: bold; }
 
 /* Ícone 👁️ clicável na tabela */
 .watch-eye-btn {
@@ -3673,29 +3757,10 @@ font-size: 0.8em;
     transition: opacity 0.15s, transform 0.15s;
     user-select: none;
 }
-
-.watch-eye-btn:hover {
-    opacity: 0.8;
-    transform: scale(1.2);
-}
-
+.watch-eye-btn:hover  { opacity: 0.8; transform: scale(1.2); }
 .watch-eye-btn.watched {
     opacity: 1;
     filter: drop-shadow(0 0 3px rgba(255,255,255,0.4));
-}
-/* Watchlist gap com label */
-.watchlist-gap-row {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1px;
-}
-
-.watchlist-gap-label {
-    font-size: 0.68rem;
-    color: #777;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
 }
 /* ================================================================
    MODAL FIM DE TEMPORADA

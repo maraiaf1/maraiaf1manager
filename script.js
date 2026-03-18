@@ -324,7 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let animacaoAtiva = false;
     let garagemState = { carroSelecionadoIndex: 0 };
     let raceData = {};
-    let pilotosMonitorados = []; // IDs dos pilotos IA monitorados (máx. 2)
+    let pilotosMonitorados = []; // ID do piloto IA monitorado (máx. 1)
+    let watchlistRefPiloto = 1;   // 1=Piloto1 2=Piloto2 (referência da comparação com IA)
     let sortState = { column: 'preco', direction: 'asc' };
     let projetoAtual = {};
     let gapsAnteriores = {};
@@ -1977,7 +1978,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const watchlistCard = document.getElementById('watchlist-card');
         if (watchlistCard) {
             watchlistCard.classList.remove('hidden');
-            popularSelectWatchlist();
             renderWatchlistCard();
         }
 
@@ -4856,15 +4856,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div id="watchlist-card" class="watchlist-card hidden">
                         <div class="watchlist-header">
-                            <span class="watchlist-title">👁️ Monitorar Pilotos</span>
-                            <span class="watchlist-slots-info" id="watchlist-slots-info">0 / 2</span>
+                            <span class="watchlist-title">📊 Monitor de Corrida</span>
                         </div>
                         <div id="watchlist-pilotos"></div>
-                        <div class="watchlist-add" id="watchlist-add-container">
-                            <select id="watchlist-select">
-                                <option value="">+ Adicionar piloto...</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -4919,71 +4913,107 @@ document.addEventListener('DOMContentLoaded', () => {
     // WATCHLIST — Monitoramento de pilotos IA durante a corrida
     // ─────────────────────────────────────────────────────────────────────────
 
-    function popularSelectWatchlist() {
-        const sel = document.getElementById('watchlist-select');
-        if (!sel || !raceData.participantes) return;
-        // Apenas pilotos IA, ordenados por nome
-        const pilotosIA = raceData.participantes
-            .filter(p => !p.isPlayer)
-            .map(p => ({ id: p.piloto.id, nome: p.piloto.nome, equipe: p.equipe }))
-            .sort((a, b) => a.nome.localeCompare(b.nome));
-        sel.innerHTML = '<option value="">+ Adicionar piloto...</option>' +
-            pilotosIA.map(p => `<option value="${p.id}">${p.nome} (${p.equipe})</option>`).join('');
+    // ── Helpers internos do monitor ───────────────────────────────────────────
+
+    function _wlPosGap(p) {
+        if (!p || !raceData.participantes) return { pos: null, isDNF: true, gapLider: null };
+        const sorted = raceData.participantes
+            .filter(x => x.tempoTotal !== Infinity)
+            .sort((a, b) => a.tempoTotal - b.tempoTotal);
+        const isDNF = p.tempoTotal === Infinity;
+        const pos   = isDNF ? null : sorted.findIndex(x => x.piloto.id === p.piloto.id) + 1;
+        const lider = sorted[0];
+        const gapLider = (!isDNF && lider && pos !== 1) ? p.tempoTotal - lider.tempoTotal : null;
+        return { pos, isDNF, gapLider };
+    }
+
+    function _wlMiniCard(p, label) {
+        if (!p) return '<div class="wl-mini-vazio">—</div>';
+        const cor  = getCorDaEquipe(p.equipe);
+        const { pos, isDNF, gapLider } = _wlPosGap(p);
+        const pneuCores = { macio: '#e8002d', medio: '#f5c518', duro: '#ccc' };
+        const pneuLetra = { macio: 'M', medio: 'Me', duro: 'D' };
+        const pCor = pneuCores[p.pneuAtual] || '#888';
+        const pLet = pneuLetra[p.pneuAtual] || '?';
+        const posStr = isDNF ? 'DNF' : (pos ? `P${pos}` : '—');
+        let gapStr;
+        if (isDNF)          gapStr = 'DNF';
+        else if (pos === 1) gapStr = '🏆 Líder';
+        else                gapStr = `+${gapLider.toFixed(3)}s`;
+        return `<div class="wl-mini-card" style="border-top:3px solid ${cor}">
+            <div class="wl-mini-label">${label}</div>
+            <div class="wl-mini-nome">${p.piloto.nome}</div>
+            <div class="wl-mini-pos" style="color:${cor}">${posStr}</div>
+            <div class="wl-mini-pneu">
+                <span class="wl-pneu-badge" style="background:${pCor}">${pLet}</span>
+                <span class="wl-pneu-voltas">${p.voltasNoPneuAtual}v</span>
+            </div>
+            <div class="wl-mini-gap">${gapStr}</div>
+        </div>`;
+    }
+
+    function _wlDiffBadge(pA, pB) {
+        if (!pA || !pB) return '<div class="wl-diff-badge">—</div>';
+        const { pos: posA, isDNF: dnfA } = _wlPosGap(pA);
+        const { pos: posB, isDNF: dnfB } = _wlPosGap(pB);
+        if (dnfA || dnfB || !posA || !posB) return '<div class="wl-diff-badge">—</div>';
+        const diffPos = posB - posA;   // positivo = A está à frente
+        const diffSeg = pA.tempoTotal - pB.tempoTotal; // negativo = A mais rápido
+        const posLabel = diffPos === 0 ? '= pos'
+            : diffPos > 0 ? `▲${diffPos} pos` : `▼${Math.abs(diffPos)} pos`;
+        const segStr   = diffSeg === 0 ? '='
+            : diffSeg < 0 ? `−${Math.abs(diffSeg).toFixed(3)}s` : `+${diffSeg.toFixed(3)}s`;
+        const corSeg   = diffSeg < 0 ? '#4caf50' : diffSeg > 0 ? '#ff5252' : '#aaa';
+        const corPos   = diffPos > 0 ? '#4caf50' : diffPos < 0 ? '#ff5252' : '#aaa';
+        return `<div class="wl-diff-badge">
+            <span class="wl-diff-pos" style="color:${corPos}">${posLabel}</span>
+            <span class="wl-diff-seg" style="color:${corSeg}">${segStr}</span>
+        </div>`;
     }
 
     function renderWatchlistCard() {
         const container = document.getElementById('watchlist-pilotos');
-        const slotsInfo = document.getElementById('watchlist-slots-info');
-        const addContainer = document.getElementById('watchlist-add-container');
-        if (!container) return;
+        if (!container || !raceData.participantes) return;
 
-        slotsInfo.textContent = `${pilotosMonitorados.length} / 2`;
+        const players = raceData.participantes.filter(x => x.isPlayer);
+        const p1 = players[0] || null;
+        const p2 = players[1] || null;
 
-        if (pilotosMonitorados.length === 0) {
-            container.innerHTML = '<p class="watchlist-vazio">Nenhum piloto monitorado.<br>Selecione abaixo ou clique em 👁️ na tabela.</p>';
+        // ── Seção 1: Duelo Interno (sempre visível) ────────────────────────
+        let html = '<div class="wl-secao-titulo">🏎️ Duelo Interno</div>';
+        html += `<div class="wl-duelo-row">
+            ${_wlMiniCard(p1, 'Piloto 1')}
+            ${_wlDiffBadge(p1, p2)}
+            ${_wlMiniCard(p2, 'Piloto 2')}
+        </div>`;
+
+        // ── Seção 2: Comparar com IA (aparece quando um piloto é monitorado) ─
+        html += '<div class="wl-separador"></div>';
+        if (pilotosMonitorados.length > 0) {
+            const iaId  = pilotosMonitorados[0];
+            const pIA   = raceData.participantes.find(x => x.piloto.id === iaId);
+            const pRef  = watchlistRefPiloto === 2 ? p2 : p1;
+            const refLbl= watchlistRefPiloto === 2 ? 'Piloto 2' : 'Piloto 1';
+            html += `<div class="wl-secao-titulo">
+                👁️ Comparar com IA
+                <span class="wl-ref-toggle">
+                    <button class="wl-ref-btn${watchlistRefPiloto===1?' ativo':''}" data-action="wl-ref" data-ref="1">P1</button>
+                    <button class="wl-ref-btn${watchlistRefPiloto===2?' ativo':''}" data-action="wl-ref" data-ref="2">P2</button>
+                </span>
+            </div>`;
+            html += `<div class="wl-duelo-row">
+                ${_wlMiniCard(pRef, refLbl)}
+                ${_wlDiffBadge(pRef, pIA)}
+                ${_wlMiniCard(pIA, pIA ? pIA.equipe : 'IA')}
+            </div>`;
+            html += `<div class="wl-ia-remove">
+                <button class="watchlist-remove-btn" data-piloto-id="${iaId}">✕ Remover rival</button>
+            </div>`;
         } else {
-            container.innerHTML = pilotosMonitorados.map(id => {
-                const p = raceData.participantes?.find(x => x.piloto.id === id);
-                if (!p) return '';
-                const cor = getCorDaEquipe(p.equipe);
-                const pos = raceData.participantes
-                    .filter(x => x.tempoTotal !== Infinity)
-                    .sort((a, b) => a.tempoTotal - b.tempoTotal)
-                    .findIndex(x => x.piloto.id === id) + 1;
-                const isDNF = p.tempoTotal === Infinity;
-                const lider = raceData.participantes.find(x => x.tempoTotal !== Infinity);
-                let gapLabel, gapValue;
-                if (isDNF) {
-                    gapLabel = ''; gapValue = 'DNF';
-                } else if (pos === 1) {
-                    gapLabel = ''; gapValue = '🏆 Líder';
-                } else {
-                    const gapSeg = (p.tempoTotal - lider.tempoTotal).toFixed(3);
-                    gapLabel = 'Δ líder'; gapValue = `+${gapSeg}s`;
-                }
-                const pneuIcon = { macio: '🔴', medio: '🟡', duro: '⚪' }[p.pneuAtual] || '⚫';
-                return `<div class="watchlist-piloto-item" style="border-left: 4px solid ${cor}; background: ${hexToRgba(cor, 0.08)}">
-                    <div class="watchlist-piloto-info">
-                        <span class="watchlist-pos" style="color:${cor}">P${isDNF ? '—' : pos}</span>
-                        <span class="watchlist-nome">${p.piloto.nome}</span>
-                        <span class="watchlist-equipe">${p.equipe}</span>
-                    </div>
-                    <div class="watchlist-piloto-stats">
-                        <span>${pneuIcon} ${p.voltasNoPneuAtual}v</span>
-                        <span class="watchlist-gap-row">
-                            ${gapLabel ? `<span class="watchlist-gap-label">${gapLabel}</span>` : ''}
-                            <span class="watchlist-gap ${isDNF ? 'watchlist-dnf' : ''}">${gapValue}</span>
-                        </span>
-                    </div>
-                    <button class="watchlist-remove-btn" data-piloto-id="${id}" title="Remover">✕</button>
-                </div>`;
-            }).join('');
+            html += '<p class="watchlist-vazio">Clique em 👁️ na tabela para comparar com um rival.</p>';
         }
 
-        // Esconde o select se já tiver 2 pilotos
-        if (addContainer) {
-            addContainer.style.display = pilotosMonitorados.length >= 2 ? 'none' : 'block';
-        }
+        container.innerHTML = html;
     }
 
     function hexToRgba(cor, alpha) {
@@ -4999,15 +5029,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = parseInt(pilotoId);
         const p = raceData.participantes?.find(x => x.piloto.id === id);
         if (!p || p.isPlayer) return;
-        const idx = pilotosMonitorados.indexOf(id);
-        if (idx !== -1) {
-            pilotosMonitorados.splice(idx, 1);
+        if (pilotosMonitorados[0] === id) {
+            pilotosMonitorados = [];   // remove se clicar no mesmo
         } else {
-            if (pilotosMonitorados.length >= 2) return;
-            pilotosMonitorados.push(id);
+            pilotosMonitorados = [id]; // substitui qualquer IA anterior
         }
         renderWatchlistCard();
-        renderTabelaAoVivo(); // Atualiza cores na tabela
+        renderTabelaAoVivo();
     }
 
     function renderTabelaAoVivo() {
@@ -6632,6 +6660,12 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleMonitorarPiloto(target.dataset.pilotoId);
             return;
         }
+        // Botões P1/P2 no card IA
+        if (action === 'wl-ref') {
+            watchlistRefPiloto = parseInt(target.dataset.ref);
+            renderWatchlistCard();
+            return;
+        }
         // Remover monitoramento pelo botão ✕ no card
         if (target.matches('.watchlist-remove-btn')) {
             toggleMonitorarPiloto(target.dataset.pilotoId);
@@ -7009,12 +7043,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.addEventListener('change', (e) => {
         const target = e.target;
-        // Watchlist: adicionar piloto pelo select
-        if (target.id === 'watchlist-select' && target.value) {
-            toggleMonitorarPiloto(target.value);
-            target.value = ''; // Reset select
-            return;
-        }
+        // watchlist-select removido (card novo não usa select)
         if (target.matches('.pneu-select-inicial, .pneu-select-parada')) {
             const carroIndex = parseInt(target.dataset.carIndex);
             if (isNaN(carroIndex)) return;
