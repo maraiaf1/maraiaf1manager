@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.14";
+    const VERSAO_JOGO = "21.0.15";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -164,8 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 21, rosto: 'img/Pilotos/Arvid.png', nome: "Arvid Lindblad", idade: 18, habilidade: 78, consistencia: 76, gerenciamentoPneus: 77, atributosBase: { habilidade: 78, consistencia: 76, gerenciamentoPneus: 77 }, status: 'RB', campeonatosGanhos: [] },
         { id: 19, rosto: 'img/Pilotos/piastri.png', nome: "Oscar Piastri", idade: 25, habilidade: 92, consistencia: 93, gerenciamentoPneus: 92, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 92 }, status: 'MacLaren', campeonatosGanhos: [] },
         { id: 20, rosto: 'img/Pilotos/norris.png', nome: "Lando Norris", idade: 26, habilidade: 92, consistencia: 93, gerenciamentoPneus: 93, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 93 }, status: 'MacLaren', campeonatosGanhos: [] },
-        { id: 101, rosto: 'img/Pilotos/lucasdigrassi.png', nome: "Lucas di Grassi", idade: 33, habilidade: 91, consistencia: 90, gerenciamentoPneus: 92, atributosBase: { habilidade: 91, consistencia: 90, gerenciamentoPneus: 92 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 102, rosto: 'img/Pilotos/felipedrugovich.png', nome: "Felipe Drugovich", idade: 19, habilidade: 87, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 3800000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 101, rosto: 'img/Pilotos/lucasdigrassi.png', nome: "Lucas di Grassi", idade: 33, habilidade: 94, consistencia: 92, gerenciamentoPneus: 95, atributosBase: { habilidade: 94, consistencia: 92, gerenciamentoPneus: 95 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 102, rosto: 'img/Pilotos/felipedrugovich.png', nome: "Felipe Drugovich", idade: 19, habilidade: 89, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 3800000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 103, rosto: 'img/Pilotos/dudubarrichello.png', nome: "Dudu Barrichello", idade: 21, habilidade: 84, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 104, rosto: 'img/Pilotos/fbarrichello.png', nome: "F. Barrichello", idade: 17, habilidade: 80, consistencia: 81, gerenciamentoPneus: 85, salario: 15000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 107, rosto: 'img/Pilotos/caiocole.png', nome: "Caio Collet", idade: 20, habilidade: 85, consistencia: 86, gerenciamentoPneus: 87, salario: 17000, precoContrato: 780000, status: 'Disponível', campeonatosGanhos: [] },
@@ -4856,7 +4856,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div id="watchlist-card" class="watchlist-card hidden">
                         <div class="watchlist-header">
-                            <span class="watchlist-title">📊 Monitor de Corrida</span>
+                            <span class="watchlist-title">👁️ Monitor de Corrida</span>
                         </div>
                         <div id="watchlist-pilotos"></div>
                     </div>
