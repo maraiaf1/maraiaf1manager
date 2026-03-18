@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.15";
+    const VERSAO_JOGO = "21.0.16";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -1973,13 +1973,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('info-pre-corrida-esquerda').classList.remove('hidden');
         document.getElementById('info-pre-corrida-direita').classList.remove('hidden');
 
-        // Inicializa o card de watchlist
+        // Zera o piloto IA monitorado ao iniciar nova corrida
         pilotosMonitorados = [];
-        const watchlistCard = document.getElementById('watchlist-card');
-        if (watchlistCard) {
-            watchlistCard.classList.remove('hidden');
-            renderWatchlistCard();
-        }
+        watchlistRefPiloto = 1;
 
         // 5. Prepara os dados e inicia os loops da corrida
         const finalParticipants = gridDeLargada.map((p, index) => {
@@ -1995,9 +1991,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
         });
+        // Inicializa o card de monitor com os dados da corrida atual
+        const watchlistCard = document.getElementById('watchlist-card');
+        if (watchlistCard) {
+            watchlistCard.classList.remove('hidden');
+        }
         raceData = { participantes: finalParticipants, pista, voltaAtual: 1, totalVoltas: pista.voltas, intervalo: velocidade === 'real' ? 10000 : 2000, melhorVolta: Infinity, pilotoMelhorVolta: null, polePosition: dadosDaPole, safetyCarAtivo: false, pendingSafetyCar: false, safetyCarMotivo: '', historicoSC: [] };
         redimensionarCanvas();
         renderTabelaAoVivo();
+        renderWatchlistCard(); // Renderiza com raceData já populado
         animacaoAtiva = true;
         loopAnimacaoCanvas();
         timestampUltimaSimulacao = performance.now();
