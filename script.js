@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.17";
+    const VERSAO_JOGO = "21.0.19";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -5115,8 +5115,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 modeButtons.forEach(btn => { btn.disabled = false; });
             }
         }
-        // Atualiza o watchlist sempre que a tabela atualizar (inclusive durante SC)
-        if (pilotosMonitorados.length > 0) renderWatchlistCard();
+        // Atualiza o watchlist a cada volta — o "Duelo Interno" precisa
+        // ser refrescado independentemente de haver piloto IA monitorado.
+        const wlCard = document.getElementById('watchlist-card');
+        if (wlCard && !wlCard.classList.contains('hidden')) renderWatchlistCard();
     }
 
     function renderAbaCampeonato() {
