@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.16";
+    const VERSAO_JOGO = "21.0.17";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -2462,7 +2462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         raceData.historicoSC.push({ volta: raceData.voltaAtual, totalVoltas: raceData.totalVoltas, motivo: raceData.safetyCarMotivo || 'Incidente na pista' });
         renderHistoricoSC();
 
-        const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+        const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
 
         // ── 1. Comprime o campo ──────────────────────────────────────
         const ativos = raceData.participantes.filter(p => p.tempoTotal !== Infinity);
