@@ -2531,7 +2531,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             || alternativas[0]; // fallback: qualquer diferente
                     }
 
-                    p.tempoTotal += 22;
+                    p.tempoTotal += 12;
                     p.pneuAtual = pneuEscolhido;
                     p.durabilidadePneu = 100;
                     p.penalidadeCombustivel = 2.8;
