@@ -966,6 +966,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    /**
+     * Propaga a mudança de nome da escuderia para todos os lugares do gameState
+     * onde o nome antigo foi gravado como string — evita inconsistências nas
+     * tabelas de campeonato, resultados de corrida, galeria e pilotos.
+     */
+    function propagarNomeEquipe(nomeAntigo, novoNome) {
+        // 1. Classificação de construtores da temporada atual
+        gameState.campeonato.classificacaoConstrutores.forEach(e => {
+            if (e.equipe === nomeAntigo) e.equipe = novoNome;
+        });
+
+        // 2. Classificação de pilotos (campo "equipe" de cada entrada)
+        gameState.campeonato.classificacaoPilotos.forEach(p => {
+            if (p.equipe === nomeAntigo) p.equipe = novoNome;
+        });
+
+        // 3. Resultados de corridas já disputadas (equipe em cada participante)
+        gameState.campeonato.resultadosCorridas.forEach(corrida => {
+            corrida.resultadoFinal.forEach(res => {
+                if (res.equipe === nomeAntigo) res.equipe = novoNome;
+            });
+        });
+
+        // 4. Status dos pilotos do jogador (armazenam o nome da equipe como status)
+        gameState.pilotos.forEach(piloto => {
+            if (piloto.status === nomeAntigo) piloto.status = novoNome;
+        });
+
+        // 5. Estatísticas da galeria (campo "equipe" nos registros de todos os pilotos)
+        const atualizarStatsEquipe = (statsObj) => {
+            if (!statsObj) return;
+            Object.values(statsObj).forEach(s => {
+                if (s.equipe === nomeAntigo) s.equipe = novoNome;
+            });
+        };
+        atualizarStatsEquipe(gameState.galeria.estatisticasPilotos);
+        atualizarStatsEquipe(gameState.galeria.estatisticasTodosPilotos);
+
+        // 6. Hall da Fama — equipe registrada na entrada
+        gameState.galeria.hallDaFama.forEach(entrada => {
+            if (entrada.statsCarreira?.equipe === nomeAntigo) entrada.statsCarreira.equipe = novoNome;
+            if (entrada.piloto?.status === nomeAntigo) entrada.piloto.status = novoNome;
+        });
+
+        // 7. Histórico anual de marketing (não tem nome de equipe, mas deixa aqui como extensão futura)
+        // — nada a fazer por enquanto
+    }
+
     function mudarNomeEquipe() {
         const novoNome = document.getElementById('input-nome-escuderia').value.trim();
         if (!novoNome || novoNome.length < 3) {
@@ -974,18 +1022,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const emblemaState = gameState.escuderia.emblema;
+        const nomeAntigo = gameState.escuderia.nome;
 
         // Se for a primeira vez, a mudança é grátis.
         if (!emblemaState.primeiroNomeSalvo) {
             if (confirm(`Definir o nome da equipe como "${novoNome}"? Esta ação é gratuita, mas futuras alterações terão um custo.`)) {
                 gameState.escuderia.nome = novoNome;
-                emblemaState.primeiroNomeSalvo = true; // Marca que a primeira mudança foi feita
+                propagarNomeEquipe(nomeAntigo, novoNome);
+                emblemaState.primeiroNomeSalvo = true;
                 alert("Nome da equipe definido com sucesso!");
                 updateUI();
                 saveGame();
             }
         } else {
-            // Se não for a primeira vez, verifica o custo.
             if (gameState.escuderia.dinheiro < CUSTO_MUDAR_NOME) {
                 alert(`Dinheiro insuficiente! Custo para alterar o nome: R$ ${CUSTO_MUDAR_NOME.toLocaleString('pt-BR')}`);
                 return;
@@ -994,6 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm(`Deseja alterar o nome da equipe para "${novoNome}" pelo custo de R$ ${CUSTO_MUDAR_NOME.toLocaleString('pt-BR')}?`)) {
                 gameState.escuderia.dinheiro -= CUSTO_MUDAR_NOME;
                 gameState.escuderia.nome = novoNome;
+                propagarNomeEquipe(nomeAntigo, novoNome);
                 alert("Nome da equipe alterado com sucesso!");
                 updateUI();
                 saveGame();
