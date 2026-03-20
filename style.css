@@ -4400,95 +4400,314 @@ font-size: 0.8em;
 .rp-item:has(.rp-dot-atual)  .rp-num { color: #ff4444; font-weight: 900; }
 .rp-item:has(.rp-dot-ferias) .rp-num { color: #ff9800; }
 /* ============================================================
-   MARKETING — Painel de Torcedores e Rosto de Preço
+   MARKETING DASHBOARD — Layout e componentes
    ============================================================ */
 
-.mkt-fans-panel {
-    background: linear-gradient(135deg, #0d1a2e 0%, #111f38 100%);
-    border: 1px solid #1e3a6a;
-    border-radius: 12px;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 10px rgba(30,90,200,0.12);
+.mkt-extrato-section {
+    margin-top: 2.5rem;
+    border-top: 2px solid #e0e0e0;
+    padding-top: 1.5rem;
 }
 
-.mkt-fans-inner {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-    flex-wrap: wrap;
-}
-
-.mkt-fans-icon {
-    font-size: 2.2rem;
-    line-height: 1;
-    flex-shrink: 0;
-}
-
-.mkt-fans-info {
+#mkt-dashboard-container {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
-    flex: 1;
+    gap: 1.4rem;
 }
 
-.mkt-fans-numero {
-    font-size: 1.4rem;
+/* ── KPI Header ── */
+.mkt-dash-header {
+    background: linear-gradient(135deg, #0d0d20 0%, #131330 100%);
+    border: 1px solid #1e1e3a;
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mkt-dash-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.03em;
+}
+
+.mkt-dash-kpis {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.8rem;
+}
+
+.mkt-kpi {
+    background: #111125;
+    border: 1px solid #1e1e35;
+    border-radius: 10px;
+    padding: 0.7rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    text-align: center;
+}
+
+.mkt-kpi-valor {
+    font-size: 1.1rem;
     font-weight: 900;
     color: #fff;
-    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-.mkt-fans-faixa {
-    font-size: 0.85rem;
-    color: #7aa8d8;
-    font-weight: 600;
+.mkt-kpi-label {
+    font-size: 0.68rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
-.mkt-fans-dica {
-    color: #4a6a88;
-    font-size: 0.78rem;
-    line-height: 1.4;
-    text-align: right;
-    flex-shrink: 0;
-    max-width: 220px;
-}
-
-/* Linha de preço com rosto */
-.mkt-preco-row {
+/* ── Estado vazio ── */
+.mkt-dash-empty {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 2.5rem 1rem;
+    color: #666;
+    font-size: 0.9rem;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px dashed #ddd;
+}
+.mkt-dash-empty span { font-size: 2.5rem; }
+
+/* ── Charts lado a lado ── */
+.mkt-dash-charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
 }
 
-.mkt-preco-row label {
-    font-size: 0.85em;
-    color: #555;
+.mkt-chart-card {
+    background: #0d0d1a;
+    border: 1px solid #1e1e30;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
 }
 
-.mkt-preco-input-wrap {
+.mkt-chart-titulo {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1a1a2e;
+}
+
+.mkt-chart-wrap {
+    position: relative;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mkt-chart-wrap canvas {
+    max-height: 240px;
+}
+
+/* ── Rankings duplos ── */
+.mkt-dash-rankings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.mkt-ranking-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.mkt-ranking-titulo {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mkt-ranking-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.82rem;
 }
 
-.mkt-preco-input-wrap input[type="number"] {
-    flex: 1;
-    padding: 0.6rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.mkt-rosto {
-    font-size: 1.6rem;
-    line-height: 1;
+.mkt-rank-pos {
+    font-size: 0.85rem;
+    width: 26px;
+    text-align: center;
     flex-shrink: 0;
-    transition: font-size 0.2s;
 }
 
-.mkt-label-preco {
-    font-size: 0.78em;
-    font-weight: 600;
-    min-height: 1.1em;
-    transition: color 0.3s;
+.mkt-rank-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.mkt-rank-nome {
+    min-width: 110px;
+    color: #333;
+    font-size: 0.8rem;
+}
+
+.mkt-rank-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mkt-rank-bar {
+    height: 100%;
+    border-radius: 4px;
+    min-width: 2px;
+    transition: width 0.5s ease;
+}
+
+.mkt-rank-val {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #333;
+    min-width: 80px;
+    text-align: right;
+}
+
+.mkt-rank-pct {
+    font-size: 0.72rem;
+    color: #999;
+    min-width: 30px;
+    text-align: right;
+}
+
+/* ── Tabela detalhada ── */
+.mkt-dash-tabela-wrap {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    overflow-x: auto;
+}
+
+.mkt-dash-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin-top: 0.8rem;
+}
+
+.mkt-dash-tabela thead th {
+    background: #f8f9fa;
+    color: #555;
+    padding: 0.55rem 0.8rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+.mkt-dash-tabela tbody td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #f5f5f5;
+    color: #333;
+    vertical-align: middle;
+}
+
+.mkt-dash-tabela tbody tr:last-child td { border-bottom: none; }
+.mkt-dash-tabela tbody tr:hover td { background: #fafafa; }
+.mkt-dash-tabela .mkt-row-bloqueado td { color: #bbb; font-style: italic; }
+.mkt-dash-tabela .mkt-row-zero td { color: #aaa; }
+
+.mkt-dash-tabela tfoot td {
+    padding: 0.55rem 0.8rem;
+    border-top: 2px solid #e10600;
+    font-weight: 700;
+    background: #fdf5f5;
+    color: #333;
+}
+
+/* ── Insights estratégicos ── */
+.mkt-dash-insights {
+    background: #fffbea;
+    border: 1px solid #f0d070;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.mkt-insight-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #555;
+}
+
+.mkt-insight-ico {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+}
+
+.mkt-insight-txt strong { color: #222; }
+
+/* ── Histórico anual ── */
+.mkt-dash-historico {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.mkt-chart-historico-wrap {
+    height: 180px;
+    min-height: unset;
+}
+
+.mkt-chart-historico-wrap .mkt-chart-wrap {
+    min-height: 140px;
+}
+
+/* Overrides compatíveis com tabelas antigas */
+.mkt-total-cell { color: #e10600; }
+.mkt-row-bloqueado td { color: #aaa; font-style: italic; }
+.mkt-lock { font-size: 0.8rem; opacity: 0.6; }
+.mkt-vazio { text-align: center; color: #999; font-style: italic; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .mkt-dash-charts,
+    .mkt-dash-rankings { grid-template-columns: 1fr; }
+    .mkt-dash-kpis { grid-template-columns: repeat(3, 1fr); }
 }

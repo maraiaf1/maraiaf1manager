@@ -4442,66 +4442,304 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Instâncias dos charts do dashboard de marketing (destruídas ao re-renderizar)
+    let _mktChartPizza = null;
+    let _mktChartBarras = null;
+    let _mktChartHistorico = null;
+
     function renderMarketingExtrato() {
+        const container = document.getElementById('mkt-dashboard-container');
+        if (!container) return;
+
         const hist = gameState.historicoMarketing || {};
         const itens = Object.keys(catalogoMarketing);
         const corridasJogadas = gameState.campeonato.corridaAtualIndex || 0;
+        const ano = gameState.campeonato.ano;
 
-        // --- Tabela Temporada Atual ---
-        const tbody = document.getElementById('mkt-tbody-temporada');
-        const tfoot = document.getElementById('mkt-tfoot-temporada');
-        if (!tbody) return;
+        // Cores por produto
+        const COR_PRODUTO = {
+            'Chaveiro':           '#3498db',
+            'Bonés':              '#2ecc71',
+            'Camisa':             '#f39c12',
+            'Carro em miniatura': '#9b59b6',
+            'Anel com joia':      '#e74c3c',
+            'Combo Presentes':    '#1abc9c',
+        };
+        const LABELS_CURTOS = {
+            'Chaveiro': 'Chaveiro', 'Bonés': 'Bonés', 'Camisa': 'Camisa',
+            'Carro em miniatura': 'Miniatura', 'Anel com joia': 'Anel', 'Combo Presentes': 'Combo',
+        };
 
+        // Coleta dados da temporada atual
         let totalUnidades = 0, totalReceita = 0;
-        const rows = itens.map(nome => {
+        const dados = itens.map(nome => {
             const h = hist[nome] || { totalUnidades: 0, totalReceita: 0, corridasAtivas: 0 };
-            const bloqueado = !gameState.marketing[nome]?.desbloqueado;
-            const media = h.corridasAtivas > 0 ? Math.floor(h.totalReceita / h.corridasAtivas) : 0;
             totalUnidades += h.totalUnidades;
             totalReceita += h.totalReceita;
-            return `<tr class="${bloqueado ? 'mkt-row-bloqueado' : ''}">
-                <td>${nome}${bloqueado ? ' <span class="mkt-lock">🔒</span>' : ''}</td>
-                <td>${h.totalUnidades.toLocaleString('pt-BR')}</td>
-                <td>R$ ${h.totalReceita.toLocaleString('pt-BR')}</td>
-                <td>${h.corridasAtivas}</td>
-                <td>${media > 0 ? 'R$ ' + media.toLocaleString('pt-BR') : '—'}</td>
-            </tr>`;
+            return {
+                nome, label: LABELS_CURTOS[nome],
+                cor: COR_PRODUTO[nome] || '#888',
+                unidades: h.totalUnidades,
+                receita: h.totalReceita,
+                corridasAtivas: h.corridasAtivas,
+                ticketMedio: h.corridasAtivas > 0 ? Math.floor(h.totalReceita / h.corridasAtivas) : 0,
+                desbloqueado: !!gameState.marketing[nome]?.desbloqueado,
+            };
         });
-        tbody.innerHTML = rows.join('');
-        tfoot.innerHTML = `<tr class="mkt-total-row">
-            <td><strong>Total</strong></td>
-            <td><strong>${totalUnidades.toLocaleString('pt-BR')}</strong></td>
-            <td><strong>R$ ${totalReceita.toLocaleString('pt-BR')}</strong></td>
-            <td><strong>${corridasJogadas}</strong></td>
-            <td><strong>${corridasJogadas > 0 ? 'R$ ' + Math.floor(totalReceita / corridasJogadas).toLocaleString('pt-BR') : '—'}</strong></td>
-        </tr>`;
 
-        // --- Tabela Histórico por Temporada ---
-        const histAnual = gameState.historicoAnualMarketing || [];
-        const thead = document.getElementById('mkt-thead-historico');
-        const histBody = document.getElementById('mkt-tbody-historico');
-        if (!thead || !histBody) return;
+        const itensComVenda   = dados.filter(d => d.receita > 0);
+        const rankReceita     = [...itensComVenda].sort((a, b) => b.receita - a.unidades);
+        const rankVolume      = [...itensComVenda].sort((a, b) => b.unidades - a.unidades);
+        const ticketMedioGeral = corridasJogadas > 0 ? Math.floor(totalReceita / corridasJogadas) : 0;
 
-        if (histAnual.length === 0) {
-            thead.innerHTML = '<tr><th>Ano</th><th>Receita Total</th></tr>';
-            histBody.innerHTML = '<tr><td colspan="2" class="mkt-vazio">Nenhuma temporada concluída ainda.</td></tr>';
-            return;
+        // Insights estratégicos automáticos
+        const insights = [];
+        if (itensComVenda.length === 0) {
+            insights.push({ ico: '💡', txt: 'Produza itens e defina preços competitivos para começar a gerar receita por corrida.' });
+        } else {
+            const campeaoReceita = rankReceita[0];
+            const campeaoVolume  = rankVolume[0];
+            if (campeaoReceita) insights.push({ ico: '💰', txt: `<strong>${campeaoReceita.nome}</strong> lidera em receita — ${(campeaoReceita.receita / totalReceita * 100).toFixed(0)}% do faturamento total.` });
+            if (campeaoVolume && campeaoVolume.nome !== campeaoReceita?.nome) insights.push({ ico: '📦', txt: `<strong>${campeaoVolume.nome}</strong> é o mais popular em volume (${campeaoVolume.unidades.toLocaleString('pt-BR')} un.), mas representa apenas ${(campeaoVolume.receita / totalReceita * 100).toFixed(0)}% da receita.` });
+            const semVenda = dados.filter(d => d.desbloqueado && d.receita === 0);
+            if (semVenda.length > 0) insights.push({ ico: '⚠️', txt: `<strong>${semVenda.map(d => d.nome).join(', ')}</strong> não gerou vendas — considere revisar o preço ou produzir mais estoque.` });
+            const altaMargemItem = dados.find(d => d.receita > 0 && (d.receita / totalReceita) > 0.4 && d.unidades < 100);
+            if (altaMargemItem) insights.push({ ico: '💎', txt: `<strong>${altaMargemItem.nome}</strong> é um item premium com alto impacto financeiro. Mantenha estoque sempre abastecido!` });
+            if (corridasJogadas > 5 && ticketMedioGeral > 0) insights.push({ ico: '📈', txt: `Ticket médio por corrida: <strong>R$ ${ticketMedioGeral.toLocaleString('pt-BR')}</strong>. Em ${24 - corridasJogadas} corridas restantes, projeção da temporada: <strong>R$ ${(ticketMedioGeral * 24).toLocaleString('pt-BR')}</strong>.` });
         }
 
-        // Cabeçalho dinâmico com colunas por produto
-        thead.innerHTML = `<tr><th>Ano</th>${itens.map(n => {
-            const label = n === 'Carro em miniatura' ? 'Miniatura' : n === 'Combo Presentes' ? 'Combo' : n === 'Anel com joia' ? 'Anel' : n;
-            return `<th>${label}</th>`;
-        }).join('')}<th>Total</th></tr>`;
+        // Histórico anual (para o gráfico de linha)
+        const histAnual = gameState.historicoAnualMarketing || [];
 
-        histBody.innerHTML = histAnual.map(entrada => {
-            const total = itens.reduce((s, n) => s + (entrada.itens[n]?.totalReceita || 0), 0);
-            return `<tr>
-                <td><strong>${entrada.ano}</strong></td>
-                ${itens.map(n => `<td>R$ ${(entrada.itens[n]?.totalReceita || 0).toLocaleString('pt-BR')}</td>`).join('')}
-                <td class="mkt-total-cell"><strong>R$ ${total.toLocaleString('pt-BR')}</strong></td>
-            </tr>`;
-        }).join('');
+        // ── Monta o HTML do dashboard ──────────────────────────────
+        container.innerHTML = `
+        <!-- CABEÇALHO DA TEMPORADA -->
+        <div class="mkt-dash-header">
+            <div class="mkt-dash-title">📊 Dashboard de Marketing — Temporada ${ano}</div>
+            <div class="mkt-dash-kpis">
+                <div class="mkt-kpi">
+                    <span class="mkt-kpi-valor">R$ ${totalReceita.toLocaleString('pt-BR')}</span>
+                    <span class="mkt-kpi-label">Receita Total</span>
+                </div>
+                <div class="mkt-kpi">
+                    <span class="mkt-kpi-valor">${totalUnidades.toLocaleString('pt-BR')}</span>
+                    <span class="mkt-kpi-label">Unidades Vendidas</span>
+                </div>
+                <div class="mkt-kpi">
+                    <span class="mkt-kpi-valor">${corridasJogadas}</span>
+                    <span class="mkt-kpi-label">Corridas Disputadas</span>
+                </div>
+                <div class="mkt-kpi">
+                    <span class="mkt-kpi-valor">${ticketMedioGeral > 0 ? 'R$ ' + ticketMedioGeral.toLocaleString('pt-BR') : '—'}</span>
+                    <span class="mkt-kpi-label">Ticket Médio / Corrida</span>
+                </div>
+                <div class="mkt-kpi">
+                    <span class="mkt-kpi-valor">${(gameState.torcedores || 0).toLocaleString('pt-BR')}</span>
+                    <span class="mkt-kpi-label">Torcedores</span>
+                </div>
+            </div>
+        </div>
+
+        ${totalReceita === 0 ? `
+        <div class="mkt-dash-empty">
+            <span>🛒</span>
+            <p>Nenhuma venda registrada nesta temporada ainda.<br>Produza itens e complete corridas para ver os dados aqui.</p>
+        </div>` : `
+        <!-- GRÁFICOS -->
+        <div class="mkt-dash-charts">
+            <div class="mkt-chart-card">
+                <div class="mkt-chart-titulo">🥧 Receita por Produto</div>
+                <div class="mkt-chart-wrap"><canvas id="mkt-chart-pizza"></canvas></div>
+            </div>
+            <div class="mkt-chart-card">
+                <div class="mkt-chart-titulo">📦 Volume de Vendas</div>
+                <div class="mkt-chart-wrap"><canvas id="mkt-chart-barras"></canvas></div>
+            </div>
+        </div>
+
+        <!-- RANKINGS DUPLOS -->
+        <div class="mkt-dash-rankings">
+            <div class="mkt-ranking-card">
+                <div class="mkt-ranking-titulo">💰 Ranking por Receita</div>
+                ${dados.filter(d => d.receita > 0).sort((a,b) => b.receita - a.receita).map((d, i) => `
+                <div class="mkt-ranking-row">
+                    <span class="mkt-rank-pos rank-${i+1}">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)+'º'}</span>
+                    <span class="mkt-rank-dot" style="background:${d.cor}"></span>
+                    <span class="mkt-rank-nome">${d.nome}</span>
+                    <div class="mkt-rank-bar-wrap">
+                        <div class="mkt-rank-bar" style="width:${(d.receita/totalReceita*100).toFixed(1)}%;background:${d.cor}"></div>
+                    </div>
+                    <span class="mkt-rank-val">R$ ${d.receita.toLocaleString('pt-BR')}</span>
+                    <span class="mkt-rank-pct">${(d.receita/totalReceita*100).toFixed(0)}%</span>
+                </div>`).join('')}
+            </div>
+            <div class="mkt-ranking-card">
+                <div class="mkt-ranking-titulo">📦 Ranking por Volume</div>
+                ${dados.filter(d => d.unidades > 0).sort((a,b) => b.unidades - a.unidades).map((d, i) => `
+                <div class="mkt-ranking-row">
+                    <span class="mkt-rank-pos rank-${i+1}">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)+'º'}</span>
+                    <span class="mkt-rank-dot" style="background:${d.cor}"></span>
+                    <span class="mkt-rank-nome">${d.nome}</span>
+                    <div class="mkt-rank-bar-wrap">
+                        <div class="mkt-rank-bar" style="width:${(d.unidades/totalUnidades*100).toFixed(1)}%;background:${d.cor}"></div>
+                    </div>
+                    <span class="mkt-rank-val">${d.unidades.toLocaleString('pt-BR')} un.</span>
+                    <span class="mkt-rank-pct">${(d.unidades/totalUnidades*100).toFixed(0)}%</span>
+                </div>`).join('')}
+            </div>
+        </div>
+
+        <!-- TABELA DETALHADA -->
+        <div class="mkt-dash-tabela-wrap">
+            <div class="mkt-chart-titulo">📋 Detalhamento Completo</div>
+            <table class="mkt-dash-tabela">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Unid. Vendidas</th>
+                        <th>Receita Total</th>
+                        <th>% Receita</th>
+                        <th>Corridas c/ Venda</th>
+                        <th>Ticket Médio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${dados.map(d => `
+                    <tr class="${!d.desbloqueado ? 'mkt-row-bloqueado' : d.receita === 0 ? 'mkt-row-zero' : ''}">
+                        <td>
+                            <span class="mkt-rank-dot" style="background:${d.cor};display:inline-block;vertical-align:middle;margin-right:6px;"></span>
+                            ${d.nome}${!d.desbloqueado ? ' <span class="mkt-lock">🔒</span>' : ''}
+                        </td>
+                        <td>${d.unidades.toLocaleString('pt-BR')}</td>
+                        <td>${d.receita > 0 ? 'R$ ' + d.receita.toLocaleString('pt-BR') : '—'}</td>
+                        <td>${totalReceita > 0 ? (d.receita/totalReceita*100).toFixed(1) + '%' : '—'}</td>
+                        <td>${d.corridasAtivas || '—'}</td>
+                        <td>${d.ticketMedio > 0 ? 'R$ ' + d.ticketMedio.toLocaleString('pt-BR') : '—'}</td>
+                    </tr>`).join('')}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td><strong>${totalUnidades.toLocaleString('pt-BR')}</strong></td>
+                        <td><strong>R$ ${totalReceita.toLocaleString('pt-BR')}</strong></td>
+                        <td><strong>100%</strong></td>
+                        <td><strong>${corridasJogadas}</strong></td>
+                        <td><strong>${ticketMedioGeral > 0 ? 'R$ ' + ticketMedioGeral.toLocaleString('pt-BR') : '—'}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>`}
+
+        <!-- INSIGHTS ESTRATÉGICOS -->
+        ${insights.length > 0 ? `
+        <div class="mkt-dash-insights">
+            <div class="mkt-chart-titulo">🧠 Análise Estratégica</div>
+            ${insights.map(ins => `
+            <div class="mkt-insight-row">
+                <span class="mkt-insight-ico">${ins.ico}</span>
+                <span class="mkt-insight-txt">${ins.txt}</span>
+            </div>`).join('')}
+        </div>` : ''}
+
+        <!-- HISTÓRICO POR TEMPORADA -->
+        <div class="mkt-dash-historico">
+            <div class="mkt-chart-titulo">🏆 Histórico por Temporada</div>
+            ${histAnual.length === 0 ? `<p class="mkt-vazio" style="padding:1rem;text-align:center;">Nenhuma temporada concluída ainda.</p>` : `
+            ${histAnual.length > 1 ? `<div class="mkt-chart-card mkt-chart-historico-wrap"><canvas id="mkt-chart-historico"></canvas></div>` : ''}
+            <div class="mkt-tabela-wrapper" style="margin-top:${histAnual.length > 1 ? '1rem' : '0'}">
+                <table class="mkt-tabela">
+                    <thead><tr><th>Ano</th>${itens.map(n => `<th>${LABELS_CURTOS[n]}</th>`).join('')}<th>Total</th></tr></thead>
+                    <tbody>
+                        ${histAnual.map(entrada => {
+                            const total = itens.reduce((s, n) => s + (entrada.itens[n]?.totalReceita || 0), 0);
+                            return `<tr>
+                                <td><strong>${entrada.ano}</strong></td>
+                                ${itens.map(n => `<td>${entrada.itens[n]?.totalReceita > 0 ? 'R$ ' + entrada.itens[n].totalReceita.toLocaleString('pt-BR') : '—'}</td>`).join('')}
+                                <td class="mkt-total-cell"><strong>R$ ${total.toLocaleString('pt-BR')}</strong></td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`}
+        </div>
+        `;
+
+        // ── Renderiza os charts após o DOM estar pronto ──────────────
+        if (totalReceita === 0) return;
+
+        setTimeout(() => {
+            // Destrói instâncias anteriores
+            if (_mktChartPizza)    { _mktChartPizza.destroy();    _mktChartPizza    = null; }
+            if (_mktChartBarras)   { _mktChartBarras.destroy();   _mktChartBarras   = null; }
+            if (_mktChartHistorico){ _mktChartHistorico.destroy(); _mktChartHistorico = null; }
+
+            // Pizza — receita por produto
+            const ctxP = document.getElementById('mkt-chart-pizza');
+            if (ctxP) {
+                const dadosComReceita = dados.filter(d => d.receita > 0);
+                _mktChartPizza = new Chart(ctxP.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: dadosComReceita.map(d => d.nome),
+                        datasets: [{ data: dadosComReceita.map(d => d.receita), backgroundColor: dadosComReceita.map(d => d.cor), borderWidth: 2, borderColor: '#0d0d1a' }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#ccc', font: { size: 11 }, padding: 12, boxWidth: 12 } },
+                            tooltip: { callbacks: { label: c => ` ${c.label}: R$ ${c.parsed.toLocaleString('pt-BR')} (${(c.parsed / totalReceita * 100).toFixed(1)}%)` } }
+                        },
+                        cutout: '60%',
+                    }
+                });
+            }
+
+            // Barras horizontais — volume
+            const ctxB = document.getElementById('mkt-chart-barras');
+            if (ctxB) {
+                const dadosVol = [...dados].filter(d => d.desbloqueado).sort((a,b) => b.unidades - a.unidades);
+                _mktChartBarras = new Chart(ctxB.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: dadosVol.map(d => d.label),
+                        datasets: [{ label: 'Unidades', data: dadosVol.map(d => d.unidades), backgroundColor: dadosVol.map(d => d.cor + 'cc'), borderColor: dadosVol.map(d => d.cor), borderWidth: 1, borderRadius: 4 }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true, maintainAspectRatio: true,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.parsed.x.toLocaleString('pt-BR')} unidades` } } },
+                        scales: {
+                            x: { ticks: { color: '#555' }, grid: { color: '#1a1a2e' } },
+                            y: { ticks: { color: '#aaa' }, grid: { color: '#1a1a2e' } }
+                        }
+                    }
+                });
+            }
+
+            // Linha — histórico anual (só se tiver 2+ temporadas)
+            const ctxH = document.getElementById('mkt-chart-historico');
+            if (ctxH && histAnual.length > 1) {
+                const totaisPorAno = histAnual.map(e => ({
+                    ano: e.ano,
+                    total: itens.reduce((s,n) => s + (e.itens[n]?.totalReceita || 0), 0)
+                }));
+                _mktChartHistorico = new Chart(ctxH.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: totaisPorAno.map(d => d.ano),
+                        datasets: [{ label: 'Receita Total', data: totaisPorAno.map(d => d.total), borderColor: '#e10600', backgroundColor: 'rgba(225,6,0,0.1)', tension: 0.3, pointRadius: 5, fill: true }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: true,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` R$ ${c.parsed.y.toLocaleString('pt-BR')}` } } },
+                        scales: {
+                            x: { ticks: { color: '#aaa' }, grid: { color: '#1a1a2e' } },
+                            y: { ticks: { color: '#aaa', callback: v => 'R$ ' + v.toLocaleString('pt-BR') }, grid: { color: '#1a1a2e' } }
+                        }
+                    }
+                });
+            }
+        }, 50);
     }
 
 
