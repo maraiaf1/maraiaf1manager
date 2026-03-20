@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 atributosOriginais: JSON.parse(JSON.stringify(peca.atributos))
             })),
             torcedores: 4000,
-            notificacoes: { pilotos: false, marketing: false },
+            notificacoes: { pilotos: false, marketing: false, instalacoes: false },
             historicoMarketing: {},
             historicoAnualMarketing: [],
             mercadoDePecas: [],
@@ -511,7 +511,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameState.escuderia.centroPDDesbloqueado = false; //
                 }
                 if (!gameState.notificacoes) {
-                    gameState.notificacoes = { pilotos: false, marketing: false };
+                    gameState.notificacoes = { pilotos: false, marketing: false, instalacoes: false };
+                }
+                if (gameState.notificacoes.instalacoes === undefined) {
+                    gameState.notificacoes.instalacoes = false;
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
                 if (!gameState.torcedores) gameState.torcedores = 4000;
@@ -2340,6 +2343,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('corrida').classList.remove('race-in-progress');
             processarResultados(raceData.participantes, raceData.pilotoMelhorVolta);
             processarCrescimentoTorcedores(raceData.participantes);
+
+            // Verifica uma única vez por corrida se algum upgrade de instalação ficou acessível
+            const podeUpgradeInstalacao = Object.entries(catalogoInstalacoes).some(([id, data]) => {
+                const nivelAtual = gameState.instalacoes[id] ?? 0;
+                const maxLevel = data.niveis.length - 1;
+                if (nivelAtual >= maxLevel) return false;
+                const proximoCusto = data.niveis[nivelAtual + 1]?.custo;
+                return proximoCusto > 0 && gameState.escuderia.dinheiro >= proximoCusto;
+            });
+            if (podeUpgradeInstalacao) {
+                if (!gameState.notificacoes) gameState.notificacoes = {};
+                gameState.notificacoes.instalacoes = true;
+            }
             processarPagamentoDeSalarios();
             processarDesgastePecas();
             gameState.campeonato.corridaAtualIndex++;
@@ -6959,22 +6975,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- 4. RENDERIZADORES DA UI ---------------
     function atualizarNotificacoes() {
-        if (!gameState.notificacoes) gameState.notificacoes = { pilotos: false, marketing: false };
+        if (!gameState.notificacoes) gameState.notificacoes = { pilotos: false, marketing: false, instalacoes: false };
 
         // --- Calcular estado de cada aba ---
         const temProjetoConcluido = gameState.projetosEmAndamento.some(p => p.status === 'concluido');
         const temOfertaPatrocinio = gameState.patrocinio.ofertas.length > 0;
         const notifEscuderia = temProjetoConcluido || temOfertaPatrocinio;
 
-        const notifInstalacoes = Object.entries(catalogoInstalacoes).some(([id, data]) => {
-            const nivelAtual = gameState.instalacoes[id] ?? 0;
-            const maxLevel = data.niveis.length - 1;
-            if (nivelAtual >= maxLevel) return false;
-            const proximoCusto = data.niveis[nivelAtual + 1]?.custo;
-            return proximoCusto > 0 && gameState.escuderia.dinheiro >= proximoCusto;
-        });
+        // Instalações: usa flag — acende 1× por corrida (em finalizarCorrida), apaga ao clicar na aba
+        const notifInstalacoes = !!gameState.notificacoes.instalacoes;
 
-        const notifPilotos = !!gameState.notificacoes.pilotos;
+        const notifPilotos  = !!gameState.notificacoes.pilotos;
         const notifMarketing = !!gameState.notificacoes.marketing;
 
         // --- Aplicar/remover badges nas abas ---
@@ -7050,8 +7061,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Limpar notificação da aba ao clicar
             if (!gameState.notificacoes) gameState.notificacoes = {};
-            if (tabName === 'pilotos') gameState.notificacoes.pilotos = false;
-            if (tabName === 'marketing') gameState.notificacoes.marketing = false;
+            if (tabName === 'pilotos')     gameState.notificacoes.pilotos = false;
+            if (tabName === 'marketing')   gameState.notificacoes.marketing = false;
+            if (tabName === 'instalacoes') gameState.notificacoes.instalacoes = false;
             const dot = target.querySelector('.notif-dot');
             if (dot) dot.remove();
 
