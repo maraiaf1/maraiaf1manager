@@ -3149,6 +3149,19 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function exibirModalFimDeTemporada() {
         const ano = gameState.campeonato.ano;
+
+        // Corrige registros com nome desatualizado antes de renderizar o modal.
+        // Cobre saves que trocaram de nome antes de esta correção existir.
+        const nomeAtual = gameState.escuderia.nome;
+        gameState.campeonato.classificacaoConstrutores.forEach(e => {
+            const eIA = equipesIA.some(ia => ia.nome === e.equipe);
+            if (!eIA && e.equipe !== nomeAtual) e.equipe = nomeAtual;
+        });
+        gameState.campeonato.classificacaoPilotos.forEach(p => {
+            const eIA = equipesIA.some(ia => ia.nome === p.equipe);
+            if (!eIA && p.equipe !== nomeAtual) p.equipe = nomeAtual;
+        });
+
         const classificacaoConstrutores = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
         const classificacaoPilotos     = [...gameState.campeonato.classificacaoPilotos].sort((a, b) => b.pontos - a.pontos);
         const equipeCampe   = classificacaoConstrutores[0];
