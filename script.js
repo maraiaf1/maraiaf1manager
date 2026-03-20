@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.23";
+    const VERSAO_JOGO = "21.0.25";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -195,17 +195,17 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const equipesIA = [
-        { nome: "Red Bull", ftequipe: 'img/equipes/redbull.png', cor: "rgb(30,65,255)", piloto1Id: 1, piloto2Id: 17, carro: { potencia: 98, aerodinamica: 96, aderencia: 95, confiabilidade: 89 } },
-        { nome: "Mercedes", ftequipe: 'img/equipes/mercedes.png', cor: "rgb(0,210,190)", piloto1Id: 5, piloto2Id: 6, carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 86 } },
-        { nome: "Ferrari", ftequipe: 'img/equipes/ferrari.png', cor: "rgb(220,0,0)", piloto1Id: 3, piloto2Id: 4, carro: { potencia: 97, aerodinamica: 94, aderencia: 93, confiabilidade: 88 } },
-        { nome: "Audi", ftequipe: 'img/equipes/audi.png', cor: "rgb(80,80,80)", piloto1Id: 9, piloto2Id: 10, carro: { potencia: 93, aerodinamica: 91, aderencia: 90, confiabilidade: 85 } },
-        { nome: "Aston Martin", ftequipe: 'img/equipes/astonmartin.png', cor: "rgb(0,111,98)", piloto1Id: 11, piloto2Id: 12, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
-        { nome: "Alpine", ftequipe: 'img/equipes/alpine.png', cor: "rgb(255,192,203)", piloto1Id: 13, piloto2Id: 14, carro: { potencia: 95, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } },
-        { nome: "Haas", ftequipe: 'img/equipes/haas.png', cor: "rgb(128,95,95)", piloto1Id: 15, piloto2Id: 16, carro: { potencia: 89, aerodinamica: 89, aderencia: 86, confiabilidade: 80 } },
-        { nome: "RB", ftequipe: 'img/equipes/racingbulls.png', cor: "rgb(240,240,240)", piloto1Id: 18, piloto2Id: 21, carro: { potencia: 86, aerodinamica: 91, aderencia: 92, confiabilidade: 80 } },
-        { nome: "Wilians", ftequipe: 'img/equipes/willians.png', cor: "rgb(90,165,255)", piloto1Id: 7, piloto2Id: 8, carro: { potencia: 91, aerodinamica: 89, aderencia: 91, confiabilidade: 80 } },
-        { nome: "MacLaren", ftequipe: 'img/equipes/maclaren.png', cor: "rgb(255,135,0)", piloto1Id: 19, piloto2Id: 20, carro: { potencia: 98, aerodinamica: 96, aderencia: 97, confiabilidade: 90 } },
-        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png', cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 94, aerodinamica: 90, aderencia: 91, confiabilidade: 85 } },
+        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 97, aerodinamica: 93, aderencia: 96, confiabilidade: 90 } },
+        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 93, aerodinamica: 95, aderencia: 89, confiabilidade: 88 } },
+        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 98, aerodinamica: 92, aderencia: 91, confiabilidade: 85 } },
+        { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 91, aerodinamica: 88, aderencia: 90, confiabilidade: 87 } },
+        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 89, aerodinamica: 90, aderencia: 92, confiabilidade: 86 } },
+        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 90, aerodinamica: 87, aderencia: 86, confiabilidade: 82 } },
+        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 84, aderencia: 85, confiabilidade: 80 } },
+        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 84, aerodinamica: 88, aderencia: 87, confiabilidade: 82 } },
+        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 87, aerodinamica: 89, aderencia: 88, confiabilidade: 83 } },
+        { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 96, aerodinamica: 97, aderencia: 94, confiabilidade: 89 } },
+        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 88, aerodinamica: 86, aderencia: 87, confiabilidade: 84 } },
     ];
 
     const catalogoMensagens = {
@@ -1099,30 +1099,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function evoluirCarrosIA() {
         const classificacaoFinal = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
+        const relatorio = [];
 
         equipesIA.forEach(equipe => {
             const posicao = classificacaoFinal.findIndex(e => e.equipe === equipe.nome) + 1;
-            let fatorMelhoria = 0;
+            const mediaAtual = (equipe.carro.potencia + equipe.carro.aerodinamica + equipe.carro.aderencia) / 3;
 
-            // Equipes no pódio melhoram mais, equipes no final melhoram menos
-            if (posicao === 1) {
-                fatorMelhoria = 1.8;
-            } else if (posicao <= 3) {
-                fatorMelhoria = 1.5;
-            } else if (posicao <= 7) {
-                fatorMelhoria = 1.2;
-            } else {
-                fatorMelhoria = 1.0;
+            // ── DADO DA SORTE — só equipes de ponta (média ≥ 93) ────────────
+            // 5% de chance de sofrer temporada problemática (-5% em cada atributo)
+            const LIMIAR_PROBLEMA  = 93;
+            const CHANCE_PROBLEMA  = 0.05;
+            const PENALIDADE       = 0.05;
+
+            if (mediaAtual >= LIMIAR_PROBLEMA && Math.random() < CHANCE_PROBLEMA) {
+                equipe.carro.potencia     = Math.max(80, Math.round(equipe.carro.potencia     * (1 - PENALIDADE)));
+                equipe.carro.aerodinamica = Math.max(80, Math.round(equipe.carro.aerodinamica * (1 - PENALIDADE)));
+                equipe.carro.aderencia    = Math.max(80, Math.round(equipe.carro.aderencia    * (1 - PENALIDADE)));
+                relatorio.push(`⚠️ ${equipe.nome}: temporada problemática! Carro regrediu (-5% nos atributos).`);
+                return; // não evolui este ciclo
             }
 
-            // Aplica a melhoria, com um pouco de aleatoriedade
-            equipe.carro.potencia = Math.min(100, equipe.carro.potencia + (Math.random() * fatorMelhoria));
+            // ── EVOLUÇÃO NORMAL ──────────────────────────────────────────────
+            // Quem está atrás melhora mais (convergência orgânica).
+            // Quem está na frente já está perto do teto — cresce menos.
+            let fatorMelhoria;
+            if (posicao === 1)     fatorMelhoria = 0.6;
+            else if (posicao <= 3) fatorMelhoria = 0.9;
+            else if (posicao <= 6) fatorMelhoria = 1.2;
+            else if (posicao <= 9) fatorMelhoria = 1.5;
+            else                   fatorMelhoria = 1.8;
+
+            // Zona 91–92: pelotão da frente, imune ao problema mas cresce mais devagar
+            if (mediaAtual >= 91 && mediaAtual < LIMIAR_PROBLEMA) {
+                fatorMelhoria *= 0.75;
+            }
+
+            equipe.carro.potencia     = Math.min(100, equipe.carro.potencia     + (Math.random() * fatorMelhoria));
             equipe.carro.aerodinamica = Math.min(100, equipe.carro.aerodinamica + (Math.random() * fatorMelhoria));
-            equipe.carro.aderencia = Math.min(100, equipe.carro.aderencia + (Math.random() * fatorMelhoria));
+            equipe.carro.aderencia    = Math.min(100, equipe.carro.aderencia    + (Math.random() * fatorMelhoria));
         });
 
-        // Adiciona uma mensagem para o jogador saber o que aconteceu
-        alert("As equipes adversárias também trabalharam em seus carros para a nova temporada!");
+        let msg = "🔧 As equipes adversárias trabalharam em seus carros para a nova temporada!";
+        if (relatorio.length > 0) msg += "\n\n" + relatorio.join("\n");
+        alert(msg);
     }
 
 
@@ -3706,9 +3725,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (crescimentoTotal > 0) {
                 const atributosAntigos = { hab: piloto.habilidade, con: piloto.consistencia, ger: piloto.gerenciamentoPneus };
-                piloto.habilidade = Math.min(95, piloto.habilidade + crescimentoTotal * (Math.random() * 0.5 + 0.75));
-                piloto.consistencia = Math.min(95, piloto.consistencia + crescimentoTotal * (Math.random() * 0.4 + 0.4));
-                piloto.gerenciamentoPneus = Math.min(95, piloto.gerenciamentoPneus + crescimentoTotal * (Math.random() * 0.4 + 0.6));
+                // Pilotos titulares podem chegar a 98; reservas ficam limitados a 95
+                const teto = piloto.status === 'Jogador' ? 98 : 95;
+                piloto.habilidade         = Math.min(teto, piloto.habilidade         + crescimentoTotal * (Math.random() * 0.5 + 0.75));
+                piloto.consistencia       = Math.min(teto, piloto.consistencia       + crescimentoTotal * (Math.random() * 0.4 + 0.4));
+                piloto.gerenciamentoPneus = Math.min(teto, piloto.gerenciamentoPneus + crescimentoTotal * (Math.random() * 0.4 + 0.6));
                 const detalhesMelhoria = [];
                 if (Math.floor(piloto.habilidade) > Math.floor(atributosAntigos.hab)) detalhesMelhoria.push(`  Hab: ${Math.floor(atributosAntigos.hab)} -> ${Math.floor(piloto.habilidade)}`);
                 if (Math.floor(piloto.consistencia) > Math.floor(atributosAntigos.con)) detalhesMelhoria.push(`  Con: ${Math.floor(atributosAntigos.con)} -> ${Math.floor(piloto.consistencia)}`);
