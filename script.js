@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.21";
+    const VERSAO_JOGO = "21.0.22";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -442,6 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 corridasUsadas: 0,
                 atributosOriginais: JSON.parse(JSON.stringify(peca.atributos))
             })),
+            torcedores: 4000,
             notificacoes: { pilotos: false, marketing: false },
             historicoMarketing: {},
             historicoAnualMarketing: [],
@@ -513,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameState.notificacoes = { pilotos: false, marketing: false };
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
+                if (!gameState.torcedores) gameState.torcedores = 4000;
                 if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
                 if (!gameState.historicoAnualMarketing) gameState.historicoAnualMarketing = [];
                 if (!gameState.galeria) {
@@ -1999,7 +2001,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.ers.ativo = false;
             }
 
-            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão' };
+            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão', gridPosition: index + 1 };
         });
         // Inicializa o card de monitor com os dados da corrida atual
         const watchlistCard = document.getElementById('watchlist-card');
@@ -2337,6 +2339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         animarBandeirada().then(() => {
             document.getElementById('corrida').classList.remove('race-in-progress');
             processarResultados(raceData.participantes, raceData.pilotoMelhorVolta);
+            processarCrescimentoTorcedores(raceData.participantes);
             processarPagamentoDeSalarios();
             processarDesgastePecas();
             gameState.campeonato.corridaAtualIndex++;
@@ -3409,106 +3412,142 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGame();
     }
 
+    function processarCrescimentoTorcedores(resultados) {
+        if (!gameState.torcedores) gameState.torcedores = 4000;
+        const ano = gameState.campeonato.ano;
+        const isAno1 = ano <= 2026;
+        const baseGrowth = isAno1 ? 80 : 20;
+        const bonusPorPosicao = isAno1 ? 5 : 3;
+
+        let bonus = 0;
+        const playerResults = resultados.filter(r => r.isPlayer && r.tempoTotal !== Infinity);
+
+        playerResults.forEach(res => {
+            const finishPos = [...resultados].sort((a,b) => a.tempoTotal - b.tempoTotal).findIndex(r => r.piloto.id === res.piloto.id) + 1;
+            const gridPos = res.gridPosition || 12;
+            const posicoesGanhas = Math.max(0, gridPos - finishPos);
+            bonus += posicoesGanhas * bonusPorPosicao;
+            if (finishPos === 1) bonus += 250;
+            else if (finishPos === 2) bonus += 120;
+            else if (finishPos === 3) bonus += 70;
+            else if (finishPos <= 6) bonus += 35;
+            else if (finishPos <= 10) bonus += 15;
+        });
+
+        const classificacao = [...gameState.campeonato.classificacaoConstrutores].sort((a,b) => b.pontos - a.pontos);
+        const nossaPosicao = classificacao.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
+        let modCamp = 1.0;
+        if (nossaPosicao === 1) modCamp = 1.5;
+        else if (nossaPosicao <= 3) modCamp = 1.3;
+        else if (nossaPosicao <= 6) modCamp = 1.1;
+
+        const mktBonusPorNivel = [0, 0.05, 0.08, 0.15, 0.20, 0.25];
+        const modMkt = 1.0 + (mktBonusPorNivel[gameState.instalacoes.marketing] || 0);
+
+        const crescimento = Math.max(isAno1 ? 30 : 5, Math.round((baseGrowth + bonus) * modCamp * modMkt));
+        gameState.torcedores += crescimento;
+    }
+
+    function calcularRostoPreco(nomeItem) {
+        const itemJogo = gameState.marketing[nomeItem];
+        const itemCatalogo = catalogoMarketing[nomeItem];
+        if (!itemJogo || !itemCatalogo) return { mod: 1.0, rosto: '🙂', label: 'Neutro' };
+        const markup = itemJogo.preco_venda_definido / itemCatalogo.preco_venda_minimo;
+        if (markup <= 1.5) return { mod: 1.20, rosto: '😍', label: 'Torcedores adoram!', cor: '#27ae60' };
+        if (markup <= 3.0) return { mod: 1.00, rosto: '🙂', label: 'Preço justo', cor: '#2980b9' };
+        if (markup <= 5.0) return { mod: 0.70, rosto: '😐', label: 'Um pouco caro...', cor: '#f39c12' };
+        if (markup <= 8.0) return { mod: 0.40, rosto: '😟', label: 'Muito caro!', cor: '#e67e22' };
+        return { mod: 0.15, rosto: '😡', label: 'Absurdo! Ninguém compra.', cor: '#e10600' };
+    }
+
     function simularVendasMarketing() {
+        if (!gameState.torcedores) gameState.torcedores = 4000;
+
+        const TAXAS_DEMANDA = {
+            'Chaveiro':          0.025,
+            'Bonés':             0.010,
+            'Camisa':            0.006,
+            'Carro em miniatura':0.004,
+            'Anel com joia':     0.0008,
+            'Combo Presentes':   0.0015,
+        };
+
         let receitaTotal = 0;
         let relatorioVendas = "Relatório de Vendas de Marketing:\n\n";
         let algumaVendaOcorreu = false;
-        const classificacaoConstrutores = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
-        const nossaPosicaoConstrutores = classificacaoConstrutores.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
+
+        // Modificador de desempenho na corrida
         const ultimaCorrida = gameState.campeonato.resultadosCorridas.at(-1);
-        if (!ultimaCorrida) return;
-        const meusPilotosIds = gameState.carros.map(c => c.pilotoId);
-        const resultadosMeusPilotos = ultimaCorrida.resultadoFinal
-            .map((res, index) => ({ ...res, posicao: index + 1 }))
-            .filter(res => meusPilotosIds.includes(res.piloto.id));
-        const melhorPosicaoCorrida = resultadosMeusPilotos.length > 0 ? Math.min(...resultadosMeusPilotos.map(p => p.posicao)) : 20;
+        let modDesempenho = 1.0;
+        if (ultimaCorrida) {
+            const meusPilotosIds = gameState.carros.map(c => c.pilotoId);
+            const melhorPos = ultimaCorrida.resultadoFinal
+                .map((r, i) => ({ ...r, pos: i + 1 }))
+                .filter(r => meusPilotosIds.includes(r.piloto.id))
+                .reduce((best, r) => Math.min(best, r.pos), 999);
+            if (melhorPos === 1) modDesempenho = 1.5;
+            else if (melhorPos <= 3) modDesempenho = 1.3;
+            else if (melhorPos <= 6) modDesempenho = 1.15;
+            else if (melhorPos <= 10) modDesempenho = 1.05;
+        }
+
+        // Modificador de campeonato
+        const classificacao = [...gameState.campeonato.classificacaoConstrutores].sort((a,b) => b.pontos - a.pontos);
+        const nossaPos = classificacao.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
+        let modCamp = 1.0;
+        if (nossaPos === 1) modCamp = 1.4;
+        else if (nossaPos <= 3) modCamp = 1.2;
+        else if (nossaPos <= 6) modCamp = 1.05;
+
+        // Modificador de marketing
+        const mktBonusPorNivel = [0, 0.05, 0.08, 0.15, 0.20, 0.25];
+        const modMkt = 1.0 + (mktBonusPorNivel[gameState.instalacoes.marketing] || 0);
+
+        const LIMIAR_LIQUIDACAO = 5;
 
         for (const nomeItem in gameState.marketing) {
             const itemJogo = gameState.marketing[nomeItem];
             const itemCatalogo = catalogoMarketing[nomeItem];
-            if (itemJogo.inventario > 0) {
-                const precoMin = itemCatalogo.preco_venda_minimo;
-                const precoDefinido = itemJogo.preco_venda_definido;
-                const markup = (precoDefinido - precoMin) / precoMin;
-                let modPreco = 1.0;
-                if (markup < 0.25) modPreco = 1.2;
-                else if (markup > 0.40) modPreco = 0.8;
-                let chanceBase = 0;
-                let modDesempenho = 1.0;
-                if (nossaPosicaoConstrutores > 0 && nossaPosicaoConstrutores <= 10) {
-                     modDesempenho += (11 - nossaPosicaoConstrutores) * 0.05;
-                }
-                if (nomeItem === "Chaveiro") chanceBase = 0.60;
-                else if (nomeItem === "Bonés") {
-                    chanceBase = 0.25;
-                    if (melhorPosicaoCorrida <= 5) modDesempenho += (6 - melhorPosicaoCorrida) * 0.2;
-                } else if (nomeItem === "Camisa" || nomeItem === "Carro em miniatura") {
-                    chanceBase = 0.15;
-                    if (melhorPosicaoCorrida <= 3) modDesempenho += (4 - melhorPosicaoCorrida) * 0.25;
-                    if (nossaPosicaoConstrutores > 0 && nossaPosicaoConstrutores <= 3) modDesempenho += (4 - nossaPosicaoConstrutores) * 0.2;
-                } else if (nomeItem === "Anel com joia") {
-                    chanceBase = 0.01;
-                    if (melhorPosicaoCorrida <= 3) {
-                        chanceBase = 0.50;
-                        modDesempenho = 1.0;
-                        modPreco = 1.0;
-                    }
-                } else if (nomeItem === "Combo Presentes") {
-                    chanceBase = 0.01;
-                    if (melhorPosicaoCorrida <= 5) {
-                        chanceBase = 0.40;
-                        modDesempenho = 1.0;
-                        modPreco = 1.0;
-                    }
-                }
-                let chanceFinalVenda = Math.min(chanceBase * modPreco * modDesempenho, 0.95);
-                const _mktBonusPorNivel = [0, 0.05, 0.08, 0.15, 0.20, 0.25];
-                const bonusVendas = 1.0 + (_mktBonusPorNivel[gameState.instalacoes.marketing] || 0);
-                chanceFinalVenda *= bonusVendas;
+            if (!itemJogo || !itemJogo.desbloqueado || itemJogo.inventario <= 0) continue;
 
-                const LIMIAR_LIQUIDACAO = 5; // Quando restam ≤ N unidades, vende tudo automaticamente
-                let unidadesVendidas = 0;
+            const taxa = TAXAS_DEMANDA[nomeItem] || 0.005;
+            const { mod: modPreco } = calcularRostoPreco(nomeItem);
 
-                if (itemJogo.inventario <= LIMIAR_LIQUIDACAO) {
-                    // Últimas unidades: liquida o estoque restante de uma vez
-                    unidadesVendidas = itemJogo.inventario;
-                } else {
-                    // Cálculo em lote usando o lote de referência como âncora
-                    // Garante que estoques baixos vendam na mesma proporção que o lote original
-                    const loteBase = Math.max(itemJogo.lote_referencia || itemJogo.inventario, itemJogo.inventario);
-                    const vendaBase = chanceFinalVenda * loteBase;
-                    // Variância natural de ±15% para dar dinamismo
-                    const variancia = 0.85 + Math.random() * 0.30;
-                    const vendaCalculada = Math.round(vendaBase * variancia);
-                    // Nunca vende mais do que há em estoque
-                    unidadesVendidas = Math.min(vendaCalculada, itemJogo.inventario);
-                }
+            let unidadesVendidas = 0;
+            if (itemJogo.inventario <= LIMIAR_LIQUIDACAO) {
+                unidadesVendidas = itemJogo.inventario;
+            } else {
+                const demandaBase = gameState.torcedores * taxa * modPreco * modDesempenho * modCamp * modMkt;
+                const variancia = 0.80 + Math.random() * 0.40;
+                const calculado = Math.round(demandaBase * variancia);
+                unidadesVendidas = Math.min(Math.max(0, calculado), itemJogo.inventario);
+            }
 
-                if (unidadesVendidas > 0) {
-                    const receitaItem = unidadesVendidas * itemJogo.preco_venda_definido;
-                    receitaTotal += receitaItem;
-                    itemJogo.inventario -= unidadesVendidas;
-                    const tagLiquidacao = (itemJogo.inventario === 0 && unidadesVendidas <= LIMIAR_LIQUIDACAO) ? ' 🏁 (últimas unidades!)' : '';
-                    relatorioVendas += `- ${nomeItem}: ${unidadesVendidas} unid. vendidas por R$ ${receitaItem.toLocaleString('pt-BR')}${tagLiquidacao}\n`;
-                    // Acumula histórico de marketing
-                    if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
-                    if (!gameState.historicoMarketing[nomeItem]) gameState.historicoMarketing[nomeItem] = { totalUnidades: 0, totalReceita: 0, corridasAtivas: 0 };
-                    gameState.historicoMarketing[nomeItem].totalUnidades += unidadesVendidas;
-                    gameState.historicoMarketing[nomeItem].totalReceita += receitaItem;
-                    gameState.historicoMarketing[nomeItem].corridasAtivas += 1;
-                    // Reseta a referência de lote quando o estoque vai a zero
-                    if (itemJogo.inventario === 0) {
-                        itemJogo.lote_referencia = 0;
-                        if (!gameState.notificacoes) gameState.notificacoes = {};
-                        gameState.notificacoes.marketing = true;
-                    }
-                    algumaVendaOcorreu = true;
+            if (unidadesVendidas > 0) {
+                const receitaItem = unidadesVendidas * itemJogo.preco_venda_definido;
+                receitaTotal += receitaItem;
+                itemJogo.inventario -= unidadesVendidas;
+                const tagLiquidacao = (itemJogo.inventario === 0 && unidadesVendidas <= LIMIAR_LIQUIDACAO) ? ' 🏁 (últimas!)' : '';
+                relatorioVendas += `- ${nomeItem}: ${unidadesVendidas} un. × R$ ${itemJogo.preco_venda_definido.toLocaleString('pt-BR')} = R$ ${receitaItem.toLocaleString('pt-BR')}${tagLiquidacao}\n`;
+
+                if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
+                if (!gameState.historicoMarketing[nomeItem]) gameState.historicoMarketing[nomeItem] = { totalUnidades: 0, totalReceita: 0, corridasAtivas: 0 };
+                gameState.historicoMarketing[nomeItem].totalUnidades += unidadesVendidas;
+                gameState.historicoMarketing[nomeItem].totalReceita += receitaItem;
+                gameState.historicoMarketing[nomeItem].corridasAtivas += 1;
+
+                if (itemJogo.inventario === 0) {
+                    itemJogo.lote_referencia = 0;
+                    if (!gameState.notificacoes) gameState.notificacoes = {};
+                    gameState.notificacoes.marketing = true;
                 }
+                algumaVendaOcorreu = true;
             }
         }
+
         if (algumaVendaOcorreu) {
             gameState.escuderia.dinheiro += receitaTotal;
-            relatorioVendas += `\nReceita Total: R$ ${receitaTotal.toLocaleString('pt-BR')}`;
+            relatorioVendas += `\nTorcedores da equipe: ${gameState.torcedores.toLocaleString('pt-BR')}\nReceita Total: R$ ${receitaTotal.toLocaleString('pt-BR')}`;
             setTimeout(() => alert(relatorioVendas), 2500);
         }
     }
@@ -4473,6 +4512,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const emblemaMarketingContainer = document.getElementById('emblema-display-marketing');
         if(emblemaMarketingContainer) renderizarEmblema(emblemaMarketingContainer, gameState.escuderia.emblema);
 
+        // Cabeçalho de torcedores
+        const torcedores = gameState.torcedores || 0;
+        let faixaTorcedores = '';
+        if (torcedores < 2000) faixaTorcedores = '🌱 Base inicial — equipe em construção';
+        else if (torcedores < 10000) faixaTorcedores = '📈 Crescendo! Boa base de fãs';
+        else if (torcedores < 30000) faixaTorcedores = '🔥 Equipe popular no grid';
+        else if (torcedores < 60000) faixaTorcedores = '⭐ Grande torcida formada!';
+        else faixaTorcedores = '🏆 Escuderia de elite — torcida massiva!';
+
+        // Insere/atualiza o painel de torcedores acima dos cards
+        let fansPanel = document.getElementById('mkt-fans-panel');
+        const mktH3 = container.previousElementSibling;
+        if (!fansPanel) {
+            fansPanel = document.createElement('div');
+            fansPanel.id = 'mkt-fans-panel';
+            fansPanel.className = 'mkt-fans-panel';
+            container.parentNode.insertBefore(fansPanel, container);
+        }
+        fansPanel.innerHTML = `
+            <div class="mkt-fans-inner">
+                <span class="mkt-fans-icon">👥</span>
+                <div class="mkt-fans-info">
+                    <span class="mkt-fans-numero">${torcedores.toLocaleString('pt-BR')} torcedores</span>
+                    <span class="mkt-fans-faixa">${faixaTorcedores}</span>
+                </div>
+                <div class="mkt-fans-dica">
+                    <small>Torcedores determinam o volume máximo de vendas.<br>Cresça no campeonato para atrair mais fãs!</small>
+                </div>
+            </div>`;
+
         container.innerHTML = Object.entries(catalogoMarketing).map(([nome, itemCatalogo]) => {
             const itemJogo = gameState.marketing[nome];
 
@@ -4480,6 +4549,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const temEstoque = itemJogo.inventario > 0;
                 const tamanho = itemJogo.tamanhoIcone || { width: 50, height: 50 };
                 const posicao = itemJogo.posicaoIcone || { top: 25, left: 25 };
+                const { rosto, label: labelPreco, cor: corPreco } = calcularRostoPreco(nome);
+
+                // Demanda estimada por corrida
+                const TAXAS_DEMANDA = { 'Chaveiro': 0.025, 'Bonés': 0.010, 'Camisa': 0.006, 'Carro em miniatura': 0.004, 'Anel com joia': 0.0008, 'Combo Presentes': 0.0015 };
+                const taxa = TAXAS_DEMANDA[nome] || 0.005;
+                const { mod: modPreco } = calcularRostoPreco(nome);
+                const demandaEstimada = Math.round(torcedores * taxa * modPreco);
 
                 let controlesHtml = '';
                 if (temEstoque) {
@@ -4516,11 +4592,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="item-info">
                             <p><span>Em Estoque:</span> <strong>${itemJogo.inventario}</strong></p>
                             <p><span>Custo p/ Produzir:</span> <strong>R$ ${itemCatalogo.custo_producao.toLocaleString('pt-BR')}</strong></p>
+                            <p><span>Demanda estimada/corrida:</span> <strong>~${demandaEstimada.toLocaleString('pt-BR')} un.</strong></p>
                         </div>
                         <div class="item-controles">
-                            <div class="input-group" style="margin-bottom: 1rem;">
+                            <div class="mkt-preco-row" style="margin-bottom: 1rem;">
                                 <label for="preco-${nome}">Preço Venda (mín. ${itemCatalogo.preco_venda_minimo}):</label>
-                                <input type="number" id="preco-${nome}" value="${itemJogo.preco_venda_definido}" min="${itemCatalogo.preco_venda_minimo}" data-action="definir-preco" data-item-nome="${nome}" ${temEstoque ? 'disabled' : ''}>
+                                <div class="mkt-preco-input-wrap">
+                                    <input type="number" id="preco-${nome}" value="${itemJogo.preco_venda_definido}" min="${itemCatalogo.preco_venda_minimo}" data-action="definir-preco" data-item-nome="${nome}" ${temEstoque ? 'disabled' : ''}>
+                                    <span class="mkt-rosto" title="${labelPreco}">${rosto}</span>
+                                </div>
+                                <span class="mkt-label-preco" style="color:${corPreco || '#888'};font-size:0.78em;font-weight:600;">${labelPreco}</span>
                             </div>
                             ${controlesHtml}
                         </div>
@@ -7155,6 +7236,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (target.matches('[data-action="definir-preco"]')) {
             definirPrecoVendaMarketing(target.dataset.itemNome, target.value);
+            // Atualiza rosto e label em tempo real
+            const nomeItem = target.dataset.itemNome;
+            const card = target.closest('.marketing-item-card');
+            if (card) {
+                const { rosto, label, cor } = calcularRostoPreco(nomeItem);
+                const rostoEl = card.querySelector('.mkt-rosto');
+                const labelEl = card.querySelector('.mkt-label-preco');
+                if (rostoEl) rostoEl.textContent = rosto;
+                if (labelEl) { labelEl.textContent = label; labelEl.style.color = cor || '#888'; }
+                // Atualiza demanda estimada
+                const TAXAS_DEMANDA = { 'Chaveiro': 0.025, 'Bonés': 0.010, 'Camisa': 0.006, 'Carro em miniatura': 0.004, 'Anel com joia': 0.0008, 'Combo Presentes': 0.0015 };
+                const taxa = TAXAS_DEMANDA[nomeItem] || 0.005;
+                const { mod: modPreco } = calcularRostoPreco(nomeItem);
+                const demandaEl = card.querySelector('.mkt-demanda-val');
+                if (demandaEl) demandaEl.textContent = `~${Math.round((gameState.torcedores || 0) * taxa * modPreco).toLocaleString('pt-BR')} un.`;
+            }
         }
         else if (target.matches('[data-action="calcular-custo"]')) {
             const nomeItem = target.dataset.itemNome;

@@ -4399,3 +4399,96 @@ font-size: 0.8em;
 .rp-item:has(.rp-dot-feita)  .rp-num { color: #4caf50; }
 .rp-item:has(.rp-dot-atual)  .rp-num { color: #ff4444; font-weight: 900; }
 .rp-item:has(.rp-dot-ferias) .rp-num { color: #ff9800; }
+/* ============================================================
+   MARKETING — Painel de Torcedores e Rosto de Preço
+   ============================================================ */
+
+.mkt-fans-panel {
+    background: linear-gradient(135deg, #0d1a2e 0%, #111f38 100%);
+    border: 1px solid #1e3a6a;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(30,90,200,0.12);
+}
+
+.mkt-fans-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+}
+
+.mkt-fans-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.mkt-fans-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+}
+
+.mkt-fans-numero {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+.mkt-fans-faixa {
+    font-size: 0.85rem;
+    color: #7aa8d8;
+    font-weight: 600;
+}
+
+.mkt-fans-dica {
+    color: #4a6a88;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    text-align: right;
+    flex-shrink: 0;
+    max-width: 220px;
+}
+
+/* Linha de preço com rosto */
+.mkt-preco-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.mkt-preco-row label {
+    font-size: 0.85em;
+    color: #555;
+}
+
+.mkt-preco-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mkt-preco-input-wrap input[type="number"] {
+    flex: 1;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.mkt-rosto {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: font-size 0.2s;
+}
+
+.mkt-label-preco {
+    font-size: 0.78em;
+    font-weight: 600;
+    min-height: 1.1em;
+    transition: color 0.3s;
+}
