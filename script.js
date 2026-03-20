@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.22";
+    const VERSAO_JOGO = "21.0.23";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -225,11 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
             descricao: "Tecnologia de ponta para acelerar o desenvolvimento e a adaptação dos seus pilotos.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo. Construa o simulador para começar a evoluir seus pilotos mais rápido." },
-                { custo: 500000,   titulo: "Básico",          descricao: "+5% de desempenho extra nos treinos dos pilotos. Ideal para equipes iniciantes." },
-                { custo: 1000000,  titulo: "Intermediário",   descricao: "+8% de desempenho extra nos treinos. Simuladores de média fidelidade." },
-                { custo: 5000000,  titulo: "Avançado",        descricao: "+10% de desempenho extra nos treinos. Simuladores de alta fidelidade." },
-                { custo: 15000000, titulo: "Elite",           descricao: "+12% de desempenho. Desbloqueia 2 slots de piloto reserva para treinar simultaneamente." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "+15% de desempenho. 2 pilotos reserva + sem limite de idade para evolução de pilotos." }
+                { custo: 300000,   titulo: "Básico",          descricao: "+5% de desempenho extra nos treinos dos pilotos. Ideal para equipes iniciantes." },
+                { custo: 800000,   titulo: "Intermediário",   descricao: "+8% de desempenho extra nos treinos. Simuladores de média fidelidade." },
+                { custo: 2500000,  titulo: "Avançado",        descricao: "+10% de desempenho extra nos treinos. Simuladores de alta fidelidade." },
+                { custo: 7000000,  titulo: "Elite",           descricao: "+12% de desempenho. Desbloqueia 2 slots de piloto reserva para treinar simultaneamente." },
+                { custo: 18000000, titulo: "Estado da Arte",  descricao: "+15% de desempenho. 2 pilotos reserva + sem limite de idade para evolução de pilotos." }
             ]
         },
         tunelDeVento: {
@@ -237,11 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
             descricao: "Uma instalação crucial para o desenvolvimento e teste de peças aerodinâmicas. Reduz custo e tempo de preparo.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "-5% no preço das peças aerodinâmicas (Asa Dianteira, Asa Traseira, Chassi)." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "-10% no preço das peças aerodinâmicas." },
-                { custo: 5000000,  titulo: "Avançado",        descricao: "-12% no preço. Reduz em 1 corrida o tempo de preparo de peças aero." },
-                { custo: 15000000, titulo: "Elite",           descricao: "-15% no preço. Reduz entre 1 e 2 corridas no tempo de preparo de peças aero." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "-25% no preço. Roleta: 10%→5 corridas a menos, 40%→4 corridas, 50%→2 corridas no preparo." }
+                { custo: 300000,   titulo: "Básico",          descricao: "-5% no preço das peças aerodinâmicas (Asa Dianteira, Asa Traseira, Chassi)." },
+                { custo: 1200000,  titulo: "Intermediário",   descricao: "-10% no preço das peças aerodinâmicas." },
+                { custo: 3000000,  titulo: "Avançado",        descricao: "-12% no preço. Reduz em 1 corrida o tempo de preparo de peças aero." },
+                { custo: 8000000,  titulo: "Elite",           descricao: "-15% no preço. Reduz entre 1 e 2 corridas no tempo de preparo de peças aero." },
+                { custo: 20000000, titulo: "Estado da Arte",  descricao: "-25% no preço. Roleta: 10%→5 corridas a menos, 40%→4 corridas, 50%→2 corridas no preparo." }
             ]
         },
         treinoDeBox: {
@@ -249,11 +249,11 @@ document.addEventListener('DOMContentLoaded', () => {
             descricao: "Equipamentos e treinamento especializado para tornar sua equipe de pit stop a mais rápida do grid.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "Reduz entre 0.1s e 0.3s por parada." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "Reduz entre 0.3s e 0.5s por parada." },
-                { custo: 5000000,  titulo: "Avançado",        descricao: "Reduz entre 0.5s e 0.6s por parada." },
-                { custo: 15000000, titulo: "Elite",           descricao: "Reduz entre 0.6s e 0.8s por parada." },
-                { custo: 30000000, titulo: "Estado da Arte",  descricao: "Reduz entre 0.8s e 1.0s por parada. A equipe de box mais veloz do grid!" }
+                { custo: 300000,   titulo: "Básico",          descricao: "Reduz entre 0.1s e 0.3s por parada." },
+                { custo: 1200000,  titulo: "Intermediário",   descricao: "Reduz entre 0.3s e 0.5s por parada." },
+                { custo: 3000000,  titulo: "Avançado",        descricao: "Reduz entre 0.5s e 0.6s por parada." },
+                { custo: 8000000,  titulo: "Elite",           descricao: "Reduz entre 0.6s e 0.8s por parada." },
+                { custo: 15000000, titulo: "Estado da Arte",  descricao: "Reduz entre 0.8s e 1.0s por parada. A equipe de box mais veloz do grid!" }
             ]
         },
         marketing: {
@@ -261,11 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
             descricao: "Estrutura para receber patrocinadores e promover a marca da equipe globalmente.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "+5% de bônus nas vendas de merchandise e chances de patrocínio." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "+8% de bônus nas vendas e patrocínios." },
-                { custo: 10000000, titulo: "Avançado",        descricao: "+15% de bônus. Hospitality suite de alto padrão." },
-                { custo: 25000000, titulo: "Elite",           descricao: "+20% de bônus. Presença global da marca." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "+25% de bônus. Departamento de nível de grande construtora." }
+                { custo: 300000,   titulo: "Básico",          descricao: "+5% de bônus nas vendas de merchandise e chances de patrocínio." },
+                { custo: 1200000,  titulo: "Intermediário",   descricao: "+8% de bônus nas vendas e patrocínios." },
+                { custo: 4000000,  titulo: "Avançado",        descricao: "+15% de bônus. Hospitality suite de alto padrão." },
+                { custo: 10000000, titulo: "Elite",           descricao: "+20% de bônus. Presença global da marca." },
+                { custo: 20000000, titulo: "Estado da Arte",  descricao: "+25% de bônus. Departamento de nível de grande construtora." }
             ]
         },
         ers: {
@@ -274,10 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
             niveis: [
                 { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
                 { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
-                { custo: 7500000,  titulo: "Otimizado",         descricao: "-0.300s por volta com ERS ativo. Gestão energética aprimorada." },
-                { custo: 10000000, titulo: "Avançado",          descricao: "-0.500s por volta com ERS ativo." },
-                { custo: 25000000, titulo: "Elite",             descricao: "-0.700s por volta com ERS ativo." },
-                { custo: 50000000, titulo: "Estado da Arte",    descricao: "Entre -0.750s e -0.900s por volta com ERS ativo. Potência máxima!" }
+                { custo: 3000000,  titulo: "Otimizado",         descricao: "-0.300s por volta com ERS ativo. Gestão energética aprimorada." },
+                { custo: 6000000,  titulo: "Avançado",          descricao: "-0.500s por volta com ERS ativo." },
+                { custo: 12000000, titulo: "Elite",             descricao: "-0.700s por volta com ERS ativo." },
+                { custo: 20000000, titulo: "Estado da Arte",    descricao: "Entre -0.750s e -0.900s por volta com ERS ativo. Potência máxima!" }
             ]
         },
         centroMotores: {
@@ -285,11 +285,11 @@ document.addEventListener('DOMContentLoaded', () => {
             descricao: "A alma de uma corrida. Crucial para o desenvolvimento de motores mais potentes e duradouros.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "Motores mais resistentes. Reduz 0–2 corridas no preparo de motores." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "Motores mais resistentes + força extra. Reduz 1–2 corridas no preparo." },
-                { custo: 10000000, titulo: "Avançado",        descricao: "Durabilidade e potência aprimoradas. Reduz 1–3 corridas no preparo." },
-                { custo: 25000000, titulo: "Elite",           descricao: "Alta resistência e performance. Reduz 2–3 corridas no preparo." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "Motores de alto rendimento. Reduz 3–5 corridas no preparo. Domínio total!" }
+                { custo: 300000,   titulo: "Básico",          descricao: "Motores mais resistentes. Reduz 0–2 corridas no preparo de motores." },
+                { custo: 1200000,  titulo: "Intermediário",   descricao: "Motores mais resistentes + força extra. Reduz 1–2 corridas no preparo." },
+                { custo: 4000000,  titulo: "Avançado",        descricao: "Durabilidade e potência aprimoradas. Reduz 1–3 corridas no preparo." },
+                { custo: 10000000, titulo: "Elite",           descricao: "Alta resistência e performance. Reduz 2–3 corridas no preparo." },
+                { custo: 20000000, titulo: "Estado da Arte",  descricao: "Motores de alto rendimento. Reduz 3–5 corridas no preparo. Domínio total!" }
             ]
         },
         centroSuspensoes: {
@@ -297,11 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
             descricao: "Suspensões equilibradas fazem o carro performar melhor em qualquer circuito. Reduz custo e desgaste.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 500000,   titulo: "Básico",          descricao: "Suspensões mais resistentes + 5% de desconto na compra." },
-                { custo: 2500000,  titulo: "Intermediário",   descricao: "Mais resistentes + força extra + 10% de desconto." },
-                { custo: 10000000, titulo: "Avançado",        descricao: "Alta durabilidade + 15% de desconto na compra." },
-                { custo: 25000000, titulo: "Elite",           descricao: "Suspensões de elite + 20% de desconto." },
-                { custo: 50000000, titulo: "Estado da Arte",  descricao: "Máxima resistência + 25% de desconto. Manuseio perfeito!" }
+                { custo: 300000,   titulo: "Básico",          descricao: "Suspensões mais resistentes + 5% de desconto na compra." },
+                { custo: 1200000,  titulo: "Intermediário",   descricao: "Mais resistentes + força extra + 10% de desconto." },
+                { custo: 4000000,  titulo: "Avançado",        descricao: "Alta durabilidade + 15% de desconto na compra." },
+                { custo: 10000000, titulo: "Elite",           descricao: "Suspensões de elite + 20% de desconto." },
+                { custo: 20000000, titulo: "Estado da Arte",  descricao: "Máxima resistência + 25% de desconto. Manuseio perfeito!" }
             ]
         }
     };
@@ -666,6 +666,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 ['simulador','tunelDeVento','treinoDeBox','marketing'].forEach(k => {
                     if (gameState.instalacoes[k] > 5) gameState.instalacoes[k] = 5;
                 });
+
+                // ── PATCH v1: crédito retroativo pelo rebalanceamento de preços ──────
+                // Roda uma única vez. Calcula a diferença entre o que foi pago (preços
+                // antigos) e os novos preços, e devolve o excesso ao jogador.
+                if (!gameState._pricePatch1) {
+                    const custosAntigos = {
+                        simulador:        [0, 500000, 1000000,  5000000, 15000000, 50000000],
+                        tunelDeVento:     [0, 500000, 2500000,  5000000, 15000000, 50000000],
+                        treinoDeBox:      [0, 500000, 2500000,  5000000, 15000000, 30000000],
+                        marketing:        [0, 500000, 2500000, 10000000, 25000000, 50000000],
+                        ers:              [0,       0, 7500000, 10000000, 25000000, 50000000],
+                        centroMotores:    [0, 500000, 2500000, 10000000, 25000000, 50000000],
+                        centroSuspensoes: [0, 500000, 2500000, 10000000, 25000000, 50000000],
+                    };
+                    const custosNovos = {
+                        simulador:        [0, 300000,  800000,  2500000,  7000000, 18000000],
+                        tunelDeVento:     [0, 300000, 1200000,  3000000,  8000000, 20000000],
+                        treinoDeBox:      [0, 300000, 1200000,  3000000,  8000000, 15000000],
+                        marketing:        [0, 300000, 1200000,  4000000, 10000000, 20000000],
+                        ers:              [0,       0, 3000000,  6000000, 12000000, 20000000],
+                        centroMotores:    [0, 300000, 1200000,  4000000, 10000000, 20000000],
+                        centroSuspensoes: [0, 300000, 1200000,  4000000, 10000000, 20000000],
+                    };
+                    let credito = 0;
+                    for (const id in custosAntigos) {
+                        const nivelAtual = gameState.instalacoes[id] ?? 0;
+                        for (let n = 1; n <= nivelAtual; n++) {
+                            const diferenca = (custosAntigos[id][n] || 0) - (custosNovos[id][n] || 0);
+                            if (diferenca > 0) credito += diferenca;
+                        }
+                    }
+                    if (credito > 0) {
+                        gameState.escuderia.dinheiro += credito;
+                        console.log(`[Patch v1] Crédito retroativo de instalações: R$ ${credito.toLocaleString('pt-BR')}`);
+                        setTimeout(() => alert(
+                            `💰 Rebalanceamento de Instalações!\n\n` +
+                            `Os preços das instalações foram reduzidos.\n` +
+                            `Como você já investiu nos preços antigos, recebeu um crédito de:\n\n` +
+                            `R$ ${credito.toLocaleString('pt-BR')}\n\n` +
+                            `O valor já foi adicionado ao seu saldo.`
+                        ), 1500);
+                    }
+                    gameState._pricePatch1 = true;
+                    // Salva imediatamente para não rodar duas vezes
+                }
+                // ── FIM DO PATCH v1 ───────────────────────────────────────────────
 
 
                 for (const key in gameState.marketing) {
@@ -1162,7 +1208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (patrocinadoresElegiveis.length === 0) return;
         const marca = patrocinadoresElegiveis[Math.floor(Math.random() * patrocinadoresElegiveis.length)];
         const duracao = Math.floor(Math.random() * 6) + 3;
-        const valor = Math.floor((800000 * reputacao) / (duracao * 0.2));
+        const valor = Math.floor((1100000 * reputacao) / (duracao * 0.2));
         gameState.patrocinio.ofertas.push({ id: Date.now(), marca: marca.nome, valor, duracao });
     }
 
