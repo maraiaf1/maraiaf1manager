@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.20";
+    const VERSAO_JOGO = "21.0.21";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -1947,7 +1947,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         const gridDeLargada = participantesIniciais
-            .map(p => ({ ...p, tempoQualy: calcularTempoVolta(p, pista, pneus.macio.multiplicadorPerformance, 0, 0, 0) }))
+            .map(p => ({
+                ...p,
+                // Simula 3 tentativas de quali e registra a melhor volta,
+                // evitando que uma rolagem ruim de fatorSorte jogue o jogador
+                // (ou qualquer piloto rápido) para o fundo do grid injustamente.
+                tempoQualy: Math.min(
+                    calcularTempoVolta(p, pista, pneus.macio.multiplicadorPerformance, 0, 0, 0),
+                    calcularTempoVolta(p, pista, pneus.macio.multiplicadorPerformance, 0, 0, 0),
+                    calcularTempoVolta(p, pista, pneus.macio.multiplicadorPerformance, 0, 0, 0)
+                )
+            }))
             .sort((a, b) => a.tempoQualy - b.tempoQualy);
         const dadosDaPole = { piloto: gridDeLargada[0].piloto.nome, tempo: gridDeLargada[0].tempoQualy };
 
