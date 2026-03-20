@@ -4977,9 +4977,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('watchlist-pilotos');
         if (!container || !raceData.participantes) return;
 
-        const players = raceData.participantes.filter(x => x.isPlayer);
-        const p1 = players[0] || null;
-        const p2 = players[1] || null;
+        // Busca os pilotos pela ordem definida em gameState.carros (Carro 1 = P1, Carro 2 = P2),
+        // ignorando a posição no grid de largada (que depende da quali e pode inverter a exibição).
+        const _idCarro1 = gameState.carros[0]?.pilotoId;
+        const _idCarro2 = gameState.carros[1]?.pilotoId;
+        const p1 = raceData.participantes.find(x => x.piloto.id === _idCarro1) || null;
+        const p2 = raceData.participantes.find(x => x.piloto.id === _idCarro2) || null;
 
         // ── Seção 1: Duelo Interno (sempre visível) ────────────────────────
         let html = '<div class="wl-secao-titulo">🏎️ Duelo Interno</div>';
