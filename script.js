@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.19";
+    const VERSAO_JOGO = "21.0.20";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -4810,8 +4810,41 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // ── Gera as bolinhas do progresso da temporada ──────────────────
+        const totalCorridas = calendarioCorridas.length;
+        const corridaAtual  = gameState.campeonato.corridaAtualIndex; // 0-based
+        // Férias ficam entre o índice 12 (Hungria, corrida 13) e 13 (Holanda, corrida 14)
+        const FERIAS_APOS_INDICE = 12;
+
+        let bolinhsHtml = '';
+        for (let i = 0; i < totalCorridas; i++) {
+            // Insere bolinha de Férias entre corrida 13 e 14
+            if (i === FERIAS_APOS_INDICE + 1) {
+                bolinhsHtml += `<div class="rp-item rp-ferias" title="🏖️ Férias de Verão">
+                    <div class="rp-dot rp-dot-ferias">F</div>
+                    <div class="rp-num">—</div>
+                </div>`;
+            }
+            const numCorrida  = i + 1;
+            const nomePista   = calendarioCorridas[i].nome;
+            const isConcluida = i < corridaAtual;
+            const isAtual     = i === corridaAtual;
+            const cls = isConcluida ? 'rp-dot-feita' : isAtual ? 'rp-dot-atual' : 'rp-dot-futura';
+            const icone = isConcluida ? '✓' : numCorrida;
+            bolinhsHtml += `<div class="rp-item ${isAtual ? 'rp-item-atual' : ''}" title="${numCorrida}. ${nomePista}">
+                <div class="rp-dot ${cls}">${icone}</div>
+                <div class="rp-num">${numCorrida}</div>
+            </div>`;
+        }
+
         corridaDiv.innerHTML = `
-            <h2>Próxima Corrida: <span id="pista-nome-corrida"></span></h2>
+            <div class="rp-wrapper">
+                <h2 class="rp-titulo-corrida">Próxima Corrida: <span id="pista-nome-corrida"></span></h2>
+                <div class="rp-track">
+                    <div class="rp-linha"></div>
+                    ${bolinhsHtml}
+                </div>
+            </div>
             <div class="corrida-layout-3col">
                 <div class="setup-coluna" id="coluna-esquerda-corrida">
                     <div id="info-pre-corrida-esquerda">

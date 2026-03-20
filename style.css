@@ -4266,3 +4266,136 @@ font-size: 0.8em;
 .btn-confirmar-venda:not(:disabled):hover { opacity: 0.88; }
 .btn-cancelar-venda { background: #252540; color: #ccc; border: 1px solid #333; border-radius: 8px; padding: 0.6rem 1.1rem; font-size: 0.92rem; cursor: pointer; transition: background 0.2s; }
 .btn-cancelar-venda:hover { background: #2e2e55; }
+/* ================================================================
+   RACE PROGRESS TRACKER — faixa de progresso da temporada
+   ================================================================ */
+
+.rp-wrapper {
+    background: #1a1a2e;
+    border-bottom: 2px solid #2a2a44;
+    padding: 0.75rem 1.5rem 0.6rem;
+    margin-bottom: 1.2rem;
+    position: sticky;
+    top: 100px; /* abaixo do header fixo */
+    z-index: 50;
+}
+
+.rp-titulo-corrida {
+    margin: 0 0 0.6rem;
+    font-size: 1.05rem;
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    padding: 0;
+    letter-spacing: 0.02em;
+}
+
+.rp-titulo-corrida span {
+    color: #ffd700;
+}
+
+/* Trilho com bolinhas */
+.rp-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+}
+.rp-track::-webkit-scrollbar { height: 4px; }
+.rp-track::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+
+/* Linha horizontal de fundo */
+.rp-linha {
+    position: absolute;
+    top: 15px; /* centro vertical das bolinhas (30px / 2) */
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #2a2a44;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Cada item (bolinha + número) */
+.rp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: default;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    padding: 0 3px;
+    transition: transform 0.15s;
+}
+.rp-item:hover { transform: translateY(-3px); }
+.rp-item-atual .rp-dot { box-shadow: 0 0 0 3px rgba(225,6,0,0.5), 0 0 12px rgba(225,6,0,0.4); }
+
+/* Bolinhas */
+.rp-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 800;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+/* Corrida já feita — verde */
+.rp-dot-feita {
+    background: #1b5e20;
+    border-color: #4caf50;
+    color: #a5d6a7;
+}
+
+/* Corrida atual — vermelho F1 pulsante */
+.rp-dot-atual {
+    background: #e10600;
+    border-color: #ff4444;
+    color: #fff;
+    animation: rp-pulse 1.6s ease-in-out infinite;
+}
+@keyframes rp-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(225,6,0,0.6); }
+    50%       { box-shadow: 0 0 0 6px rgba(225,6,0,0); }
+}
+
+/* Corrida futura — cinza */
+.rp-dot-futura {
+    background: #1e1e35;
+    border-color: #3a3a5a;
+    color: #555;
+}
+
+/* Férias — laranja */
+.rp-dot-ferias {
+    background: #4a2800;
+    border-color: #ff9800;
+    color: #ffcc02;
+    font-size: 0.7rem;
+    font-weight: 900;
+}
+
+/* Número abaixo da bolinha */
+.rp-num {
+    font-size: 0.6rem;
+    color: #555;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    min-width: 30px;
+}
+.rp-dot-feita  ~ .rp-num,
+.rp-item:has(.rp-dot-feita)  .rp-num { color: #4caf50; }
+.rp-item:has(.rp-dot-atual)  .rp-num { color: #ff4444; font-weight: 900; }
+.rp-item:has(.rp-dot-ferias) .rp-num { color: #ff9800; }
