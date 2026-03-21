@@ -4711,3 +4711,24 @@ font-size: 0.8em;
     .mkt-dash-rankings { grid-template-columns: 1fr; }
     .mkt-dash-kpis { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ── Bloqueio de abas durante corrida ── */
+.tab-nav.corrida-ativa .tab-btn:not([data-tab="corrida"]) {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(60%);
+    transition: opacity 0.3s ease;
+}
+
+.tab-nav.corrida-ativa .tab-btn[data-tab="corrida"] {
+    border-bottom: 3px solid #e10600;
+    color: #e10600;
+    font-weight: bold;
+    animation: pulse-race-tab 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-race-tab {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(225, 6, 0, 0); }
+    50%       { box-shadow: 0 0 8px 2px rgba(225, 6, 0, 0.35); }
+}

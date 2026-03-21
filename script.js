@@ -2131,6 +2131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTabelaAoVivo();
         renderWatchlistCard(); // Renderiza com raceData já populado
         animacaoAtiva = true;
+        document.querySelector('.tab-nav').classList.add('corrida-ativa');
         loopAnimacaoCanvas();
         timestampUltimaSimulacao = performance.now();
         raceData.intervaloReal = raceData.intervalo;
@@ -2452,6 +2453,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(raceTimerId);
         raceTimerId = null;
         animacaoAtiva = false;
+        document.querySelector('.tab-nav').classList.remove('corrida-ativa');
         pilotosMonitorados = []; // Zera o watchlist ao fim da corrida
 
         animarBandeirada().then(() => {
@@ -7184,6 +7186,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (target.matches('.tab-btn')) {
             const tabName = target.dataset.tab;
+
+            // 🔒 Bloqueia troca de aba enquanto a corrida estiver ativa
+            if (animacaoAtiva && tabName !== 'corrida') {
+                return;
+            }
+
             document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
             target.classList.add('active');
             const abaAtiva = document.getElementById(tabName);
