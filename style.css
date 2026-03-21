@@ -4713,7 +4713,7 @@ font-size: 0.8em;
 }
 
 /* ── Bloqueio de abas durante corrida ── */
-.tab-nav.corrida-ativa .tab-btn:not([data-tab="corrida"]) {
+.tab-nav.corrida-ativa .tab-btn {
     opacity: 0.35;
     cursor: not-allowed;
     pointer-events: none;
@@ -4722,6 +4722,8 @@ font-size: 0.8em;
 }
 
 .tab-nav.corrida-ativa .tab-btn[data-tab="corrida"] {
+    opacity: 1;
+    filter: none;
     border-bottom: 3px solid #e10600;
     color: #e10600;
     font-weight: bold;

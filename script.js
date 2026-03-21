@@ -7187,8 +7187,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.matches('.tab-btn')) {
             const tabName = target.dataset.tab;
 
-            // 🔒 Bloqueia troca de aba enquanto a corrida estiver ativa
-            if (animacaoAtiva && tabName !== 'corrida') {
+            // 🔒 Bloqueia TODAS as abas enquanto a corrida estiver ativa
+            if (animacaoAtiva) {
                 return;
             }
 
