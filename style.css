@@ -4734,3 +4734,35 @@ font-size: 0.8em;
     0%, 100% { box-shadow: 0 0 0 0 rgba(225, 6, 0, 0); }
     50%       { box-shadow: 0 0 8px 2px rgba(225, 6, 0, 0.35); }
 }
+/* ── Nome da Equipe na aba Identidade ── */
+.controle-nome-equipe {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.controle-nome-equipe label {
+    font-weight: 600;
+    white-space: nowrap;
+    color: #333;
+}
+.controle-nome-equipe input {
+    flex: 1;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+.controle-nome-equipe .btn-salvaNome {
+    background-color: #008cba;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+.controle-nome-equipe .btn-salvaNome:hover {
+    background-color: #006f94;
+}

@@ -145,6 +145,211 @@ document.addEventListener('DOMContentLoaded', () => {
         9: { id: 9, tipo: 'Asa Traseira', nome: 'Asa Traseira DRS Pro', nivel: 9, atributos: { aerodinamica: 39, confiabilidade: 87 } },
         76: { id: 76, tipo: 'Asa Traseira', nome: 'Asa 333', nivel: 10, atributos: { aerodinamica: 42, confiabilidade: 89 } },
         204: { id: 204, tipo: 'Asa Traseira', nome: 'Orange-C', nivel: 10, atributos: { aerodinamica: 44, confiabilidade: 89 } },
+
+        // ── SUSPENSÃO — novas peças (3 por nível) ──
+        500: { id: 500, tipo: 'Suspensão', nome: 'Suspensão KinetiX',   nivel: 1, atributos: { aderencia: 39, confiabilidade: 79 } },
+        501: { id: 501, tipo: 'Suspensão', nome: 'Suspensão PulseOne',  nivel: 1, atributos: { aderencia: 38, confiabilidade: 81 } },
+        502: { id: 502, tipo: 'Suspensão', nome: 'Suspensão ZeroG',     nivel: 1, atributos: { aderencia: 40, confiabilidade: 78 } },
+
+        503: { id: 503, tipo: 'Suspensão', nome: 'Suspensão VectorII',  nivel: 2, atributos: { aderencia: 42, confiabilidade: 82 } },
+        504: { id: 504, tipo: 'Suspensão', nome: 'Suspensão NovaTrak',  nivel: 2, atributos: { aderencia: 44, confiabilidade: 81 } },
+        505: { id: 505, tipo: 'Suspensão', nome: 'Suspensão FlexPro',   nivel: 2, atributos: { aderencia: 43, confiabilidade: 83 } },
+
+        506: { id: 506, tipo: 'Suspensão', nome: 'Suspensão AlphaRide', nivel: 3, atributos: { aderencia: 45, confiabilidade: 84 } },
+        507: { id: 507, tipo: 'Suspensão', nome: 'Suspensão CruXIII',   nivel: 3, atributos: { aderencia: 47, confiabilidade: 83 } },
+        508: { id: 508, tipo: 'Suspensão', nome: 'Suspensão UrbanGT',   nivel: 3, atributos: { aderencia: 46, confiabilidade: 85 } },
+
+        509: { id: 509, tipo: 'Suspensão', nome: 'Suspensão DeltaCoil', nivel: 4, atributos: { aderencia: 49, confiabilidade: 86 } },
+        510: { id: 510, tipo: 'Suspensão', nome: 'Suspensão OmegaRide', nivel: 4, atributos: { aderencia: 51, confiabilidade: 85 } },
+        511: { id: 511, tipo: 'Suspensão', nome: 'Suspensão TerraFlex',  nivel: 4, atributos: { aderencia: 50, confiabilidade: 87 } },
+
+        512: { id: 512, tipo: 'Suspensão', nome: 'Suspensão VortexPro', nivel: 5, atributos: { aderencia: 52, confiabilidade: 88 } },
+        513: { id: 513, tipo: 'Suspensão', nome: 'Suspensão ApexFive',  nivel: 5, atributos: { aderencia: 54, confiabilidade: 87 } },
+        514: { id: 514, tipo: 'Suspensão', nome: 'Suspensão GripMaster', nivel: 5, atributos: { aderencia: 53, confiabilidade: 89 } },
+
+        515: { id: 515, tipo: 'Suspensão', nome: 'Suspensão HyperCoil', nivel: 6, atributos: { aderencia: 56, confiabilidade: 90 } },
+        516: { id: 516, tipo: 'Suspensão', nome: 'Suspensão StrikeX6',  nivel: 6, atributos: { aderencia: 58, confiabilidade: 89 } },
+        517: { id: 517, tipo: 'Suspensão', nome: 'Suspensão NexaTrak',  nivel: 6, atributos: { aderencia: 57, confiabilidade: 90 } },
+
+        518: { id: 518, tipo: 'Suspensão', nome: 'Suspensão TitanFlex', nivel: 7, atributos: { aderencia: 60, confiabilidade: 90 } },
+        519: { id: 519, tipo: 'Suspensão', nome: 'Suspensão PrimeRide', nivel: 7, atributos: { aderencia: 62, confiabilidade: 88 } },
+        520: { id: 520, tipo: 'Suspensão', nome: 'Suspensão CarbonSeven',nivel: 7, atributos: { aderencia: 61, confiabilidade: 89 } },
+
+        521: { id: 521, tipo: 'Suspensão', nome: 'Suspensão PhantomG',  nivel: 8, atributos: { aderencia: 64, confiabilidade: 91 } },
+        522: { id: 522, tipo: 'Suspensão', nome: 'Suspensão IronGrip8',  nivel: 8, atributos: { aderencia: 66, confiabilidade: 89 } },
+        523: { id: 523, tipo: 'Suspensão', nome: 'Suspensão OctaLink',   nivel: 8, atributos: { aderencia: 65, confiabilidade: 90 } },
+
+        524: { id: 524, tipo: 'Suspensão', nome: 'Suspensão StealthNX',  nivel: 9, atributos: { aderencia: 65, confiabilidade: 91 } },
+        525: { id: 525, tipo: 'Suspensão', nome: 'Suspensão MaxGrip9',   nivel: 9, atributos: { aderencia: 67, confiabilidade: 90 } },
+        526: { id: 526, tipo: 'Suspensão', nome: 'Suspensão ZenithIX',   nivel: 9, atributos: { aderencia: 66, confiabilidade: 91 } },
+
+        527: { id: 527, tipo: 'Suspensão', nome: 'Suspensão LegacyX',    nivel: 10, atributos: { aderencia: 70, confiabilidade: 90 } },
+        528: { id: 528, tipo: 'Suspensão', nome: 'Suspensão AbsoluteG',  nivel: 10, atributos: { aderencia: 71, confiabilidade: 89 } },
+        529: { id: 529, tipo: 'Suspensão', nome: 'Suspensão ApexLord',   nivel: 10, atributos: { aderencia: 72, confiabilidade: 90 } },
+
+        // ── CHASSI — novas peças (3 por nível) ──
+        530: { id: 530, tipo: 'Chassi', nome: 'Chassi KinetiCore',  nivel: 1, atributos: { aerodinamica: 8,  aderencia: 10, confiabilidade: 74 } },
+        531: { id: 531, tipo: 'Chassi', nome: 'Chassi SlimShell',   nivel: 1, atributos: { aerodinamica: 9,  aderencia: 11, confiabilidade: 76 } },
+        532: { id: 532, tipo: 'Chassi', nome: 'Chassi NovaPod',     nivel: 1, atributos: { aerodinamica: 8,  aderencia: 12, confiabilidade: 75 } },
+
+        533: { id: 533, tipo: 'Chassi', nome: 'Chassi AlphaFrame',  nivel: 2, atributos: { aerodinamica: 10, aderencia: 12, confiabilidade: 77 } },
+        534: { id: 534, tipo: 'Chassi', nome: 'Chassi DeltaShell',  nivel: 2, atributos: { aerodinamica: 11, aderencia: 13, confiabilidade: 75 } },
+        535: { id: 535, tipo: 'Chassi', nome: 'Chassi IronBird',    nivel: 2, atributos: { aerodinamica: 10, aderencia: 14, confiabilidade: 76 } },
+
+        536: { id: 536, tipo: 'Chassi', nome: 'Chassi CarbonEdge',  nivel: 3, atributos: { aerodinamica: 11, aderencia: 13, confiabilidade: 80 } },
+        537: { id: 537, tipo: 'Chassi', nome: 'Chassi VectorBody',  nivel: 3, atributos: { aerodinamica: 12, aderencia: 14, confiabilidade: 78 } },
+        538: { id: 538, tipo: 'Chassi', nome: 'Chassi AirCross III',nivel: 3, atributos: { aerodinamica: 11, aderencia: 15, confiabilidade: 79 } },
+
+        539: { id: 539, tipo: 'Chassi', nome: 'Chassi OmegaRig',    nivel: 4, atributos: { aerodinamica: 12, aderencia: 14, confiabilidade: 84 } },
+        540: { id: 540, tipo: 'Chassi', nome: 'Chassi TorqueFrame', nivel: 4, atributos: { aerodinamica: 13, aderencia: 15, confiabilidade: 82 } },
+        541: { id: 541, tipo: 'Chassi', nome: 'Chassi PrimeCell IV',nivel: 4, atributos: { aerodinamica: 12, aderencia: 16, confiabilidade: 83 } },
+
+        542: { id: 542, tipo: 'Chassi', nome: 'Chassi StrikeBody',  nivel: 5, atributos: { aerodinamica: 13, aderencia: 15, confiabilidade: 85 } },
+        543: { id: 543, tipo: 'Chassi', nome: 'Chassi ApexShell V', nivel: 5, atributos: { aerodinamica: 14, aderencia: 16, confiabilidade: 83 } },
+        544: { id: 544, tipo: 'Chassi', nome: 'Chassi NexaCraft',   nivel: 5, atributos: { aerodinamica: 13, aderencia: 17, confiabilidade: 84 } },
+
+        545: { id: 545, tipo: 'Chassi', nome: 'Chassi PhantomRig',  nivel: 6, atributos: { aerodinamica: 15, aderencia: 16, confiabilidade: 87 } },
+        546: { id: 546, tipo: 'Chassi', nome: 'Chassi HyperFrame',  nivel: 6, atributos: { aerodinamica: 16, aderencia: 17, confiabilidade: 85 } },
+        547: { id: 547, tipo: 'Chassi', nome: 'Chassi SteelPulse',  nivel: 6, atributos: { aerodinamica: 15, aderencia: 18, confiabilidade: 86 } },
+
+        548: { id: 548, tipo: 'Chassi', nome: 'Chassi TitanShell',  nivel: 7, atributos: { aerodinamica: 16, aderencia: 16, confiabilidade: 87 } },
+        549: { id: 549, tipo: 'Chassi', nome: 'Chassi ZenithPod',   nivel: 7, atributos: { aerodinamica: 17, aderencia: 17, confiabilidade: 85 } },
+        550: { id: 550, tipo: 'Chassi', nome: 'Chassi NovaBlade VII',nivel: 7, atributos: { aerodinamica: 15, aderencia: 18, confiabilidade: 86 } },
+
+        551: { id: 551, tipo: 'Chassi', nome: 'Chassi OctaFrame',   nivel: 8, atributos: { aerodinamica: 17, aderencia: 15, confiabilidade: 88 } },
+        552: { id: 552, tipo: 'Chassi', nome: 'Chassi StealthBody',  nivel: 8, atributos: { aerodinamica: 18, aderencia: 16, confiabilidade: 86 } },
+        553: { id: 553, tipo: 'Chassi', nome: 'Chassi IronSpectre',  nivel: 8, atributos: { aerodinamica: 17, aderencia: 17, confiabilidade: 87 } },
+
+        554: { id: 554, tipo: 'Chassi', nome: 'Chassi MaxFrame IX',  nivel: 9, atributos: { aerodinamica: 17, aderencia: 17, confiabilidade: 89 } },
+        555: { id: 555, tipo: 'Chassi', nome: 'Chassi AbsolutePod',  nivel: 9, atributos: { aerodinamica: 18, aderencia: 18, confiabilidade: 87 } },
+        556: { id: 556, tipo: 'Chassi', nome: 'Chassi LegacyRig',    nivel: 9, atributos: { aerodinamica: 19, aderencia: 17, confiabilidade: 88 } },
+
+        557: { id: 557, tipo: 'Chassi', nome: 'Chassi UltraCore X',  nivel: 10, atributos: { aerodinamica: 21, aderencia: 18, confiabilidade: 90 } },
+        558: { id: 558, tipo: 'Chassi', nome: 'Chassi ApexLord',     nivel: 10, atributos: { aerodinamica: 22, aderencia: 19, confiabilidade: 88 } },
+        559: { id: 559, tipo: 'Chassi', nome: 'Chassi TitanMind',    nivel: 10, atributos: { aerodinamica: 20, aderencia: 19, confiabilidade: 89 } },
+
+        // ── ASA DIANTEIRA — novas peças (3 por nível) ──
+        560: { id: 560, tipo: 'Asa Dianteira', nome: 'Asa SlipCut I',    nivel: 1, atributos: { aerodinamica: 10, confiabilidade: 73 } },
+        561: { id: 561, tipo: 'Asa Dianteira', nome: 'Asa KiteOne',      nivel: 1, atributos: { aerodinamica: 11, confiabilidade: 75 } },
+        562: { id: 562, tipo: 'Asa Dianteira', nome: 'Asa ZeroDrag I',   nivel: 1, atributos: { aerodinamica: 10, confiabilidade: 74 } },
+
+        563: { id: 563, tipo: 'Asa Dianteira', nome: 'Asa VectorFin II', nivel: 2, atributos: { aerodinamica: 12, confiabilidade: 75 } },
+        564: { id: 564, tipo: 'Asa Dianteira', nome: 'Asa DeltaBlade',   nivel: 2, atributos: { aerodinamica: 13, confiabilidade: 74 } },
+        565: { id: 565, tipo: 'Asa Dianteira', nome: 'Asa NovaCut II',   nivel: 2, atributos: { aerodinamica: 12, confiabilidade: 76 } },
+
+        566: { id: 566, tipo: 'Asa Dianteira', nome: 'Asa PrimeFin III', nivel: 3, atributos: { aerodinamica: 13, confiabilidade: 78 } },
+        567: { id: 567, tipo: 'Asa Dianteira', nome: 'Asa CarbonKite',   nivel: 3, atributos: { aerodinamica: 14, confiabilidade: 77 } },
+        568: { id: 568, tipo: 'Asa Dianteira', nome: 'Asa ApexSlice',    nivel: 3, atributos: { aerodinamica: 13, confiabilidade: 79 } },
+
+        569: { id: 569, tipo: 'Asa Dianteira', nome: 'Asa HyperFin IV',  nivel: 4, atributos: { aerodinamica: 15, confiabilidade: 79 } },
+        570: { id: 570, tipo: 'Asa Dianteira', nome: 'Asa OmegaCut',     nivel: 4, atributos: { aerodinamica: 16, confiabilidade: 78 } },
+        571: { id: 571, tipo: 'Asa Dianteira', nome: 'Asa StrikeWing IV',nivel: 4, atributos: { aerodinamica: 15, confiabilidade: 80 } },
+
+        572: { id: 572, tipo: 'Asa Dianteira', nome: 'Asa TorqueFin',    nivel: 5, atributos: { aerodinamica: 16, confiabilidade: 80 } },
+        573: { id: 573, tipo: 'Asa Dianteira', nome: 'Asa PhantomCut V', nivel: 5, atributos: { aerodinamica: 17, confiabilidade: 79 } },
+        574: { id: 574, tipo: 'Asa Dianteira', nome: 'Asa NexaWing',     nivel: 5, atributos: { aerodinamica: 16, confiabilidade: 81 } },
+
+        575: { id: 575, tipo: 'Asa Dianteira', nome: 'Asa TitanBlade VI',nivel: 6, atributos: { aerodinamica: 17, confiabilidade: 83 } },
+        576: { id: 576, tipo: 'Asa Dianteira', nome: 'Asa ZenithFin',    nivel: 6, atributos: { aerodinamica: 18, confiabilidade: 82 } },
+        577: { id: 577, tipo: 'Asa Dianteira', nome: 'Asa VortexCut VI', nivel: 6, atributos: { aerodinamica: 17, confiabilidade: 84 } },
+
+        578: { id: 578, tipo: 'Asa Dianteira', nome: 'Asa ShadowFin VII',nivel: 7, atributos: { aerodinamica: 17, confiabilidade: 86 } },
+        579: { id: 579, tipo: 'Asa Dianteira', nome: 'Asa IronKite VII', nivel: 7, atributos: { aerodinamica: 18, confiabilidade: 84 } },
+        580: { id: 580, tipo: 'Asa Dianteira', nome: 'Asa MaxSlice VII', nivel: 7, atributos: { aerodinamica: 17, confiabilidade: 85 } },
+
+        581: { id: 581, tipo: 'Asa Dianteira', nome: 'Asa StealthBlade', nivel: 8, atributos: { aerodinamica: 18, confiabilidade: 87 } },
+        582: { id: 582, tipo: 'Asa Dianteira', nome: 'Asa PrimeCut VIII',nivel: 8, atributos: { aerodinamica: 19, confiabilidade: 85 } },
+        583: { id: 583, tipo: 'Asa Dianteira', nome: 'Asa UltraFin VIII',nivel: 8, atributos: { aerodinamica: 18, confiabilidade: 86 } },
+
+        584: { id: 584, tipo: 'Asa Dianteira', nome: 'Asa AbsoluteKite', nivel: 9, atributos: { aerodinamica: 19, confiabilidade: 87 } },
+        585: { id: 585, tipo: 'Asa Dianteira', nome: 'Asa LegacyFin IX', nivel: 9, atributos: { aerodinamica: 20, confiabilidade: 85 } },
+        586: { id: 586, tipo: 'Asa Dianteira', nome: 'Asa OmegaSlice IX',nivel: 9, atributos: { aerodinamica: 19, confiabilidade: 86 } },
+
+        587: { id: 587, tipo: 'Asa Dianteira', nome: 'Asa ApexLord X',   nivel: 10, atributos: { aerodinamica: 22, confiabilidade: 90 } },
+        588: { id: 588, tipo: 'Asa Dianteira', nome: 'Asa TitanKite X',  nivel: 10, atributos: { aerodinamica: 23, confiabilidade: 88 } },
+        589: { id: 589, tipo: 'Asa Dianteira', nome: 'Asa NovaBlade X',  nivel: 10, atributos: { aerodinamica: 21, confiabilidade: 89 } },
+
+        // ── ASA TRASEIRA — novas peças (3 por nível) ──
+        590: { id: 590, tipo: 'Asa Traseira', nome: 'Asa Traseira DriftI',   nivel: 1, atributos: { aerodinamica: 29, confiabilidade: 78 } },
+        591: { id: 591, tipo: 'Asa Traseira', nome: 'Asa Traseira SlipBack', nivel: 1, atributos: { aerodinamica: 30, confiabilidade: 77 } },
+        592: { id: 592, tipo: 'Asa Traseira', nome: 'Asa Traseira ZeroOne',  nivel: 1, atributos: { aerodinamica: 29, confiabilidade: 79 } },
+
+        593: { id: 593, tipo: 'Asa Traseira', nome: 'Asa Traseira VectoII',  nivel: 2, atributos: { aerodinamica: 31, confiabilidade: 81 } },
+        594: { id: 594, tipo: 'Asa Traseira', nome: 'Asa Traseira KiteBack', nivel: 2, atributos: { aerodinamica: 30, confiabilidade: 82 } },
+        595: { id: 595, tipo: 'Asa Traseira', nome: 'Asa Traseira DeltaRear',nivel: 2, atributos: { aerodinamica: 31, confiabilidade: 80 } },
+
+        596: { id: 596, tipo: 'Asa Traseira', nome: 'Asa Traseira ApexIII',  nivel: 3, atributos: { aerodinamica: 31, confiabilidade: 85 } },
+        597: { id: 597, tipo: 'Asa Traseira', nome: 'Asa Traseira CarbonIII',nivel: 3, atributos: { aerodinamica: 32, confiabilidade: 83 } },
+        598: { id: 598, tipo: 'Asa Traseira', nome: 'Asa Traseira NovaTail', nivel: 3, atributos: { aerodinamica: 31, confiabilidade: 84 } },
+
+        599: { id: 599, tipo: 'Asa Traseira', nome: 'Asa Traseira StrikeIV', nivel: 4, atributos: { aerodinamica: 32, confiabilidade: 87 } },
+        600: { id: 600, tipo: 'Asa Traseira', nome: 'Asa Traseira OmegaRear',nivel: 4, atributos: { aerodinamica: 34, confiabilidade: 85 } },
+        601: { id: 601, tipo: 'Asa Traseira', nome: 'Asa Traseira TorqueIV', nivel: 4, atributos: { aerodinamica: 33, confiabilidade: 86 } },
+
+        602: { id: 602, tipo: 'Asa Traseira', nome: 'Asa Traseira PhantomV', nivel: 5, atributos: { aerodinamica: 34, confiabilidade: 88 } },
+        603: { id: 603, tipo: 'Asa Traseira', nome: 'Asa Traseira HyperTail',nivel: 5, atributos: { aerodinamica: 36, confiabilidade: 86 } },
+        604: { id: 604, tipo: 'Asa Traseira', nome: 'Asa Traseira VortexV',  nivel: 5, atributos: { aerodinamica: 35, confiabilidade: 87 } },
+
+        605: { id: 605, tipo: 'Asa Traseira', nome: 'Asa Traseira TitanVI',  nivel: 6, atributos: { aerodinamica: 36, confiabilidade: 91 } },
+        606: { id: 606, tipo: 'Asa Traseira', nome: 'Asa Traseira ZenithVI', nivel: 6, atributos: { aerodinamica: 38, confiabilidade: 89 } },
+        607: { id: 607, tipo: 'Asa Traseira', nome: 'Asa Traseira IronTail', nivel: 6, atributos: { aerodinamica: 37, confiabilidade: 90 } },
+
+        608: { id: 608, tipo: 'Asa Traseira', nome: 'Asa Traseira ShadowVII',nivel: 7, atributos: { aerodinamica: 36, confiabilidade: 91 } },
+        609: { id: 609, tipo: 'Asa Traseira', nome: 'Asa Traseira MaxRearVII',nivel: 7, atributos: { aerodinamica: 38, confiabilidade: 89 } },
+        610: { id: 610, tipo: 'Asa Traseira', nome: 'Asa Traseira NovaDRS',  nivel: 7, atributos: { aerodinamica: 37, confiabilidade: 90 } },
+
+        611: { id: 611, tipo: 'Asa Traseira', nome: 'Asa Traseira StealthVIII',nivel: 8, atributos: { aerodinamica: 37, confiabilidade: 90 } },
+        612: { id: 612, tipo: 'Asa Traseira', nome: 'Asa Traseira OctaTail', nivel: 8, atributos: { aerodinamica: 39, confiabilidade: 88 } },
+        613: { id: 613, tipo: 'Asa Traseira', nome: 'Asa Traseira PrimeDRS', nivel: 8, atributos: { aerodinamica: 38, confiabilidade: 89 } },
+
+        614: { id: 614, tipo: 'Asa Traseira', nome: 'Asa Traseira LegacyIX', nivel: 9, atributos: { aerodinamica: 38, confiabilidade: 88 } },
+        615: { id: 615, tipo: 'Asa Traseira', nome: 'Asa Traseira AbsoluteIX',nivel: 9, atributos: { aerodinamica: 40, confiabilidade: 86 } },
+        616: { id: 616, tipo: 'Asa Traseira', nome: 'Asa Traseira MaxDRS IX',nivel: 9, atributos: { aerodinamica: 39, confiabilidade: 87 } },
+
+        617: { id: 617, tipo: 'Asa Traseira', nome: 'Asa Traseira ApexLordX',nivel: 10, atributos: { aerodinamica: 43, confiabilidade: 90 } },
+        618: { id: 618, tipo: 'Asa Traseira', nome: 'Asa Traseira TitanDRS', nivel: 10, atributos: { aerodinamica: 44, confiabilidade: 88 } },
+        619: { id: 619, tipo: 'Asa Traseira', nome: 'Asa Traseira UltraRear',nivel: 10, atributos: { aerodinamica: 42, confiabilidade: 89 } },
+
+        // ── MOTOR — novas peças (3 por nível) ──
+        620: { id: 620, tipo: 'Motor', nome: 'Motor Ignis V1',       nivel: 1, atributos: { potencia: 40, confiabilidade: 76 } },
+        621: { id: 621, tipo: 'Motor', nome: 'Motor Zephyr-1',       nivel: 1, atributos: { potencia: 42, confiabilidade: 74 } },
+        622: { id: 622, tipo: 'Motor', nome: 'Motor ArcOne',         nivel: 1, atributos: { potencia: 41, confiabilidade: 75 } },
+
+        623: { id: 623, tipo: 'Motor', nome: 'Motor Ignis V2',       nivel: 2, atributos: { potencia: 50, confiabilidade: 80 } },
+        624: { id: 624, tipo: 'Motor', nome: 'Motor Zephyr-2',       nivel: 2, atributos: { potencia: 52, confiabilidade: 79 } },
+        625: { id: 625, tipo: 'Motor', nome: 'Motor Chronos II',     nivel: 2, atributos: { potencia: 51, confiabilidade: 81 } },
+
+        626: { id: 626, tipo: 'Motor', nome: 'Motor Ignis V3',       nivel: 3, atributos: { potencia: 55, confiabilidade: 82 } },
+        627: { id: 627, tipo: 'Motor', nome: 'Motor Zephyr-3',       nivel: 3, atributos: { potencia: 57, confiabilidade: 81 } },
+        628: { id: 628, tipo: 'Motor', nome: 'Motor Nexus III',      nivel: 3, atributos: { potencia: 56, confiabilidade: 83 } },
+
+        629: { id: 629, tipo: 'Motor', nome: 'Motor Ignis V4',       nivel: 4, atributos: { potencia: 60, confiabilidade: 85 } },
+        630: { id: 630, tipo: 'Motor', nome: 'Motor Zephyr-4',       nivel: 4, atributos: { potencia: 62, confiabilidade: 84 } },
+        631: { id: 631, tipo: 'Motor', nome: 'Motor Solaris IV',     nivel: 4, atributos: { potencia: 61, confiabilidade: 86 } },
+
+        632: { id: 632, tipo: 'Motor', nome: 'Motor Ignis V5',       nivel: 5, atributos: { potencia: 63, confiabilidade: 87 } },
+        633: { id: 633, tipo: 'Motor', nome: 'Motor Zephyr-5',       nivel: 5, atributos: { potencia: 64, confiabilidade: 86 } },
+        634: { id: 634, tipo: 'Motor', nome: 'Motor Kronos V',       nivel: 5, atributos: { potencia: 62, confiabilidade: 88 } },
+
+        635: { id: 635, tipo: 'Motor', nome: 'Motor Ignis V6',       nivel: 6, atributos: { potencia: 68, confiabilidade: 86 } },
+        636: { id: 636, tipo: 'Motor', nome: 'Motor Zephyr-6',       nivel: 6, atributos: { potencia: 72, confiabilidade: 85 } },
+        637: { id: 637, tipo: 'Motor', nome: 'Motor Aether VI',      nivel: 6, atributos: { potencia: 70, confiabilidade: 87 } },
+
+        638: { id: 638, tipo: 'Motor', nome: 'Motor Ignis V7',       nivel: 7, atributos: { potencia: 73, confiabilidade: 89 } },
+        639: { id: 639, tipo: 'Motor', nome: 'Motor Zephyr-7',       nivel: 7, atributos: { potencia: 74, confiabilidade: 88 } },
+        640: { id: 640, tipo: 'Motor', nome: 'Motor Pulsar VII',     nivel: 7, atributos: { potencia: 72, confiabilidade: 90 } },
+
+        641: { id: 641, tipo: 'Motor', nome: 'Motor Ignis V8',       nivel: 8, atributos: { potencia: 77, confiabilidade: 92 } },
+        642: { id: 642, tipo: 'Motor', nome: 'Motor Zephyr-8',       nivel: 8, atributos: { potencia: 79, confiabilidade: 91 } },
+        643: { id: 643, tipo: 'Motor', nome: 'Motor Vertex VIII',    nivel: 8, atributos: { potencia: 78, confiabilidade: 93 } },
+
+        644: { id: 644, tipo: 'Motor', nome: 'Motor Ignis V9',       nivel: 9, atributos: { potencia: 82, confiabilidade: 95 } },
+        645: { id: 645, tipo: 'Motor', nome: 'Motor Zephyr-9',       nivel: 9, atributos: { potencia: 84, confiabilidade: 94 } },
+        646: { id: 646, tipo: 'Motor', nome: 'Motor Solstice IX',    nivel: 9, atributos: { potencia: 83, confiabilidade: 96 } },
+
+        647: { id: 647, tipo: 'Motor', nome: 'Motor Ignis V10',      nivel: 10, atributos: { potencia: 90, confiabilidade: 97 } },
+        648: { id: 648, tipo: 'Motor', nome: 'Motor Zephyr-10',      nivel: 10, atributos: { potencia: 91, confiabilidade: 96 } },
+        649: { id: 649, tipo: 'Motor', nome: 'Motor Apex Eternum',   nivel: 10, atributos: { potencia: 89, confiabilidade: 98 } },
     };
     const especialistasDisponiveis = [ { id: 1, nome: "Adrian Newey Jr.", tipo: "Aerodinamicista", nivel: 5, salario: 15000 }, { id: 2, nome: "Paddy Lowe", tipo: "Projetista", nivel: 5, salario: 11900 }, { id: 3, nome: "Luca Marmorini", tipo: "Engenheiro de Motor", nivel: 5, salario: 12000 }, { id: 4, nome: "Helmut Marko Jr.", tipo: "Olheiro", nivel: 5, salario: 11650 }, { id: 5, nome: "Jo Bauer", tipo: "Treinador de Pilotos", nivel: 5, salario: 11750 } ];
     const CUSTO_BASE_PROJETO = 50000;
@@ -4488,7 +4693,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('escuderia-nome').textContent = gameState.escuderia.nome;
         document.querySelectorAll('.escuderia-dinheiro-display').forEach(el => { el.textContent = gameState.escuderia.dinheiro.toLocaleString('pt-BR'); });
-        document.getElementById('input-nome-escuderia').value = gameState.escuderia.nome;
         document.querySelectorAll('.campeonato-ano-display').forEach(el => el.textContent = gameState.campeonato.ano);
         const proximaPista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
         if (proximaPista) {
@@ -4500,16 +4704,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCentroPD();
         const emblemaEscuderiaContainer = document.getElementById('emblema-display-escuderia');
         renderizarEmblema(emblemaEscuderiaContainer, gameState.escuderia.emblema);
-        const btnSalvarNome = document.getElementById('btn-salvar-nome');
-        if (btnSalvarNome) {
-            if (gameState.escuderia.emblema.primeiroNomeSalvo) {
-                btnSalvarNome.textContent = `Salvar Nome (R$ ${CUSTO_MUDAR_NOME.toLocaleString('pt-BR')})`;
-                btnSalvarNome.disabled = gameState.escuderia.dinheiro < CUSTO_MUDAR_NOME;
-            } else {
-                btnSalvarNome.textContent = 'Salvar Nome (Grátis)';
-                btnSalvarNome.disabled = false;
-            }
-        }
     }
 
     function renderPatrocinadores() {
@@ -4650,6 +4844,18 @@ document.addEventListener('DOMContentLoaded', () => {
         seletorFormasContainer.innerHTML = listaDeFormas.map(nomeArquivo => `<div class="seletor-item" data-tipo="forma" data-valor="${nomeArquivo}"><img src="img/emblemas/formas/${nomeArquivo}" alt="${nomeArquivo}"></div>`).join('');
         seletorIconesContainer.innerHTML = listaDeIcones.map(nomeArquivo => `<div class="seletor-item" data-tipo="icone" data-valor="${nomeArquivo}"><img src="img/emblemas/icones/${nomeArquivo}" alt="${nomeArquivo}"></div>`).join('');
         atualizarPreviewEmblema();
+        const inputNome = document.getElementById('input-nome-escuderia');
+        if (inputNome) inputNome.value = gameState.escuderia.nome;
+        const btnSalvarNome = document.getElementById('btn-salvar-nome');
+        if (btnSalvarNome) {
+            if (gameState.escuderia.emblema.primeiroNomeSalvo) {
+                btnSalvarNome.textContent = `Salvar Nome (R$ ${CUSTO_MUDAR_NOME.toLocaleString('pt-BR')})`;
+                btnSalvarNome.disabled = gameState.escuderia.dinheiro < CUSTO_MUDAR_NOME;
+            } else {
+                btnSalvarNome.textContent = 'Salvar Nome (Grátis)';
+                btnSalvarNome.disabled = false;
+            }
+        }
         const btnSalvarIdentidade = document.getElementById('btn-salvar-identidade');
         if (btnSalvarIdentidade) {
             if (gameState.escuderia.emblema.primeiroEmblemaSalvo) {
