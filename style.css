@@ -4766,3 +4766,44 @@ font-size: 0.8em;
 .controle-nome-equipe .btn-salvaNome:hover {
     background-color: #006f94;
 }
+
+/* ── Nome da Equipe no topo da aba Identidade ── */
+.controle-nome-equipe-topo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.controle-nome-equipe-topo label {
+    font-weight: 700;
+    white-space: nowrap;
+    color: #1a1a2e;
+    font-size: 0.95rem;
+}
+.controle-nome-equipe-topo input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+.controle-nome-equipe-topo .btn-salvaNome {
+    background-color: #e10600;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+.controle-nome-equipe-topo .btn-salvaNome:hover {
+    background-color: #b80500;
+}
