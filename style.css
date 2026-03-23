@@ -4780,7 +4780,7 @@ font-size: 0.8em;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 .controle-nome-equipe-topo label {
-    font-weight: 700;
+    font-weight: 300;
     white-space: nowrap;
     color: #1a1a2e;
     font-size: 0.95rem;
