@@ -1625,7 +1625,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const multiplicadorBase = 1 + (projeto.nivelEspecialista * 0.03) + (novaPeca.nivel * 0.1);
             const fatorAleatorio = 1 + (Math.random() * 0.2 - 0.1);
             const novoValor = Math.round(novaPeca.atributos[attr] * multiplicadorBase * fatorAleatorio);
-            novaPeca.atributos[attr] = Math.min(novoValor, Math.round(pecaTemplate.atributos[attr] * 1.1));
+            novaPeca.atributos[attr] = Math.min(100, Math.min(novoValor, Math.round(pecaTemplate.atributos[attr] * 1.1)));
         }
         novaPeca.corridasUsadas = 0;
         novaPeca.atributosOriginais = JSON.parse(JSON.stringify(novaPeca.atributos));
@@ -1741,7 +1741,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pecasDoNivel.length === 0) continue;
             const pecaTemplate = JSON.parse(JSON.stringify(pecasDoNivel[Math.floor(Math.random() * pecasDoNivel.length)]));
             for (const attr in pecaTemplate.atributos) {
-                pecaTemplate.atributos[attr] = Math.round(pecaTemplate.atributos[attr] * (1 + (Math.random() * 0.1 - 0.05)));
+                pecaTemplate.atributos[attr] = Math.min(100, Math.round(pecaTemplate.atributos[attr] * (1 + (Math.random() * 0.1 - 0.05))));
             }
             const vendedor = equipesIA[Math.floor(Math.random() * equipesIA.length)].nome;
             gameState.mercadoDePecas.push({ ...pecaTemplate, instanceId: Date.now() + i, vendedor, preco: calcularPrecoPeca(pecaTemplate) });
