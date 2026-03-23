@@ -4747,7 +4747,7 @@ font-size: 0.8em;
     color: #333;
 }
 .controle-nome-equipe input {
-    flex: 1;
+    width: 300px;
     padding: 0.45rem 0.6rem;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -4780,13 +4780,13 @@ font-size: 0.8em;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 .controle-nome-equipe-topo label {
-    font-weight: 300;
+    font-weight: 700;
     white-space: nowrap;
     color: #1a1a2e;
     font-size: 0.95rem;
 }
 .controle-nome-equipe-topo input {
-    flex: 1;
+    width: 300px;
     padding: 0.5rem 0.75rem;
     border: 1px solid #ccc;
     border-radius: 6px;
