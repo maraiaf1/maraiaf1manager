@@ -4699,6 +4699,19 @@ font-size: 0.8em;
     min-height: 140px;
 }
 
+.mkt-chart-corrida-wrap {
+    margin-top: 1rem;
+    height: 220px;
+    min-height: unset;
+}
+
+.mkt-chart-corrida-wrap .mkt-chart-wrap {
+    min-height: 180px;
+}
+.mkt-chart-corrida-wrap .mkt-chart-titulo {
+    margin-bottom: 0.5rem;
+}
+
 /* Overrides compatíveis com tabelas antigas */
 .mkt-total-cell { color: #e10600; }
 .mkt-row-bloqueado td { color: #aaa; font-style: italic; }

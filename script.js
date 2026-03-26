@@ -723,6 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
             notificacoes: { pilotos: false, marketing: false, instalacoes: false },
             historicoMarketing: {},
             historicoAnualMarketing: [],
+            historicoVendasPorCorrida: [],
             mercadoDePecas: [],
             carros: [
                 { id: 1, pilotoId: piloto1Jogador ? piloto1Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 26, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } },
@@ -797,6 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!gameState.torcedores) gameState.torcedores = 4000;
                 if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
                 if (!gameState.historicoAnualMarketing) gameState.historicoAnualMarketing = [];
+                if (!gameState.historicoVendasPorCorrida) gameState.historicoVendasPorCorrida = [];
                 if (!gameState.galeria) {
                     gameState.galeria = { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {}, estatisticasTodosPilotos: {} };
                 } else {
@@ -944,51 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (gameState.instalacoes[k] > 5) gameState.instalacoes[k] = 5;
                 });
 
-                // ── PATCH v1: crédito retroativo pelo rebalanceamento de preços ──────
-                // Roda uma única vez. Calcula a diferença entre o que foi pago (preços
-                // antigos) e os novos preços, e devolve o excesso ao jogador.
-                if (!gameState._pricePatch1) {
-                    const custosAntigos = {
-                        simulador:        [0, 500000, 1000000,  5000000, 15000000, 50000000],
-                        tunelDeVento:     [0, 500000, 2500000,  5000000, 15000000, 50000000],
-                        treinoDeBox:      [0, 500000, 2500000,  5000000, 15000000, 30000000],
-                        marketing:        [0, 500000, 2500000, 10000000, 25000000, 50000000],
-                        ers:              [0,       0, 7500000, 10000000, 25000000, 50000000],
-                        centroMotores:    [0, 500000, 2500000, 10000000, 25000000, 50000000],
-                        centroSuspensoes: [0, 500000, 2500000, 10000000, 25000000, 50000000],
-                    };
-                    const custosNovos = {
-                        simulador:        [0, 300000,  800000,  2500000,  7000000, 18000000],
-                        tunelDeVento:     [0, 300000, 1200000,  3000000,  8000000, 20000000],
-                        treinoDeBox:      [0, 300000, 1200000,  3000000,  8000000, 15000000],
-                        marketing:        [0, 300000, 1200000,  4000000, 10000000, 20000000],
-                        ers:              [0,       0, 3000000,  6000000, 12000000, 20000000],
-                        centroMotores:    [0, 300000, 1200000,  4000000, 10000000, 20000000],
-                        centroSuspensoes: [0, 300000, 1200000,  4000000, 10000000, 20000000],
-                    };
-                    let credito = 0;
-                    for (const id in custosAntigos) {
-                        const nivelAtual = gameState.instalacoes[id] ?? 0;
-                        for (let n = 1; n <= nivelAtual; n++) {
-                            const diferenca = (custosAntigos[id][n] || 0) - (custosNovos[id][n] || 0);
-                            if (diferenca > 0) credito += diferenca;
-                        }
-                    }
-                    if (credito > 0) {
-                        gameState.escuderia.dinheiro += credito;
-                        console.log(`[Patch v1] Crédito retroativo de instalações: R$ ${credito.toLocaleString('pt-BR')}`);
-                        setTimeout(() => alert(
-                            `💰 Rebalanceamento de Instalações!\n\n` +
-                            `Os preços das instalações foram reduzidos.\n` +
-                            `Como você já investiu nos preços antigos, recebeu um crédito de:\n\n` +
-                            `R$ ${credito.toLocaleString('pt-BR')}\n\n` +
-                            `O valor já foi adicionado ao seu saldo.`
-                        ), 1500);
-                    }
-                    gameState._pricePatch1 = true;
-                    // Salva imediatamente para não rodar duas vezes
-                }
-                // ── FIM DO PATCH v1 ───────────────────────────────────────────────
+
 
 
                 for (const key in gameState.marketing) {
@@ -3642,6 +3600,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.historicoAnualMarketing.push({ ano: anoEncerrado, itens: snapItens });
         }
         gameState.historicoMarketing = {};
+        gameState.historicoVendasPorCorrida = [];
     }
 
     function processarPagamentoDeSalarios() {
@@ -3973,6 +3932,13 @@ document.addEventListener('DOMContentLoaded', () => {
             relatorioVendas += `\nTorcedores da equipe: ${gameState.torcedores.toLocaleString('pt-BR')}\nReceita Total: R$ ${receitaTotal.toLocaleString('pt-BR')}`;
             setTimeout(() => alert(relatorioVendas), 2500);
         }
+
+        // Registra receita desta corrida no histórico por corrida (mesmo que seja 0)
+        if (!gameState.historicoVendasPorCorrida) gameState.historicoVendasPorCorrida = [];
+        gameState.historicoVendasPorCorrida.push({
+            corrida: gameState.campeonato.corridaAtualIndex,
+            receita: receitaTotal
+        });
     }
 
     function processarEvolucaoPilotos() {
@@ -4872,6 +4838,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let _mktChartPizza = null;
     let _mktChartBarras = null;
     let _mktChartHistorico = null;
+    let _mktChartVendasCorrida = null;
 
     function renderMarketingExtrato() {
         const container = document.getElementById('mkt-dashboard-container');
@@ -4914,7 +4881,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const itensComVenda   = dados.filter(d => d.receita > 0);
-        const rankReceita     = [...itensComVenda].sort((a, b) => b.receita - a.unidades);
+        const rankReceita     = [...itensComVenda].sort((a, b) => b.receita - a.receita);
         const rankVolume      = [...itensComVenda].sort((a, b) => b.unidades - a.unidades);
         const ticketMedioGeral = corridasJogadas > 0 ? Math.floor(totalReceita / corridasJogadas) : 0;
 
@@ -4925,8 +4892,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const campeaoReceita = rankReceita[0];
             const campeaoVolume  = rankVolume[0];
-            if (campeaoReceita) insights.push({ ico: '💰', txt: `<strong>${campeaoReceita.nome}</strong> lidera em receita — ${(campeaoReceita.receita / totalReceita * 100).toFixed(0)}% do faturamento total.` });
-            if (campeaoVolume && campeaoVolume.nome !== campeaoReceita?.nome) insights.push({ ico: '📦', txt: `<strong>${campeaoVolume.nome}</strong> é o mais popular em volume (${campeaoVolume.unidades.toLocaleString('pt-BR')} un.), mas representa apenas ${(campeaoVolume.receita / totalReceita * 100).toFixed(0)}% da receita.` });
+            if (campeaoReceita && campeaoVolume && campeaoReceita.nome === campeaoVolume.nome) {
+                insights.push({ ico: '💰', txt: `<strong>${campeaoReceita.nome}</strong> lidera em receita E em volume de vendas — ${(campeaoReceita.receita / totalReceita * 100).toFixed(0)}% do faturamento total.` });
+            } else {
+                if (campeaoReceita) insights.push({ ico: '💰', txt: `<strong>${campeaoReceita.nome}</strong> lidera em receita — ${(campeaoReceita.receita / totalReceita * 100).toFixed(0)}% do faturamento total.` });
+                if (campeaoVolume) insights.push({ ico: '📦', txt: `<strong>${campeaoVolume.nome}</strong> é o mais popular em volume (${campeaoVolume.unidades.toLocaleString('pt-BR')} un.), mas representa apenas ${(campeaoVolume.receita / totalReceita * 100).toFixed(0)}% da receita.` });
+            }
             const semVenda = dados.filter(d => d.desbloqueado && d.receita === 0);
             if (semVenda.length > 0) insights.push({ ico: '⚠️', txt: `<strong>${semVenda.map(d => d.nome).join(', ')}</strong> não gerou vendas — considere revisar o preço ou produzir mais estoque.` });
             const altaMargemItem = dados.find(d => d.receita > 0 && (d.receita / totalReceita) > 0.4 && d.unidades < 100);
@@ -4936,6 +4907,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Histórico anual (para o gráfico de linha)
         const histAnual = gameState.historicoAnualMarketing || [];
+
+        // Histórico de receita por corrida da temporada atual
+        const histVendasCorrida = gameState.historicoVendasPorCorrida || [];
 
         // ── Monta o HTML do dashboard ──────────────────────────────
         container.innerHTML = `
@@ -4982,6 +4956,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mkt-chart-wrap"><canvas id="mkt-chart-barras"></canvas></div>
             </div>
         </div>
+
+        <!-- GRÁFICO RECEITA POR CORRIDA -->
+        ${histVendasCorrida.length > 1 ? `
+        <div class="mkt-chart-card mkt-chart-corrida-wrap">
+            <div class="mkt-chart-titulo">📈 Receita por Corrida — Temporada ${ano}</div>
+            <div class="mkt-chart-wrap"><canvas id="mkt-chart-vendas-corrida"></canvas></div>
+        </div>` : ''}
 
         <!-- RANKINGS DUPLOS -->
         <div class="mkt-dash-rankings">
@@ -5090,14 +5071,16 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         `;
 
+        // ── Destrói instâncias anteriores dos charts (sempre, antes do return) ──
+        if (_mktChartPizza)         { _mktChartPizza.destroy();         _mktChartPizza         = null; }
+        if (_mktChartBarras)        { _mktChartBarras.destroy();        _mktChartBarras        = null; }
+        if (_mktChartHistorico)     { _mktChartHistorico.destroy();     _mktChartHistorico     = null; }
+        if (_mktChartVendasCorrida) { _mktChartVendasCorrida.destroy(); _mktChartVendasCorrida = null; }
+
         // ── Renderiza os charts após o DOM estar pronto ──────────────
         if (totalReceita === 0) return;
 
         setTimeout(() => {
-            // Destrói instâncias anteriores
-            if (_mktChartPizza)    { _mktChartPizza.destroy();    _mktChartPizza    = null; }
-            if (_mktChartBarras)   { _mktChartBarras.destroy();   _mktChartBarras   = null; }
-            if (_mktChartHistorico){ _mktChartHistorico.destroy(); _mktChartHistorico = null; }
 
             // Pizza — receita por produto
             const ctxP = document.getElementById('mkt-chart-pizza');
@@ -5161,6 +5144,42 @@ document.addEventListener('DOMContentLoaded', () => {
                         scales: {
                             x: { ticks: { color: '#aaa' }, grid: { color: '#1a1a2e' } },
                             y: { ticks: { color: '#aaa', callback: v => 'R$ ' + v.toLocaleString('pt-BR') }, grid: { color: '#1a1a2e' } }
+                        }
+                    }
+                });
+            }
+
+            // Linha — receita por corrida da temporada atual (só se tiver 2+ corridas)
+            const ctxVC = document.getElementById('mkt-chart-vendas-corrida');
+            if (ctxVC && histVendasCorrida.length > 1) {
+                _mktChartVendasCorrida = new Chart(ctxVC.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: histVendasCorrida.map(d => `Corrida ${d.corrida}`),
+                        datasets: [{
+                            label: 'Receita',
+                            data: histVendasCorrida.map(d => d.receita),
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52,152,219,0.12)',
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#3498db',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: c => ` R$ ${c.parsed.y.toLocaleString('pt-BR')}` } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#aaa', maxTicksLimit: 12 }, grid: { color: '#1a1a2e' } },
+                            y: {
+                                ticks: { color: '#aaa', callback: v => 'R$ ' + v.toLocaleString('pt-BR') },
+                                grid: { color: '#1a1a2e' },
+                                beginAtZero: true
+                            }
                         }
                     }
                 });
