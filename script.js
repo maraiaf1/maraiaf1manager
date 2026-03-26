@@ -4130,19 +4130,43 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!especialista || !duracaoEl) return;
         const duracao = parseInt(duracaoEl.value);
         let custoEstimado = (especialista.nivel * duracao * CUSTO_BASE_PROJETO) * 0.45;
-        if (duracao === 10) {
-            custoEstimado *= 0.90;
-        }
+        if (duracao === 10) custoEstimado *= 0.90;
+
         const infoDescontoEl = document.getElementById('project-discount-info');
-        infoDescontoEl.innerHTML = '';
+        const linhasDesconto = [];
         const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
+
+        // Túnel de Vento (peças aero)
         const nivelTunel = gameState.instalacoes.tunelDeVento;
         if (pecasAero.includes(tipoPeca) && nivelTunel > 0) {
             const desconto = calcularDescontoTunel();
-            const percentualReducao = Math.round(desconto * 100);
             custoEstimado *= (1.0 - desconto);
-            infoDescontoEl.innerHTML = `<p style="color: #28a745; font-size: 0.9em; font-weight: bold;">Desconto do Túnel de Vento (Nvl ${nivelTunel}): -${percentualReducao}%</p>`;
+            linhasDesconto.push(`💨 Túnel de Vento (Nvl ${nivelTunel}): -${Math.round(desconto * 100)}%`);
         }
+
+        // Centro de Chassi
+        const nivelChassis = gameState.instalacoes.centroChassis || 0;
+        if (tipoPeca === 'Chassi' && nivelChassis > 0) {
+            const desconto = calcularDescontoChassis();
+            custoEstimado *= (1.0 - desconto);
+            const bonusAtrib = Math.round(calcularBonusAtributosChassis() * 100);
+            const reducaoTempo = nivelChassis >= 3 ? `${nivelChassis >= 5 ? '3–4' : nivelChassis >= 4 ? '2–3' : '1–2'} corridas a menos` : '0–1 corrida a menos';
+            linhasDesconto.push(`🏗️ Centro de Chassi (Nvl ${nivelChassis}): -${Math.round(desconto * 100)}% custo | ${reducaoTempo} | +${bonusAtrib}% atributos`);
+        }
+
+        // Centro de Suspensões
+        const nivelSuspensoes = gameState.instalacoes.centroSuspensoes || 0;
+        if (tipoPeca === 'Suspensão' && nivelSuspensoes > 0) {
+            const desconto = calcularDescontoSuspensoes();
+            custoEstimado *= (1.0 - desconto);
+            const reducaoTempo = nivelSuspensoes >= 3 ? `${nivelSuspensoes >= 5 ? '3–4' : nivelSuspensoes >= 4 ? '2–3' : '1–2'} corridas a menos` : '0–1 corrida a menos';
+            linhasDesconto.push(`⚙️ Centro de Suspensões (Nvl ${nivelSuspensoes}): -${Math.round(desconto * 100)}% custo | ${reducaoTempo}`);
+        }
+
+        infoDescontoEl.innerHTML = linhasDesconto.length > 0
+            ? linhasDesconto.map(l => `<p style="color:#28a745;font-size:0.9em;font-weight:bold;">${l}</p>`).join('')
+            : '';
+
         document.getElementById('project-cost').textContent = custoEstimado.toLocaleString('pt-BR');
         document.getElementById('project-quality').textContent = duracao >= 10 ? 'Excepcional' : duracao >= 5 ? 'Excelente' : duracao >= 3 ? 'Boa' : 'Regular';
     }
