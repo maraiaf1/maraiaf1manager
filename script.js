@@ -571,14 +571,26 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         centroSuspensoes: {
             nome: "Centro de Desenvolvimento de Suspensões", icone: "⚙️",
-            descricao: "Suspensões equilibradas fazem o carro performar melhor em qualquer circuito. Reduz custo e desgaste.",
+            descricao: "Suspensões equilibradas fazem o carro performar melhor em qualquer circuito. Reduz custo e tempo de produção.",
             niveis: [
                 { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
-                { custo: 300000,   titulo: "Básico",          descricao: "Suspensões mais resistentes + 5% de desconto na compra." },
-                { custo: 1200000,  titulo: "Intermediário",   descricao: "Mais resistentes + força extra + 10% de desconto." },
-                { custo: 4000000,  titulo: "Avançado",        descricao: "Alta durabilidade + 15% de desconto na compra." },
-                { custo: 10000000, titulo: "Elite",           descricao: "Suspensões de elite + 20% de desconto." },
-                { custo: 20000000, titulo: "Estado da Arte",  descricao: "Máxima resistência + 25% de desconto. Manuseio perfeito!" }
+                { custo: 300000,   titulo: "Básico",          descricao: "5% de desconto em projetos de Suspensão. Reduz 0–1 corrida no preparo." },
+                { custo: 1200000,  titulo: "Intermediário",   descricao: "10% de desconto. Reduz 0–1 corrida no preparo de Suspensão." },
+                { custo: 4000000,  titulo: "Avançado",        descricao: "15% de desconto. Reduz 1–2 corridas no preparo." },
+                { custo: 10000000, titulo: "Elite",           descricao: "20% de desconto. Reduz 2–3 corridas no preparo." },
+                { custo: 20000000, titulo: "Estado da Arte",  descricao: "25% de desconto. Reduz 3–4 corridas no preparo. Manuseio perfeito!" }
+            ]
+        },
+        centroChassis: {
+            nome: "Centro de Desenvolvimento de Chassi", icone: "🏗️",
+            descricao: "O chassi é a espinha dorsal do carro. Um centro dedicado reduz custo, tempo de produção e melhora a qualidade estrutural das peças.",
+            niveis: [
+                { custo: 0,        titulo: "Não construído",  descricao: "Nenhum bônus ativo." },
+                { custo: 300000,   titulo: "Básico",          descricao: "5% de desconto em projetos de Chassi. Reduz 0–1 corrida no preparo. +3% nos atributos do chassi gerado." },
+                { custo: 1200000,  titulo: "Intermediário",   descricao: "8% de desconto. Reduz 0–1 corrida no preparo. +5% nos atributos." },
+                { custo: 4000000,  titulo: "Avançado",        descricao: "12% de desconto. Reduz 1–2 corridas no preparo. +7% nos atributos." },
+                { custo: 10000000, titulo: "Elite",           descricao: "15% de desconto. Reduz 2–3 corridas no preparo. +10% nos atributos." },
+                { custo: 20000000, titulo: "Estado da Arte",  descricao: "20% de desconto. Reduz 3–4 corridas no preparo. +13% nos atributos. Chassi de nível de construtora!" }
             ]
         }
     };
@@ -697,7 +709,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 marketing: 0,
                 ers: 1,
                 centroMotores: 0,
-                centroSuspensoes: 0
+                centroSuspensoes: 0,
+                centroChassis: 0
             },
             marketing: {
                 'Chaveiro': { desbloqueado: true, inventario: 0, preco_venda_definido: 5, lote_referencia: 0, posicaoIcone: { top: 25, left: 25 }, tamanhoIcone: { width: 50, height: 50 } },
@@ -941,6 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Novas instalações — compatibilidade com saves antigos
                 if (gameState.instalacoes.centroMotores === undefined) gameState.instalacoes.centroMotores = 0;
                 if (gameState.instalacoes.centroSuspensoes === undefined) gameState.instalacoes.centroSuspensoes = 0;
+                if (gameState.instalacoes.centroChassis === undefined) gameState.instalacoes.centroChassis = 0;
                 // Limita ao novo máximo (5) para saves que tinham 3 níveis
                 ['simulador','tunelDeVento','treinoDeBox','marketing'].forEach(k => {
                     if (gameState.instalacoes[k] > 5) gameState.instalacoes[k] = 5;
@@ -1704,6 +1718,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const reducaoCusto = 1.0 - calcularDescontoTunel();
             custoTotal *= reducaoCusto;
         }
+        if (tipoPeca === 'Chassi') {
+            custoTotal *= (1.0 - calcularDescontoChassis());
+        }
+        if (tipoPeca === 'Suspensão') {
+            custoTotal *= (1.0 - calcularDescontoSuspensoes());
+        }
         if (duracao === 10) { custoTotal *= 0.90; }
         if (gameState.escuderia.dinheiro < custoTotal) { alert(`Dinheiro insuficiente! Custo do projeto: R$ ${custoTotal.toLocaleString('pt-BR')}`); return; }
         gameState.escuderia.dinheiro -= custoTotal;
@@ -1714,6 +1734,12 @@ document.addEventListener('DOMContentLoaded', () => {
             reducaoTempo = calcularReducaoTunelTempo();
         } else if (tipoPeca === 'Motor') {
             reducaoTempo = calcularReducaoMotoresTempo();
+        }
+        if (tipoPeca === 'Chassi') {
+            reducaoTempo += calcularReducaoChassisTempo();
+        }
+        if (tipoPeca === 'Suspensão') {
+            reducaoTempo += calcularReducaoSuspensoesTempo();
         }
         const duracaoFinal = Math.max(1, duracao - reducaoTempo);
 
@@ -1786,8 +1812,9 @@ document.addEventListener('DOMContentLoaded', () => {
         novaPeca.instanceId = projeto.id;
         for (const attr in novaPeca.atributos) {
             const multiplicadorBase = 1 + (projeto.nivelEspecialista * 0.03) + (novaPeca.nivel * 0.1);
+            const bonusChassis = projeto.tipoPeca === 'Chassi' ? calcularBonusAtributosChassis() : 0;
             const fatorAleatorio = 1 + (Math.random() * 0.2 - 0.1);
-            const novoValor = Math.round(novaPeca.atributos[attr] * multiplicadorBase * fatorAleatorio);
+            const novoValor = Math.round(novaPeca.atributos[attr] * multiplicadorBase * (1 + bonusChassis) * fatorAleatorio);
             novaPeca.atributos[attr] = Math.min(100, Math.min(novoValor, Math.round(pecaTemplate.atributos[attr] * 1.1)));
         }
         novaPeca.corridasUsadas = 0;
@@ -2077,6 +2104,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const reducaoCusto = 1.0 - calcularDescontoTunel();
                     custoPeca *= reducaoCusto;
                 }
+                // Aplica desconto adicional do Centro de Chassi
+                if (tipoPeca === 'Chassi') {
+                    custoPeca *= (1.0 - calcularDescontoChassis());
+                }
+                // Aplica desconto do Centro de Suspensões
+                if (tipoPeca === 'Suspensão') {
+                    custoPeca *= (1.0 - calcularDescontoSuspensoes());
+                }
                 if (duracao === 10) {
                      custoPeca *= 0.90;
                 }
@@ -2136,6 +2171,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let reducaoInstalacao = 0;
                 if (pecasAero.includes(tipoPeca)) reducaoInstalacao = calcularReducaoTunelTempo();
                 else if (tipoPeca === 'Motor') reducaoInstalacao = calcularReducaoMotoresTempo();
+                if (tipoPeca === 'Chassi')    reducaoInstalacao += calcularReducaoChassisTempo();
+                if (tipoPeca === 'Suspensão') reducaoInstalacao += calcularReducaoSuspensoesTempo();
                 const duracaoFinal = Math.max(1, duracao - reducaoDado - reducaoInstalacao);
                 gameState.projetosEmAndamento.push({
                     id: Date.now() + Math.random(),
@@ -2452,6 +2489,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const ranges = [[0,0],[0,2],[1,2],[1,3],[2,3],[3,5]];
         const [min, max] = ranges[Math.min(nivel, 5)];
         return min + Math.floor(Math.random() * (max - min + 1));
+    }
+
+    function calcularReducaoChassisTempo() {
+        const nivel = gameState.instalacoes.centroChassis;
+        if (nivel <= 0) return 0;
+        const ranges = [[0,0],[0,1],[0,1],[1,2],[2,3],[3,4]];
+        const [min, max] = ranges[Math.min(nivel, 5)];
+        return min + Math.floor(Math.random() * (max - min + 1));
+    }
+
+    function calcularDescontoChassis() {
+        const nivel = gameState.instalacoes.centroChassis;
+        const descontos = [0, 0.05, 0.08, 0.12, 0.15, 0.20];
+        return descontos[Math.min(nivel, 5)];
+    }
+
+    function calcularBonusAtributosChassis() {
+        const nivel = gameState.instalacoes.centroChassis;
+        const bonus = [0, 0.03, 0.05, 0.07, 0.10, 0.13];
+        return bonus[Math.min(nivel, 5)];
+    }
+
+    function calcularReducaoSuspensoesTempo() {
+        const nivel = gameState.instalacoes.centroSuspensoes;
+        if (nivel <= 0) return 0;
+        const ranges = [[0,0],[0,1],[0,1],[1,2],[2,3],[3,4]];
+        const [min, max] = ranges[Math.min(nivel, 5)];
+        return min + Math.floor(Math.random() * (max - min + 1));
+    }
+
+    function calcularDescontoSuspensoes() {
+        const nivel = gameState.instalacoes.centroSuspensoes;
+        const descontos = [0, 0.05, 0.10, 0.15, 0.20, 0.25];
+        return descontos[Math.min(nivel, 5)];
     }
 
     function calcularDescontoTunel() {
