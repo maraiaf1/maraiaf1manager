@@ -472,17 +472,19 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const equipesIA = [
-        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 90 } },
-        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 93, aerodinamica: 95, aderencia: 89, confiabilidade: 88 } },
-        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 94, aerodinamica: 92, aderencia: 92, confiabilidade: 85 } },
-        { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 90, aerodinamica: 88, aderencia: 90, confiabilidade: 87 } },
-        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 89, aerodinamica: 90, aderencia: 92, confiabilidade: 86 } },
-        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 90, aerodinamica: 87, aderencia: 86, confiabilidade: 82 } },
-        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 84, aderencia: 85, confiabilidade: 80 } },
-        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 84, aerodinamica: 88, aderencia: 87, confiabilidade: 82 } },
-        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 87, aerodinamica: 89, aderencia: 88, confiabilidade: 83 } },
-        { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 95, aerodinamica: 94, aderencia: 94, confiabilidade: 89 } },
-        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 88, aerodinamica: 86, aderencia: 87, confiabilidade: 84 } },
+        // Spread rebalanceado: Top → ~88-92 | Meio → ~78-86 | Campo → ~68-77
+        // Cada equipe tem uma característica dominante para dar personalidade ao grid.
+        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 90, aerodinamica: 88, aderencia: 88, confiabilidade: 86 } }, // equilibrado/potência
+        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 87, aerodinamica: 92, aderencia: 85, confiabilidade: 84 } }, // aerodinâmica dominante
+        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 91, aerodinamica: 87, aderencia: 89, confiabilidade: 80 } }, // potência alta, conf. frágil
+        { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 84, aerodinamica: 82, aderencia: 86, confiabilidade: 85 } }, // aderência e confiabilidade sólidas
+        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 82, aerodinamica: 85, aderencia: 87, confiabilidade: 83 } }, // aderência forte
+        { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 92, aerodinamica: 91, aderencia: 90, confiabilidade: 82 } }, // o mais rápido, conf. média
+        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 80, aerodinamica: 79, aderencia: 78, confiabilidade: 79 } }, // midfield equilibrado
+        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 73, aerodinamica: 72, aderencia: 74, confiabilidade: 76 } }, // campo de trás
+        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 71, aerodinamica: 75, aderencia: 73, confiabilidade: 74 } }, // aero ligeiramente melhor
+        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 76, aerodinamica: 78, aderencia: 77, confiabilidade: 78 } }, // melhor que Haas/RB
+        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 78, aerodinamica: 76, aderencia: 79, confiabilidade: 80 } }, // estreante sólida
     ];
 
     const catalogoMensagens = {
@@ -625,28 +627,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------ 2. ESTADO DO JOGO ------------
 
     function resetGameState() {
-        // Restaura os IDs de pilotos e os atributos de carro originais das equipes de IA,
-        // garantindo que um novo jogo comece sempre com o grid padrão.
+        // Restaura IDs de pilotos E atributos de carro originais das equipes IA,
+        // garantindo que um novo jogo comece sempre com o grid padrão rebalanceado.
         const defaultEquipesIA = {
-            "Red Bull":        { p1: 1,   p2: 17,  carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 90 } },
-            "Mercedes":        { p1: 5,   p2: 6,   carro: { potencia: 93, aerodinamica: 95, aderencia: 89, confiabilidade: 88 } },
-            "Ferrari":         { p1: 3,   p2: 4,   carro: { potencia: 94, aerodinamica: 92, aderencia: 92, confiabilidade: 85 } },
-            "Audi":            { p1: 9,   p2: 10,  carro: { potencia: 90, aerodinamica: 88, aderencia: 90, confiabilidade: 87 } },
-            "Aston Martin":    { p1: 11,  p2: 12,  carro: { potencia: 89, aerodinamica: 90, aderencia: 92, confiabilidade: 86 } },
-            "Alpine":          { p1: 13,  p2: 14,  carro: { potencia: 90, aerodinamica: 87, aderencia: 86, confiabilidade: 82 } },
-            "Haas":            { p1: 15,  p2: 16,  carro: { potencia: 85, aerodinamica: 84, aderencia: 85, confiabilidade: 80 } },
-            "RB":              { p1: 18,  p2: 21,  carro: { potencia: 84, aerodinamica: 88, aderencia: 87, confiabilidade: 82 } },
-            "Wilians":         { p1: 7,   p2: 8,   carro: { potencia: 87, aerodinamica: 89, aderencia: 88, confiabilidade: 83 } },
-            "MacLaren":        { p1: 19,  p2: 20,  carro: { potencia: 95, aerodinamica: 94, aderencia: 94, confiabilidade: 89 } },
-            "Cadillac Racing": { p1: 128, p2: 129, carro: { potencia: 88, aerodinamica: 86, aderencia: 87, confiabilidade: 84 } }
+            "Red Bull":        { p1: 1,   p2: 17,  carro: { potencia: 90, aerodinamica: 88, aderencia: 88, confiabilidade: 86 } },
+            "Mercedes":        { p1: 5,   p2: 6,   carro: { potencia: 87, aerodinamica: 92, aderencia: 85, confiabilidade: 84 } },
+            "Ferrari":         { p1: 3,   p2: 4,   carro: { potencia: 91, aerodinamica: 87, aderencia: 89, confiabilidade: 80 } },
+            "Audi":            { p1: 9,   p2: 10,  carro: { potencia: 84, aerodinamica: 82, aderencia: 86, confiabilidade: 85 } },
+            "Aston Martin":    { p1: 11,  p2: 12,  carro: { potencia: 82, aerodinamica: 85, aderencia: 87, confiabilidade: 83 } },
+            "MacLaren":        { p1: 19,  p2: 20,  carro: { potencia: 92, aerodinamica: 91, aderencia: 90, confiabilidade: 82 } },
+            "Alpine":          { p1: 13,  p2: 14,  carro: { potencia: 80, aerodinamica: 79, aderencia: 78, confiabilidade: 79 } },
+            "Haas":            { p1: 15,  p2: 16,  carro: { potencia: 73, aerodinamica: 72, aderencia: 74, confiabilidade: 76 } },
+            "RB":              { p1: 18,  p2: 21,  carro: { potencia: 71, aerodinamica: 75, aderencia: 73, confiabilidade: 74 } },
+            "Wilians":         { p1: 7,   p2: 8,   carro: { potencia: 76, aerodinamica: 78, aderencia: 77, confiabilidade: 78 } },
+            "Cadillac Racing": { p1: 128, p2: 129, carro: { potencia: 78, aerodinamica: 76, aderencia: 79, confiabilidade: 80 } }
         };
         equipesIA.forEach(equipe => {
             const def = defaultEquipesIA[equipe.nome];
             if (def) {
                 equipe.piloto1Id = def.p1;
                 equipe.piloto2Id = def.p2;
-                // Reset dos atributos do carro para os valores de fábrica,
-                // evitando que evoluções de temporadas anteriores contaminem um novo jogo.
                 equipe.carro = { ...def.carro };
             }
         });
@@ -1354,42 +1354,58 @@ document.addEventListener('DOMContentLoaded', () => {
         const classificacaoFinal = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
         const relatorio = [];
 
+        // Teto de evolução por atributo (confiabilidade evolui separado, mais lentamente)
+        const TETO_PERF = 95;
+        const TETO_CONF = 92;
+
+        // Limiar de "equipe de ponta" e chance de temporada problemática
+        // Calibrado para os novos valores base (Top 3 inicia em ~88–92)
+        const LIMIAR_PROBLEMA  = 88;  // média dos 3 atributos de perf. que dispara o risco
+        const CHANCE_PROBLEMA  = 0.08; // 8% de chance (era 5%, ligeiramente mais dramático)
+        const PENALIDADE_PERF  = 0.04; // -4% (era -5%)
+        const PISO_PERF        = 70;   // nunca cai abaixo de 70
+
         equipesIA.forEach(equipe => {
             const posicao = classificacaoFinal.findIndex(e => e.equipe === equipe.nome) + 1;
-            const mediaAtual = (equipe.carro.potencia + equipe.carro.aerodinamica + equipe.carro.aderencia) / 3;
+            const mediaPerf = (equipe.carro.potencia + equipe.carro.aerodinamica + equipe.carro.aderencia) / 3;
 
-            // ── DADO DA SORTE — só equipes de ponta (média ≥ 93) ────────────
-            // 5% de chance de sofrer temporada problemática (-5% em cada atributo)
-            const LIMIAR_PROBLEMA  = 93;
-            const CHANCE_PROBLEMA  = 0.05;
-            const PENALIDADE       = 0.05;
-
-            if (mediaAtual >= LIMIAR_PROBLEMA && Math.random() < CHANCE_PROBLEMA) {
-                equipe.carro.potencia     = Math.max(80, Math.round(equipe.carro.potencia     * (1 - PENALIDADE)));
-                equipe.carro.aerodinamica = Math.max(80, Math.round(equipe.carro.aerodinamica * (1 - PENALIDADE)));
-                equipe.carro.aderencia    = Math.max(80, Math.round(equipe.carro.aderencia    * (1 - PENALIDADE)));
-                relatorio.push(`⚠️ ${equipe.nome}: temporada problemática! Carro regrediu (-5% nos atributos).`);
+            // ── TEMPORADA PROBLEMÁTICA ──────────────────────────────────────────
+            // Equipes de ponta têm chance de regredir (orçamento mal investido,
+            // acidente de desenvolvimento, escândalo técnico, etc.)
+            if (mediaPerf >= LIMIAR_PROBLEMA && Math.random() < CHANCE_PROBLEMA) {
+                equipe.carro.potencia     = Math.max(PISO_PERF, Math.round(equipe.carro.potencia     * (1 - PENALIDADE_PERF)));
+                equipe.carro.aerodinamica = Math.max(PISO_PERF, Math.round(equipe.carro.aerodinamica * (1 - PENALIDADE_PERF)));
+                equipe.carro.aderencia    = Math.max(PISO_PERF, Math.round(equipe.carro.aderencia    * (1 - PENALIDADE_PERF)));
+                relatorio.push(`⚠️ ${equipe.nome}: temporada problemática! Carro regrediu (-4% nos atributos).`);
                 return; // não evolui este ciclo
             }
 
-            // ── EVOLUÇÃO NORMAL ──────────────────────────────────────────────
+            // ── EVOLUÇÃO NORMAL ──────────────────────────────────────────────────
             // Quem está atrás melhora mais (convergência orgânica).
-            // Quem está na frente já está perto do teto — cresce menos.
+            // Teto menor para equipes já na zona de ponta — crescimento mais lento.
+            //
+            // posicao === 0 significa que a equipe não pontuou na temporada
+            // (não aparece em classificacaoFinal) — tratada como último lugar.
             let fatorMelhoria;
-            if (posicao === 1)     fatorMelhoria = 0.6;
-            else if (posicao <= 3) fatorMelhoria = 0.9;
-            else if (posicao <= 6) fatorMelhoria = 1.2;
-            else if (posicao <= 9) fatorMelhoria = 1.5;
-            else                   fatorMelhoria = 1.8;
+            const pos = posicao > 0 ? posicao : 12;
+            if      (pos === 1) fatorMelhoria = 0.4;  // líder evolui pouco
+            else if (pos <= 3)  fatorMelhoria = 0.65;
+            else if (pos <= 6)  fatorMelhoria = 0.90;
+            else if (pos <= 9)  fatorMelhoria = 1.10;
+            else                fatorMelhoria = 1.30; // último → melhoria mais real, mas sem disparar
 
-            // Zona 91–92: pelotão da frente, imune ao problema mas cresce mais devagar
-            if (mediaAtual >= 91 && mediaAtual < LIMIAR_PROBLEMA) {
-                fatorMelhoria *= 0.75;
+            // Diminishing returns na zona alta — acima de 88 de média cresce 50% mais devagar
+            if (mediaPerf >= LIMIAR_PROBLEMA) {
+                fatorMelhoria *= 0.50;
+            } else if (mediaPerf >= 83) {
+                fatorMelhoria *= 0.75; // zona intermediária: um freio suave
             }
 
-            equipe.carro.potencia     = Math.min(97, equipe.carro.potencia     + (Math.random() * fatorMelhoria));
-            equipe.carro.aerodinamica = Math.min(97, equipe.carro.aerodinamica + (Math.random() * fatorMelhoria));
-            equipe.carro.aderencia    = Math.min(97, equipe.carro.aderencia    + (Math.random() * fatorMelhoria));
+            equipe.carro.potencia     = Math.min(TETO_PERF, equipe.carro.potencia     + (Math.random() * fatorMelhoria));
+            equipe.carro.aerodinamica = Math.min(TETO_PERF, equipe.carro.aerodinamica + (Math.random() * fatorMelhoria));
+            equipe.carro.aderencia    = Math.min(TETO_PERF, equipe.carro.aderencia    + (Math.random() * fatorMelhoria));
+            // Confiabilidade evolui mais devagar e tem teto menor
+            equipe.carro.confiabilidade = Math.min(TETO_CONF, equipe.carro.confiabilidade + (Math.random() * fatorMelhoria * 0.5));
         });
 
         let msg = "🔧 As equipes adversárias trabalharam em seus carros para a nova temporada!";
@@ -1787,19 +1803,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function criarPecaDeProjeto(projeto) {
+        // ── Tabela de probabilidades por duração ─────────────────────────────
+        // Duração 1  corrida : peças nível 1–6 (aprendizado básico)
+        // Duração 3  corridas: 10% nível 10 | 25% nível 9 | 65% nível 7–8
+        // Duração 5  corridas: 30% nível 10 | 35% nível 9 | 35% nível 7–8
+        // Duração 10 corridas: 60% nível 10 | 30% nível 9 | 10% nível 8
         let nivelSorteado;
         const chance = Math.random();
-        if (projeto.duracaoOriginal === 1) {
-            nivelSorteado = chance < 0.50 ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 7) + 4;
+
+        if (projeto.duracaoOriginal <= 2) {
+            // 1–2 corridas: peças de baixo nível, úteis para aprendizado e venda
+            nivelSorteado = chance < 0.35 ? Math.floor(Math.random() * 3) + 1  // 35% → níveis 1–3
+                          : chance < 0.75 ? Math.floor(Math.random() * 2) + 4  // 40% → níveis 4–5
+                          :                 Math.floor(Math.random() * 2) + 6; // 25% → níveis 6–7
+
         } else if (projeto.duracaoOriginal === 3) {
-            nivelSorteado = chance < 0.70 ? 7 : Math.floor(Math.random() * 5) + 6;
-        } else if (projeto.duracaoOriginal === 5) {
-            nivelSorteado = chance < 0.80 ? Math.floor(Math.random() * 4) + 7 : 9;
-        } else if (projeto.duracaoOriginal === 10) {
-            nivelSorteado = chance < 0.99 ? Math.floor(Math.random() * 2) + 9 : 10;
+            // 3 corridas: 10% nível 10 | 25% nível 9 | 35% nível 8 | 30% nível 7
+            nivelSorteado = chance < 0.10 ? 10
+                          : chance < 0.35 ? 9
+                          : chance < 0.70 ? 8
+                          :                 7;
+
+        } else if (projeto.duracaoOriginal <= 6) {
+            // 5–6 corridas: 30% nível 10 | 35% nível 9 | 25% nível 8 | 10% nível 7
+            nivelSorteado = chance < 0.30 ? 10
+                          : chance < 0.65 ? 9
+                          : chance < 0.90 ? 8
+                          :                 7;
+
         } else {
-            nivelSorteado = 1;
+            // 10 corridas: 60% nível 10 | 30% nível 9 | 10% nível 8
+            nivelSorteado = chance < 0.60 ? 10
+                          : chance < 0.90 ? 9
+                          :                 8;
         }
+
         const pecasCompativeis = Object.values(catalogoDePecas).filter(p => p.tipo === projeto.tipoPeca && p.nivel === nivelSorteado);
         let pecaTemplate;
         if (pecasCompativeis.length > 0) {
@@ -6806,37 +6844,33 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // ── 2. Ranking das equipes IA por performance real do carro ──────
-        // SEMPRE ordena pelos atributos do carro — nunca pela posição no
-        // campeonato, pois equipes rápidas podem ter poucos pontos por azar.
-        // Fonte única: equipesIA[i].carro (valores fixos de fábrica).
-        //
-        // Proteção de save legado: se os valores foram inflados a 100 por saves
-        // de temporadas anteriores, usa os valores de fábrica como fallback.
+        // SEMPRE ordena pelos atributos reais de fábrica — nunca pela posição
+        // no campeonato. Proteção anti-inflate: se o save legado tiver valores
+        // acima do teto de fábrica + 5, usa o valor base como referência.
         const CARRO_BASE = {
-            "Red Bull":        { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 90 },
-            "Mercedes":        { potencia: 93, aerodinamica: 95, aderencia: 89, confiabilidade: 88 },
-            "Ferrari":         { potencia: 94, aerodinamica: 92, aderencia: 92, confiabilidade: 85 },
-            "Audi":            { potencia: 90, aerodinamica: 88, aderencia: 90, confiabilidade: 87 },
-            "Aston Martin":    { potencia: 89, aerodinamica: 90, aderencia: 92, confiabilidade: 86 },
-            "Alpine":          { potencia: 90, aerodinamica: 87, aderencia: 86, confiabilidade: 82 },
-            "Haas":            { potencia: 85, aerodinamica: 84, aderencia: 85, confiabilidade: 80 },
-            "RB":              { potencia: 84, aerodinamica: 88, aderencia: 87, confiabilidade: 82 },
-            "Wilians":         { potencia: 87, aerodinamica: 89, aderencia: 88, confiabilidade: 83 },
-            "MacLaren":        { potencia: 95, aerodinamica: 94, aderencia: 94, confiabilidade: 89 },
-            "Cadillac Racing": { potencia: 88, aerodinamica: 86, aderencia: 87, confiabilidade: 84 }
+            "Red Bull":        { potencia: 90, aerodinamica: 88, aderencia: 88, confiabilidade: 86 },
+            "Mercedes":        { potencia: 87, aerodinamica: 92, aderencia: 85, confiabilidade: 84 },
+            "Ferrari":         { potencia: 91, aerodinamica: 87, aderencia: 89, confiabilidade: 80 },
+            "Audi":            { potencia: 84, aerodinamica: 82, aderencia: 86, confiabilidade: 85 },
+            "Aston Martin":    { potencia: 82, aerodinamica: 85, aderencia: 87, confiabilidade: 83 },
+            "MacLaren":        { potencia: 92, aerodinamica: 91, aderencia: 90, confiabilidade: 82 },
+            "Alpine":          { potencia: 80, aerodinamica: 79, aderencia: 78, confiabilidade: 79 },
+            "Haas":            { potencia: 73, aerodinamica: 72, aderencia: 74, confiabilidade: 76 },
+            "RB":              { potencia: 71, aerodinamica: 75, aderencia: 73, confiabilidade: 74 },
+            "Wilians":         { potencia: 76, aerodinamica: 78, aderencia: 77, confiabilidade: 78 },
+            "Cadillac Racing": { potencia: 78, aerodinamica: 76, aderencia: 79, confiabilidade: 80 }
         };
 
         function carroEfetivo(equipe) {
             const c = equipe.carro;
             const base = CARRO_BASE[equipe.nome];
-            // Se o carro evoluiu além do teto novo (97), ou está em 100 (save legado),
-            // usa o valor mais baixo entre o atual e o base para garantir consistência.
             if (!base) return { ...c };
+            // Clamp: não deixa o valor evoluído ultrapassar base + 5 pts para o benchmark
             return {
-                potencia:       Math.min(c.potencia,       base.potencia       + 3),
-                aerodinamica:   Math.min(c.aerodinamica,   base.aerodinamica   + 3),
-                aderencia:      Math.min(c.aderencia,      base.aderencia      + 3),
-                confiabilidade: Math.min(c.confiabilidade, base.confiabilidade + 3)
+                potencia:       Math.min(c.potencia,       base.potencia       + 5),
+                aerodinamica:   Math.min(c.aerodinamica,   base.aerodinamica   + 5),
+                aderencia:      Math.min(c.aderencia,      base.aderencia      + 5),
+                confiabilidade: Math.min(c.confiabilidade, base.confiabilidade + 5)
             };
         }
 
@@ -6847,12 +6881,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const IAordenada = [...equipesIA].sort((a, b) => avgCarro(b) - avgCarro(a));
 
-        // Top 3 = 3 carros mais rápidos da grade (por atributos)
-        // Campo  = 3 carros mais lentos da grade (por atributos)
+        // Top 3 = 3 carros mais rápidos da grade | Campo = 3 mais lentos
         const top3Times  = IAordenada.slice(0, 3);
         const campoTimes = IAordenada.slice(-3);
 
-        // Calcula média de um grupo de equipes IA
+        // Calcula média usando carroEfetivo (protegido contra inflate)
         function mediaIA(times) {
             const soma = { potencia: 0, aerodinamica: 0, aderencia: 0, confiabilidade: 0 };
             times.forEach(t => {
