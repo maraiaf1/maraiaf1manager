@@ -6772,74 +6772,57 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('telem-benchmark-atributos');
         if (!container) return;
 
-        const playerNome = gameState.escuderia.nome;
+        // ── 1. Atributos do carro do jogador via peças reais ─────────────
+        // Filtra apenas carros com piloto E com motor equipado (potencia > 0)
+        const carrosValidos = gameState.carros.filter(c => {
+            if (!c.pilotoId) return false;
+            const a = calcularAtributosCarro(c);
+            return a.potencia > 0;
+        });
 
-        // ── 1. Atributos reais do carro do jogador ────────────────────────
-        // Usa calcularAtributosCarro nas peças equipadas (não conta carro vazio)
-        const minhaEquipe = (() => {
-            const carrosEquipados = gameState.carros.filter(c => {
-                if (!c.pilotoId) return false;
-                // valida que tem ao menos um motor equipado (potencia > 0)
-                const a = calcularAtributosCarro(c);
-                return a.potencia > 0;
-            });
-            if (!carrosEquipados.length) return null;
-            const soma = { potencia: 0, aerodinamica: 0, aderencia: 0, confiabilidade: 0 };
-            carrosEquipados.forEach(c => {
-                const a = calcularAtributosCarro(c);
-                soma.potencia      += a.potencia;
-                soma.aerodinamica  += a.aerodinamica;
-                soma.aderencia     += a.aderencia;
-                soma.confiabilidade+= a.confiabilidade;
-            });
-            const n = carrosEquipados.length;
-            return {
-                potencia:       +(soma.potencia / n).toFixed(1),
-                aerodinamica:   +(soma.aerodinamica / n).toFixed(1),
-                aderencia:      +(soma.aderencia / n).toFixed(1),
-                confiabilidade: +(soma.confiabilidade / n).toFixed(1)
-            };
-        })();
-
-        if (!minhaEquipe) {
+        if (!carrosValidos.length) {
             container.innerHTML = '<p class="bench-sem-dados">Equipe o carro com ao menos um motor para ativar esta análise.</p>';
             return;
         }
 
-        // ── 2. Ranking das equipes IA — SEMPRE usa equipesIA.carro ───────
-        // O jogador é EXCLUÍDO do ranking de IA para comparação limpa.
-        // Primeiro tenta ordenar pelo campeonato, fallback por performance média.
-        const sortedClass = [...gameState.campeonato.classificacaoConstrutores]
-            .sort((a, b) => b.pontos - a.pontos)
-            .filter(e => e.equipe !== playerNome);
+        const somaJogador = { potencia: 0, aerodinamica: 0, aderencia: 0, confiabilidade: 0 };
+        carrosValidos.forEach(c => {
+            const a = calcularAtributosCarro(c);
+            somaJogador.potencia      += a.potencia;
+            somaJogador.aerodinamica  += a.aerodinamica;
+            somaJogador.aderencia     += a.aderencia;
+            somaJogador.confiabilidade += a.confiabilidade;
+        });
+        const nCarros = carrosValidos.length;
+        const minhaEquipe = {
+            potencia:       +(somaJogador.potencia / nCarros).toFixed(1),
+            aerodinamica:   +(somaJogador.aerodinamica / nCarros).toFixed(1),
+            aderencia:      +(somaJogador.aderencia / nCarros).toFixed(1),
+            confiabilidade: +(somaJogador.confiabilidade / nCarros).toFixed(1)
+        };
 
-        // Mapeia posições do campeonato → dados reais da equipesIA
-        const IAranking = sortedClass
-            .map(entry => equipesIA.find(e => e.nome === entry.equipe))
-            .filter(Boolean);
+        // ── 2. Ranking das equipes IA por performance real do carro ──────
+        // SEMPRE ordena pelos atributos do carro — nunca pela posição no
+        // campeonato, pois equipes rápidas podem ter poucos pontos por azar.
+        // Fonte única: equipesIA[i].carro (valores fixos de fábrica).
+        const avgCarro = t =>
+            (t.carro.potencia + t.carro.aerodinamica + t.carro.aderencia + t.carro.confiabilidade) / 4;
 
-        // Se ainda não temos dados suficientes de campeonato (início de temporada),
-        // usa todas as equipes IA ordenadas por performance média dos atributos
-        const IAordenada = IAranking.length >= 6
-            ? IAranking
-            : [...equipesIA].sort((a, b) => {
-                const avgA = (a.carro.potencia + a.carro.aerodinamica + a.carro.aderencia + a.carro.confiabilidade) / 4;
-                const avgB = (b.carro.potencia + b.carro.aerodinamica + b.carro.aderencia + b.carro.confiabilidade) / 4;
-                return avgB - avgA;
-            });
+        const IAordenada = [...equipesIA].sort((a, b) => avgCarro(b) - avgCarro(a));
 
-        // ── 3. Grupos para comparação ──────────────────────────────────────
-        const top3Times   = IAordenada.slice(0, 3);   // escalão superior
-        const campoTimes  = IAordenada.slice(-3);      // campo de trás
+        // Top 3 = 3 carros mais rápidos da grade (por atributos)
+        // Campo  = 3 carros mais lentos da grade (por atributos)
+        const top3Times  = IAordenada.slice(0, 3);
+        const campoTimes = IAordenada.slice(-3);
 
+        // Calcula média de um grupo de equipes IA
         function mediaIA(times) {
-            if (!times.length) return null;
             const soma = { potencia: 0, aerodinamica: 0, aderencia: 0, confiabilidade: 0 };
             times.forEach(t => {
                 soma.potencia      += t.carro.potencia;
                 soma.aerodinamica  += t.carro.aerodinamica;
                 soma.aderencia     += t.carro.aderencia;
-                soma.confiabilidade+= t.carro.confiabilidade;
+                soma.confiabilidade += t.carro.confiabilidade;
             });
             const n = times.length;
             return {
@@ -6853,12 +6836,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const mediaTop3  = mediaIA(top3Times);
         const mediaCampo = mediaIA(campoTimes);
 
-        // ── 4. Atributos e recomendação ───────────────────────────────────
+        // ── 3. Identifica o maior gap para a recomendação ─────────────────
         const attrDefs = [
             { key: 'potencia',       label: '⚡ Potência',         peca: 'motor de maior nível' },
             { key: 'aerodinamica',   label: '💨 Aerodinâmica',     peca: 'asas e chassi de nível superior' },
             { key: 'aderencia',      label: '🔄 Aderência',        peca: 'suspensão e chassi' },
-            { key: 'confiabilidade', label: '🛡️ Confiabilidade',  peca: 'peças com alta confiabilidade (nível 8+)' },
+            { key: 'confiabilidade', label: '🛡️ Confiabilidade',  peca: 'peças de alta confiabilidade (nível 8+)' },
         ];
 
         let maiorGap = -Infinity;
@@ -6868,26 +6851,28 @@ document.addEventListener('DOMContentLoaded', () => {
             if (gap > maiorGap) { maiorGap = gap; attrFracoObj = def; }
         });
 
-        // ── 5. Narrador: especialista contratado ──────────────────────────
+        // ── 4. Narrador ───────────────────────────────────────────────────
         const esp      = (gameState.escuderia.especialistas || []).find(Boolean);
         const nomeEsp  = esp ? esp.nome : 'Equipe Técnica';
         const cargoEsp = esp ? esp.tipo : 'Análise Estratégica';
         const teamStr  = top3Times.map(t => t.nome).join(', ');
+        const campoStr = campoTimes.map(t => t.nome).join(', ');
 
-        // ── 6. Render de linha de barra ───────────────────────────────────
+        // ── 5. Render de cada linha de atributo ───────────────────────────
+        // A escala das barras é ABSOLUTA (0–100), igual ao sistema de atributos
+        // do jogo. Nunca normaliza de forma relativa — evita mostrar "100"
+        // quando o valor real é 94.
         function renderRow(def) {
             const minha   = minhaEquipe[def.key];
             const top3Val = mediaTop3[def.key];
-            const botVal  = mediaCampo ? mediaCampo[def.key] : null;
+            const botVal  = mediaCampo[def.key];
             const gap     = +(top3Val - minha).toFixed(1);
 
-            // Cor do gap: vermelho urgente, laranja atenção, verde ok
             const gapCor   = gap > 10 ? '#ff5555' : gap > 3 ? '#ffaa33' : '#44d88e';
             const gapSinal = gap > 0 ? `−${gap}` : `+${Math.abs(gap)}`;
 
-            // Normaliza barras em relação ao maior valor real (sem piso de 100)
-            const refMax = Math.max(top3Val, minha, botVal ?? 0, 1);
-            const pct = v => `${Math.min(100, (v / refMax) * 100).toFixed(1)}%`;
+            // Barra proporcional em escala absoluta 0–100
+            const pct = v => `${Math.min(100, Math.max(0, v)).toFixed(1)}%`;
 
             return `
             <div class="bench-row">
@@ -6895,34 +6880,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="bench-bars-col">
                     <div class="bench-bar-line">
                         <span class="bench-bar-tag bench-tag-top3">Top 3</span>
-                        <div class="bench-track"><div class="bench-fill bench-fill-top3" style="width:${pct(top3Val)}"></div></div>
+                        <div class="bench-track">
+                            <div class="bench-fill bench-fill-top3" style="width:${pct(top3Val)}"></div>
+                        </div>
                         <span class="bench-num">${top3Val}</span>
                     </div>
                     <div class="bench-bar-line">
                         <span class="bench-bar-tag bench-tag-minha">Minha</span>
-                        <div class="bench-track"><div class="bench-fill bench-fill-minha" style="width:${pct(minha)}"></div></div>
+                        <div class="bench-track">
+                            <div class="bench-fill bench-fill-minha" style="width:${pct(minha)}"></div>
+                        </div>
                         <span class="bench-num" style="color:${gapCor}">${minha}</span>
                     </div>
-                    ${botVal !== null ? `
                     <div class="bench-bar-line">
                         <span class="bench-bar-tag bench-tag-bot">Campo</span>
-                        <div class="bench-track"><div class="bench-fill bench-fill-bot" style="width:${pct(botVal)}"></div></div>
+                        <div class="bench-track">
+                            <div class="bench-fill bench-fill-bot" style="width:${pct(botVal)}"></div>
+                        </div>
                         <span class="bench-num bench-num-bot">${botVal}</span>
-                    </div>` : ''}
+                    </div>
                 </div>
                 <div class="bench-delta" style="color:${gapCor}" title="Gap vs. Top 3">${gapSinal}</div>
             </div>`;
         }
 
-        const origemLabel = IAranking.length >= 6
-            ? 'classificação do campeonato vigente'
-            : 'performance técnica das equipes (dados de pré-temporada)';
-
         container.innerHTML = `
         <div class="bench-specialist-card">
             <div class="bench-esp-avatar">🧑‍🔬</div>
             <div class="bench-esp-corpo">
-                <div class="bench-esp-nome">${nomeEsp} <span class="bench-esp-cargo">— ${cargoEsp}</span></div>
+                <div class="bench-esp-nome">${nomeEsp}
+                    <span class="bench-esp-cargo">— ${cargoEsp}</span>
+                </div>
                 <p class="bench-esp-texto">
                     Análise comparativa com as equipes de topo:
                     <strong style="color:#f0c040">${teamStr}</strong>.<br>
@@ -6938,9 +6926,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <div class="bench-legend-row">
-            <span class="bench-pill bench-pill-top3">🏆 Média Top 3 Construtores IA</span>
+            <span class="bench-pill bench-pill-top3">🏆 Top 3 por performance: ${teamStr}</span>
             <span class="bench-pill bench-pill-minha">🏎️ Minha Equipe</span>
-            ${mediaCampo ? '<span class="bench-pill bench-pill-bot">🐢 Média do Campo</span>' : ''}
+            <span class="bench-pill bench-pill-bot">🐢 Campo: ${campoStr}</span>
         </div>
 
         <div class="bench-grid">
@@ -6948,9 +6936,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <p class="bench-rodape">
-            * Referência baseada na ${origemLabel}.
-            Valores das equipes IA são atributos compostos de fábrica;
-            "Minha Equipe" reflete os atributos reais das peças atualmente equipadas.
+            * Grupos definidos pelos atributos reais de fábrica de cada carro IA —
+            independente da posição no campeonato. Escala absoluta 0–100.
+            "Minha Equipe" usa os valores reais das peças atualmente equipadas.
         </p>`;
     }
 
