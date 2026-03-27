@@ -4820,3 +4820,178 @@ font-size: 0.8em;
 .controle-nome-equipe-topo .btn-salvaNome:hover {
     background-color: #b80500;
 }
+/* ══════════════════════════════════════════════════════════════
+   BENCHMARK DE ATRIBUTOS — Telemetria Premium
+   ══════════════════════════════════════════════════════════════ */
+
+/* Card do especialista narrador */
+.bench-specialist-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background: linear-gradient(135deg, #0d1b2e 0%, #111125 100%);
+    border: 1px solid #1e2e4a;
+    border-left: 4px solid #f0c040;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.4rem;
+}
+.bench-esp-avatar {
+    font-size: 2.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+}
+.bench-esp-corpo {
+    flex: 1;
+}
+.bench-esp-nome {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f0c040;
+    margin-bottom: 0.35rem;
+}
+.bench-esp-cargo {
+    font-weight: 400;
+    color: #888;
+    font-size: 0.82rem;
+}
+.bench-esp-texto {
+    color: #bbb;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* Legenda de pills */
+.bench-legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+}
+.bench-pill {
+    display: inline-block;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+.bench-pill-top3  { background: rgba(240,192,64,0.15);  color: #f0c040; border: 1px solid rgba(240,192,64,0.3); }
+.bench-pill-minha { background: rgba(225,6,0,0.15);     color: #ff6b6b; border: 1px solid rgba(225,6,0,0.3); }
+.bench-pill-bot   { background: rgba(100,100,120,0.2);  color: #8899aa; border: 1px solid rgba(100,120,140,0.3); }
+
+/* Grid de atributos */
+.bench-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* Linha de um atributo */
+.bench-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 54px;
+    align-items: center;
+    gap: 0.8rem;
+    background: #0a0a1a;
+    border: 1px solid #1a1a2e;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+}
+.bench-attr-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #ccc;
+    white-space: nowrap;
+}
+.bench-bars-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.42rem;
+}
+
+/* Linha de barra individual */
+.bench-bar-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.bench-bar-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    width: 38px;
+    text-align: right;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+}
+.bench-tag-top3  { color: #f0c040; }
+.bench-tag-minha { color: #e10600; }
+.bench-tag-bot   { color: #667788; }
+
+.bench-track {
+    flex: 1;
+    height: 8px;
+    background: #1a1a2e;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.bench-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+.bench-fill-top3  { background: linear-gradient(90deg, #a07800, #f0c040); }
+.bench-fill-minha { background: linear-gradient(90deg, #8b0000, #e10600); }
+.bench-fill-bot   { background: linear-gradient(90deg, #2a3040, #4a5870); }
+
+.bench-num {
+    font-size: 0.8rem;
+    font-weight: 700;
+    width: 32px;
+    text-align: right;
+    color: #ccc;
+    flex-shrink: 0;
+}
+.bench-num-bot { color: #667788; }
+
+/* Delta (coluna direita) */
+.bench-delta {
+    font-size: 1rem;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+
+/* Rodapé */
+.bench-rodape {
+    font-size: 0.74rem;
+    color: #444;
+    margin-top: 1.2rem;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Estado sem dados */
+.bench-sem-dados {
+    color: #555;
+    font-size: 0.88rem;
+    text-align: center;
+    padding: 2rem;
+    background: #0a0a1a;
+    border-radius: 8px;
+    border: 1px dashed #222;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .bench-row {
+        grid-template-columns: 110px 1fr 44px;
+        gap: 0.5rem;
+        padding: 0.7rem 0.75rem;
+    }
+    .bench-attr-label { font-size: 0.78rem; }
+    .bench-bar-tag { width: 30px; font-size: 0.62rem; }
+    .bench-delta { font-size: 0.88rem; }
+}
