@@ -625,25 +625,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------ 2. ESTADO DO JOGO ------------
 
     function resetGameState() {
-        // Restaura os IDs de pilotos originais das equipes de IA,
+        // Restaura os IDs de pilotos e os atributos de carro originais das equipes de IA,
         // garantindo que um novo jogo comece sempre com o grid padrão.
-        const defaultPilotIds = {
-            "Red Bull":        { p1: 1,   p2: 17 },
-            "Mercedes":        { p1: 5,   p2: 6  },
-            "Ferrari":         { p1: 3,   p2: 4  },
-            "Audi":            { p1: 9,   p2: 10 },
-            "Aston Martin":    { p1: 11,  p2: 12 },
-            "Alpine":          { p1: 13,  p2: 14 },
-            "Haas":            { p1: 15,  p2: 16 },
-            "RB":              { p1: 18,  p2: 21 },
-            "Wilians":         { p1: 7,   p2: 8  },
-            "MacLaren":        { p1: 19,  p2: 20 },
-            "Cadillac Racing": { p1: 128, p2: 129 }
+        const defaultEquipesIA = {
+            "Red Bull":        { p1: 1,   p2: 17,  carro: { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 90 } },
+            "Mercedes":        { p1: 5,   p2: 6,   carro: { potencia: 93, aerodinamica: 95, aderencia: 89, confiabilidade: 88 } },
+            "Ferrari":         { p1: 3,   p2: 4,   carro: { potencia: 94, aerodinamica: 92, aderencia: 92, confiabilidade: 85 } },
+            "Audi":            { p1: 9,   p2: 10,  carro: { potencia: 90, aerodinamica: 88, aderencia: 90, confiabilidade: 87 } },
+            "Aston Martin":    { p1: 11,  p2: 12,  carro: { potencia: 89, aerodinamica: 90, aderencia: 92, confiabilidade: 86 } },
+            "Alpine":          { p1: 13,  p2: 14,  carro: { potencia: 90, aerodinamica: 87, aderencia: 86, confiabilidade: 82 } },
+            "Haas":            { p1: 15,  p2: 16,  carro: { potencia: 85, aerodinamica: 84, aderencia: 85, confiabilidade: 80 } },
+            "RB":              { p1: 18,  p2: 21,  carro: { potencia: 84, aerodinamica: 88, aderencia: 87, confiabilidade: 82 } },
+            "Wilians":         { p1: 7,   p2: 8,   carro: { potencia: 87, aerodinamica: 89, aderencia: 88, confiabilidade: 83 } },
+            "MacLaren":        { p1: 19,  p2: 20,  carro: { potencia: 95, aerodinamica: 94, aderencia: 94, confiabilidade: 89 } },
+            "Cadillac Racing": { p1: 128, p2: 129, carro: { potencia: 88, aerodinamica: 86, aderencia: 87, confiabilidade: 84 } }
         };
         equipesIA.forEach(equipe => {
-            if (defaultPilotIds[equipe.nome]) {
-                equipe.piloto1Id = defaultPilotIds[equipe.nome].p1;
-                equipe.piloto2Id = defaultPilotIds[equipe.nome].p2;
+            const def = defaultEquipesIA[equipe.nome];
+            if (def) {
+                equipe.piloto1Id = def.p1;
+                equipe.piloto2Id = def.p2;
+                // Reset dos atributos do carro para os valores de fábrica,
+                // evitando que evoluções de temporadas anteriores contaminem um novo jogo.
+                equipe.carro = { ...def.carro };
             }
         });
 
@@ -1383,9 +1387,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 fatorMelhoria *= 0.75;
             }
 
-            equipe.carro.potencia     = Math.min(100, equipe.carro.potencia     + (Math.random() * fatorMelhoria));
-            equipe.carro.aerodinamica = Math.min(100, equipe.carro.aerodinamica + (Math.random() * fatorMelhoria));
-            equipe.carro.aderencia    = Math.min(100, equipe.carro.aderencia    + (Math.random() * fatorMelhoria));
+            equipe.carro.potencia     = Math.min(97, equipe.carro.potencia     + (Math.random() * fatorMelhoria));
+            equipe.carro.aerodinamica = Math.min(97, equipe.carro.aerodinamica + (Math.random() * fatorMelhoria));
+            equipe.carro.aderencia    = Math.min(97, equipe.carro.aderencia    + (Math.random() * fatorMelhoria));
         });
 
         let msg = "🔧 As equipes adversárias trabalharam em seus carros para a nova temporada!";
@@ -6805,8 +6809,41 @@ document.addEventListener('DOMContentLoaded', () => {
         // SEMPRE ordena pelos atributos do carro — nunca pela posição no
         // campeonato, pois equipes rápidas podem ter poucos pontos por azar.
         // Fonte única: equipesIA[i].carro (valores fixos de fábrica).
-        const avgCarro = t =>
-            (t.carro.potencia + t.carro.aerodinamica + t.carro.aderencia + t.carro.confiabilidade) / 4;
+        //
+        // Proteção de save legado: se os valores foram inflados a 100 por saves
+        // de temporadas anteriores, usa os valores de fábrica como fallback.
+        const CARRO_BASE = {
+            "Red Bull":        { potencia: 94, aerodinamica: 93, aderencia: 91, confiabilidade: 90 },
+            "Mercedes":        { potencia: 93, aerodinamica: 95, aderencia: 89, confiabilidade: 88 },
+            "Ferrari":         { potencia: 94, aerodinamica: 92, aderencia: 92, confiabilidade: 85 },
+            "Audi":            { potencia: 90, aerodinamica: 88, aderencia: 90, confiabilidade: 87 },
+            "Aston Martin":    { potencia: 89, aerodinamica: 90, aderencia: 92, confiabilidade: 86 },
+            "Alpine":          { potencia: 90, aerodinamica: 87, aderencia: 86, confiabilidade: 82 },
+            "Haas":            { potencia: 85, aerodinamica: 84, aderencia: 85, confiabilidade: 80 },
+            "RB":              { potencia: 84, aerodinamica: 88, aderencia: 87, confiabilidade: 82 },
+            "Wilians":         { potencia: 87, aerodinamica: 89, aderencia: 88, confiabilidade: 83 },
+            "MacLaren":        { potencia: 95, aerodinamica: 94, aderencia: 94, confiabilidade: 89 },
+            "Cadillac Racing": { potencia: 88, aerodinamica: 86, aderencia: 87, confiabilidade: 84 }
+        };
+
+        function carroEfetivo(equipe) {
+            const c = equipe.carro;
+            const base = CARRO_BASE[equipe.nome];
+            // Se o carro evoluiu além do teto novo (97), ou está em 100 (save legado),
+            // usa o valor mais baixo entre o atual e o base para garantir consistência.
+            if (!base) return { ...c };
+            return {
+                potencia:       Math.min(c.potencia,       base.potencia       + 3),
+                aerodinamica:   Math.min(c.aerodinamica,   base.aerodinamica   + 3),
+                aderencia:      Math.min(c.aderencia,      base.aderencia      + 3),
+                confiabilidade: Math.min(c.confiabilidade, base.confiabilidade + 3)
+            };
+        }
+
+        const avgCarro = t => {
+            const c = carroEfetivo(t);
+            return (c.potencia + c.aerodinamica + c.aderencia + c.confiabilidade) / 4;
+        };
 
         const IAordenada = [...equipesIA].sort((a, b) => avgCarro(b) - avgCarro(a));
 
@@ -6819,10 +6856,11 @@ document.addEventListener('DOMContentLoaded', () => {
         function mediaIA(times) {
             const soma = { potencia: 0, aerodinamica: 0, aderencia: 0, confiabilidade: 0 };
             times.forEach(t => {
-                soma.potencia      += t.carro.potencia;
-                soma.aerodinamica  += t.carro.aerodinamica;
-                soma.aderencia     += t.carro.aderencia;
-                soma.confiabilidade += t.carro.confiabilidade;
+                const c = carroEfetivo(t);
+                soma.potencia      += c.potencia;
+                soma.aerodinamica  += c.aerodinamica;
+                soma.aderencia     += c.aderencia;
+                soma.confiabilidade += c.confiabilidade;
             });
             const n = times.length;
             return {
