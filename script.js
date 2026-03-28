@@ -56,44 +56,44 @@ document.addEventListener('DOMContentLoaded', () => {
         355: { id: 355, tipo: 'Motor', nome: 'Motor HyperDrive 7', nivel: 7, atributos: { potencia: 74, confiabilidade: 89 } },
         356: { id: 356, tipo: 'Motor', nome: 'Motor NitroBoost V7', nivel: 7, atributos: { potencia: 71, confiabilidade: 90 } },
         357: { id: 357, tipo: 'Motor', nome: 'Motor TurboCore 7', nivel: 7, atributos: { potencia: 70, confiabilidade: 90 } },
-        358: { id: 358, tipo: 'Motor', nome: 'Motor MaxTorque 7', nivel: 7, atributos: { potencia: 72, confiabilidade: 91 } },
-        359: { id: 359, tipo: 'Motor', nome: 'Motor TurboLine Z7', nivel: 7, atributos: { potencia: 73, confiabilidade: 91 } },
-        360: { id: 360, tipo: 'Motor', nome: 'Motor ThunderBoost 7', nivel: 7, atributos: { potencia: 74, confiabilidade: 92 } },
+        358: { id: 358, tipo: 'Motor', nome: 'Motor MaxTorque 7', nivel: 7, atributos: { potencia: 72, confiabilidade: 90 } },
+        359: { id: 359, tipo: 'Motor', nome: 'Motor TurboLine Z7', nivel: 7, atributos: { potencia: 73, confiabilidade: 90 } },
+        360: { id: 360, tipo: 'Motor', nome: 'Motor ThunderBoost 7', nivel: 7, atributos: { potencia: 74, confiabilidade: 90 } },
         361: { id: 361, tipo: 'Motor', nome: 'Motor TurboNova 7', nivel: 7, atributos: { potencia: 71, confiabilidade: 92 } },
-        362: { id: 362, tipo: 'Motor', nome: 'Motor TurboPrime 7', nivel: 7, atributos: { potencia: 75, confiabilidade: 93 } },
+        362: { id: 362, tipo: 'Motor', nome: 'Motor TurboPrime 7', nivel: 7, atributos: { potencia: 75, confiabilidade: 91 } },
         16: { id: 16, tipo: 'Motor', nome: 'Motor Maxx8', nivel: 8, atributos: { potencia: 75, confiabilidade: 87 } },
         363: { id: 363, tipo: 'Motor', nome: 'Motor MaxxForce 8', nivel: 8, atributos: { potencia: 76, confiabilidade: 91 } },
         364: { id: 364, tipo: 'Motor', nome: 'Motor HyperNova 8', nivel: 8, atributos: { potencia: 77, confiabilidade: 92 } },
         365: { id: 365, tipo: 'Motor', nome: 'Motor TitanBoost 8', nivel: 8, atributos: { potencia: 78, confiabilidade: 92 } },
-        366: { id: 366, tipo: 'Motor', nome: 'Motor MaxDrive V8X', nivel: 8, atributos: { potencia: 79, confiabilidade: 93 } },
-        367: { id: 367, tipo: 'Motor', nome: 'Motor ThunderLine 8', nivel: 8, atributos: { potencia: 75, confiabilidade: 93 } },
-        368: { id: 368, tipo: 'Motor', nome: 'Motor FusionCore 8', nivel: 8, atributos: { potencia: 76, confiabilidade: 94 } },
-        369: { id: 369, tipo: 'Motor', nome: 'Motor MaxTorque 8', nivel: 8, atributos: { potencia: 79, confiabilidade: 94 } },
-        370: { id: 370, tipo: 'Motor', nome: 'Motor VortexPrime 8', nivel: 8, atributos: { potencia: 72, confiabilidade: 95 } },
-        371: { id: 371, tipo: 'Motor', nome: 'Motor HyperStorm 8', nivel: 8, atributos: { potencia: 71, confiabilidade: 95 } },
-        372: { id: 372, tipo: 'Motor', nome: 'Motor MaxxNova 8', nivel: 8, atributos: { potencia: 75, confiabilidade: 96 } },
+        366: { id: 366, tipo: 'Motor', nome: 'Motor MaxDrive V8X', nivel: 8, atributos: { potencia: 79, confiabilidade: 91 } },
+        367: { id: 367, tipo: 'Motor', nome: 'Motor ThunderLine 8', nivel: 8, atributos: { potencia: 75, confiabilidade: 90 } },
+        368: { id: 368, tipo: 'Motor', nome: 'Motor FusionCore 8', nivel: 8, atributos: { potencia: 76, confiabilidade: 90 } },
+        369: { id: 369, tipo: 'Motor', nome: 'Motor MaxTorque 8', nivel: 8, atributos: { potencia: 79, confiabilidade: 90 } },
+        370: { id: 370, tipo: 'Motor', nome: 'Motor VortexPrime 8', nivel: 8, atributos: { potencia: 72, confiabilidade: 90 } },
+        371: { id: 371, tipo: 'Motor', nome: 'Motor HyperStorm 8', nivel: 8, atributos: { potencia: 71, confiabilidade: 90 } },
+        372: { id: 372, tipo: 'Motor', nome: 'Motor MaxxNova 8', nivel: 8, atributos: { potencia: 75, confiabilidade: 90 } },
         17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 78, confiabilidade: 89 } },
-        373: { id: 373, tipo: 'Motor', nome: 'Motor SnnX9', nivel: 9, atributos: { potencia: 79, confiabilidade: 94 } },
-        374: { id: 374, tipo: 'Motor', nome: 'Motor ThunderPrime 9', nivel: 9, atributos: { potencia: 80, confiabilidade: 95 } },
-        375: { id: 375, tipo: 'Motor', nome: 'Motor HyperBoost 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 95 } },
-        376: { id: 376, tipo: 'Motor', nome: 'Motor MaxTorque 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 96 } },
-        377: { id: 377, tipo: 'Motor', nome: 'Motor FusionStorm 9', nivel: 9, atributos: { potencia: 83, confiabilidade: 96 } },
-        378: { id: 378, tipo: 'Motor', nome: 'Motor VortexLine 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 97 } },
-        379: { id: 379, tipo: 'Motor', nome: 'Motor HyperNova 9', nivel: 9, atributos: { potencia: 85, confiabilidade: 97 } },
-        380: { id: 380, tipo: 'Motor', nome: 'Motor TitanForce 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 98 } },
-        381: { id: 381, tipo: 'Motor', nome: 'Motor MaxxStorm 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 98 } },
-        382: { id: 382, tipo: 'Motor', nome: 'Motor ThunderNova 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 99 } },
+        373: { id: 373, tipo: 'Motor', nome: 'Motor SnnX9', nivel: 9, atributos: { potencia: 79, confiabilidade: 90 } },
+        374: { id: 374, tipo: 'Motor', nome: 'Motor ThunderPrime 9', nivel: 9, atributos: { potencia: 80, confiabilidade: 90 } },
+        375: { id: 375, tipo: 'Motor', nome: 'Motor HyperBoost 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 90 } },
+        376: { id: 376, tipo: 'Motor', nome: 'Motor MaxTorque 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 90 } },
+        377: { id: 377, tipo: 'Motor', nome: 'Motor FusionStorm 9', nivel: 9, atributos: { potencia: 83, confiabilidade: 90 } },
+        378: { id: 378, tipo: 'Motor', nome: 'Motor VortexLine 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 90 } },
+        379: { id: 379, tipo: 'Motor', nome: 'Motor HyperNova 9', nivel: 9, atributos: { potencia: 85, confiabilidade: 90 } },
+        380: { id: 380, tipo: 'Motor', nome: 'Motor TitanForce 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 90 } },
+        381: { id: 381, tipo: 'Motor', nome: 'Motor MaxxStorm 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 90 } },
+        382: { id: 382, tipo: 'Motor', nome: 'Motor ThunderNova 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 90 } },
         18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 88, confiabilidade: 89 } },
-        83: { id: 383, tipo: 'Motor', nome: 'Motor M.90X', nivel: 10, atributos: { potencia: 89, confiabilidade: 97 } },
-        384: { id: 384, tipo: 'Motor', nome: 'Motor HyperPrime 10', nivel: 10, atributos: { potencia: 90, confiabilidade: 98 } },
-        385: { id: 385, tipo: 'Motor', nome: 'Motor TitanNova 10', nivel: 10, atributos: { potencia: 91, confiabilidade: 98 } },
-        386: { id: 386, tipo: 'Motor', nome: 'Motor MaxTorque 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 99 } },
-        387: { id: 387, tipo: 'Motor', nome: 'Motor FusionPrime 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 99 } },
-        388: { id: 388, tipo: 'Motor', nome: 'Motor ThunderNova 10', nivel: 10, atributos: { potencia: 94, confiabilidade: 99 } },
-        389: { id: 389, tipo: 'Motor', nome: 'Motor VortexX 10', nivel: 10, atributos: { potencia: 94, confiabilidade: 99 } },
-        390: { id: 390, tipo: 'Motor', nome: 'Motor HyperStorm 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 99 } },
-        391: { id: 391, tipo: 'Motor', nome: 'Motor MaxxPrime 10', nivel: 10, atributos: { potencia: 94, confiabilidade: 99 } },
-        392: { id: 392, tipo: 'Motor', nome: 'Motor TitanForce 10', nivel: 10, atributos: { potencia: 94, confiabilidade: 99 } },
+        83: { id: 383, tipo: 'Motor', nome: 'Motor M.90X', nivel: 10, atributos: { potencia: 89, confiabilidade: 90 } },
+        384: { id: 384, tipo: 'Motor', nome: 'Motor HyperPrime 10', nivel: 10, atributos: { potencia: 90, confiabilidade: 90 } },
+        385: { id: 385, tipo: 'Motor', nome: 'Motor TitanNova 10', nivel: 10, atributos: { potencia: 91, confiabilidade: 90 } },
+        386: { id: 386, tipo: 'Motor', nome: 'Motor MaxTorque 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 90 } },
+        387: { id: 387, tipo: 'Motor', nome: 'Motor FusionPrime 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 90 } },
+        388: { id: 388, tipo: 'Motor', nome: 'Motor ThunderNova 10', nivel: 10, atributos: { potencia: 94, confiabilidade: 90 } },
+        389: { id: 389, tipo: 'Motor', nome: 'Motor VortexX 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 90 } },
+        390: { id: 390, tipo: 'Motor', nome: 'Motor HyperStorm 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 91 } },
+        391: { id: 391, tipo: 'Motor', nome: 'Motor MaxxPrime 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 93 } },
+        392: { id: 392, tipo: 'Motor', nome: 'Motor TitanForce 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 92 } },
         200: { id: 200, tipo: 'Motor', nome: 'Motor CChaplin25', nivel: 10, atributos: { potencia: 93, confiabilidade: 89 } },
 
         40: { id: 40, tipo: 'Suspensão', nome: 'Suspensão Simples', nivel: 1, atributos: { aderencia: 40, confiabilidade: 80 } },
@@ -343,13 +343,13 @@ document.addEventListener('DOMContentLoaded', () => {
         642: { id: 642, tipo: 'Motor', nome: 'Motor Zephyr-8',       nivel: 8, atributos: { potencia: 79, confiabilidade: 91 } },
         643: { id: 643, tipo: 'Motor', nome: 'Motor Vertex VIII',    nivel: 8, atributos: { potencia: 78, confiabilidade: 93 } },
 
-        644: { id: 644, tipo: 'Motor', nome: 'Motor Ignis V9',       nivel: 9, atributos: { potencia: 82, confiabilidade: 95 } },
-        645: { id: 645, tipo: 'Motor', nome: 'Motor Zephyr-9',       nivel: 9, atributos: { potencia: 84, confiabilidade: 94 } },
-        646: { id: 646, tipo: 'Motor', nome: 'Motor Solstice IX',    nivel: 9, atributos: { potencia: 83, confiabilidade: 96 } },
+        644: { id: 644, tipo: 'Motor', nome: 'Motor Ignis V9',       nivel: 9, atributos: { potencia: 82, confiabilidade: 92 } },
+        645: { id: 645, tipo: 'Motor', nome: 'Motor Zephyr-9',       nivel: 9, atributos: { potencia: 84, confiabilidade: 92 } },
+        646: { id: 646, tipo: 'Motor', nome: 'Motor Solstice IX',    nivel: 9, atributos: { potencia: 83, confiabilidade: 91 } },
 
-        647: { id: 647, tipo: 'Motor', nome: 'Motor Ignis V10',      nivel: 10, atributos: { potencia: 90, confiabilidade: 97 } },
-        648: { id: 648, tipo: 'Motor', nome: 'Motor Zephyr-10',      nivel: 10, atributos: { potencia: 91, confiabilidade: 96 } },
-        649: { id: 649, tipo: 'Motor', nome: 'Motor Apex Eternum',   nivel: 10, atributos: { potencia: 89, confiabilidade: 98 } },
+        647: { id: 647, tipo: 'Motor', nome: 'Motor Ignis V10',      nivel: 10, atributos: { potencia: 90, confiabilidade: 91 } },
+        648: { id: 648, tipo: 'Motor', nome: 'Motor Zephyr-10',      nivel: 10, atributos: { potencia: 91, confiabilidade: 92 } },
+        649: { id: 649, tipo: 'Motor', nome: 'Motor Apex Eternum',   nivel: 10, atributos: { potencia: 89, confiabilidade: 91 } },
     };
     const especialistasDisponiveis = [ { id: 1, nome: "Adrian Newey Jr.", tipo: "Aerodinamicista", nivel: 5, salario: 15000 }, { id: 2, nome: "Paddy Lowe", tipo: "Projetista", nivel: 5, salario: 11900 }, { id: 3, nome: "Luca Marmorini", tipo: "Engenheiro de Motor", nivel: 5, salario: 12000 }, { id: 4, nome: "Helmut Marko Jr.", tipo: "Olheiro", nivel: 5, salario: 11650 }, { id: 5, nome: "Jo Bauer", tipo: "Treinador de Pilotos", nivel: 5, salario: 11750 } ];
     const CUSTO_BASE_PROJETO = 50000;
@@ -474,17 +474,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const equipesIA = [
         // Spread rebalanceado: Top → ~88-92 | Meio → ~78-86 | Campo → ~68-77
         // Cada equipe tem uma característica dominante para dar personalidade ao grid.
-        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 90, aerodinamica: 88, aderencia: 88, confiabilidade: 86 } }, // equilibrado/potência
-        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 87, aerodinamica: 92, aderencia: 85, confiabilidade: 84 } }, // aerodinâmica dominante
-        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 91, aerodinamica: 87, aderencia: 89, confiabilidade: 80 } }, // potência alta, conf. frágil
-        { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 84, aerodinamica: 82, aderencia: 86, confiabilidade: 85 } }, // aderência e confiabilidade sólidas
-        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 82, aerodinamica: 85, aderencia: 87, confiabilidade: 83 } }, // aderência forte
+        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 90, aerodinamica: 87, aderencia: 88, confiabilidade: 86 } }, // equilibrado/potência
+        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 89, aerodinamica: 92, aderencia: 85, confiabilidade: 84 } }, // aerodinâmica dominante
+        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 91, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } }, // potência alta, conf. frágil
+        { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 88, aerodinamica: 85, aderencia: 87, confiabilidade: 85 } }, // aderência e confiabilidade sólidas
+        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 84, aerodinamica: 81, aderencia: 85, confiabilidade: 83 } }, // aderência forte
         { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 92, aerodinamica: 91, aderencia: 90, confiabilidade: 82 } }, // o mais rápido, conf. média
-        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 80, aerodinamica: 79, aderencia: 78, confiabilidade: 79 } }, // midfield equilibrado
-        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 73, aerodinamica: 72, aderencia: 74, confiabilidade: 76 } }, // campo de trás
-        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 71, aerodinamica: 75, aderencia: 73, confiabilidade: 74 } }, // aero ligeiramente melhor
-        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 76, aerodinamica: 78, aderencia: 77, confiabilidade: 78 } }, // melhor que Haas/RB
-        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 78, aerodinamica: 76, aderencia: 79, confiabilidade: 80 } }, // estreante sólida
+        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 86, aerodinamica: 79, aderencia: 88, confiabilidade: 79 } }, // midfield equilibrado
+        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 72, aderencia: 85, confiabilidade: 76 } }, // campo de trás
+        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 87, aerodinamica: 75, aderencia: 86, confiabilidade: 74 } }, // aero ligeiramente melhor
+        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 86, aerodinamica: 78, aderencia: 85, confiabilidade: 78 } }, // melhor que Haas/RB
+        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 85, aerodinamica: 76, aderencia: 81, confiabilidade: 80 } }, // estreante sólida
     ];
 
     const catalogoMensagens = {
