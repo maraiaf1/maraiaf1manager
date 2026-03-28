@@ -474,17 +474,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const equipesIA = [
         // Spread rebalanceado: Top → ~88-92 | Meio → ~78-86 | Campo → ~68-77
         // Cada equipe tem uma característica dominante para dar personalidade ao grid.
-        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 90, aerodinamica: 87, aderencia: 88, confiabilidade: 86 } }, // equilibrado/potência
-        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 89, aerodinamica: 92, aderencia: 85, confiabilidade: 84 } }, // aerodinâmica dominante
-        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 91, aerodinamica: 89, aderencia: 89, confiabilidade: 80 } }, // potência alta, conf. frágil
+        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 89, aerodinamica: 87, aderencia: 88, confiabilidade: 82 } }, // equilibrado/potência
+        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 90, aerodinamica: 93, aderencia: 89, confiabilidade: 89 } }, // aerodinâmica dominante
+        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 91, aerodinamica: 89, aderencia: 91, confiabilidade: 88 } }, // potência alta, conf. frágil
         { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 88, aerodinamica: 85, aderencia: 87, confiabilidade: 85 } }, // aderência e confiabilidade sólidas
-        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 84, aerodinamica: 81, aderencia: 85, confiabilidade: 83 } }, // aderência forte
-        { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 92, aerodinamica: 91, aderencia: 90, confiabilidade: 82 } }, // o mais rápido, conf. média
-        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 86, aerodinamica: 79, aderencia: 88, confiabilidade: 79 } }, // midfield equilibrado
-        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 72, aderencia: 85, confiabilidade: 76 } }, // campo de trás
-        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 87, aerodinamica: 75, aderencia: 86, confiabilidade: 74 } }, // aero ligeiramente melhor
-        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 86, aerodinamica: 78, aderencia: 85, confiabilidade: 78 } }, // melhor que Haas/RB
-        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 85, aerodinamica: 76, aderencia: 81, confiabilidade: 80 } }, // estreante sólida
+        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 84, aerodinamica: 81, aderencia: 85, confiabilidade: 76 } }, // aderência forte
+        { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 92, aerodinamica: 90, aderencia: 90, confiabilidade: 88 } }, // o mais rápido, conf. média
+        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 86, aerodinamica: 79, aderencia: 88, confiabilidade: 81 } }, // midfield equilibrado
+        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 72, aderencia: 85, confiabilidade: 85 } }, // campo de trás
+        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 87, aerodinamica: 75, aderencia: 86, confiabilidade: 86 } }, // aero ligeiramente melhor
+        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 86, aerodinamica: 78, aderencia: 85, confiabilidade: 85 } }, // melhor que Haas/RB
+        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 85, aerodinamica: 76, aderencia: 81, confiabilidade: 78 } }, // estreante sólida
     ];
 
     const catalogoMensagens = {
