@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.26";
+    const VERSAO_JOGO = "21.0.27";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -487,6 +487,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 80, aerodinamica: 81, aderencia: 80, confiabilidade: 75 } }, // estreante sólida
     ];
 
+    // Snapshot imutável dos atributos de fábrica de cada equipe IA.
+    // Derivado automaticamente de equipesIA — NUNCA edite este objeto diretamente.
+    // Para alterar valores, edite apenas o array equipesIA acima.
+    // Usado por: resetGameState (restauração) e renderTelemBenchmark (clamp anti-inflate).
+    const CARRO_INICIAL = Object.fromEntries(
+        equipesIA.map(e => [e.nome, { ...e.carro }])
+    );
+
     const catalogoMensagens = {
         ataque_pneu_bom: [{ remetente: 'Piloto', texto: "O carro está ótimo, estou indo pra cima!" }, { remetente: 'Engenheiro', texto: "Isso! Continue pressionando, o ritmo está excelente." }],
         lidercorrida: [{ remetente: 'Piloto', texto: "Acho que consigo segurar a vantagem!" }, { remetente: 'Engenheiro', texto: "Não Alivie, o ritmo está bom." }],
@@ -627,27 +635,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------ 2. ESTADO DO JOGO ------------
 
     function resetGameState() {
-        // Restaura IDs de pilotos E atributos de carro originais das equipes IA,
-        // garantindo que um novo jogo comece sempre com o grid padrão rebalanceado.
-        const defaultEquipesIA = {
-            "Red Bull":        { p1: 1,   p2: 17,  carro: { potencia: 90, aerodinamica: 88, aderencia: 88, confiabilidade: 86 } },
-            "Mercedes":        { p1: 5,   p2: 6,   carro: { potencia: 87, aerodinamica: 92, aderencia: 85, confiabilidade: 84 } },
-            "Ferrari":         { p1: 3,   p2: 4,   carro: { potencia: 91, aerodinamica: 87, aderencia: 89, confiabilidade: 80 } },
-            "Audi":            { p1: 9,   p2: 10,  carro: { potencia: 84, aerodinamica: 82, aderencia: 86, confiabilidade: 85 } },
-            "Aston Martin":    { p1: 11,  p2: 12,  carro: { potencia: 82, aerodinamica: 85, aderencia: 87, confiabilidade: 83 } },
-            "MacLaren":        { p1: 19,  p2: 20,  carro: { potencia: 92, aerodinamica: 91, aderencia: 90, confiabilidade: 82 } },
-            "Alpine":          { p1: 13,  p2: 14,  carro: { potencia: 80, aerodinamica: 79, aderencia: 78, confiabilidade: 79 } },
-            "Haas":            { p1: 15,  p2: 16,  carro: { potencia: 73, aerodinamica: 72, aderencia: 74, confiabilidade: 76 } },
-            "RB":              { p1: 18,  p2: 21,  carro: { potencia: 71, aerodinamica: 75, aderencia: 73, confiabilidade: 74 } },
-            "Wilians":         { p1: 7,   p2: 8,   carro: { potencia: 76, aerodinamica: 78, aderencia: 77, confiabilidade: 78 } },
-            "Cadillac Racing": { p1: 128, p2: 129, carro: { potencia: 78, aerodinamica: 76, aderencia: 79, confiabilidade: 80 } }
+        // Restaura IDs de pilotos E atributos de carro originais das equipes IA.
+        // Os IDs de piloto estão hardcoded aqui (são fixos por design).
+        // Os atributos de carro são restaurados via CARRO_INICIAL — derivado
+        // automaticamente de equipesIA, então sempre reflete os valores atuais.
+        const defaultPilotIds = {
+            "Red Bull":        { p1: 1,   p2: 17  },
+            "Mercedes":        { p1: 5,   p2: 6   },
+            "Ferrari":         { p1: 3,   p2: 4   },
+            "Audi":            { p1: 9,   p2: 10  },
+            "Aston Martin":    { p1: 11,  p2: 12  },
+            "MacLaren":        { p1: 19,  p2: 20  },
+            "Alpine":          { p1: 13,  p2: 14  },
+            "Haas":            { p1: 15,  p2: 16  },
+            "RB":              { p1: 18,  p2: 21  },
+            "Wilians":         { p1: 7,   p2: 8   },
+            "Cadillac Racing": { p1: 128, p2: 129 }
         };
         equipesIA.forEach(equipe => {
-            const def = defaultEquipesIA[equipe.nome];
-            if (def) {
-                equipe.piloto1Id = def.p1;
-                equipe.piloto2Id = def.p2;
-                equipe.carro = { ...def.carro };
+            const ids = defaultPilotIds[equipe.nome];
+            if (ids) {
+                equipe.piloto1Id = ids.p1;
+                equipe.piloto2Id = ids.p2;
+            }
+            // Restaura atributos de fábrica via snapshot — sempre em sync com equipesIA
+            if (CARRO_INICIAL[equipe.nome]) {
+                equipe.carro = { ...CARRO_INICIAL[equipe.nome] };
             }
         });
 
@@ -6844,28 +6857,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // ── 2. Ranking das equipes IA por performance real do carro ──────
-        // SEMPRE ordena pelos atributos reais de fábrica — nunca pela posição
-        // no campeonato. Proteção anti-inflate: se o save legado tiver valores
-        // acima do teto de fábrica + 5, usa o valor base como referência.
-        const CARRO_BASE = {
-            "Red Bull":        { potencia: 90, aerodinamica: 88, aderencia: 88, confiabilidade: 86 },
-            "Mercedes":        { potencia: 87, aerodinamica: 92, aderencia: 85, confiabilidade: 84 },
-            "Ferrari":         { potencia: 91, aerodinamica: 87, aderencia: 89, confiabilidade: 80 },
-            "Audi":            { potencia: 84, aerodinamica: 82, aderencia: 86, confiabilidade: 85 },
-            "Aston Martin":    { potencia: 82, aerodinamica: 85, aderencia: 87, confiabilidade: 83 },
-            "MacLaren":        { potencia: 92, aerodinamica: 91, aderencia: 90, confiabilidade: 82 },
-            "Alpine":          { potencia: 80, aerodinamica: 79, aderencia: 78, confiabilidade: 79 },
-            "Haas":            { potencia: 73, aerodinamica: 72, aderencia: 74, confiabilidade: 76 },
-            "RB":              { potencia: 71, aerodinamica: 75, aderencia: 73, confiabilidade: 74 },
-            "Wilians":         { potencia: 76, aerodinamica: 78, aderencia: 77, confiabilidade: 78 },
-            "Cadillac Racing": { potencia: 78, aerodinamica: 76, aderencia: 79, confiabilidade: 80 }
-        };
-
+        // Usa CARRO_INICIAL (snapshot gerado de equipesIA na inicialização)
+        // como referência — sempre em sync com os valores atuais do código.
+        // Clamp anti-inflate: limita o valor evoluído a base + 5 pts,
+        // evitando que temporadas anteriores distoram o benchmark.
         function carroEfetivo(equipe) {
             const c = equipe.carro;
-            const base = CARRO_BASE[equipe.nome];
+            const base = CARRO_INICIAL[equipe.nome];
             if (!base) return { ...c };
-            // Clamp: não deixa o valor evoluído ultrapassar base + 5 pts para o benchmark
             return {
                 potencia:       Math.min(c.potencia,       base.potencia       + 5),
                 aerodinamica:   Math.min(c.aerodinamica,   base.aerodinamica   + 5),
