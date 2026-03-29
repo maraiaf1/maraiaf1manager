@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.25";
+    const VERSAO_JOGO = "21.0.26";
 
 
     // --- 1. DADOS GLOBAIS ---
