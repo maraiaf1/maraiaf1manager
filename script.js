@@ -6233,10 +6233,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Estado de ordenação das tabelas de estatísticas
     const _sortState = {
         jogador: { col: 'corridas', dir: 'desc' },
-        todos:   { col: 'corridas', dir: 'desc' }
+        todos:   { col: 'pontos',   dir: 'desc' }
     };
 
-    function _renderTabelaStats(tabela, dados, colunas, sortState) {
+    // Critérios de desempate da tabela "Todos os Pilotos":
+    // pontos ↓ → vitórias ↓ → pódios ↓ → corridas ↑
+    const _tiebreakersTodos = [
+        { col: 'vitorias', dir: 'desc'  },
+        { col: 'podios',   dir: 'desc'  },
+        { col: 'corridas', dir: 'asc'   }
+    ];
+
+    function _renderTabelaStats(tabela, dados, colunas, sortState, tiebreakers = []) {
         if (!tabela) return;
         const tbody = tabela.querySelector('tbody');
         const theadThs = tabela.querySelectorAll('thead th');
@@ -6254,7 +6262,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Ordena
+        // Ordena com suporte a critérios de desempate (tiebreakers)
         const sorted = [...dados].sort((a, b) => {
             let va = a[sortState.col] ?? '';
             let vb = b[sortState.col] ?? '';
@@ -6262,6 +6270,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof vb === 'string') vb = vb.toLowerCase();
             if (va < vb) return sortState.dir === 'asc' ? -1 : 1;
             if (va > vb) return sortState.dir === 'asc' ? 1 : -1;
+            // Aplica tiebreakers sequencialmente quando há empate no critério principal
+            for (const tb of tiebreakers) {
+                if (tb.col === sortState.col) continue;
+                let ta = a[tb.col] ?? '';
+                let tc = b[tb.col] ?? '';
+                if (typeof ta === 'string') ta = ta.toLowerCase();
+                if (typeof tc === 'string') tc = tc.toLowerCase();
+                if (ta < tc) return tb.dir === 'asc' ? -1 : 1;
+                if (ta > tc) return tb.dir === 'asc' ? 1 : -1;
+            }
             return 0;
         });
 
@@ -6279,7 +6297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
-    function _ativarOrdenacao(tabela, tabelaKey, colunas) {
+    function _ativarOrdenacao(tabela, tabelaKey, colunas, tiebreakers = []) {
         if (!tabela) return;
         tabela.querySelectorAll('thead th').forEach(th => {
             th.style.cursor = 'pointer';
@@ -6293,7 +6311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     _sortState[tabelaKey].dir = 'desc';
                 }
                 const dados = _getDadosStats(tabelaKey);
-                _renderTabelaStats(tabela, dados, colunas, _sortState[tabelaKey]);
+                _renderTabelaStats(tabela, dados, colunas, _sortState[tabelaKey], tiebreakers);
             });
         });
     }
@@ -6382,13 +6400,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ativa listeners de ordenação apenas uma vez
         if (!_statsOrdenacaoIniciada) {
             _ativarOrdenacao(tabelaJogador, 'jogador', ['nome', 'corridas', 'vitorias', 'podios', 'pontos']);
-            _ativarOrdenacao(tabelaTodos,   'todos',   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos']);
+            _ativarOrdenacao(tabelaTodos,   'todos',   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _tiebreakersTodos);
             _statsOrdenacaoIniciada = true;
         }
 
         // Renderiza as tabelas com o estado de ordenação atual
         _renderTabelaStats(tabelaJogador, _getDadosStats('jogador'), ['nome', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.jogador);
-        _renderTabelaStats(tabelaTodos,   _getDadosStats('todos'),   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.todos);
+        _renderTabelaStats(tabelaTodos,   _getDadosStats('todos'),   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.todos, _tiebreakersTodos);
     }
 
     // ---------------------------------------------------------------------------
