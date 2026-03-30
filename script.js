@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.29";
+    const VERSAO_JOGO = "21.0.30";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -73,28 +73,28 @@ document.addEventListener('DOMContentLoaded', () => {
         371: { id: 371, tipo: 'Motor', nome: 'Motor HyperStorm 8', nivel: 8, atributos: { potencia: 71, confiabilidade: 90 } },
         372: { id: 372, tipo: 'Motor', nome: 'Motor MaxxNova 8', nivel: 8, atributos: { potencia: 75, confiabilidade: 90 } },
         17: { id: 17, tipo: 'Motor', nome: 'Motor Snn94', nivel: 9, atributos: { potencia: 78, confiabilidade: 89 } },
-        373: { id: 373, tipo: 'Motor', nome: 'Motor SnnX9', nivel: 9, atributos: { potencia: 79, confiabilidade: 90 } },
-        374: { id: 374, tipo: 'Motor', nome: 'Motor ThunderPrime 9', nivel: 9, atributos: { potencia: 80, confiabilidade: 90 } },
-        375: { id: 375, tipo: 'Motor', nome: 'Motor HyperBoost 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 90 } },
-        376: { id: 376, tipo: 'Motor', nome: 'Motor MaxTorque 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 90 } },
-        377: { id: 377, tipo: 'Motor', nome: 'Motor FusionStorm 9', nivel: 9, atributos: { potencia: 83, confiabilidade: 90 } },
-        378: { id: 378, tipo: 'Motor', nome: 'Motor VortexLine 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 90 } },
-        379: { id: 379, tipo: 'Motor', nome: 'Motor HyperNova 9', nivel: 9, atributos: { potencia: 85, confiabilidade: 90 } },
-        380: { id: 380, tipo: 'Motor', nome: 'Motor TitanForce 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 90 } },
-        381: { id: 381, tipo: 'Motor', nome: 'Motor MaxxStorm 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 90 } },
-        382: { id: 382, tipo: 'Motor', nome: 'Motor ThunderNova 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 90 } },
-        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 88, confiabilidade: 89 } },
-        83: { id: 383, tipo: 'Motor', nome: 'Motor M.90X', nivel: 10, atributos: { potencia: 89, confiabilidade: 90 } },
+        373: { id: 373, tipo: 'Motor', nome: 'Motor SnnX9', nivel: 9, atributos: { potencia: 79, confiabilidade: 80 } },
+        374: { id: 374, tipo: 'Motor', nome: 'Motor ThunderPrime 9', nivel: 9, atributos: { potencia: 80, confiabilidade: 85 } },
+        375: { id: 375, tipo: 'Motor', nome: 'Motor HyperBoost 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 88 } },
+        376: { id: 376, tipo: 'Motor', nome: 'Motor MaxTorque 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 89 } },
+        377: { id: 377, tipo: 'Motor', nome: 'Motor FusionStorm 9', nivel: 9, atributos: { potencia: 83, confiabilidade: 82 } },
+        378: { id: 378, tipo: 'Motor', nome: 'Motor VortexLine 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 81 } },
+        379: { id: 379, tipo: 'Motor', nome: 'Motor HyperNova 9', nivel: 9, atributos: { potencia: 85, confiabilidade: 80 } },
+        380: { id: 380, tipo: 'Motor', nome: 'Motor TitanForce 9', nivel: 9, atributos: { potencia: 82, confiabilidade: 87 } },
+        381: { id: 381, tipo: 'Motor', nome: 'Motor MaxxStorm 9', nivel: 9, atributos: { potencia: 84, confiabilidade: 85 } },
+        382: { id: 382, tipo: 'Motor', nome: 'Motor ThunderNova 9', nivel: 9, atributos: { potencia: 81, confiabilidade: 79 } },
+        18: { id: 18, tipo: 'Motor', nome: 'Motor M.86', nivel: 10, atributos: { potencia: 87, confiabilidade: 87 } },
+        83: { id: 383, tipo: 'Motor', nome: 'Motor M.90X', nivel: 10, atributos: { potencia: 88, confiabilidade: 88 } },
         384: { id: 384, tipo: 'Motor', nome: 'Motor HyperPrime 10', nivel: 10, atributos: { potencia: 90, confiabilidade: 90 } },
         385: { id: 385, tipo: 'Motor', nome: 'Motor TitanNova 10', nivel: 10, atributos: { potencia: 91, confiabilidade: 90 } },
-        386: { id: 386, tipo: 'Motor', nome: 'Motor MaxTorque 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 90 } },
-        387: { id: 387, tipo: 'Motor', nome: 'Motor FusionPrime 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 90 } },
-        388: { id: 388, tipo: 'Motor', nome: 'Motor ThunderNova 10', nivel: 10, atributos: { potencia: 94, confiabilidade: 90 } },
-        389: { id: 389, tipo: 'Motor', nome: 'Motor VortexX 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 90 } },
-        390: { id: 390, tipo: 'Motor', nome: 'Motor HyperStorm 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 91 } },
+        386: { id: 386, tipo: 'Motor', nome: 'Motor MaxTorque 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 90 } },
+        387: { id: 387, tipo: 'Motor', nome: 'Motor FusionPrime 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 90 } },
+        388: { id: 388, tipo: 'Motor', nome: 'Motor ThunderNova 10', nivel: 10, atributos: { potencia: 90, confiabilidade: 90 } },
+        389: { id: 389, tipo: 'Motor', nome: 'Motor VortexX 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 90 } },
+        390: { id: 390, tipo: 'Motor', nome: 'Motor HyperStorm 10', nivel: 10, atributos: { potencia: 91, confiabilidade: 91 } },
         391: { id: 391, tipo: 'Motor', nome: 'Motor MaxxPrime 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 93 } },
-        392: { id: 392, tipo: 'Motor', nome: 'Motor TitanForce 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 92 } },
-        200: { id: 200, tipo: 'Motor', nome: 'Motor CChaplin25', nivel: 10, atributos: { potencia: 93, confiabilidade: 89 } },
+        392: { id: 392, tipo: 'Motor', nome: 'Motor TitanForce 10', nivel: 10, atributos: { potencia: 91, confiabilidade: 92 } },
+        200: { id: 200, tipo: 'Motor', nome: 'Motor CChaplin25', nivel: 10, atributos: { potencia: 92, confiabilidade: 89 } },
 
         40: { id: 40, tipo: 'Suspensão', nome: 'Suspensão Simples', nivel: 1, atributos: { aderencia: 40, confiabilidade: 80 } },
         51: { id: 51, tipo: 'Suspensão', nome: 'Suspensão Simples V2', nivel: 2, atributos: { aderencia: 43, confiabilidade: 83 } },
@@ -354,10 +354,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const especialistasDisponiveis = [ { id: 1, nome: "Adrian Newey Jr.", tipo: "Aerodinamicista", nivel: 5, salario: 15000 }, { id: 2, nome: "Paddy Lowe", tipo: "Projetista", nivel: 5, salario: 11900 }, { id: 3, nome: "Luca Marmorini", tipo: "Engenheiro de Motor", nivel: 5, salario: 12000 }, { id: 4, nome: "Helmut Marko Jr.", tipo: "Olheiro", nivel: 5, salario: 11650 }, { id: 5, nome: "Jo Bauer", tipo: "Treinador de Pilotos", nivel: 5, salario: 11750 } ];
     const CUSTO_BASE_PROJETO = 50000;
     const calendarioCorridas = [
-        { nome: "GP da Austrália (Melbourne)", imagem: "Autodromos/Australia.png", voltas: 58, tempoBaseVolta: 79, pitstopTime: 20, demandaMotor: 0.2, demandaAero: 0.4, demandaAderencia: 0.3 },
-        { nome: "GP da China (Xangai)", imagem: "Autodromos/China.png", voltas: 56, tempoBaseVolta: 92, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.7, demandaAderencia: 0.6 },
-        { nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.7 },
-        { nome: "GP do Bahrein (Sakhir)", imagem: "Autodromos/Bahrain.png", voltas: 57, tempoBaseVolta: 91, pitstopTime: 22, demandaMotor: 0.9, demandaAero: 0.4, demandaAderencia: 0.7 },
+        { nome: "GP da Austrália (Melbourne)", imagem: "Autodromos/Australia.png", voltas: 58, tempoBaseVolta: 79, pitstopTime: 20, demandaMotor: 0.6, demandaAero: 0.7, demandaAderencia: 0.7 },
+        { nome: "GP da China (Xangai)", imagem: "Autodromos/China.png", voltas: 56, tempoBaseVolta: 92, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.7, demandaAderencia: 0.95 },
+        { nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.78 },
+        { nome: "GP do Bahrein (Sakhir)", imagem: "Autodromos/Bahrain.png", voltas: 57, tempoBaseVolta: 91, pitstopTime: 22, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.75 },
         { nome: "GP da Arábia Saudita (Jeddah)", imagem: "Autodromos/Arabia.png", voltas: 50, tempoBaseVolta: 90, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.8 },
         { nome: "Gp de Miami (EUA)", imagem: "Autodromos/Miami.png", voltas: 57, tempoBaseVolta: 89, pitstopTime: 21, demandaMotor: 0.6, demandaAero: 0.8, demandaAderencia: 0.7 },
         { nome: "GP de Emília-Romanha (Ímola)", imagem: "Autodromos/Imola.png", voltas: 63, tempoBaseVolta: 75, pitstopTime: 20, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.95 },
@@ -366,17 +366,17 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "GP do Canadá (Montreal)", imagem: "Autodromos/Canada.png", voltas: 70, tempoBaseVolta: 73, pitstopTime: 24, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.96 },
         { nome: "Gp da Áustria (Red Bull Ring)", imagem: "Autodromos/Austria.png", voltas: 71, tempoBaseVolta: 65, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.8, demandaAderencia: 0.85 },
         { nome: "GP da Inglaterra (Silverstone)", imagem: "Autodromos/Inglaterra.png", voltas: 52, tempoBaseVolta: 87, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.7 },
-        { nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.9 },
+        { nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.92 },
         { nome: "GP da Hungria (Hungaroring)", imagem: "Autodromos/Hungria.png", voltas: 70, tempoBaseVolta: 76, pitstopTime: 20, demandaMotor: 0.8, demandaAero: 0.8, demandaAderencia: 0.8 },
         { nome: "Gp da Holanda (Zandvoort)", imagem: "Autodromos/Holanda.png", voltas: 72, tempoBaseVolta: 71, pitstopTime: 29, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.9 },
         { nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
-        { nome: "GP do Azerbaijão (Baku)", imagem: "Autodromos/Azerbaijan.png", voltas: 51, tempoBaseVolta: 103, pitstopTime: 24, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.9 },
+        { nome: "GP do Azerbaijão (Baku)", imagem: "Autodromos/Azerbaijan.png", voltas: 51, tempoBaseVolta: 103, pitstopTime: 24, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.95 },
         { nome: "GP de Singapura (Marina Bay)", imagem: "Autodromos/Singapura.png", voltas: 61, tempoBaseVolta: 94, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.7, demandaAderencia: 0.85 },
         { nome: "Gp dos EUA (Austin)", imagem: "Autodromos/EUA.png", voltas: 56, tempoBaseVolta: 96, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.83 },
         { nome: "GP do México (CDMX)", imagem: "Autodromos/Mexico.png", voltas: 71, tempoBaseVolta: 81, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.85 },
-        { nome: "Gp do Brasil (Interlagos)", imagem: "Autodromos/Brasil.png", voltas: 71, tempoBaseVolta: 70, pitstopTime: 22, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.92 },
+        { nome: "Gp do Brasil (Interlagos)", imagem: "Autodromos/Brasil.png", voltas: 71, tempoBaseVolta: 70, pitstopTime: 22, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.95 },
         { nome: "GP de Las Vegas", imagem: "Autodromos/LasVegas.png", voltas: 50, tempoBaseVolta: 95, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.9, demandaAderencia: 0.83 },
-        { nome: "GP do Catar (Lusail)", imagem: "Autodromos/Qatar.png", voltas: 57, tempoBaseVolta: 84, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.75 },
+        { nome: "GP do Catar (Lusail)", imagem: "Autodromos/Qatar.png", voltas: 57, tempoBaseVolta: 84, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.79 },
         { nome: "GP de Abu Dhabi (Yas Marina)", imagem: "Autodromos/Abudabi.png", voltas: 55, tempoBaseVolta: 86, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.9, demandaAderencia: 0.99 },
     ];
     const coordenadasPistas = {
@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 83, aderencia: 84, confiabilidade: 85 } }, // campo de trás
         { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 87, aerodinamica: 85, aderencia: 86, confiabilidade: 86 } }, // aero ligeiramente melhor
         { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 86, aerodinamica: 87, aderencia: 85, confiabilidade: 85 } }, // melhor que Haas/RB
-        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 80, aerodinamica: 81, aderencia: 80, confiabilidade: 75 } }, // estreante sólida
+        { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 78, aerodinamica: 80, aderencia: 80, confiabilidade: 75 } }, // estreante sólida
     ];
 
     // Snapshot imutável dos atributos de fábrica de cada equipe IA.
@@ -4846,10 +4846,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 bonusText = `<p style="color: #008cba; font-weight: bold; font-size: 0.9em;">Bônus: Melhora os Skills dos pilotos principais e reserva.</p>`;
             }
             const acoes = especialistaHabilidades[e.tipo] ? `<button class="btn-projeto" data-especialista-id="${e.id}">Iniciar Projeto</button>` : '';
-            return `<div class="especialista-card"><h4>${e.nome}</h4><p><strong>Tipo:</strong> ${e.tipo}</p><p><strong>Nível:</strong> ${e.nivel}</p><p><strong>Salário:</strong> R$ ${e.salario.toLocaleString('pt-BR')}</p>${bonusText}<div class="card-actions">${acoes}<button class="btn-demitir" data-id="${e.id}">Demitir</button></div></div>`;
+            return `<div class="especialista-card"><h4>${e.nome}</h4><p><strong>Tipo:</strong> ${e.tipo}</p><p><strong>Salário:</strong> R$ ${e.salario.toLocaleString('pt-BR')}</p>${bonusText}<div class="card-actions">${acoes}<button class="btn-demitir" data-id="${e.id}">Demitir</button></div></div>`;
         }).join('');
         containerDisponiveis.innerHTML = especialistasDisponiveis.filter(e => !idsContratados.has(e.id)).map(e => {
-            return `<div class="especialista-card"><h4>${e.nome}</h4><p><strong>Tipo:</strong> ${e.tipo}</p><p><strong>Nível:</strong> ${e.nivel}</p><p><strong>Custo:</strong> R$ ${e.salario.toLocaleString('pt-BR')}</p><button class="btn-contratar" data-id="${e.id}">Contratar</button></div>`;
+            return `<div class="especialista-card"><h4>${e.nome}</h4><p><strong>Tipo:</strong> ${e.tipo}</p><p><strong>Custo:</strong> R$ ${e.salario.toLocaleString('pt-BR')}</p><button class="btn-contratar" data-id="${e.id}">Contratar</button></div>`;
         }).join('');
     }
 
@@ -5825,7 +5825,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pista = calendarioCorridas[gameState.campeonato.corridaAtualIndex];
         document.getElementById('pista-nome-corrida').textContent = `${pista.nome} (${gameState.campeonato.corridaAtualIndex + 1}/${calendarioCorridas.length})`;
-        document.getElementById('info-pista').innerHTML = `<img src="${pista.imagem}" alt="Circuito" class="info-pista-imagem"><p>Voltas: ${pista.voltas}</p><p>Foco em Motor: ${pista.demandaMotor * 100}%</p><p>Foco em Aerodinâmica: ${pista.demandaAero * 100}%</p><p>Foco em Aderência: ${pista.demandaAderencia * 100}%</p>`;
+        document.getElementById('info-pista').innerHTML = `<img src="${pista.imagem}" alt="Circuito" class="info-pista-imagem"><p>Voltas: ${pista.voltas}</p><p>Foco em Motor: ${pista.demandaMotor * 100}%</p><p>Foco em Aerodinâmica: ${pista.demandaAero * 100}%</p><p>Foco em Aderência: ${pista.demandaAderencia * 100}%</p><p>⏱️ Pit Stop Aproximado: <strong>${pista.pitstopTime}s</strong></p>`;
 
         // --- INÍCIO DA LÓGICA ATUALIZADA ---
         document.getElementById('nossos-carros-corrida').innerHTML = gameState.carros.map((carro, index) => {
