@@ -1597,6 +1597,61 @@ font-size: 0.8rem;
     font-weight: 500;
 }
 
+/* Lista de títulos de construtores com pilotos */
+.trofeu-lista-construtores {
+    margin-top: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+.trofeu-titulo-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    background: linear-gradient(135deg, #fff8e1, #fef9ec);
+    border: 1px solid #e8c84a;
+    border-radius: 8px;
+    padding: 0.45rem 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.trofeu-titulo-ano {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #7a5800;
+    letter-spacing: 0.02em;
+}
+
+.trofeu-pilotos-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    justify-content: center;
+}
+
+.trofeu-piloto-chip {
+    display: inline-block;
+    background: #fff;
+    border: 1px solid #d4a00b;
+    border-radius: 20px;
+    padding: 0.1rem 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #5a3e00;
+    white-space: nowrap;
+}
+
+.trofeu-sem-titulo {
+    font-size: 0.82rem;
+    color: #aaa;
+    font-style: italic;
+}
+
 #hall-da-fama .piloto-fama {
     display: flex;
     align-items: center;

@@ -843,6 +843,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameState.galeria.titulosPilotos = gameState.galeria.titulosPilotos.map(t =>
                         typeof t === 'object' ? t : { ano: t, piloto: '—' }
                     );
+                    // Migra saves antigos: converte anos puros de construtores para objetos {ano, pilotos:[]}
+                    gameState.galeria.titulosConstrutores = gameState.galeria.titulosConstrutores.map(t =>
+                        typeof t === 'object' ? t : { ano: t, pilotos: [] }
+                    );
                 }
 
                 gameState.pilotos = gameState.pilotos.filter(p => p !== null && typeof p === 'object');
@@ -3597,8 +3601,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── Títulos ──────────────────────────────────────────────────
         const ganheiConstrutores = equipeCampe && equipeCampe.equipe === gameState.escuderia.nome;
-        if (ganheiConstrutores && !gameState.galeria.titulosConstrutores.includes(ano)) {
-            gameState.galeria.titulosConstrutores.push(ano);
+        if (ganheiConstrutores && !gameState.galeria.titulosConstrutores.some(t => (typeof t === 'object' ? t.ano : t) === ano)) {
+            // Captura todos os pilotos que pontuaram pela equipe nesta temporada
+            const pilotosDaTemporada = classificacaoPilotos
+                .filter(p => p.equipe === gameState.escuderia.nome && p.pontos > 0)
+                .map(p => p.piloto);
+            // Fallback: pilotos ativos na equipe se nenhum pontuou (improvável mas seguro)
+            if (pilotosDaTemporada.length === 0) {
+                gameState.pilotos
+                    .filter(p => p.status === 'Jogador')
+                    .forEach(p => pilotosDaTemporada.push(p.nome));
+            }
+            gameState.galeria.titulosConstrutores.push({ ano, pilotos: pilotosDaTemporada });
         }
         let ganheiPilotos = false;
         if (pilotoCampeao) {
@@ -6352,14 +6366,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nomeEscuderiaEl.textContent = gameState.escuderia.nome;
 
-        const _anoConstr = gameState.galeria.titulosConstrutores.join(', ') || 'Nenhum título';
+        const _titulosConstr = gameState.galeria.titulosConstrutores || [];
         const _titulosPilotos = gameState.galeria.titulosPilotos || [];
+
+        // Bloco construtores: cada título exibe ano + chips dos pilotos daquele ano
+        const _blocoConstrutores = _titulosConstr.length > 0
+            ? _titulosConstr.map(t => {
+                const ano_t  = typeof t === 'object' ? t.ano : t;
+                const pilotos_t = (typeof t === 'object' && Array.isArray(t.pilotos)) ? t.pilotos : [];
+                const chipsHtml = pilotos_t.length > 0
+                    ? `<div class="trofeu-pilotos-chips">${pilotos_t.map(nome =>
+                        `<span class="trofeu-piloto-chip">${nome}</span>`).join('')}</div>`
+                    : '';
+                return `<div class="trofeu-titulo-row">
+                    <span class="trofeu-titulo-ano">🏆 ${ano_t}</span>
+                    ${chipsHtml}
+                </div>`;
+            }).join('')
+            : '<span class="trofeu-sem-titulo">Nenhum título ainda</span>';
+
+        // Bloco pilotos: mantém formato existente
         const _anosPiloto = _titulosPilotos.length > 0
             ? _titulosPilotos.map(t => typeof t === 'object'
                 ? `<span class="trofeu-linha-piloto"><strong>${t.ano}</strong> <span class="trofeu-piloto-nome">${t.piloto}</span></span>`
                 : `<span class="trofeu-linha-piloto"><strong>${t}</strong></span>`
             ).join('')
-            : '<span style="color:#999">Nenhum título</span>';
+            : '<span class="trofeu-sem-titulo">Nenhum título ainda</span>';
 
         trofeusContainer.innerHTML = `
             <h3>Gabinete de Troféus</h3>
@@ -6367,13 +6399,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="trofeu-bloco">
                     <div class="trofeu">🏆</div>
                     <div class="trofeu-label">Construtores</div>
-                    <div class="trofeu-contador">${gameState.galeria.titulosConstrutores.length || 0}</div>
-                    <div class="trofeu-anos">${_anoConstr}</div>
+                    <div class="trofeu-contador">${_titulosConstr.length}</div>
+                    <div class="trofeu-lista-construtores">${_blocoConstrutores}</div>
                 </div>
                 <div class="trofeu-bloco">
-                    <div class="trofeu">🏆</div>
+                    <div class="trofeu">🌟</div>
                     <div class="trofeu-label">Pilotos</div>
-                    <div class="trofeu-contador">${_titulosPilotos.length || 0}</div>
+                    <div class="trofeu-contador">${_titulosPilotos.length}</div>
                     <div class="trofeu-lista-pilotos">${_anosPiloto}</div>
                 </div>
             </div>
