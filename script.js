@@ -2446,7 +2446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.ers.ativo = false;
             }
 
-            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, scPitStops: [], melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão', gridPosition: index + 1 };
+            return { ...p, tempoTotal: gridPenalty, tempoInicioVolta: gridPenalty, ultimaVolta: null, stintAtual: 0, durabilidadePneu: 100, penalidadeCombustivel: 2.8, paradas: 0, melhorVoltaPessoal: Infinity, voltasNoPneuAtual: 0, voltasPneuDestruido: 0, timestampInicioVolta: 0, duracaoVoltaEstimada: pista.tempoBaseVolta, modoAgressividade: 'padrão', gridPosition: index + 1 };
         });
         // Inicializa o card de monitor com os dados da corrida atual
         const watchlistCard = document.getElementById('watchlist-card');
@@ -2657,7 +2657,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const paradaInfo = p.estrategia.paradas[p.stintAtual];
-            const voltaDaUltimaParada = p.paradas > 0 && p.estrategia.paradas.length > 0 ? p.estrategia.paradas[p.stintAtual - 1]?.pararNaVolta ?? 0 : 0;
+            const voltaDaUltimaParada = p.paradas.length > 0 ? p.estrategia.paradas.at(-1).pararNaVolta : 0;
             const proximaParada = paradaInfo ? paradaInfo.pararNaVolta : raceData.totalVoltas;
             const tamanhoStint = proximaParada - voltaDaUltimaParada;
             const progressoStint = tamanhoStint > 0 ? (raceData.voltaAtual - voltaDaUltimaParada) / tamanhoStint : 1;
@@ -3028,17 +3028,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             || alternativas[0]; // fallback: qualquer diferente
                     }
 
-                    const SC_PIT_CUSTO = 12;
-                    p.tempoTotal += SC_PIT_CUSTO;
+                    p.tempoTotal += 12;
                     p.pneuAtual = pneuEscolhido;
                     p.durabilidadePneu = 100;
                     p.penalidadeCombustivel = 2.8;
                     p.paradas++;
                     p.voltasNoPneuAtual = 1;
                     p.voltasPneuDestruido = 0;
-                    // Registra o SC pit para a telemetria poder contabilizá-lo corretamente
-                    if (!p.scPitStops) p.scPitStops = [];
-                    p.scPitStops.push({ volta: raceData.voltaAtual, tempo: SC_PIT_CUSTO, tipo: 'sc' });
                 }
 
                 // Nova estratégia: pneu atual se não parou, novo pneu se parou
@@ -3372,9 +3368,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 participante.voltasNoPneuAtual = 1;
                 participante.voltasPneuDestruido = 0;
                 participante.stintAtual = 0;
-                // Registra o SC pit para a telemetria poder contabilizá-lo corretamente
-                if (!participante.scPitStops) participante.scPitStops = [];
-                participante.scPitStops.push({ volta: raceData.voltaAtual, tempo: deltaSC, tipo: 'sc' });
             } else {
                 // Fica na pista: restaura pneu original intacto
                 participante.pneuAtual = ctx.pneuAtual || participante.pneuAtual;
@@ -7262,41 +7255,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pista = calendarioCorridas.find(c => c.nome === corrida.nomePista);
         const pitstopBase = pista ? pista.pitstopTime : 22;
-        const SC_PIT_CUSTO_IA     = 12; // custo fixo do pit de SC para a IA
-        const SC_PIT_CUSTO_PLAYER =  6; // custo fixo do pit de SC para o jogador
 
         // Coleta dados de pit para top 10 com lapData + estimativa para os demais
         const top10 = corrida.resultadoFinal.slice(0, 10);
         const dados = top10.map(p => {
-            // Tempo de SC pits registrados explicitamente (fonte mais confiável)
-            const tempoScPits = (p.scPitStops || []).reduce((s, e) => s + (e.tempo || 0), 0);
-            const numScPits   = (p.scPitStops || []).length;
-            const numPitsNormais = p.paradas - numScPits;
-
             let totalPit = 0;
             if (p.lapData && p.lapData.length > 0) {
-                // Tempo de pits normais: calcula pela diferença de lapTime vs média de volta
+                // Calcula tempo real: somamos lapTime das voltas de pit e subtraímos a média das voltas normais
                 const voltasNormais = p.lapData.filter(d => !d.pitStop && d.lapTime !== Infinity);
                 const mediaVoltaNormal = voltasNormais.length > 0
                     ? voltasNormais.reduce((s, d) => s + d.lapTime, 0) / voltasNormais.length
                     : pitstopBase + 75;
                 const voltasPit = p.lapData.filter(d => d.pitStop);
-                const tempoPitsNormais = voltasPit.reduce((s, d) => s + Math.max(0, d.lapTime - mediaVoltaNormal), 0);
-                // Soma pits normais + SC pits (com custo real registrado)
-                totalPit = tempoPitsNormais + tempoScPits;
+                totalPit = voltasPit.reduce((s, d) => s + Math.max(0, d.lapTime - mediaVoltaNormal), 0);
             } else {
-                // Estimativa para IA sem lapData:
-                // pits normais × tempo base + SC pits × custo real do SC
-                const estimativaPitsNormais = numPitsNormais * pitstopBase;
-                totalPit = estimativaPitsNormais + tempoScPits;
+                // Estimativa para IA sem lapData
+                totalPit = p.paradas * pitstopBase;
             }
-
             return {
-                nome: p.piloto.nome.split(' ').pop(),
+                nome: p.piloto.nome.split(' ').pop(), // sobrenome
                 nomeCompleto: p.piloto.nome,
                 isPlayer: p.isPlayer,
                 paradas: p.paradas,
-                numScPits,
                 totalPit: Math.max(0, totalPit)
             };
         });
@@ -7332,16 +7312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             label: ctx => {
                                 const d = dados[ctx.dataIndex];
                                 const s = ctx.parsed.x.toFixed(1);
-                                const pitsNormais = d.paradas - d.numScPits;
-                                const linhas = [
-                                    `⏱ Total: ${s}s`,
-                                    `🔧 Paradas: ${d.paradas}x`,
-                                ];
-                                if (d.numScPits > 0) {
-                                    linhas.push(`  ↳ ${pitsNormais}x normal · ${d.numScPits}x Safety Car`);
-                                }
-                                linhas.push(`⌀ por parada: ${(ctx.parsed.x / Math.max(1, d.paradas)).toFixed(1)}s`);
-                                return linhas;
+                                return [`⏱ Total: ${s}s`, `🔧 Paradas: ${d.paradas}x`, `⌀ por parada: ${(ctx.parsed.x / Math.max(1, d.paradas)).toFixed(1)}s`];
                             }
                         }
                     },
@@ -7602,10 +7573,14 @@ document.addEventListener('DOMContentLoaded', () => {
         let pneuStint   = lapData[0].tire;
 
         lapData.forEach((d, i) => {
-            if (d.pitStop) {
-                // Este lap fecha o stint atual (pit ocorreu ao final)
+            const proximo = lapData[i + 1];
+            // Cria fronteira de stint quando:
+            // (1) pitStop:true — pit normal registrado no loop de simulação, OU
+            // (2) tire muda na próxima volta sem pitStop — pit de Safety Car,
+            //     que não gera entrada pitStop:true no lapData mas altera p.pneuAtual
+            const scTireChange = !d.pitStop && proximo && proximo.tire !== pneuStint;
+            if (d.pitStop || scTireChange) {
                 stints.push({ inicio: inicioStint, fim: d.lap, pneu: pneuStint });
-                const proximo = lapData[i + 1];
                 inicioStint = proximo ? proximo.lap : d.lap + 1;
                 pneuStint   = proximo ? proximo.tire : pneuStint;
             }
