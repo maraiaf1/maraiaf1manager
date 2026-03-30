@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.30";
+    const VERSAO_JOGO = "21.0.31";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -3823,6 +3823,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Dinheiro insuficiente! Custo total da produção: R$ ${custoTotal.toLocaleString('pt-BR')}`);
             return;
         }
+
+        if (!confirm(`Produzir ${quantidade.toLocaleString('pt-BR')} unidade(s) de "${nomeItem}"?\n\nCusto total: R$ ${custoTotal.toLocaleString('pt-BR')}`)) return;
 
         gameState.escuderia.dinheiro -= custoTotal;
         itemJogo.inventario += quantidade;
