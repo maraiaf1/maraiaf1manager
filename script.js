@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.31";
+    const VERSAO_JOGO = "21.0.32";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -1817,10 +1817,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function criarPecaDeProjeto(projeto) {
         // ── Tabela de probabilidades por duração ─────────────────────────────
-        // Duração 1  corrida : peças nível 1–6 (aprendizado básico)
-        // Duração 3  corridas: 10% nível 10 | 25% nível 9 | 65% nível 7–8
-        // Duração 5  corridas: 30% nível 10 | 35% nível 9 | 35% nível 7–8
-        // Duração 10 corridas: 60% nível 10 | 30% nível 9 | 10% nível 8
+        // Duração 1–2 corridas: peças nível 1–7 (aprendizado básico)
+        // Duração 3   corridas:  5% nível 10 | 10% nível 9 | 15% nível 8 | 45% nível 7 | 15% nível 6 | 10% nível 5
+        // Duração 5–6 corridas: 15% nível 10 | 20% nível 9 | 25% nível 8 | 40% nível 7
+        // Duração 10  corridas: 60% nível 10 | 25% nível 9 | 10% nível 8 |  5% nível 7
         let nivelSorteado;
         const chance = Math.random();
 
@@ -1831,24 +1831,27 @@ document.addEventListener('DOMContentLoaded', () => {
                           :                 Math.floor(Math.random() * 2) + 6; // 25% → níveis 6–7
 
         } else if (projeto.duracaoOriginal === 3) {
-            // 3 corridas: 10% nível 10 | 25% nível 9 | 35% nível 8 | 30% nível 7
-            nivelSorteado = chance < 0.10 ? 10
-                          : chance < 0.35 ? 9
-                          : chance < 0.70 ? 8
-                          :                 7;
+            // 3 corridas:  5% nível 10 | 10% nível 9 | 15% nível 8 | 45% nível 7 | 15% nível 6 | 10% nível 5
+            nivelSorteado = chance < 0.05 ? 10
+                          : chance < 0.15 ? 9
+                          : chance < 0.30 ? 8
+                          : chance < 0.75 ? 7
+                          : chance < 0.90 ? 6
+                          :                 5;
 
         } else if (projeto.duracaoOriginal <= 6) {
-            // 5–6 corridas: 30% nível 10 | 35% nível 9 | 25% nível 8 | 10% nível 7
-            nivelSorteado = chance < 0.30 ? 10
-                          : chance < 0.65 ? 9
-                          : chance < 0.90 ? 8
+            // 5–6 corridas: 15% nível 10 | 20% nível 9 | 25% nível 8 | 40% nível 7
+            nivelSorteado = chance < 0.15 ? 10
+                          : chance < 0.35 ? 9
+                          : chance < 0.60 ? 8
                           :                 7;
 
         } else {
-            // 10 corridas: 60% nível 10 | 30% nível 9 | 10% nível 8
+            // 10 corridas: 60% nível 10 | 25% nível 9 | 10% nível 8 | 5% nível 7
             nivelSorteado = chance < 0.60 ? 10
-                          : chance < 0.90 ? 9
-                          :                 8;
+                          : chance < 0.85 ? 9
+                          : chance < 0.95 ? 8
+                          :                 7;
         }
 
         const pecasCompativeis = Object.values(catalogoDePecas).filter(p => p.tipo === projeto.tipoPeca && p.nivel === nivelSorteado);
