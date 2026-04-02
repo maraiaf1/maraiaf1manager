@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.32";
+    const VERSAO_JOGO = "21.0.33";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         83: { id: 383, tipo: 'Motor', nome: 'Motor M.90X', nivel: 10, atributos: { potencia: 88, confiabilidade: 88 } },
         384: { id: 384, tipo: 'Motor', nome: 'Motor HyperPrime 10', nivel: 10, atributos: { potencia: 90, confiabilidade: 90 } },
         385: { id: 385, tipo: 'Motor', nome: 'Motor TitanNova 10', nivel: 10, atributos: { potencia: 91, confiabilidade: 90 } },
-        386: { id: 386, tipo: 'Motor', nome: 'Motor MaxTorque 10', nivel: 10, atributos: { potencia: 93, confiabilidade: 90 } },
+        386: { id: 386, tipo: 'Motor', nome: 'Motor MaxTorque 10', nivel: 10, atributos: { potencia: 91, confiabilidade: 90 } },
         387: { id: 387, tipo: 'Motor', nome: 'Motor FusionPrime 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 90 } },
         388: { id: 388, tipo: 'Motor', nome: 'Motor ThunderNova 10', nivel: 10, atributos: { potencia: 90, confiabilidade: 90 } },
         389: { id: 389, tipo: 'Motor', nome: 'Motor VortexX 10', nivel: 10, atributos: { potencia: 92, confiabilidade: 90 } },
@@ -1869,11 +1869,13 @@ document.addEventListener('DOMContentLoaded', () => {
         novaPeca.nome = `${pecaTemplate.nome} (Projeto ${projeto.nomeEspecialista.split(' ')[0]})`;
         novaPeca.instanceId = projeto.id;
         for (const attr in novaPeca.atributos) {
-            const multiplicadorBase = 1 + (projeto.nivelEspecialista * 0.03) + (novaPeca.nivel * 0.1);
+            const multiplicadorBase = 1 + (projeto.nivelEspecialista * 0.02) + (novaPeca.nivel * 0.006);
             const bonusChassis = projeto.tipoPeca === 'Chassi' ? calcularBonusAtributosChassis() : 0;
             const fatorAleatorio = 1 + (Math.random() * 0.2 - 0.1);
             const novoValor = Math.round(novaPeca.atributos[attr] * multiplicadorBase * (1 + bonusChassis) * fatorAleatorio);
-            novaPeca.atributos[attr] = Math.min(100, Math.min(novoValor, Math.round(pecaTemplate.atributos[attr] * 1.1)));
+            const capFactor = novaPeca.nivel === 10 ? 1.063 : 1.1;
+            const maxAtributo = novaPeca.nivel === 10 ? 99 : 100;
+            novaPeca.atributos[attr] = Math.min(maxAtributo, Math.min(novoValor, Math.round(pecaTemplate.atributos[attr] * capFactor)));
         }
         novaPeca.corridasUsadas = 0;
         novaPeca.atributosOriginais = JSON.parse(JSON.stringify(novaPeca.atributos));
