@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pneus = {
         macio: { nome: 'Macio', multiplicadorPerformance: 1.289, desgastePorVolta: 5.20, duracaoIdeal: 0.31 },
         medio: { nome: 'Médio', multiplicadorPerformance: 1.0, desgastePorVolta: 3.0, duracaoIdeal: 0.45 },
-        duro: { nome: 'Duro', multiplicadorPerformance: 0.999, desgastePorVolta: 1.9, duracaoIdeal: 0.65 }
+        duro: { nome: 'Duro', multiplicadorPerformance: 0.995, desgastePorVolta: 1.9, duracaoIdeal: 0.65 }
     };
     const pontosPorPosicao = { 1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1 };
     const especialistaHabilidades = {
@@ -474,12 +474,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const equipesIA = [
         // Spread rebalanceado: Top → ~88-92 | Meio → ~78-86 | Campo → ~68-77
         // Cada equipe tem uma característica dominante para dar personalidade ao grid.
-        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 91, aerodinamica: 87, aderencia: 90, confiabilidade: 82 } }, // equilibrado/potência
-        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 95, aerodinamica: 93, aderencia: 91, confiabilidade: 89 } }, // aerodinâmica dominante
-        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 94, aerodinamica: 91, aderencia: 91, confiabilidade: 88 } }, // potência alta, conf. frágil
+        { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 91, aerodinamica: 89, aderencia: 90, confiabilidade: 82 } }, // equilibrado/potência
+        { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 95, aerodinamica: 93, aderencia: 92, confiabilidade: 89 } }, // aerodinâmica dominante
+        { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 94, aerodinamica: 92, aderencia: 91, confiabilidade: 88 } }, // potência alta, conf. frágil
         { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 88, aerodinamica: 87, aderencia: 87, confiabilidade: 85 } }, // aderência e confiabilidade sólidas
         { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 82, aerodinamica: 81, aderencia: 80, confiabilidade: 76 } }, // aderência forte
-        { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 92, aerodinamica: 95, aderencia: 91, confiabilidade: 88 } }, // o mais rápido, conf. média
+        { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 92, aerodinamica: 95, aderencia: 92, confiabilidade: 88 } }, // o mais rápido, conf. média
         { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 86, aerodinamica: 88, aderencia: 88, confiabilidade: 81 } }, // midfield equilibrado
         { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 83, aderencia: 84, confiabilidade: 85 } }, // campo de trás
         { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 87, aerodinamica: 85, aderencia: 86, confiabilidade: 86 } }, // aero ligeiramente melhor
@@ -842,6 +842,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Migra saves antigos: converte anos puros para objetos {ano, piloto}
                     gameState.galeria.titulosPilotos = gameState.galeria.titulosPilotos.map(t =>
                         typeof t === 'object' ? t : { ano: t, piloto: '—' }
+                    );
+                    // Migra saves antigos: converte anos puros em titulosConstrutores para objetos {ano, pilotos}
+                    gameState.galeria.titulosConstrutores = gameState.galeria.titulosConstrutores.map(t =>
+                        typeof t === 'object' ? t : { ano: t, pilotos: [] }
                     );
                 }
 
@@ -3602,8 +3606,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── Títulos ──────────────────────────────────────────────────
         const ganheiConstrutores = equipeCampe && equipeCampe.equipe === gameState.escuderia.nome;
-        if (ganheiConstrutores && !gameState.galeria.titulosConstrutores.includes(ano)) {
-            gameState.galeria.titulosConstrutores.push(ano);
+        if (ganheiConstrutores && !gameState.galeria.titulosConstrutores.some(t => (typeof t === 'object' ? t.ano : t) === ano)) {
+            const _pilotosDaCasa = gameState.pilotos.filter(p => p.status === 'Jogador').map(p => p.nome);
+            gameState.galeria.titulosConstrutores.push({ ano, pilotos: _pilotosDaCasa });
         }
         let ganheiPilotos = false;
         if (pilotoCampeao) {
@@ -6377,7 +6382,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nomeEscuderiaEl.textContent = gameState.escuderia.nome;
 
-        const _anoConstr = gameState.galeria.titulosConstrutores.join(', ') || 'Nenhum título';
+        const _titulosConstrutores = gameState.galeria.titulosConstrutores || [];
+        const _anoConstrHtml = _titulosConstrutores.length > 0
+            ? _titulosConstrutores.map(t => typeof t === 'object'
+                ? `<span class="trofeu-linha-piloto"><strong>${t.ano}</strong> <span class="trofeu-piloto-nome">${(t.pilotos || []).join(' & ') || '—'}</span></span>`
+                : `<span class="trofeu-linha-piloto"><strong>${t}</strong></span>`
+            ).join('')
+            : '<span style="color:#999">Nenhum título</span>';
         const _titulosPilotos = gameState.galeria.titulosPilotos || [];
         const _anosPiloto = _titulosPilotos.length > 0
             ? _titulosPilotos.map(t => typeof t === 'object'
@@ -6392,8 +6403,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="trofeu-bloco">
                     <div class="trofeu">🏆</div>
                     <div class="trofeu-label">Construtores</div>
-                    <div class="trofeu-contador">${gameState.galeria.titulosConstrutores.length || 0}</div>
-                    <div class="trofeu-anos">${_anoConstr}</div>
+                    <div class="trofeu-contador">${_titulosConstrutores.length || 0}</div>
+                    <div class="trofeu-lista-pilotos">${_anoConstrHtml}</div>
                 </div>
                 <div class="trofeu-bloco">
                     <div class="trofeu">🏆</div>
