@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.36";
+    const VERSAO_JOGO = "21.0.37";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -6534,7 +6534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Se o modal do Safety Car estiver aberto, re-renderiza o editor do modal também
         const scModal = document.getElementById('safety-car-modal');
         if (scModal && !scModal.classList.contains('hidden') && raceData && raceData.safetyCarAtivo) {
-            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
             renderEstrategiaModalSC(voltasRestantes);
         }
 
@@ -8270,7 +8270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 carro.estrategia = { pneuInicial: diferente, paradas: [] };
             }
 
-            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
             renderEstrategiaModalSC(voltasRestantes);
         }
         else if (action === 'abrir-telemetria') {
@@ -8378,7 +8378,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fecharModalSafetyCar();
         }
         else if (target.matches('#btn-sc-auto')) {
-            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+            const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
             aplicarEstrategiaAutoPosSC(voltasRestantes);
             renderEstrategiaModalSC(voltasRestantes);
         }
@@ -8410,7 +8410,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const novavolta = Math.min(voltaBase + 15, voltaMax);
             carro.estrategia.paradas.push({ pararNaVolta: novavolta, colocarPneu: 'duro' });
             if (raceData.safetyCarAtivo) {
-                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
                 renderEstrategiaModalSC(voltasRestantes);
             } else {
                 renderEstrategiaUI();
@@ -8422,7 +8422,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const paradaIndex = parseInt(target.dataset.paradaIndex);
             gameState.carros[carroIndex].estrategia.paradas.splice(paradaIndex, 1);
             if (raceData.safetyCarAtivo) {
-                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
                 renderEstrategiaModalSC(voltasRestantes);
             } else {
                 renderEstrategiaUI();
@@ -8444,7 +8444,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.carros[carroIndex].estrategia.pneuInicial = target.value;
             }
             if (raceData.safetyCarAtivo) {
-                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
+                const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
                 renderEstrategiaModalSC(voltasRestantes);
             } else {
                 renderEstrategiaUI();
