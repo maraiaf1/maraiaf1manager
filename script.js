@@ -6986,6 +6986,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── 4. Narrador — especialista da área com maior deficit ──────────
         // Quando o carro está dentro do nível competitivo, usa o Treinador de Pilotos.
+        const teamStr  = top3Times.map(t => t.nome).join(', ');
+        const fundoStr = campoTimes.map(t => t.nome).join(', ');
+
         const avatarPorTipo = {
             'Engenheiro de Motor': '🔧',
             'Aerodinamicista':     '💨',
@@ -7019,9 +7022,6 @@ document.addEventListener('DOMContentLoaded', () => {
             textoEsp  = `Análise comparativa com as equipes de topo: <strong style="color:#f0c040">${teamStr}</strong>.<br>
                          ${(textoNarradorPorAttr[attrFracoObj.key] ?? (() => ''))(maiorGap, attrFracoObj.peca)}`;
         }
-
-        const teamStr  = top3Times.map(t => t.nome).join(', ');
-        const fundoStr = campoTimes.map(t => t.nome).join(', ');
 
         // ── 5. Render de cada linha de atributo ───────────────────────────
         // A escala das barras é ABSOLUTA (0–100), igual ao sistema de atributos
@@ -7702,7 +7702,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             : `✅ Sua estratégia foi competitiva — diferença de apenas ${ganhoVsMelhor.toFixed(1)}s vs o ótimo calculado.`}
                 </p>
             </div>`;
-        }
         }
 
         container.innerHTML = bloco1Html + bloco2Html + bloco3Html ||
