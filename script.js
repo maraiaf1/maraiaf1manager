@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.33";
+    const VERSAO_JOGO = "21.0.34";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -559,12 +559,12 @@ document.addEventListener('DOMContentLoaded', () => {
             nome: "Centro de Otimização de ERS", icone: "⚡",
             descricao: "Melhora a potência da bateria ERS quando ativada, garantindo um bônus de desempenho maior por volta.",
             niveis: [
-                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
-                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: -0.200s por volta quando ativo." },
-                { custo: 3000000,  titulo: "Otimizado",         descricao: "-0.300s por volta com ERS ativo. Gestão energética aprimorada." },
-                { custo: 6000000,  titulo: "Avançado",          descricao: "-0.500s por volta com ERS ativo." },
-                { custo: 12000000, titulo: "Elite",             descricao: "-0.700s por volta com ERS ativo." },
-                { custo: 20000000, titulo: "Estado da Arte",    descricao: "Entre -0.750s e -0.900s por volta com ERS ativo. Potência máxima!" }
+                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: −0.200s/v com ERS ativo · 3 voltas ativas por ciclo." },
+                { custo: 0,        titulo: "Padrão (incluído)", descricao: "ERS padrão de série: −0.200s/v com ERS ativo · 3 voltas ativas por ciclo." },
+                { custo: 3000000,  titulo: "Otimizado",         descricao: "−0.300s/v com ERS ativo · 3 voltas ativas por ciclo. Gestão energética aprimorada." },
+                { custo: 6000000,  titulo: "Avançado",          descricao: "−0.350s/v com ERS ativo · 2 voltas ativas por ciclo. Descarga mais concentrada." },
+                { custo: 12000000, titulo: "Elite",             descricao: "−0.500s/v com ERS ativo · 1 volta ativa por ciclo. Bônus máximo por ativação." },
+                { custo: 20000000, titulo: "Estado da Arte",    descricao: "−0.550s a −0.600s/v com ERS ativo · 1 volta ativa, recarga mais rápida. Potência de fábrica de ponta." }
             ]
         },
         centroMotores: {
@@ -2525,14 +2525,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return min + Math.random() * (max - min);
     }
 
+    // Retorna quantas voltas o ERS fica ATIVO por ciclo, dependendo do nível.
+    // Níveis baixos → mais voltas ativas (ajuda o iniciante).
+    // Níveis altos  → 1 volta ativa (bônus por volta maior, mas ciclo curto = equilíbrio).
+    function ersVoltasAtivas(nivel) {
+        if (nivel <= 2) return 3; // Padrão / Otimizado: 3 voltas ativas
+        if (nivel === 3) return 2; // Avançado: 2 voltas ativas
+        return 1;                  // Elite / Estado da Arte: 1 volta ativa
+    }
+
     function calcularBonusERS() {
         const nivel = gameState.instalacoes.ers;
+        // Bônus por volta (s): cresce com o nível, mas o número de voltas ativas
+        // DIMINUI nos níveis altos — impedindo acúmulo de vantagem excessivo.
+        // Total/ciclo aprox.: niv1=0.6s | niv2=0.9s | niv3=0.7s | niv4=0.5s | niv5=0.55-0.60s
         if (nivel <= 1) return 0.200;
         if (nivel === 2) return 0.300;
-        if (nivel === 3) return 0.500;
-        if (nivel === 4) return 0.700;
-        // nivel 5: entre 0.750 e 0.900
-        return 0.750 + Math.random() * 0.150;
+        if (nivel === 3) return 0.350;
+        if (nivel === 4) return 0.500;
+        // nivel 5: entre 0.550 e 0.600
+        return 0.550 + Math.random() * 0.050;
     }
 
     function calcularReducaoTunelTempo() {
@@ -2627,7 +2639,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     bonusERS = calcularBonusERS();
                     if (bonusERS > 0) p.ersBonusAtivoNestaVolta = true;
                     p.ers.cicloDeCarregamento--;
-                    p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;  //quantidade de voltas com o ERS ligado (p.ers.cicloDeCarregamento = 3)
+                    // Bateria usa o máximo do ciclo atual como denominador (dinâmico por nível)
+                    const maxCiclo = p.ers.maxCicloDeCarregamento || 3;
+                    p.ers.bateria = (p.ers.cicloDeCarregamento / maxCiclo) * 100;
                     if (p.ers.cicloDeCarregamento <= 0) {
                         p.ers.ativo = false;
                         p.ers.bateria = 0;
@@ -2641,7 +2655,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (p.ers.voltasParaCarregar <= 0) {
                         p.ers.ativo = true;
                         p.ers.bateria = 100;
-                        p.ers.cicloDeCarregamento = 3; //Ajustar aqui para ter a quantidade de voltas ativas com ERS - junto com p.ers.bateria = (p.ers.cicloDeCarregamento / 3) * 100;
+                        // Número de voltas ativas depende do nível instalado
+                        const voltasAtivas = ersVoltasAtivas(gameState.instalacoes.ers);
+                        p.ers.cicloDeCarregamento = voltasAtivas;
+                        p.ers.maxCicloDeCarregamento = voltasAtivas;
                     }
                 }
             }
@@ -6892,39 +6909,49 @@ document.addEventListener('DOMContentLoaded', () => {
             confiabilidade: +(somaJogador.confiabilidade / nCarros).toFixed(1)
         };
 
-        // ── 2. Ranking das equipes IA por performance real do carro ──────
-        // Usa CARRO_INICIAL (snapshot gerado de equipesIA na inicialização)
-        // como referência — sempre em sync com os valores atuais do código.
-        // Clamp anti-inflate: limita o valor evoluído a base + 5 pts,
-        // evitando que temporadas anteriores distoram o benchmark.
-        function carroEfetivo(equipe) {
-            const c = equipe.carro;
-            const base = CARRO_INICIAL[equipe.nome];
-            if (!base) return { ...c };
-            return {
-                potencia:       Math.min(c.potencia,       base.potencia       + 5),
-                aerodinamica:   Math.min(c.aerodinamica,   base.aerodinamica   + 5),
-                aderencia:      Math.min(c.aderencia,      base.aderencia      + 5),
-                confiabilidade: Math.min(c.confiabilidade, base.confiabilidade + 5)
-            };
+        // ── 2. Ranking das equipes IA pela CLASSIFICAÇÃO ATUAL do campeonato ──
+        // Usa a classificação de construtores real da temporada corrente para
+        // determinar quais equipes são "Top 3" e quais são "Campo".
+        // Se ainda não houver corridas (classificação vazia), cai de volta para
+        // a ordenação por atributos do carro.
+        function carroAtual(equipe) {
+            // Usa os atributos do carro como estão agora (com evolução de temporadas)
+            return { ...equipe.carro };
         }
 
-        const avgCarro = t => {
-            const c = carroEfetivo(t);
-            return (c.potencia + c.aerodinamica + c.aderencia + c.confiabilidade) / 4;
-        };
+        const classificacaoCorr = [...(gameState.campeonato.classificacaoConstrutores || [])]
+            .sort((a, b) => b.pontos - a.pontos);
 
-        const IAordenada = [...equipesIA].sort((a, b) => avgCarro(b) - avgCarro(a));
+        let IAordenada;
+        if (classificacaoCorr.length >= 4) {
+            // Ordena equipes IA na mesma sequência da classificação da corrida
+            const mapped = [];
+            classificacaoCorr.forEach(e => {
+                const ia = equipesIA.find(x => x.nome === e.equipe);
+                if (ia) mapped.push(ia);
+            });
+            // Adiciona equipes IA que ainda não pontuaram (fim da lista)
+            equipesIA.forEach(e => {
+                if (!mapped.find(x => x.nome === e.nome)) mapped.push(e);
+            });
+            IAordenada = mapped;
+        } else {
+            // Fallback: ordena por média de atributos atuais
+            IAordenada = [...equipesIA].sort((a, b) => {
+                const avg = t => (t.carro.potencia + t.carro.aerodinamica + t.carro.aderencia + t.carro.confiabilidade) / 4;
+                return avg(b) - avg(a);
+            });
+        }
 
-        // Top 3 = 3 carros mais rápidos da grade | Campo = 3 mais lentos
+        // Top 3 = líderes da classificação | Campo = lanterna
         const top3Times  = IAordenada.slice(0, 3);
         const campoTimes = IAordenada.slice(-3);
 
-        // Calcula média usando carroEfetivo (protegido contra inflate)
+        // Calcula média dos atributos atuais de cada grupo
         function mediaIA(times) {
             const soma = { potencia: 0, aerodinamica: 0, aderencia: 0, confiabilidade: 0 };
             times.forEach(t => {
-                const c = carroEfetivo(t);
+                const c = carroAtual(t);
                 soma.potencia      += c.potencia;
                 soma.aerodinamica  += c.aerodinamica;
                 soma.aderencia     += c.aderencia;
@@ -7042,9 +7069,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <p class="bench-rodape">
-            * Grupos definidos pelos atributos reais de fábrica de cada carro IA —
-            independente da posição no campeonato. Escala absoluta 0–100.
-            "Minha Equipe" usa os valores reais das peças atualmente equipadas.
+            * Top 3 e Campo definidos pela classificação de construtores <strong>desta corrida</strong>.
+            Os atributos refletem os valores atuais de fábrica + evolução de cada equipe.
+            Escala absoluta 0–100.
         </p>`;
     }
 
@@ -7477,51 +7504,138 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }
 
-        // ── Bloco 3: "E se...?" ──
+        // ── Bloco 3: "E se...?" → Estratégia Ótima ──
         let bloco3Html = '';
-        if (pilotosJogador.length > 0) {
+        if (compostoOrdenado.length >= 2 && pilotosJogador.length > 0) {
             const p = pilotosJogador[0];
-            const stints = stintsDoLapData(p.lapData);
+            const totalVoltas = (corrida.resultadoFinal[0].lapData?.length) || pista?.voltas || 60;
 
-            // Acha o stint do jogador com menor média (excluindo pit)
-            let melhorStint = null;
-            stints.forEach(s => {
-                const voltas = p.lapData.filter(d => d.lap >= s.inicio && d.lap <= s.fim && !d.pitStop && d.lapTime !== Infinity);
-                if (voltas.length < 2) return;
-                const media = voltas.reduce((acc, d) => acc + d.lapTime, 0) / voltas.length;
-                if (!melhorStint || media < melhorStint.media) melhorStint = { pneu: s.pneu, voltas: voltas.length, media };
-            });
+            // ── Tempo real do jogador na corrida (excluindo DNF/Infinity) ──
+            const tempoRealJogador = (corrida.resultadoFinal.find(r => r.piloto.id === p.piloto.id)?.tempoTotal) || null;
 
-            // Pneu mais rápido da corrida
-            const [pneuIdeal] = compostoOrdenado[0] || ['duro', 0];
-            const mediaIdeal = mediaComposto[pneuIdeal];
+            // ── Calcula estimativa de tempo total para cada estratégia ──
+            // Usa os ritmos médios reais dos compostos medidos nesta corrida.
+            function estimarTempoEstrategia(stints, pitstopCusto) {
+                // stints: [ { pneu, inicio, fim } ] com ritmo em mediaComposto[pneu]
+                let tempo = 0;
+                let paradas = 0;
+                stints.forEach((s, i) => {
+                    const voltas = s.fim - s.inicio + 1;
+                    const ritmo = mediaComposto[s.pneu] ?? compostoOrdenado[0][1];
+                    tempo += voltas * ritmo;
+                    if (i > 0) tempo += pitstopCusto; // custo de cada pit stop
+                    else paradas = 0;
+                    if (i > 0) paradas++;
+                });
+                return { tempo, paradas };
+            }
 
-            if (melhorStint && mediaIdeal) {
-                const totalVoltas = corrida.resultadoFinal[0].lapData?.length || pista?.voltas || 60;
-                const ganhoEstimado = (melhorStint.media - mediaIdeal) * totalVoltas;
-                const insight = ganhoEstimado > 2
-                    ? `Usando ${pneuNome[pneuIdeal]} desde o início, você poderia ganhar até <strong>${ganhoEstimado.toFixed(0)}s</strong> no ritmo puro — sem contar paradas.`
-                    : `Seu melhor stint foi competitivo com o composto mais rápido da corrida. A diferença está nos boxes ou nas paradas estratégicas.`;
+            // Estratégia 1: 1 parada — composto mais rápido → 2° mais rápido
+            const [c1k, c1v] = compostoOrdenado[0];
+            const [c2k, c2v] = compostoOrdenado[1];
+            const [c3k, c3v] = compostoOrdenado[2] ?? compostoOrdenado[1];
 
-                bloco3Html = `
-                <div class="licao-bloco licao-eSe">
-                    <div class="licao-titulo">🤔 E se…?</div>
-                    <div class="licao-ese-grid">
-                        <div class="licao-ese-item">
-                            <div class="licao-ese-label">Melhor stint seu</div>
-                            <div class="licao-ese-valor">${formatLapTime(melhorStint.media)}<span>/v</span></div>
-                            <div class="licao-ese-sub">${pneuNome[melhorStint.pneu]} · ${melhorStint.voltas}v</div>
+            const pitLap1 = Math.round(totalVoltas * 0.43);
+            const est1Para = estimarTempoEstrategia([
+                { pneu: c1k, inicio: 1, fim: pitLap1 },
+                { pneu: c2k, inicio: pitLap1 + 1, fim: totalVoltas }
+            ], pitstopBase);
+
+            // Estratégia 2: 2 paradas — 3 compostos distintos ou repete o mais rápido
+            const pitLap2a = Math.round(totalVoltas * 0.30);
+            const pitLap2b = Math.round(totalVoltas * 0.60);
+            const est2Para = estimarTempoEstrategia([
+                { pneu: c1k, inicio: 1,           fim: pitLap2a },
+                { pneu: c2k, inicio: pitLap2a + 1, fim: pitLap2b },
+                { pneu: c3k, inicio: pitLap2b + 1, fim: totalVoltas }
+            ], pitstopBase);
+
+            // Qual estratégia seria mais rápida?
+            const melhorEst = est1Para.tempo <= est2Para.tempo ? '1 parada' : '2 paradas';
+            const melhorTempo = Math.min(est1Para.tempo, est2Para.tempo);
+            const diferencaEntre = Math.abs(est1Para.tempo - est2Para.tempo);
+
+            // Estratégia real do jogador (via stints detectados no lapData)
+            const stintsJogador = stintsDoLapData(p.lapData);
+            const estJogador = estimarTempoEstrategia(
+                stintsJogador.map((s, i) => ({ pneu: s.pneu, inicio: s.inicio, fim: s.fim })),
+                pitstopBase
+            );
+
+            const ganhoVsMelhor = estJogador.tempo - melhorTempo;
+            const corGanho = ganhoVsMelhor <= 2 ? '#44d88e' : ganhoVsMelhor <= 10 ? '#f0c040' : '#e57373';
+
+            const pneuEmoji = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
+
+            bloco3Html = `
+            <div class="licao-bloco licao-eSe">
+                <div class="licao-titulo">📋 Estratégia Ótima — análise desta pista</div>
+                <p class="licao-insight" style="margin-bottom:.75rem">
+                    Baseado no ritmo real de cada composto nesta corrida (${totalVoltas} voltas · pit: ~${pitstopBase}s):
+                </p>
+
+                <div class="licao-ese-estrategias">
+                    <!-- Estratégia 1 parada -->
+                    <div class="licao-est-card ${melhorEst === '1 parada' ? 'licao-est-melhor' : ''}">
+                        <div class="licao-est-titulo">1 parada ${melhorEst === '1 parada' ? '⭐ Melhor' : ''}</div>
+                        <div class="licao-est-composto">
+                            ${pneuEmoji[c1k]} V1–${pitLap1}
+                            <span class="licao-est-arr">→</span>
+                            ${pneuEmoji[c2k]} V${pitLap1 + 1}–${totalVoltas}
                         </div>
-                        <div class="licao-ese-arrow">→</div>
-                        <div class="licao-ese-item destaque">
-                            <div class="licao-ese-label">Pneu mais rápido da corrida</div>
-                            <div class="licao-ese-valor">${formatLapTime(mediaIdeal)}<span>/v</span></div>
-                            <div class="licao-ese-sub">${pneuNome[pneuIdeal]}</div>
+                        <div class="licao-est-tempo">${formatLapTime(est1Para.tempo / totalVoltas)}<span>/v</span>
+                            <small style="color:#888">≈ ${(est1Para.tempo / 60).toFixed(0)}min total</small>
+                        </div>
+                        <div class="licao-est-delta" style="color:${est1Para.tempo <= est2Para.tempo ? '#44d88e' : '#f0c040'}">
+                            ${est1Para.tempo <= est2Para.tempo ? '✓ mais rápido' : `+${diferencaEntre.toFixed(1)}s vs 2 paradas`}
                         </div>
                     </div>
-                    <p class="licao-insight">${insight}</p>
-                </div>`;
-            }
+
+                    <!-- Estratégia 2 paradas -->
+                    <div class="licao-est-card ${melhorEst === '2 paradas' ? 'licao-est-melhor' : ''}">
+                        <div class="licao-est-titulo">2 paradas ${melhorEst === '2 paradas' ? '⭐ Melhor' : ''}</div>
+                        <div class="licao-est-composto">
+                            ${pneuEmoji[c1k]} V1–${pitLap2a}
+                            <span class="licao-est-arr">→</span>
+                            ${pneuEmoji[c2k]} V${pitLap2a + 1}–${pitLap2b}
+                            <span class="licao-est-arr">→</span>
+                            ${pneuEmoji[c3k]} V${pitLap2b + 1}–${totalVoltas}
+                        </div>
+                        <div class="licao-est-tempo">${formatLapTime(est2Para.tempo / totalVoltas)}<span>/v</span>
+                            <small style="color:#888">≈ ${(est2Para.tempo / 60).toFixed(0)}min total</small>
+                        </div>
+                        <div class="licao-est-delta" style="color:${est2Para.tempo <= est1Para.tempo ? '#44d88e' : '#f0c040'}">
+                            ${est2Para.tempo <= est1Para.tempo ? '✓ mais rápido' : `+${diferencaEntre.toFixed(1)}s vs 1 parada`}
+                        </div>
+                    </div>
+
+                    <!-- Sua estratégia -->
+                    <div class="licao-est-card licao-est-jogador">
+                        <div class="licao-est-titulo">Sua estratégia (${stintsJogador.length} stint${stintsJogador.length !== 1 ? 's' : ''})</div>
+                        <div class="licao-est-composto">
+                            ${stintsJogador.map((s, i) =>
+                                `${i > 0 ? '<span class="licao-est-arr">→</span>' : ''} ${pneuEmoji[s.pneu] ?? s.pneu} V${s.inicio}–${s.fim}`
+                            ).join('')}
+                        </div>
+                        <div class="licao-est-tempo">${formatLapTime(estJogador.tempo / totalVoltas)}<span>/v</span>
+                            <small style="color:#888">≈ ${(estJogador.tempo / 60).toFixed(0)}min total</small>
+                        </div>
+                        <div class="licao-est-delta" style="color:${corGanho}">
+                            ${ganhoVsMelhor <= 1
+                                ? '✅ Estratégia quase ótima!'
+                                : `+${ganhoVsMelhor.toFixed(1)}s vs estratégia ideal`}
+                        </div>
+                    </div>
+                </div>
+
+                <p class="licao-insight" style="margin-top:.75rem">
+                    ${ganhoVsMelhor > 15
+                        ? `⚠️ Mudar para <strong>${melhorEst}</strong> poderia salvar ~${ganhoVsMelhor.toFixed(0)}s de tempo de corrida nesta pista.`
+                        : ganhoVsMelhor > 5
+                            ? `💡 A estratégia de <strong>${melhorEst}</strong> seria mais rápida em ~${ganhoVsMelhor.toFixed(0)}s. Considere aplicá-la na próxima visita a esta pista.`
+                            : `✅ Sua estratégia foi competitiva. A diferença vs o ótimo foi de apenas ${ganhoVsMelhor.toFixed(1)}s.`}
+                </p>
+            </div>`;
         }
 
         container.innerHTML = bloco1Html + bloco2Html + bloco3Html ||

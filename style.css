@@ -3244,9 +3244,75 @@ font-size: 0.8em;
 .licao-ese-sub { font-size: 0.72rem; color: #888; margin-top: 0.2rem; }
 .licao-ese-arrow { font-size: 1.2rem; color: #444; flex-shrink: 0; }
 
-/* ============================================================
-   TELEMETRIA — DEGRADAÇÃO DE PNEUS
-   ============================================================ */
+/* ── Novo card Estratégia Ótima (substitui E se...? antigo) ── */
+.licao-ese-estrategias {
+    display: flex;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
+}
+.licao-est-card {
+    flex: 1;
+    min-width: 160px;
+    background: #0d0d1e;
+    border: 1px solid #1e1e30;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: border-color 0.2s;
+}
+.licao-est-card.licao-est-melhor {
+    border-color: #2a5a2a;
+    background: #0a150a;
+}
+.licao-est-card.licao-est-jogador {
+    border-color: #2a2050;
+    background: #0d0d25;
+}
+.licao-est-titulo {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.2rem;
+}
+.licao-est-melhor .licao-est-titulo { color: #44d88e; }
+.licao-est-jogador .licao-est-titulo { color: #8b8bff; }
+.licao-est-composto {
+    font-size: 0.78rem;
+    color: #ccc;
+    line-height: 1.5;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+}
+.licao-est-arr {
+    color: #444;
+    font-size: 0.7rem;
+}
+.licao-est-tempo {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 0.2rem;
+}
+.licao-est-tempo span { font-size: 0.72rem; color: #555; margin-right: 0.4rem; }
+.licao-est-tempo small { font-weight: 400; }
+.licao-est-delta {
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-top: 0.1rem;
+}
+@media (max-width: 600px) {
+    .licao-ese-estrategias { flex-direction: column; }
+    .licao-est-card { min-width: unset; }
+}
+
+
 
 .deg-grid {
     display: grid;
