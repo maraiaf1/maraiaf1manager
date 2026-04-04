@@ -3244,7 +3244,7 @@ font-size: 0.8em;
 .licao-ese-sub { font-size: 0.72rem; color: #888; margin-top: 0.2rem; }
 .licao-ese-arrow { font-size: 1.2rem; color: #444; flex-shrink: 0; }
 
-/* ── Novo card Estratégia Ótima (substitui E se...? antigo) ── */
+/* ── Card Estratégia Ótima ─────────────────────────────────── */
 .licao-ese-estrategias {
     display: flex;
     gap: 0.75rem;
@@ -3260,8 +3260,7 @@ font-size: 0.8em;
     padding: 0.85rem 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    transition: border-color 0.2s;
+    gap: 0.3rem;
 }
 .licao-est-card.licao-est-melhor {
     border-color: #2a5a2a;
@@ -3277,35 +3276,35 @@ font-size: 0.8em;
     color: #aaa;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.15rem;
 }
 .licao-est-melhor .licao-est-titulo { color: #44d88e; }
 .licao-est-jogador .licao-est-titulo { color: #8b8bff; }
 .licao-est-composto {
     font-size: 0.78rem;
     color: #ccc;
-    line-height: 1.5;
+    line-height: 1.6;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.2rem;
 }
-.licao-est-arr {
-    color: #444;
-    font-size: 0.7rem;
+.licao-est-arr { color: #444; font-size: 0.7rem; }
+.licao-est-vida {
+    font-size: 0.68rem;
+    color: #555;
+    margin-top: 0.1rem;
 }
 .licao-est-tempo {
     font-size: 1.05rem;
     font-weight: 800;
     color: #fff;
-    margin-top: 0.2rem;
+    margin-top: 0.25rem;
 }
-.licao-est-tempo span { font-size: 0.72rem; color: #555; margin-right: 0.4rem; }
-.licao-est-tempo small { font-weight: 400; }
+.licao-est-tempo span { font-size: 0.72rem; color: #555; margin-right: 0.3rem; }
 .licao-est-delta {
     font-size: 0.78rem;
     font-weight: 600;
-    margin-top: 0.1rem;
 }
 @media (max-width: 600px) {
     .licao-ese-estrategias { flex-direction: column; }
@@ -3313,6 +3312,10 @@ font-size: 0.8em;
 }
 
 
+
+/* ============================================================
+   TELEMETRIA — DEGRADAÇÃO DE PNEUS
+   ============================================================ */
 
 .deg-grid {
     display: grid;

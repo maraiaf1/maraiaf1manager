@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.34";
+    const VERSAO_JOGO = "21.0.35";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -2491,7 +2491,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     raceData.pendingSafetyCar = false;
                     raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
                     renderTabelaAoVivo();
-                    // Não incrementa aqui — fecharModalSafetyCar() fará o ++ ao retomar
+                    raceData.voltaAtual++;
                     ativarSafetyCar();
                     return; // pausa o loop — será retomado após o modal
                 }
@@ -3450,7 +3450,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Retoma o loop da corrida
         raceData.safetyCarAtivo = false;
         raceData.pendingSafetyCar = false;
-        raceData.voltaAtual++; // Consome a volta que foi simulada antes do SC
         timestampUltimaSimulacao = performance.now();
         raceTimerId = setInterval(() => {
             if (!animacaoAtiva) {
@@ -3470,7 +3469,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     raceData.pendingSafetyCar = false;
                     raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
                     renderTabelaAoVivo();
-                    // Não incrementa aqui — fecharModalSafetyCar() fará o ++ ao retomar
+                    raceData.voltaAtual++;
                     ativarSafetyCar();
                     return;
                 }
@@ -6972,10 +6971,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── 3. Identifica o maior gap para a recomendação ─────────────────
         const attrDefs = [
-            { key: 'potencia',       label: '⚡ Potência',         peca: 'motor de maior nível' },
-            { key: 'aerodinamica',   label: '💨 Aerodinâmica',     peca: 'asas e chassi de nível superior' },
-            { key: 'aderencia',      label: '🔄 Aderência',        peca: 'suspensão e chassi' },
-            { key: 'confiabilidade', label: '🛡️ Confiabilidade',  peca: 'peças de alta confiabilidade (nível 8+)' },
+            { key: 'potencia',       label: '⚡ Potência',         peca: 'motor de maior nível',                    tipoEsp: 'Engenheiro de Motor' },
+            { key: 'aerodinamica',   label: '💨 Aerodinâmica',     peca: 'asas e chassi de nível superior',         tipoEsp: 'Aerodinamicista'     },
+            { key: 'aderencia',      label: '🔄 Aderência',        peca: 'suspensão e chassi',                      tipoEsp: 'Projetista'           },
+            { key: 'confiabilidade', label: '🛡️ Confiabilidade',  peca: 'peças de alta confiabilidade (nível 8+)', tipoEsp: 'Engenheiro de Motor' },
         ];
 
         let maiorGap = -Infinity;
@@ -6985,12 +6984,44 @@ document.addEventListener('DOMContentLoaded', () => {
             if (gap > maiorGap) { maiorGap = gap; attrFracoObj = def; }
         });
 
-        // ── 4. Narrador ───────────────────────────────────────────────────
-        const esp      = (gameState.escuderia.especialistas || []).find(Boolean);
-        const nomeEsp  = esp ? esp.nome : 'Equipe Técnica';
-        const cargoEsp = esp ? esp.tipo : 'Análise Estratégica';
+        // ── 4. Narrador — especialista da área com maior deficit ──────────
+        // Quando o carro está dentro do nível competitivo, usa o Treinador de Pilotos.
+        const avatarPorTipo = {
+            'Engenheiro de Motor': '🔧',
+            'Aerodinamicista':     '💨',
+            'Projetista':          '📐',
+            'Olheiro':             '🔭',
+            'Treinador de Pilotos':'🏁',
+        };
+        const textoNarradorPorAttr = {
+            potencia:       (gap, peca) => `Nossa potência está ${gap.toFixed(1)} pts abaixo do Top 3. Priorize a produção de <strong>${peca}</strong> para fechar esse gap.`,
+            aerodinamica:   (gap, peca) => `O pacote aerodinâmico está ${gap.toFixed(1)} pts aquém dos líderes. Upgrade de <strong>${peca}</strong> é a próxima ação recomendada.`,
+            aderencia:      (gap, peca) => `A aderência limita nosso ritmo em curva — deficit de ${gap.toFixed(1)} pts. Foco em <strong>${peca}</strong> para recuperar tempo de volta.`,
+            confiabilidade: (gap, peca) => `A confiabilidade está ${gap.toFixed(1)} pts abaixo do Top 3. Risco de falha mecânica elevado — invista em <strong>${peca}</strong>.`,
+        };
+
+        let nomeEsp, cargoEsp, avatarEsp, textoEsp;
+        if (maiorGap <= 0) {
+            // Sem deficit — Treinador de Pilotos assume o microfone
+            const treinador = (gameState.escuderia.especialistas || []).find(e => e.tipo === 'Treinador de Pilotos');
+            nomeEsp  = treinador ? treinador.nome : 'Equipe Técnica';
+            cargoEsp = 'Treinador de Pilotos';
+            avatarEsp = '🏁';
+            textoEsp = `Análise comparativa com as equipes de topo: <strong style="color:#f0c040">${teamStr}</strong>.<br>
+                        <strong style="color:#44d88e">Nosso carro está dentro do nível competitivo em todos os atributos.</strong>
+                        O diferencial agora está no desenvolvimento dos pilotos e na estratégia de corrida.`;
+        } else {
+            // Especialista da área mais fraca
+            const espContratado = (gameState.escuderia.especialistas || []).find(e => e.tipo === attrFracoObj.tipoEsp);
+            nomeEsp   = espContratado ? espContratado.nome : attrFracoObj.tipoEsp;
+            cargoEsp  = attrFracoObj.tipoEsp;
+            avatarEsp = avatarPorTipo[attrFracoObj.tipoEsp] || '🧑‍🔬';
+            textoEsp  = `Análise comparativa com as equipes de topo: <strong style="color:#f0c040">${teamStr}</strong>.<br>
+                         ${(textoNarradorPorAttr[attrFracoObj.key] ?? (() => ''))(maiorGap, attrFracoObj.peca)}`;
+        }
+
         const teamStr  = top3Times.map(t => t.nome).join(', ');
-        const campoStr = campoTimes.map(t => t.nome).join(', ');
+        const fundoStr = campoTimes.map(t => t.nome).join(', ');
 
         // ── 5. Render de cada linha de atributo ───────────────────────────
         // A escala das barras é ABSOLUTA (0–100), igual ao sistema de atributos
@@ -7027,7 +7058,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="bench-num" style="color:${gapCor}">${minha}</span>
                     </div>
                     <div class="bench-bar-line">
-                        <span class="bench-bar-tag bench-tag-bot">Campo</span>
+                        <span class="bench-bar-tag bench-tag-bot">Fundo</span>
                         <div class="bench-track">
                             <div class="bench-fill bench-fill-bot" style="width:${pct(botVal)}"></div>
                         </div>
@@ -7040,29 +7071,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.innerHTML = `
         <div class="bench-specialist-card">
-            <div class="bench-esp-avatar">🧑‍🔬</div>
+            <div class="bench-esp-avatar">${avatarEsp}</div>
             <div class="bench-esp-corpo">
                 <div class="bench-esp-nome">${nomeEsp}
                     <span class="bench-esp-cargo">— ${cargoEsp}</span>
                 </div>
-                <p class="bench-esp-texto">
-                    Análise comparativa com as equipes de topo:
-                    <strong style="color:#f0c040">${teamStr}</strong>.<br>
-                    Maior deficit identificado em
-                    <strong style="color:#f0c040">${attrFracoObj.label}</strong>
-                    ${maiorGap > 0
-                        ? `— deficit de <strong style="color:#ff5555">${maiorGap.toFixed(1)} pts</strong>.
-                           Recomendamos priorizar a produção de <strong>${attrFracoObj.peca}</strong>.`
-                        : `— <strong style="color:#44d88e">nosso carro está dentro do nível competitivo</strong>.
-                           Foque no desenvolvimento dos pilotos.`}
-                </p>
+                <p class="bench-esp-texto">${textoEsp}</p>
             </div>
         </div>
 
         <div class="bench-legend-row">
-            <span class="bench-pill bench-pill-top3">🏆 Top 3 por performance: ${teamStr}</span>
+            <span class="bench-pill bench-pill-top3">🏆 Top 3 por classificação: ${teamStr}</span>
             <span class="bench-pill bench-pill-minha">🏎️ Minha Equipe</span>
-            <span class="bench-pill bench-pill-bot">🐢 Campo: ${campoStr}</span>
+            <span class="bench-pill bench-pill-bot">🐌 Fundo de Pelotão: ${fundoStr}</span>
         </div>
 
         <div class="bench-grid">
@@ -7070,7 +7091,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <p class="bench-rodape">
-            * Top 3 e Campo definidos pela classificação de construtores <strong>desta corrida</strong>.
+            * Top 3 e Fundo de Pelotão definidos pela classificação de construtores <strong>desta temporada</strong>.
             Os atributos refletem os valores atuais de fábrica + evolução de cada equipe.
             Escala absoluta 0–100.
         </p>`;
@@ -7511,102 +7532,146 @@ document.addEventListener('DOMContentLoaded', () => {
             const p = pilotosJogador[0];
             const totalVoltas = (corrida.resultadoFinal[0].lapData?.length) || pista?.voltas || 60;
 
-            // ── Tempo real do jogador na corrida (excluindo DNF/Infinity) ──
-            const tempoRealJogador = (corrida.resultadoFinal.find(r => r.piloto.id === p.piloto.id)?.tempoTotal) || null;
+            // ── Vida útil por composto ─────────────────────────────────────
+            // Fator de gestão médio de referência (~gerenciamentoPneus 84)
+            // + 15% de margem de segurança para não chegar com pneu destruído.
+            const FATOR_GER_REF = 0.72;
+            function vidaComp(k) {
+                if (!pneus[k]) return totalVoltas; // fallback seguro
+                return Math.floor((100 / (pneus[k].desgastePorVolta * FATOR_GER_REF)) * 0.85);
+            }
 
-            // ── Calcula estimativa de tempo total para cada estratégia ──
-            // Usa os ritmos médios reais dos compostos medidos nesta corrida.
+            // ── Estimativa de tempo total para uma sequência de stints ──────
             function estimarTempoEstrategia(stints, pitstopCusto) {
-                // stints: [ { pneu, inicio, fim } ] com ritmo em mediaComposto[pneu]
                 let tempo = 0;
-                let paradas = 0;
                 stints.forEach((s, i) => {
                     const voltas = s.fim - s.inicio + 1;
                     const ritmo = mediaComposto[s.pneu] ?? compostoOrdenado[0][1];
                     tempo += voltas * ritmo;
-                    if (i > 0) tempo += pitstopCusto; // custo de cada pit stop
-                    else paradas = 0;
-                    if (i > 0) paradas++;
+                    if (i > 0) tempo += pitstopCusto;
                 });
-                return { tempo, paradas };
+                return tempo;
             }
 
-            // Estratégia 1: 1 parada — composto mais rápido → 2° mais rápido
-            const [c1k, c1v] = compostoOrdenado[0];
-            const [c2k, c2v] = compostoOrdenado[1];
-            const [c3k, c3v] = compostoOrdenado[2] ?? compostoOrdenado[1];
+            const [c1k] = compostoOrdenado[0];
+            const [c2k] = compostoOrdenado[1];
+            const [c3k] = compostoOrdenado[2] ?? compostoOrdenado[1];
 
-            const pitLap1 = Math.round(totalVoltas * 0.43);
-            const est1Para = estimarTempoEstrategia([
-                { pneu: c1k, inicio: 1, fim: pitLap1 },
-                { pneu: c2k, inicio: pitLap1 + 1, fim: totalVoltas }
-            ], pitstopBase);
+            // ── Estratégia 1 parada — respeita vida útil ──────────────────
+            // Pit o mais tarde possível com c1, garantindo que c2 cubra o restante.
+            // Se c2 não cobrir, recorre ao composto mais durável disponível.
+            const vidaC1 = vidaComp(c1k);
+            let c2k1s = c2k; // composto do 2° stint
+            let pitLap1Valido;
+            {
+                const pitMax = Math.min(vidaC1, totalVoltas - 1);
+                const pitMin = Math.max(1, totalVoltas - vidaComp(c2k1s));
+                if (pitMin <= pitMax) {
+                    // Janela válida: usa o ponto médio da janela
+                    pitLap1Valido = Math.round((pitMin + pitMax) / 2);
+                } else {
+                    // c2 não aguenta — tenta o mais durável entre os compostos conhecidos
+                    const ordenadoPorVida = ['duro', 'medio', 'macio']
+                        .filter(k => k !== c1k)
+                        .sort((a, b) => vidaComp(b) - vidaComp(a));
+                    for (const alt of ordenadoPorVida) {
+                        const pitMinAlt = Math.max(1, totalVoltas - vidaComp(alt));
+                        if (pitMinAlt <= pitMax) {
+                            c2k1s = alt;
+                            pitLap1Valido = Math.round((pitMinAlt + pitMax) / 2);
+                            break;
+                        }
+                    }
+                    // Último recurso: pit no limite do 1° pneu, usa o 2° composto
+                    if (pitLap1Valido == null) pitLap1Valido = pitMax;
+                }
+            }
+            const stints1Para = [
+                { pneu: c1k,   inicio: 1,                fim: pitLap1Valido },
+                { pneu: c2k1s, inicio: pitLap1Valido + 1, fim: totalVoltas  }
+            ];
+            const tempo1Para = estimarTempoEstrategia(stints1Para, pitstopBase);
 
-            // Estratégia 2: 2 paradas — 3 compostos distintos ou repete o mais rápido
-            const pitLap2a = Math.round(totalVoltas * 0.30);
-            const pitLap2b = Math.round(totalVoltas * 0.60);
-            const est2Para = estimarTempoEstrategia([
-                { pneu: c1k, inicio: 1,           fim: pitLap2a },
-                { pneu: c2k, inicio: pitLap2a + 1, fim: pitLap2b },
-                { pneu: c3k, inicio: pitLap2b + 1, fim: totalVoltas }
-            ], pitstopBase);
+            // ── Estratégia 2 paradas — respeita vida útil ─────────────────
+            // Stint 1: c1 até sua vida útil (capped em 1/3 da corrida para equilibrar)
+            // Stint 2: c2 até sua vida útil (ou até o espaço restante)
+            // Stint 3: c3 até o fim
+            const fim1_2s = Math.min(vidaComp(c1k), Math.ceil(totalVoltas / 3));
+            const fim2_2s = Math.min(fim1_2s + vidaComp(c2k), totalVoltas - 1);
+            const viavel2s = (totalVoltas - fim2_2s) <= vidaComp(c3k);
+            const stints2Para = [
+                { pneu: c1k, inicio: 1,          fim: fim1_2s },
+                { pneu: c2k, inicio: fim1_2s + 1, fim: fim2_2s },
+                { pneu: c3k, inicio: fim2_2s + 1, fim: totalVoltas }
+            ];
+            const tempo2Para = estimarTempoEstrategia(stints2Para, pitstopBase);
 
-            // Qual estratégia seria mais rápida?
-            const melhorEst = est1Para.tempo <= est2Para.tempo ? '1 parada' : '2 paradas';
-            const melhorTempo = Math.min(est1Para.tempo, est2Para.tempo);
-            const diferencaEntre = Math.abs(est1Para.tempo - est2Para.tempo);
+            // ── Comparação ─────────────────────────────────────────────────
+            const melhorEst   = tempo1Para <= tempo2Para ? '1 parada' : '2 paradas';
+            const melhorTempo = Math.min(tempo1Para, tempo2Para);
+            const diffEntre   = Math.abs(tempo1Para - tempo2Para);
 
-            // Estratégia real do jogador (via stints detectados no lapData)
+            // ── Estratégia real do jogador ─────────────────────────────────
             const stintsJogador = stintsDoLapData(p.lapData);
-            const estJogador = estimarTempoEstrategia(
-                stintsJogador.map((s, i) => ({ pneu: s.pneu, inicio: s.inicio, fim: s.fim })),
+            const tempoJogador  = estimarTempoEstrategia(
+                stintsJogador.map(s => ({ pneu: s.pneu, inicio: s.inicio, fim: s.fim })),
                 pitstopBase
             );
-
-            const ganhoVsMelhor = estJogador.tempo - melhorTempo;
+            const ganhoVsMelhor = tempoJogador - melhorTempo;
             const corGanho = ganhoVsMelhor <= 2 ? '#44d88e' : ganhoVsMelhor <= 10 ? '#f0c040' : '#e57373';
 
             const pneuEmoji = { macio: '🔴 Macio', medio: '🟡 Médio', duro: '⚪ Duro' };
+            const avisoC2   = c2k1s !== c2k
+                ? `<small style="color:#f0c040"> (${pneuEmoji[c2k]} não cobre — usa ${pneuEmoji[c2k1s]})</small>`
+                : '';
+            const avisoFim2 = !viavel2s
+                ? `<small style="color:#e57373"> ⚠️ ${pneuEmoji[c3k]} pode não aguentar</small>` : '';
 
             bloco3Html = `
             <div class="licao-bloco licao-eSe">
                 <div class="licao-titulo">📋 Estratégia Ótima — análise desta pista</div>
                 <p class="licao-insight" style="margin-bottom:.75rem">
-                    Baseado no ritmo real de cada composto nesta corrida (${totalVoltas} voltas · pit: ~${pitstopBase}s):
+                    Baseado no ritmo real nesta corrida (${totalVoltas} v · pit: ~${pitstopBase}s · vida útil estimada com gestão média):
                 </p>
 
                 <div class="licao-ese-estrategias">
-                    <!-- Estratégia 1 parada -->
+                    <!-- 1 parada -->
                     <div class="licao-est-card ${melhorEst === '1 parada' ? 'licao-est-melhor' : ''}">
                         <div class="licao-est-titulo">1 parada ${melhorEst === '1 parada' ? '⭐ Melhor' : ''}</div>
                         <div class="licao-est-composto">
-                            ${pneuEmoji[c1k]} V1–${pitLap1}
+                            ${pneuEmoji[c1k]} V1–${pitLap1Valido}
                             <span class="licao-est-arr">→</span>
-                            ${pneuEmoji[c2k]} V${pitLap1 + 1}–${totalVoltas}
+                            ${pneuEmoji[c2k1s]} V${pitLap1Valido + 1}–${totalVoltas}${avisoC2}
                         </div>
-                        <div class="licao-est-tempo">${formatLapTime(est1Para.tempo / totalVoltas)}<span>/v</span>
-                            <small style="color:#888">≈ ${(est1Para.tempo / 60).toFixed(0)}min total</small>
+                        <div class="licao-est-vida">
+                            Vida: ${pneuEmoji[c1k]} ~${vidaComp(c1k)}v · ${pneuEmoji[c2k1s]} ~${vidaComp(c2k1s)}v
                         </div>
-                        <div class="licao-est-delta" style="color:${est1Para.tempo <= est2Para.tempo ? '#44d88e' : '#f0c040'}">
-                            ${est1Para.tempo <= est2Para.tempo ? '✓ mais rápido' : `+${diferencaEntre.toFixed(1)}s vs 2 paradas`}
+                        <div class="licao-est-tempo">${formatLapTime(tempo1Para / totalVoltas)}<span>/v</span>
+                            <small style="color:#888">≈ ${(tempo1Para / 60).toFixed(0)}min</small>
+                        </div>
+                        <div class="licao-est-delta" style="color:${tempo1Para <= tempo2Para ? '#44d88e' : '#f0c040'}">
+                            ${tempo1Para <= tempo2Para ? '✓ mais rápido' : `+${diffEntre.toFixed(1)}s vs 2 paradas`}
                         </div>
                     </div>
 
-                    <!-- Estratégia 2 paradas -->
+                    <!-- 2 paradas -->
                     <div class="licao-est-card ${melhorEst === '2 paradas' ? 'licao-est-melhor' : ''}">
                         <div class="licao-est-titulo">2 paradas ${melhorEst === '2 paradas' ? '⭐ Melhor' : ''}</div>
                         <div class="licao-est-composto">
-                            ${pneuEmoji[c1k]} V1–${pitLap2a}
+                            ${pneuEmoji[c1k]} V1–${fim1_2s}
                             <span class="licao-est-arr">→</span>
-                            ${pneuEmoji[c2k]} V${pitLap2a + 1}–${pitLap2b}
+                            ${pneuEmoji[c2k]} V${fim1_2s + 1}–${fim2_2s}
                             <span class="licao-est-arr">→</span>
-                            ${pneuEmoji[c3k]} V${pitLap2b + 1}–${totalVoltas}
+                            ${pneuEmoji[c3k]} V${fim2_2s + 1}–${totalVoltas}${avisoFim2}
                         </div>
-                        <div class="licao-est-tempo">${formatLapTime(est2Para.tempo / totalVoltas)}<span>/v</span>
-                            <small style="color:#888">≈ ${(est2Para.tempo / 60).toFixed(0)}min total</small>
+                        <div class="licao-est-vida">
+                            Vida: ${pneuEmoji[c1k]} ~${vidaComp(c1k)}v · ${pneuEmoji[c2k]} ~${vidaComp(c2k)}v · ${pneuEmoji[c3k]} ~${vidaComp(c3k)}v
                         </div>
-                        <div class="licao-est-delta" style="color:${est2Para.tempo <= est1Para.tempo ? '#44d88e' : '#f0c040'}">
-                            ${est2Para.tempo <= est1Para.tempo ? '✓ mais rápido' : `+${diferencaEntre.toFixed(1)}s vs 1 parada`}
+                        <div class="licao-est-tempo">${formatLapTime(tempo2Para / totalVoltas)}<span>/v</span>
+                            <small style="color:#888">≈ ${(tempo2Para / 60).toFixed(0)}min</small>
+                        </div>
+                        <div class="licao-est-delta" style="color:${tempo2Para <= tempo1Para ? '#44d88e' : '#f0c040'}">
+                            ${tempo2Para <= tempo1Para ? '✓ mais rápido' : `+${diffEntre.toFixed(1)}s vs 1 parada`}
                         </div>
                     </div>
 
@@ -7618,8 +7683,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 `${i > 0 ? '<span class="licao-est-arr">→</span>' : ''} ${pneuEmoji[s.pneu] ?? s.pneu} V${s.inicio}–${s.fim}`
                             ).join('')}
                         </div>
-                        <div class="licao-est-tempo">${formatLapTime(estJogador.tempo / totalVoltas)}<span>/v</span>
-                            <small style="color:#888">≈ ${(estJogador.tempo / 60).toFixed(0)}min total</small>
+                        <div class="licao-est-tempo">${formatLapTime(tempoJogador / totalVoltas)}<span>/v</span>
+                            <small style="color:#888">≈ ${(tempoJogador / 60).toFixed(0)}min</small>
                         </div>
                         <div class="licao-est-delta" style="color:${corGanho}">
                             ${ganhoVsMelhor <= 1
@@ -7631,12 +7696,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <p class="licao-insight" style="margin-top:.75rem">
                     ${ganhoVsMelhor > 15
-                        ? `⚠️ Mudar para <strong>${melhorEst}</strong> poderia salvar ~${ganhoVsMelhor.toFixed(0)}s de tempo de corrida nesta pista.`
+                        ? `⚠️ Mudar para <strong>${melhorEst}</strong> poderia economizar ~${ganhoVsMelhor.toFixed(0)}s nesta pista.`
                         : ganhoVsMelhor > 5
-                            ? `💡 A estratégia de <strong>${melhorEst}</strong> seria mais rápida em ~${ganhoVsMelhor.toFixed(0)}s. Considere aplicá-la na próxima visita a esta pista.`
-                            : `✅ Sua estratégia foi competitiva. A diferença vs o ótimo foi de apenas ${ganhoVsMelhor.toFixed(1)}s.`}
+                            ? `💡 <strong>${melhorEst === '1 parada' ? 'Uma parada' : 'Duas paradas'}</strong> seria ~${ganhoVsMelhor.toFixed(0)}s mais rápido. Considere na próxima visita.`
+                            : `✅ Sua estratégia foi competitiva — diferença de apenas ${ganhoVsMelhor.toFixed(1)}s vs o ótimo calculado.`}
                 </p>
             </div>`;
+        }
         }
 
         container.innerHTML = bloco1Html + bloco2Html + bloco3Html ||
