@@ -1386,6 +1386,53 @@ font-size: 0.8rem;
     color: #777;
     margin: -0.3rem 0 0.5rem 0;
 }
+
+/* --- Tabela de Histórico de Campeonatos --- */
+.tabela-historico-camp {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+}
+.tabela-historico-camp th {
+    background-color: #1a1a2e;
+    color: #fff;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+.tabela-historico-camp td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+.tabela-historico-camp tbody tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+.tabela-historico-camp tbody tr:hover td {
+    background-color: #fff3e0;
+}
+.tabela-historico-camp .hc-ano {
+    font-weight: 700;
+    color: #e10600;
+    width: 60px;
+}
+.tabela-historico-camp .hc-num {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+.tabela-historico-camp .hc-destaque {
+    font-weight: 700;
+    color: #b8860b;
+}
+.galeria-sem-dados {
+    color: #999;
+    font-style: italic;
+    padding: 1rem 0;
+    margin: 0;
+}
 /* Em style.css */
 
 /* --- Estilos para o Canvas da Pista --- */

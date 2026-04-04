@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.37";
+    const VERSAO_JOGO = "21.0.38";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -719,6 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
             patrocinio: { ofertas: [], ativos: [] },
             historicoAutodromos: {},
             galeria: { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {}, estatisticasTodosPilotos: {} },
+            historicoTemporadas: [],
             instalacoes: {
                 simulador: 0,
                 tunelDeVento: 0,
@@ -829,6 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
                 if (!gameState.historicoAnualMarketing) gameState.historicoAnualMarketing = [];
                 if (!gameState.historicoVendasPorCorrida) gameState.historicoVendasPorCorrida = [];
+                if (!gameState.historicoTemporadas) gameState.historicoTemporadas = [];
                 if (!gameState.galeria) {
                     gameState.galeria = { titulosConstrutores: [], titulosPilotos: [], hallDaFama: [], estatisticasPilotos: {}, estatisticasTodosPilotos: {} };
                 } else {
@@ -3624,6 +3626,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const classificacaoPilotos     = [...gameState.campeonato.classificacaoPilotos].sort((a, b) => b.pontos - a.pontos);
         const equipeCampe   = classificacaoConstrutores[0];
         const pilotoCampeao = classificacaoPilotos[0];
+
+        // ── Snapshot do histórico de temporadas (antes de qualquer reset) ─────
+        if (!gameState.historicoTemporadas) gameState.historicoTemporadas = [];
+        const jaArquivado = gameState.historicoTemporadas.some(t => t.ano === ano);
+        if (!jaArquivado) {
+            // Conta vitórias por piloto na temporada usando resultadosCorridas
+            const vitoriasPorPiloto = {};
+            (gameState.campeonato.resultadosCorridas || []).forEach(corrida => {
+                const vencedor = (corrida.resultadoFinal || [])[0];
+                if (vencedor) {
+                    const nome = vencedor.piloto?.nome || vencedor.piloto;
+                    if (nome) vitoriasPorPiloto[nome] = (vitoriasPorPiloto[nome] || 0) + 1;
+                }
+            });
+            const vitoriasPorEquipe = {};
+            (gameState.campeonato.resultadosCorridas || []).forEach(corrida => {
+                const vencedor = (corrida.resultadoFinal || [])[0];
+                if (vencedor) {
+                    const eq = vencedor.equipe;
+                    if (eq) vitoriasPorEquipe[eq] = (vitoriasPorEquipe[eq] || 0) + 1;
+                }
+            });
+            gameState.historicoTemporadas.push({
+                ano,
+                campeaoConstrutores: equipeCampe
+                    ? { nome: equipeCampe.equipe, pontos: equipeCampe.pontos, vitorias: vitoriasPorEquipe[equipeCampe.equipe] || 0 }
+                    : null,
+                campeaoPilotos: pilotoCampeao
+                    ? { nome: pilotoCampeao.piloto, equipe: pilotoCampeao.equipe, pontos: pilotoCampeao.pontos, vitorias: vitoriasPorPiloto[pilotoCampeao.piloto] || 0 }
+                    : null,
+            });
+        }
 
         // ── Títulos ──────────────────────────────────────────────────
         const ganheiConstrutores = equipeCampe && equipeCampe.equipe === gameState.escuderia.nome;
@@ -6446,6 +6480,43 @@ document.addEventListener('DOMContentLoaded', () => {
         // Renderiza as tabelas com o estado de ordenação atual
         _renderTabelaStats(tabelaJogador, _getDadosStats('jogador'), ['nome', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.jogador);
         _renderTabelaStats(tabelaTodos,   _getDadosStats('todos'),   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.todos, _tiebreakersTodos);
+
+        // ── Tabela de Histórico de Campeonatos ──────────────────────────────
+        const historicoContainer = document.getElementById('historico-campeonatos-container');
+        if (historicoContainer) {
+            const historico = [...(gameState.historicoTemporadas || [])].sort((a, b) => b.ano - a.ano);
+            if (historico.length === 0) {
+                historicoContainer.innerHTML = `<p class="galeria-sem-dados">Nenhuma temporada concluída ainda. Complete o campeonato para ver o histórico aqui.</p>`;
+            } else {
+                const nomeEscuderia = gameState.escuderia.nome;
+                const rows = historico.map(t => {
+                    const isPlayerConstr = t.campeaoConstrutores?.nome === nomeEscuderia;
+                    const isPlayerPiloto = gameState.pilotos.some(p => p.nome === t.campeaoPilotos?.nome && p.status === 'Jogador');
+                    return `<tr>
+                        <td class="hc-ano">${t.ano}</td>
+                        <td class="${isPlayerConstr ? 'hc-destaque' : ''}">${isPlayerConstr ? '🏆 ' : ''}${t.campeaoConstrutores?.nome || '—'}</td>
+                        <td class="${isPlayerPiloto ? 'hc-destaque' : ''}">${isPlayerPiloto ? '🌟 ' : ''}${t.campeaoPilotos?.nome || '—'}</td>
+                        <td>${t.campeaoPilotos?.equipe || '—'}</td>
+                        <td class="hc-num">${t.campeaoPilotos?.pontos ?? '—'}</td>
+                        <td class="hc-num">${t.campeaoPilotos?.vitorias ?? '—'}</td>
+                    </tr>`;
+                }).join('');
+                historicoContainer.innerHTML = `
+                    <table class="tabela-historico-camp">
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Construtores</th>
+                                <th>Campeão Piloto</th>
+                                <th>Equipe</th>
+                                <th>Pontos</th>
+                                <th>Vitórias</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>`;
+            }
+        }
     }
 
     // ---------------------------------------------------------------------------
