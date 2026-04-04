@@ -2491,7 +2491,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     raceData.pendingSafetyCar = false;
                     raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
                     renderTabelaAoVivo();
-                    raceData.voltaAtual++;
+                    // Não incrementa aqui — fecharModalSafetyCar() fará o ++ ao retomar
                     ativarSafetyCar();
                     return; // pausa o loop — será retomado após o modal
                 }
@@ -3450,6 +3450,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Retoma o loop da corrida
         raceData.safetyCarAtivo = false;
         raceData.pendingSafetyCar = false;
+        raceData.voltaAtual++; // Consome a volta que foi simulada antes do SC
         timestampUltimaSimulacao = performance.now();
         raceTimerId = setInterval(() => {
             if (!animacaoAtiva) {
@@ -3469,7 +3470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     raceData.pendingSafetyCar = false;
                     raceData.participantes.sort((a, b) => a.tempoTotal - b.tempoTotal);
                     renderTabelaAoVivo();
-                    raceData.voltaAtual++;
+                    // Não incrementa aqui — fecharModalSafetyCar() fará o ++ ao retomar
                     ativarSafetyCar();
                     return;
                 }
