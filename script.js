@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.35";
+    const VERSAO_JOGO = "21.0.36";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -3120,8 +3120,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // Inicializa decisão e estratégia do editor para opção 1 (manter + planejar)
+            // Estratégia começa vazia — o jogador monta do zero
             carro._scDecisao = 'manter-planejar';
-            carro.estrategia = JSON.parse(JSON.stringify(estrategiaSugeridaSemPit));
+            carro.estrategia = { pneuInicial: participante.pneuAtual, paradas: [] };
         });
 
         // Reordena e atualiza a tabela com as novas posições
@@ -3228,7 +3229,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Conteúdo por decisão
             let conteudo = '';
             if (decisao === 'manter-planejar') {
-                conteudo = `<p class="sc-decisao-desc">Na pista · ${pneuNome[pneuAtual]} ${durAtual}% · ~${ctx.voltasQueAguenta}v</p>
+                const pneuStatus = ctx.pneuChegaAoFinal
+                    ? `<span class="sc-pneu-ok">✅ aguenta as ${voltasRestantes}v restantes</span>`
+                    : `<span class="sc-pneu-warn">⚠️ aguenta ~${ctx.voltasQueAguenta}v de ${voltasRestantes}v restantes</span>`;
+                conteudo = `<p class="sc-decisao-desc">Na pista · ${pneuNome[pneuAtual]} · ${durAtual}% dur. · ${pneuStatus}</p>
                     ${editorParadas(false, false)}`;
             } else if (decisao === 'trocar-planejar') {
                 conteudo = editorParadas(true, true);
@@ -3252,9 +3256,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 4 botões compactos
             const opcoes = [
-                { id:'manter-planejar', emoji:'🟡', label:'Manter + Planejar', ok:true,          sub: `${pneuNome[pneuAtual]} ${durAtual}%` },
-                { id:'trocar-planejar', emoji:'🔧', label:'Trocar + Planejar', ok:true,          sub: `Pit +6s · plan. paradas` },
-                { id:'manter-final',    emoji:'✅', label:'Manter até o final', ok:op3Disponivel, sub: op3Disponivel ? `${ctx.voltasQueAguenta}v ok` : op3Motivo },
+                { id:'manter-planejar', emoji:'🟡', label:'Manter + Planejar', ok:true,          sub: `${pneuNome[pneuAtual]} · ${durAtual}% dur.` },
+                { id:'trocar-planejar', emoji:'🔧', label:'Trocar + Planejar', ok:true,          sub: `Pit +6s · planeja paradas` },
+                { id:'manter-final',    emoji:'✅', label:'Manter até o final', ok:op3Disponivel, sub: op3Disponivel ? `Cobre as ${ctx.voltasQueAguenta}v restantes` : op3Motivo },
                 { id:'trocar-final',    emoji:'🏁', label:'Trocar + Final',    ok:op4Disponivel, sub: op4Disponivel ? `Pit +6s · sem paradas` : op4Motivo },
             ];
 
@@ -8252,11 +8256,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const ctx = raceData.scContexto?.[carro.pilotoId] || {};
             carro._scDecisao = opcao;
 
-            // Carrega estratégia sugerida para cada opção como ponto de partida
+            // Abre sempre com paradas vazias — jogador monta a estratégia do zero
             if (opcao === 'manter-planejar') {
-                carro.estrategia = JSON.parse(JSON.stringify(ctx.estrategiaSugeridaSemPit || { pneuInicial: ctx.pneuAtual, paradas: [] }));
+                carro.estrategia = { pneuInicial: ctx.pneuAtual, paradas: [] };
             } else if (opcao === 'trocar-planejar') {
-                carro.estrategia = JSON.parse(JSON.stringify(ctx.estrategiaSugeridaComPit || { pneuInicial: 'medio', paradas: [] }));
+                const diferenteParaTrocar = ['duro','medio','macio'].find(c => c !== ctx.pneuAtual) || 'medio';
+                carro.estrategia = { pneuInicial: diferenteParaTrocar, paradas: [] };
             } else if (opcao === 'manter-final') {
                 carro.estrategia = { pneuInicial: ctx.pneuAtual, paradas: [] };
             } else if (opcao === 'trocar-final') {

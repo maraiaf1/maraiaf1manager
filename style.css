@@ -2704,6 +2704,8 @@ font-size: 0.8em;
 
 .sc-aviso-erro { font-size: 0.72rem; color: #ef5350; margin: 0; }
 .sc-aviso-ok   { font-size: 0.72rem; color: #81c784; margin: 0; }
+.sc-pneu-ok    { color: #81c784; font-weight: 600; }
+.sc-pneu-warn  { color: #ffa726; font-weight: 600; }
 
 /* ── LINHA 3 ── */
 .sc-linha3 {
