@@ -5168,3 +5168,65 @@ font-size: 0.8em;
     .bench-bar-tag { width: 30px; font-size: 0.62rem; }
     .bench-delta { font-size: 0.88rem; }
 }
+/* ═══════════════════════════════════════════════════════════════════
+   ENCOMENDAS EXTERNAS
+   ═══════════════════════════════════════════════════════════════════ */
+.encomenda-card {
+    background: var(--card-bg, #1a1a2e);
+    border: 1px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.8rem;
+}
+.encomenda-card.encomenda-aceita {
+    border-color: #1d9e75;
+    background: rgba(29,158,117,0.07);
+}
+.encomenda-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.badge-encomenda {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    background: #f0a500;
+    color: #1a1200;
+    font-weight: 600;
+}
+.badge-encomenda.badge-aceita {
+    background: #1d9e75;
+    color: #fff;
+}
+.encomenda-acoes {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   COMUNICADO REGULATÓRIO (modal fim de temporada)
+   ═══════════════════════════════════════════════════════════════════ */
+.se-regulatorio-box {
+    background: rgba(186,117,23,0.12);
+    border: 1px solid #ba7517;
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+    margin: 1rem 0;
+    color: #f5d48e;
+}
+.se-regulatorio-box h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    color: #fac775;
+}
+.se-regulatorio-box ul {
+    margin: 0.4rem 0 0.6rem 1.2rem;
+    font-size: 0.9rem;
+}
+.se-regulatorio-box p {
+    font-size: 0.88rem;
+    margin: 0.3rem 0;
+}

@@ -2,8 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.39";
+    const VERSAO_JOGO = "21.0.40";
 
+    // Versão do SCHEMA de dados (independente da versão do jogo).
+    // Incremente sempre que adicionar campos novos ao gameState ou às equipesIA.
+    const VERSAO_DADOS = 2;
 
     // --- 1. DADOS GLOBAIS ---
     const CUSTO_MUDAR_NOME = 250000;
@@ -662,6 +665,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (CARRO_INICIAL[equipe.nome]) {
                 equipe.carro = { ...CARRO_INICIAL[equipe.nome] };
             }
+            // Inicializa campos de fornecedor
+            equipe.componenteNivel   = estimarNivelComponentes(equipe);
+            equipe.relacaoComJogador = 'neutra';
         });
 
         const pilotosDoJogo = JSON.parse(JSON.stringify(baseDePilotos)).map(p => {
@@ -752,6 +758,16 @@ document.addEventListener('DOMContentLoaded', () => {
             })),
             torcedores: 4000,
             notificacoes: { pilotos: false, marketing: false, instalacoes: false },
+            // ── Teto de produção de peças ──────────────────────────────────────
+            versaoDados: VERSAO_DADOS,
+            tetoAtivo: false,               // ativa a partir da T3
+            fornecedorAtivo: false,         // ativa a partir da T3
+            novasMecanicasPendentes: false,
+            producaoAnual: { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
+            quotaAnual:    { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 },
+            quotaBonus:    { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
+            // ── Encomendas externas (fornecedor) ──────────────────────────────
+            encomendasExternas: [],
             historicoMarketing: {},
             historicoAnualMarketing: [],
             historicoVendasPorCorrida: [],
@@ -791,7 +807,9 @@ document.addEventListener('DOMContentLoaded', () => {
             nome: e.nome,
             piloto1Id: e.piloto1Id,
             piloto2Id: e.piloto2Id,
-            carro: JSON.parse(JSON.stringify(e.carro))
+            carro: JSON.parse(JSON.stringify(e.carro)),
+            componenteNivel:   e.componenteNivel   ? { ...e.componenteNivel }   : null,
+            relacaoComJogador: e.relacaoComJogador || 'neutra'
         }));
         localStorage.setItem('f1ManagerSave', JSON.stringify(gameState));
     };
@@ -893,6 +911,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!gameState.patrocinio) gameState.patrocinio = { ofertas: [], ativos: [] };
                 if (!gameState.projetosEmAndamento) gameState.projetosEmAndamento = [];
 
+                // ── MIGRAÇÃO v2: teto de produção + sistema de fornecedor ──────────────
+                const versaoSalva = gameState.versaoDados ?? 0;
+                if (versaoSalva < 2) {
+                    // Campos do teto de produção
+                    if (!gameState.producaoAnual) gameState.producaoAnual = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
+                    if (!gameState.quotaAnual)    gameState.quotaAnual    = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
+                    if (!gameState.quotaBonus)    gameState.quotaBonus    = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
+                    if (!gameState.encomendasExternas) gameState.encomendasExternas = [];
+
+                    // Determina se está no meio de uma temporada
+                    const corridasRestantes = (calendarioCorridas.length - 1) - (gameState.campeonato.corridaAtualIndex || 0);
+                    const emMeioDaTemporada = corridasRestantes > 0;
+
+                    if (emMeioDaTemporada) {
+                        // Jogo ativo: ativa só na próxima virada de temporada
+                        gameState.tetoAtivo              = false;
+                        gameState.fornecedorAtivo        = false;
+                        gameState.novasMecanicasPendentes = true;
+                    } else {
+                        // Entre temporadas, novo ou reset
+                        const anoAtual = gameState.campeonato?.ano ?? 2026;
+                        const temporadaNumero = anoAtual - 2025; // T1 = 2026, T2 = 2027, T3 = 2028...
+                        gameState.tetoAtivo              = temporadaNumero >= 3;
+                        gameState.fornecedorAtivo        = temporadaNumero >= 3;
+                        gameState.novasMecanicasPendentes = false;
+                    }
+
+                    // Inicializa componenteNivel nas equipesIA (se ainda não restaurado via _equipesIA_save)
+                    equipesIA.forEach(equipe => {
+                        if (!equipe.componenteNivel)   equipe.componenteNivel   = estimarNivelComponentes(equipe);
+                        if (!equipe.relacaoComJogador) equipe.relacaoComJogador = 'neutra';
+                    });
+
+                    gameState.versaoDados = VERSAO_DADOS;
+                    console.log(`[Migração v2] tetoAtivo=${gameState.tetoAtivo} | pendente=${gameState.novasMecanicasPendentes}`);
+                }
+                // ── FIM MIGRAÇÃO v2 ───────────────────────────────────────────────────
+
                 // Restaura o estado mutável das equipes de IA (piloto1Id, piloto2Id, carro)
                 // que foi salvo por saveGame. Sem isso, substituições de pilotos se perdem ao recarregar.
                 if (Array.isArray(gameState._equipesIA_save)) {
@@ -903,6 +959,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             equipe.piloto1Id = savedEquipe.piloto1Id;
                             equipe.piloto2Id = savedEquipe.piloto2Id;
                             equipe.carro = savedEquipe.carro;
+                            if (savedEquipe.componenteNivel)   equipe.componenteNivel   = savedEquipe.componenteNivel;
+                            if (savedEquipe.relacaoComJogador) equipe.relacaoComJogador = savedEquipe.relacaoComJogador;
                         }
                     });
                 } else {
@@ -1766,6 +1824,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function iniciarNovoProjeto(especialistaId, tipoPeca, duracao) {
         const especialista = especialistasDisponiveis.find(e => e.id === especialistaId);
         if (!especialista) { alert("Especialista não encontrado!"); return; }
+
+        // ── Verificação do teto de produção ──────────────────────────────────
+        if (!podeConstruirPeca(tipoPeca)) {
+            const construidas = gameState.producaoAnual[tipoPeca] || 0;
+            const cota        = (gameState.quotaAnual[tipoPeca] || 99) + (gameState.quotaBonus[tipoPeca] || 0);
+            alert(`Cota de produção de ${tipoPeca} atingida!\n\nProduzidas este ano: ${construidas}/${cota}\n\nAceite uma encomenda externa para ganhar um slot extra, ou aguarde a próxima temporada.`);
+            return;
+        }
         let custoTotal = (especialista.nivel * duracao * CUSTO_BASE_PROJETO) * 0.45;
         const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
         if (pecasAero.includes(tipoPeca)) {
@@ -1798,6 +1864,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const duracaoFinal = Math.max(1, duracao - reducaoTempo);
 
         gameState.projetosEmAndamento.push({ id: Date.now(), tipoPeca, nomeEspecialista: especialista.nome, nivelEspecialista: especialista.nivel, duracaoOriginal: duracao, duracaoRestante: duracaoFinal, status: 'em_andamento' });
+
+        // Incrementa o contador de produção da temporada
+        if (gameState.tetoAtivo) {
+            gameState.producaoAnual[tipoPeca] = (gameState.producaoAnual[tipoPeca] || 0) + 1;
+        }
         const msgReducao = reducaoTempo > 0 ? `\n⚡ Redução por instalação: -${reducaoTempo} corrida(s)! (${duracaoFinal} corridas no total)` : '';
         alert(`Investimento de R$ ${custoTotal.toLocaleString('pt-BR')} realizado!\nProjeto para desenvolver "${tipoPeca}" iniciado com ${especialista.nome}.${msgReducao}`);
         updateUI(); saveGame();
@@ -1810,6 +1881,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 projeto.status = 'concluido';
                 projeto.pecaConcluida = criarPecaDeProjeto(projeto);
                 projetoFoiConcluidoNestaCorrida = true;
+
+                // Se for encomenda externa, entrega para a IA e paga o jogador
+                if (projeto.encomendaExterna) {
+                    concluirEncomendaExterna(projeto);
+                }
             }
         });
         if (projetoFoiConcluidoNestaCorrida) {
@@ -2232,6 +2308,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (confirm(`Iniciar um projeto completo de ${duracao} corrida(s) para todas as 5 categorias de peças por R$ ${custoFinal.toLocaleString('pt-BR')}?`)) {
+
+            // ── Verificação do teto de produção para cada tipo ────────────────
+            if (gameState.tetoAtivo) {
+                const tiposBloqueados = Object.keys(especialistas).filter(tipo => !podeConstruirPeca(tipo));
+                if (tiposBloqueados.length > 0) {
+                    alert(`Cota de produção atingida para: ${tiposBloqueados.join(', ')}.\n\nO projeto completo não pode ser iniciado. Aceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
+                    return;
+                }
+            }
             gameState.escuderia.dinheiro -= custoFinal;
 
             // 🎲 Bônus de dado
@@ -2264,6 +2349,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     duracaoRestante: duracaoFinal,
                     status: 'em_andamento'
                 });
+
+                // Incrementa o contador de produção da temporada
+                if (gameState.tetoAtivo) {
+                    gameState.producaoAnual[tipoPeca] = (gameState.producaoAnual[tipoPeca] || 0) + 1;
+                }
             }
 
             const msgDado = reducaoDado > 0
@@ -3787,6 +3877,35 @@ document.addEventListener('DOMContentLoaded', () => {
             projetosSection.classList.add('hidden');
         }
 
+        // ── Comunicado regulatório (teto de produção) ─────────────────────────
+        // Exibe quando o teto vai ativar pela primeira vez ou as cotas mudam.
+        const comunicadoDiv = document.getElementById('se-comunicado-regulatorio');
+        if (comunicadoDiv) {
+            const proximaTemporada = gameState.campeonato.ano + 1;
+            const proximoNumero   = proximaTemporada - 2025;
+            const mostraComunicado = gameState.novasMecanicasPendentes
+                || (proximoNumero === 3)
+                || (proximoNumero > 3 && (proximoNumero - 3) % 2 === 0);
+
+            if (mostraComunicado) {
+                const cotas = gameState.quotaAnual || { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
+                const linhasCotas = Object.entries(cotas).map(([tipo, qtd]) =>
+                    `<li><strong>${tipo}:</strong> ${qtd} peças por temporada</li>`
+                ).join('');
+                comunicadoDiv.innerHTML = `
+                    <div class="se-regulatorio-box">
+                        <h4>📋 Comunicado Regulatório — Temporada ${proximaTemporada}</h4>
+                        <p>A partir da próxima temporada, a produção de peças estará sujeita a <strong>cotas anuais</strong>:</p>
+                        <ul>${linhasCotas}</ul>
+                        <p>Para ganhar slots extras, aceite <strong>encomendas externas</strong> de equipes menores na aba Escuderia.</p>
+                    </div>`;
+                comunicadoDiv.classList.remove('hidden');
+            } else {
+                comunicadoDiv.classList.add('hidden');
+            }
+        }
+        // ── Fim comunicado regulatório ────────────────────────────────────────
+
         document.getElementById('season-end-modal').classList.remove('hidden');
     }
 
@@ -3794,6 +3913,271 @@ document.addEventListener('DOMContentLoaded', () => {
      * Fase 2: chamada ao clicar "Iniciar Nova Temporada".
      * Conclui projetos em andamento (off-season), reseta o estado, evolui IA, avança o ano.
      */
+    // ═══════════════════════════════════════════════════════════════════════════
+    // TETO DE PRODUÇÃO + SISTEMA DE FORNECEDOR
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // Retorna true se ainda há slot disponível para construir aquele tipo de peça.
+    function podeConstruirPeca(tipoPeca) {
+        if (!gameState.tetoAtivo) return true;
+        const construidas = gameState.producaoAnual[tipoPeca] || 0;
+        const cota        = (gameState.quotaAnual[tipoPeca]  || 99)
+                          + (gameState.quotaBonus[tipoPeca]  || 0);
+        return construidas < cota;
+    }
+
+    // Retorna uma string resumindo o uso da cota daquele tipo, ex: "2/4"
+    function resumoCota(tipoPeca) {
+        if (!gameState.tetoAtivo) return 'livre';
+        const construidas = gameState.producaoAnual[tipoPeca] || 0;
+        const cota        = (gameState.quotaAnual[tipoPeca]  || 99)
+                          + (gameState.quotaBonus[tipoPeca]  || 0);
+        return `${construidas}/${cota}`;
+    }
+
+    // Estima o nível equivalente de componente de uma equipe IA
+    // com base nos atributos agregados dela.
+    function estimarNivelComponentes(equipe) {
+        const vel  = equipe.carro?.potencia      ?? 70;
+        const ade  = equipe.carro?.aderencia     ?? 70;
+        const aer  = equipe.carro?.aerodinamica  ?? 70;
+        const conf = equipe.carro?.confiabilidade ?? 75;
+        // Mapeia 60-100 → níveis 1-10 linearmente
+        const paraNivel = v => Math.max(1, Math.min(10, Math.round((v - 60) / 4)));
+        return {
+            'Motor':        paraNivel(vel  * 0.7 + conf * 0.3),
+            'Suspensão':    paraNivel(ade),
+            'Chassi':       paraNivel(aer  * 0.5 + ade  * 0.5),
+            'Asa Dianteira': paraNivel(aer),
+            'Asa Traseira':  paraNivel(aer)
+        };
+    }
+
+    // Gera novas cotas regulatórias a cada ciclo de 2 temporadas.
+    // Pequenas variações para dar sensação de regulamentos reais.
+    function gerarNovasCotas(temporadaNumero) {
+        const base = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
+        // A cada ciclo, sorteia ±1 em alguns tipos para variar
+        const tipos = Object.keys(base);
+        const novas = { ...base };
+        // Dois tipos aleatórios ganham +1, um tipo perde -1 (nunca abaixo de 2)
+        const shuffle = tipos.sort(() => Math.random() - 0.5);
+        novas[shuffle[0]] = Math.min(base[shuffle[0]] + 1, 6);
+        novas[shuffle[1]] = Math.min(base[shuffle[1]] + 1, 6);
+        novas[shuffle[2]] = Math.max(base[shuffle[2]] - 1, 2);
+        return novas;
+    }
+
+    // Aplica os atributos de uma peça ao carro da equipe IA,
+    // atualizando seu componenteNivel e os atributos de corrida.
+    function aplicarPecaNaIA(equipe, tipoPeca, pecaNivel) {
+        if (!equipe.componenteNivel) equipe.componenteNivel = estimarNivelComponentes(equipe);
+        const nivelAtual = equipe.componenteNivel[tipoPeca] || 1;
+
+        // Só melhora se a peça for de nível superior ao que a IA já tem
+        if (pecaNivel <= nivelAtual) return;
+
+        const melhoria = pecaNivel - nivelAtual;
+
+        // Mapeamento de tipo de peça → atributo do carro IA + peso
+        const mapa = {
+            'Motor':         { attr: 'potencia',      peso: 0.6 },
+            'Suspensão':     { attr: 'aderencia',     peso: 0.7 },
+            'Chassi':        { attr: 'aerodinamica',  peso: 0.4, extra: { attr: 'aderencia', peso: 0.3 } },
+            'Asa Dianteira': { attr: 'aerodinamica',  peso: 0.5 },
+            'Asa Traseira':  { attr: 'aerodinamica',  peso: 0.5 }
+        };
+
+        const cfg = mapa[tipoPeca];
+        if (!cfg) return;
+
+        const teto = 92; // IA nunca ultrapassa 92 em nenhum atributo
+        equipe.carro[cfg.attr] = Math.min(teto,
+            (equipe.carro[cfg.attr] || 70) + melhoria * cfg.peso
+        );
+        if (cfg.extra) {
+            equipe.carro[cfg.extra.attr] = Math.min(teto,
+                (equipe.carro[cfg.extra.attr] || 70) + melhoria * cfg.extra.peso
+            );
+        }
+
+        // Atualiza o nível registrado
+        equipe.componenteNivel[tipoPeca] = pecaNivel;
+    }
+
+    // Gera 2 a 3 encomendas externas para o início da temporada.
+    // Apenas equipes na metade de baixo do grid pedem peças.
+    function gerarEncomendasExternas() {
+        const tiposPeca   = ['Motor', 'Suspensão', 'Chassi', 'Asa Dianteira', 'Asa Traseira'];
+        const equipesAptas = equipesIA.filter(e => {
+            // Considera "pequena" se a média dos atributos do carro for < 89
+            const vals = Object.values(e.carro);
+            const media = vals.reduce((s, v) => s + v, 0) / vals.length;
+            return media < 89;
+        });
+
+        if (equipesAptas.length === 0) return [];
+
+        const qtd = Math.min(equipesAptas.length, 2 + Math.floor(Math.random() * 2)); // 2 ou 3
+        const escolhidas = [...equipesAptas].sort(() => Math.random() - 0.5).slice(0, qtd);
+
+        return escolhidas.map((equipe, i) => {
+            const tipo     = tiposPeca[Math.floor(Math.random() * tiposPeca.length)];
+            const nivelPedido = (equipe.componenteNivel?.[tipo] || 3) + 1 + Math.floor(Math.random() * 2);
+            const nivel    = Math.min(nivelPedido, 9); // pede nível superior ao que tem, máx 9
+            // Custo mais caro que o normal (bônus de 40% sobre o preço base)
+            const custoBase = nivel * 3 * 80000;
+            const custoPago = Math.round(custoBase * 1.4);
+            return {
+                id:        Date.now() + i + Math.random(),
+                equipeNome: equipe.nome,
+                tipoPeca:  tipo,
+                nivelPedido: nivel,
+                custoPago,          // quanto o jogador recebe ao entregar
+                status:    'pendente' // 'pendente' | 'aceita' | 'recusada' | 'concluida'
+            };
+        });
+    }
+
+    // Aceita uma encomenda externa: inicia o projeto e libera 1 slot bônus daquele tipo.
+    function aceitarEncomendaExterna(encomendaId) {
+        const encomenda = (gameState.encomendasExternas || []).find(e => e.id === encomendaId);
+        if (!encomenda || encomenda.status !== 'pendente') return;
+
+        if (!podeConstruirPeca(encomenda.tipoPeca) && (gameState.quotaBonus[encomenda.tipoPeca] || 0) === 0) {
+            // Mesmo sem slot próprio, aceitar encomenda cria o slot bônus imediatamente
+        }
+
+        // Encontra qualquer especialista compatível para o projeto
+        const mapaEsp = {
+            'Motor':         'Engenheiro de Motor',
+            'Suspensão':     'Projetista',
+            'Chassi':        'Projetista',
+            'Asa Dianteira': 'Aerodinamicista',
+            'Asa Traseira':  'Aerodinamicista'
+        };
+        const tipoEsp   = mapaEsp[encomenda.tipoPeca];
+        const especialista = gameState.escuderia.especialistas.find(e => e.tipo === tipoEsp)
+                          || gameState.escuderia.especialistas[0];
+
+        if (!especialista) {
+            alert('Você precisa de pelo menos um especialista contratado para aceitar encomendas externas.');
+            return;
+        }
+
+        // Duração baseada no nível pedido: peças mais avançadas demoram mais
+        const duracao = encomenda.nivelPedido >= 8 ? 5 : encomenda.nivelPedido >= 6 ? 3 : 2;
+
+        // Inicia o projeto marcado como encomenda externa
+        gameState.projetosEmAndamento.push({
+            id:              encomenda.id,
+            tipoPeca:        encomenda.tipoPeca,
+            nomeEspecialista: especialista.nome,
+            nivelEspecialista: especialista.nivel,
+            duracaoOriginal: duracao,
+            duracaoRestante: duracao,
+            status:          'em_andamento',
+            encomendaExterna: true,
+            encomendaEquipe:  encomenda.equipeNome,
+            encomendaCustoPago: encomenda.custoPago,
+            encomendaNivelPedido: encomenda.nivelPedido
+        });
+
+        // Libera 1 slot bônus para aquele tipo de peça
+        gameState.quotaBonus[encomenda.tipoPeca] = (gameState.quotaBonus[encomenda.tipoPeca] || 0) + 1;
+
+        // Marca como aceita
+        encomenda.status = 'aceita';
+
+        const cotaTotal = (gameState.quotaAnual[encomenda.tipoPeca] || 4) + (gameState.quotaBonus[encomenda.tipoPeca] || 0);
+        alert(`Encomenda aceita!\n\nVocê irá desenvolver uma peça de ${encomenda.tipoPeca} para a ${encomenda.equipeNome}.\n\n✅ +1 slot de ${encomenda.tipoPeca} liberado (cota agora: ${cotaTotal})\n💰 Receberá R$ ${encomenda.custoPago.toLocaleString('pt-BR')} na entrega.\n⏱️ Duração: ${duracao} corrida(s).`);
+        updateUI();
+        saveGame();
+    }
+
+    // Recusa uma encomenda externa sem nenhum efeito colateral.
+    function recusarEncomendaExterna(encomendaId) {
+        const encomenda = (gameState.encomendasExternas || []).find(e => e.id === encomendaId);
+        if (encomenda) encomenda.status = 'recusada';
+        updateUI();
+        saveGame();
+    }
+
+    // Chamada em processarProjetosConcluidos quando o projeto é uma encomenda externa.
+    // Aplica a peça na IA, paga o jogador e registra a conclusão.
+    function concluirEncomendaExterna(projeto) {
+        const equipe = equipesIA.find(e => e.nome === projeto.encomendaEquipe);
+        if (equipe) {
+            aplicarPecaNaIA(equipe, projeto.tipoPeca, projeto.encomendaNivelPedido || 7);
+            equipe.relacaoComJogador = 'parceira';
+        }
+        gameState.escuderia.dinheiro += projeto.encomendaCustoPago || 0;
+        const encomenda = (gameState.encomendasExternas || []).find(e => e.id === projeto.id);
+        if (encomenda) encomenda.status = 'concluida';
+
+        setTimeout(() => alert(
+            `Encomenda entregue!\n\n` +
+            `A ${projeto.encomendaEquipe} recebeu a peça de ${projeto.tipoPeca}.\n` +
+            `💰 R$ ${(projeto.encomendaCustoPago || 0).toLocaleString('pt-BR')} creditados.\n` +
+            `🤝 ${projeto.encomendaEquipe} agora é sua equipe parceira por esta temporada.`
+        ), 500);
+    }
+
+    // Renderiza o painel de encomendas externas na aba Escuderia.
+    function renderEncomendasExternas() {
+        const container = document.getElementById('encomendas-externas-container');
+        if (!container) return;
+
+        const pendentes = (gameState.encomendasExternas || []).filter(e => e.status === 'pendente');
+        const aceitas   = (gameState.encomendasExternas || []).filter(e => e.status === 'aceita');
+
+        if (!gameState.fornecedorAtivo || (pendentes.length === 0 && aceitas.length === 0)) {
+            container.innerHTML = '<p style="color:var(--cor-texto-secundario);font-size:0.9em;">Nenhuma encomenda disponível no momento.</p>';
+            return;
+        }
+
+        let html = '';
+
+        pendentes.forEach(enc => {
+            const quotaAtual = resumoCota(enc.tipoPeca);
+            html += `
+            <div class="encomenda-card">
+                <div class="encomenda-header">
+                    <strong>${enc.equipeNome}</strong>
+                    <span class="badge-encomenda">Pendente</span>
+                </div>
+                <p>Peça solicitada: <strong>${enc.tipoPeca} nível ${enc.nivelPedido}</strong></p>
+                <p>Pagamento na entrega: <strong>R$ ${enc.custoPago.toLocaleString('pt-BR')}</strong></p>
+                <p>Bônus: <strong>+1 slot de ${enc.tipoPeca}</strong> (cota atual: ${quotaAtual})</p>
+                <div class="encomenda-acoes">
+                    <button class="btn-corrida btn-real" onclick="aceitarEncomendaExterna(${enc.id})">Aceitar</button>
+                    <button class="btn-corrida" onclick="recusarEncomendaExterna(${enc.id})">Recusar</button>
+                </div>
+            </div>`;
+        });
+
+        aceitas.forEach(enc => {
+            const projeto = gameState.projetosEmAndamento.find(p => p.id === enc.id);
+            const restante = projeto ? projeto.duracaoRestante : '?';
+            html += `
+            <div class="encomenda-card encomenda-aceita">
+                <div class="encomenda-header">
+                    <strong>${enc.equipeNome}</strong>
+                    <span class="badge-encomenda badge-aceita">Em desenvolvimento</span>
+                </div>
+                <p>Peça: <strong>${enc.tipoPeca} nível ${enc.nivelPedido}</strong></p>
+                <p>Restam <strong>${restante} corrida(s)</strong> para conclusão.</p>
+                <p>💰 R$ ${enc.custoPago.toLocaleString('pt-BR')} na entrega</p>
+            </div>`;
+        });
+
+        container.innerHTML = html || '<p>Sem encomendas pendentes.</p>';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FIM — TETO DE PRODUÇÃO + SISTEMA DE FORNECEDOR
+    // ═══════════════════════════════════════════════════════════════════════════
+
     function processarFimDeTemporada() {
         // ── Conclui todos os projetos em andamento (passa o off-season) ──
         gameState.projetosEmAndamento.forEach(projeto => {
@@ -3815,6 +4199,47 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.campeonato.classificacaoConstrutores = [];
         gameState.campeonato.resultadosCorridas = [];
         gameState.campeonato.feriaVeraoFeita = false;
+
+        // ── Teto de produção e fornecedor ─────────────────────────────────────
+        const temporadaNumero = gameState.campeonato.ano - 2025; // T1=2026, T3=2028...
+
+        // Ativa mecânicas que estavam pendentes (jogo que foi atualizado no meio da temporada)
+        if (gameState.novasMecanicasPendentes) {
+            gameState.novasMecanicasPendentes = false;
+            gameState.tetoAtivo       = true;
+            gameState.fornecedorAtivo = true;
+            gameState.comunicadoRegulatorio = true; // flag para o modal exibir o aviso
+        }
+
+        // Ativa naturalmente ao chegar na T3 (jogos novos que chegaram aqui)
+        if (temporadaNumero >= 3 && !gameState.tetoAtivo) {
+            gameState.tetoAtivo       = true;
+            gameState.fornecedorAtivo = true;
+            gameState.comunicadoRegulatorio = true;
+        }
+
+        // Atualiza as cotas a cada 2 temporadas (T3-T4, T5-T6, T7-T8...)
+        if (gameState.tetoAtivo && temporadaNumero >= 3 && (temporadaNumero - 3) % 2 === 0) {
+            gameState.quotaAnual = gerarNovasCotas(temporadaNumero);
+            if ((temporadaNumero - 3) % 2 === 0 && temporadaNumero > 3) {
+                gameState.comunicadoRegulatorio = true; // novas regras também anunciam
+            }
+        }
+
+        // Reseta contadores e bônus de produção para a nova temporada
+        if (gameState.tetoAtivo) {
+            gameState.producaoAnual = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
+            gameState.quotaBonus    = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
+        }
+
+        // Reseta relações de parceria (duram 1 temporada)
+        equipesIA.forEach(e => { e.relacaoComJogador = 'neutra'; });
+
+        // Gera novas encomendas externas para a temporada que começa
+        if (gameState.fornecedorAtivo) {
+            gameState.encomendasExternas = gerarEncomendasExternas();
+        }
+        // ── Fim teto / fornecedor ─────────────────────────────────────────────
 
         // Arquiva o extrato do ano encerrado e reseta o histórico da temporada atual
         if (!gameState.historicoAnualMarketing) gameState.historicoAnualMarketing = [];
@@ -4919,6 +5344,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProjetos();
         renderPatrocinadores();
         renderCentroPD();
+        renderEncomendasExternas();
         const emblemaEscuderiaContainer = document.getElementById('emblema-display-escuderia');
         renderizarEmblema(emblemaEscuderiaContainer, gameState.escuderia.emblema);
     }
