@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.38";
+    const VERSAO_JOGO = "21.0.39";
 
 
     // --- 1. DADOS GLOBAIS ---
@@ -1141,6 +1141,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (piloto.idade >= 35 && piloto.status === 'Jogador') {
             if (confirm(`Tem certeza que deseja aposentar ${piloto.nome}?\nEle será adicionado ao Hall da Fama e removido permanentemente do jogo.`)) {
+                // Garante que o título do campeonato atual seja creditado ANTES do snapshot,
+                // caso o piloto seja o líder da classificação no momento da aposentadoria.
+                // Isso cobre o caso em que o jogador aposenta o campeão antes do modal de fim de temporada.
+                const _classificacaoAtual = [...(gameState.campeonato.classificacaoPilotos || [])].sort((a, b) => b.pontos - a.pontos);
+                const _liderAtual = _classificacaoAtual[0];
+                const _anoAtual = gameState.campeonato.ano;
+                if (_liderAtual && _liderAtual.piloto === piloto.nome) {
+                    const _jaTitulo = gameState.galeria.titulosPilotos.some(t =>
+                        (typeof t === 'object' ? t.ano : t) === _anoAtual
+                    );
+                    if (!_jaTitulo) {
+                        gameState.galeria.titulosPilotos.push({ ano: _anoAtual, piloto: piloto.nome });
+                        piloto.campeonatosGanhos.push(_anoAtual);
+                    }
+                }
                 const _statsSnap = gameState.galeria.estatisticasPilotos[piloto.nome]
                                || gameState.galeria.estatisticasTodosPilotos?.[piloto.nome]
                                || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
@@ -3676,6 +3691,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!jaRegistrado) {
                     gameState.galeria.titulosPilotos.push({ ano, piloto: pilotoDaCasa.nome });
                     pilotoDaCasa.campeonatosGanhos.push(ano);
+                }
+            } else {
+                // Piloto campeão foi aposentado manualmente antes do modal de fim de temporada:
+                // ele já não existe em gameState.pilotos, mas pode estar no Hall da Fama.
+                // Atualiza o registro retroativamente para que o título apareça corretamente.
+                const entradaHall = gameState.galeria.hallDaFama.find(h => h.piloto.nome === pilotoCampeao.piloto);
+                if (entradaHall) {
+                    ganheiPilotos = true;
+                    const jaRegistrado = gameState.galeria.titulosPilotos.some(t =>
+                        (typeof t === 'object' ? t.ano : t) === ano
+                    );
+                    if (!jaRegistrado) {
+                        gameState.galeria.titulosPilotos.push({ ano, piloto: entradaHall.piloto.nome });
+                        if (!entradaHall.piloto.campeonatosGanhos.includes(ano)) {
+                            entradaHall.piloto.campeonatosGanhos.push(ano);
+                        }
+                        // Recalcula o contador de títulos no statsCarreira para refletir o novo título
+                        entradaHall.statsCarreira.titulos = entradaHall.piloto.campeonatosGanhos.length;
+                    }
                 }
             }
         }
