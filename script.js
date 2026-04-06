@@ -4150,8 +4150,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p>Pagamento na entrega: <strong>R$ ${enc.custoPago.toLocaleString('pt-BR')}</strong></p>
                 <p>Bônus: <strong>+1 slot de ${enc.tipoPeca}</strong> (cota atual: ${quotaAtual})</p>
                 <div class="encomenda-acoes">
-                    <button class="btn-corrida btn-real" onclick="aceitarEncomendaExterna(${enc.id})">Aceitar</button>
-                    <button class="btn-corrida" onclick="recusarEncomendaExterna(${enc.id})">Recusar</button>
+                    <button class="btn-corrida btn-real" data-action="aceitar-encomenda" data-encomenda-id="${enc.id}">Aceitar</button>
+                    <button class="btn-corrida" data-action="recusar-encomenda" data-encomenda-id="${enc.id}">Recusar</button>
                 </div>
             </div>`;
         });
@@ -8774,6 +8774,8 @@ document.addEventListener('DOMContentLoaded', () => {
             saveGame();
         }
         else if (target.matches('.btn-aceitar-patrocinio')) aceitarOfertaPatrocinio(parseInt(target.dataset.ofertaId));
+        else if (action === 'aceitar-encomenda') aceitarEncomendaExterna(parseFloat(target.dataset.encomendaId));
+        else if (action === 'recusar-encomenda') recusarEncomendaExterna(parseFloat(target.dataset.encomendaId));
         else if (action === 'fechar-sc-resumo') {
             if (raceData) delete raceData.ultimoSCResumo;
             renderEstrategiaUI();
