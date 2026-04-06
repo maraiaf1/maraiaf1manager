@@ -766,8 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
             producaoAnual: { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
             quotaAnual:    { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 },
             quotaBonus:    { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
-            // ── Encomendas externas (fornecedor) ──────────────────────────────
-            encomendasExternas: [],
+            // Livro de recordes — sequência cross-temporada
+            sequenciaVitoriasAtual: { piloto: null, equipe: null, contagem: 0 },
             historicoMarketing: {},
             historicoAnualMarketing: [],
             historicoVendasPorCorrida: [],
@@ -919,6 +919,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!gameState.quotaAnual)    gameState.quotaAnual    = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
                     if (!gameState.quotaBonus)    gameState.quotaBonus    = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
                     if (!gameState.encomendasExternas) gameState.encomendasExternas = [];
+                    if (!gameState.sequenciaVitoriasAtual) gameState.sequenciaVitoriasAtual = { piloto: null, equipe: null, contagem: 0 };
 
                     // Determina se está no meio de uma temporada
                     const corridasRestantes = (calendarioCorridas.length - 1) - (gameState.campeonato.corridaAtualIndex || 0);
@@ -3682,6 +3683,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         gameState.campeonato.resultadosCorridas.push(dadosParaSalvar);
 
+        // ── Atualiza sequência de vitórias consecutivas (cross-temporada) ────
+        if (!gameState.sequenciaVitoriasAtual) {
+            gameState.sequenciaVitoriasAtual = { piloto: null, equipe: null, contagem: 0 };
+        }
+        const vencedorCorrida = resultados[0];
+        if (vencedorCorrida) {
+            const nomeVenc  = vencedorCorrida.piloto?.nome || vencedorCorrida.piloto;
+            const equipeVenc = vencedorCorrida.equipe;
+            const seq = gameState.sequenciaVitoriasAtual;
+            if (seq.piloto === nomeVenc) {
+                seq.contagem++;
+            } else {
+                seq.piloto  = nomeVenc;
+                seq.equipe  = equipeVenc;
+                seq.contagem = 1;
+            }
+        }
+        // ── Fim sequência ─────────────────────────────────────────────────────
+
         // 2. Cria as entradas para os pilotos/construtores na tabela de classificação, se ainda não existirem
         resultados.forEach(res => {
             if (!gameState.campeonato.classificacaoPilotos.find(p => p.piloto === res.piloto.nome)) {
@@ -3791,13 +3811,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (eq) vitoriasPorEquipe[eq] = (vitoriasPorEquipe[eq] || 0) + 1;
                 }
             });
+            // Dados extras para o livro de recordes
+            const segundoConstr  = classificacaoConstrutores[1];
+            const segundoPiloto  = classificacaoPilotos[1];
+            const difPontosConstr = equipeCampe && segundoConstr
+                ? equipeCampe.pontos - segundoConstr.pontos : null;
+            const difPontosPiloto = pilotoCampeao && segundoPiloto
+                ? pilotoCampeao.pontos - segundoPiloto.pontos : null;
+            // Busca a idade do campeão piloto no momento do título
+            const pilotoCampeaoObj = pilotoCampeao
+                ? gameState.pilotos.find(p => p.nome === pilotoCampeao.piloto)
+                  || gameState.galeria.hallDaFama.find(h => h.piloto.nome === pilotoCampeao.piloto)?.piloto
+                : null;
+            const idadeCampeao = pilotoCampeaoObj?.idade ?? null;
+
             gameState.historicoTemporadas.push({
                 ano,
                 campeaoConstrutores: equipeCampe
-                    ? { nome: equipeCampe.equipe, pontos: equipeCampe.pontos, vitorias: vitoriasPorEquipe[equipeCampe.equipe] || 0 }
+                    ? { nome: equipeCampe.equipe, pontos: equipeCampe.pontos, vitorias: vitoriasPorEquipe[equipeCampe.equipe] || 0, difPontos: difPontosConstr }
                     : null,
                 campeaoPilotos: pilotoCampeao
-                    ? { nome: pilotoCampeao.piloto, equipe: pilotoCampeao.equipe, pontos: pilotoCampeao.pontos, vitorias: vitoriasPorPiloto[pilotoCampeao.piloto] || 0 }
+                    ? { nome: pilotoCampeao.piloto, equipe: pilotoCampeao.equipe, pontos: pilotoCampeao.pontos, vitorias: vitoriasPorPiloto[pilotoCampeao.piloto] || 0, difPontos: difPontosPiloto, idade: idadeCampeao }
                     : null,
             });
         }
@@ -3817,7 +3851,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     (typeof t === 'object' ? t.ano : t) === ano
                 );
                 if (!jaRegistrado) {
-                    gameState.galeria.titulosPilotos.push({ ano, piloto: pilotoDaCasa.nome });
+                    gameState.galeria.titulosPilotos.push({ ano, piloto: pilotoDaCasa.nome, equipe: gameState.escuderia.nome });
                     pilotoDaCasa.campeonatosGanhos.push(ano);
                 }
             } else {
@@ -6936,6 +6970,321 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let _statsOrdenacaoIniciada = false;
 
+    // ═══════════════════════════════════════════════════════════════════
+    // LIVRO DE RECORDES
+    // ═══════════════════════════════════════════════════════════════════
+
+    function computarRecordes() {
+        const hist  = gameState.historicoTemporadas || [];
+        const nomeEsc = gameState.escuderia.nome;
+        const todosStats = gameState.galeria.estatisticasTodosPilotos || {};
+
+        // helpers
+        const meuRec = (detentor) => detentor === nomeEsc;
+        const meuPil = (nome) => gameState.pilotos.some(p => p.nome === nome && (p.status === 'Jogador' || p.status === 'Reserva'))
+            || gameState.galeria.hallDaFama.some(h => h.piloto.nome === nome);
+
+        // ── Construtores ──────────────────────────────────────────────
+
+        // 1. Maior nº de títulos de construtores
+        const contConstr = {};
+        hist.forEach(t => {
+            if (t.campeaoConstrutores) {
+                const n = t.campeaoConstrutores.nome;
+                if (!contConstr[n]) contConstr[n] = { count: 0, equipe: n };
+                contConstr[n].count++;
+            }
+        });
+        const recTitulosConstr = Object.values(contConstr).sort((a, b) => b.count - a.count)[0] || null;
+
+        // 2. Maior sequência consecutiva de construtores
+        let melhorSeqConstr = { count: 0, equipe: null, de: null, ate: null };
+        let seqAtual = { nome: null, count: 0, de: null };
+        [...hist].sort((a,b) => a.ano - b.ano).forEach(t => {
+            const n = t.campeaoConstrutores?.nome;
+            if (!n) { seqAtual = { nome: null, count: 0, de: null }; return; }
+            if (n === seqAtual.nome) {
+                seqAtual.count++;
+            } else {
+                seqAtual = { nome: n, count: 1, de: t.ano };
+            }
+            if (seqAtual.count > melhorSeqConstr.count) {
+                melhorSeqConstr = { count: seqAtual.count, equipe: n, de: seqAtual.de, ate: t.ano };
+            }
+        });
+
+        // 3. Maior pontuação numa temporada (construtores)
+        const recPontuacaoConstr = hist.reduce((best, t) => {
+            if (!t.campeaoConstrutores) return best;
+            return (!best || t.campeaoConstrutores.pontos > best.pontos)
+                ? { pontos: t.campeaoConstrutores.pontos, equipe: t.campeaoConstrutores.nome, ano: t.ano }
+                : best;
+        }, null);
+
+        // 4. Maior diferença de pontos para o 2º (construtores)
+        const recDifConstr = hist.reduce((best, t) => {
+            if (!t.campeaoConstrutores || t.campeaoConstrutores.difPontos == null) return best;
+            return (!best || t.campeaoConstrutores.difPontos > best.dif)
+                ? { dif: t.campeaoConstrutores.difPontos, equipe: t.campeaoConstrutores.nome, ano: t.ano }
+                : best;
+        }, null);
+
+        // ── Pilotos ───────────────────────────────────────────────────
+
+        // 5. Maior nº de títulos individuais
+        const contPiloto = {};
+        hist.forEach(t => {
+            if (t.campeaoPilotos) {
+                const n = t.campeaoPilotos.nome;
+                if (!contPiloto[n]) contPiloto[n] = { count: 0, equipe: t.campeaoPilotos.equipe };
+                contPiloto[n].count++;
+                contPiloto[n].equipe = t.campeaoPilotos.equipe; // última equipe
+            }
+        });
+        const recTitulosPiloto = Object.entries(contPiloto)
+            .map(([nome, d]) => ({ nome, count: d.count, equipe: d.equipe }))
+            .sort((a, b) => b.count - a.count)[0] || null;
+
+        // 6. Mais vitórias em uma única temporada (piloto)
+        const recVitoriasTemporada = hist.reduce((best, t) => {
+            if (!t.campeaoPilotos) return best;
+            return (!best || t.campeaoPilotos.vitorias > best.vitorias)
+                ? { vitorias: t.campeaoPilotos.vitorias, piloto: t.campeaoPilotos.nome, equipe: t.campeaoPilotos.equipe, ano: t.ano }
+                : best;
+        }, null);
+        // Verifica entre todos os pilotos da temporada (não só o campeão)
+        const recVitSingleFull = hist.reduce((best, t) => {
+            const contV = {};
+            (gameState.campeonato.resultadosCorridas || [])
+                .filter(c => c.ano === t.ano)
+                .forEach(c => {
+                    const v = c.resultadoFinal?.[0];
+                    if (v) { const n = v.piloto?.nome || v.piloto; contV[n] = (contV[n] || { count: 0, equipe: v.equipe }); contV[n].count++; }
+                });
+            const melhor = Object.entries(contV).sort((a,b) => b[1].count - a[1].count)[0];
+            if (!melhor) return best;
+            return (!best || melhor[1].count > best.vitorias)
+                ? { vitorias: melhor[1].count, piloto: melhor[0], equipe: melhor[1].equipe, ano: t.ano }
+                : best;
+        }, recVitoriasTemporada);
+
+        // 7. Mais vitórias na carreira
+        const recVitoriasCarreira = Object.entries(todosStats)
+            .map(([nome, s]) => ({ nome, vitorias: s.vitorias || 0, equipe: s.equipe || '—' }))
+            .sort((a,b) => b.vitorias - a.vitorias)[0] || null;
+
+        // 8. Mais pódios na carreira
+        const recPodiosCarreira = Object.entries(todosStats)
+            .map(([nome, s]) => ({ nome, podios: s.podios || 0, equipe: s.equipe || '—' }))
+            .sort((a,b) => b.podios - a.podios)[0] || null;
+
+        // 9. Mais corridas na carreira
+        const recCorridasCarreira = Object.entries(todosStats)
+            .map(([nome, s]) => ({ nome, corridas: s.corridas || 0, equipe: s.equipe || '—' }))
+            .sort((a,b) => b.corridas - a.corridas)[0] || null;
+
+        // ── Sequências ────────────────────────────────────────────────
+
+        // 10. Maior sequência de vitórias consecutivas (cross-temporada)
+        const seq = gameState.sequenciaVitoriasAtual || { piloto: null, equipe: null, contagem: 0 };
+
+        // 11. Maior sequência de títulos consecutivos de piloto
+        let melhorSeqPiloto = { count: 0, piloto: null, equipe: null, de: null, ate: null };
+        let seqPil = { nome: null, count: 0, de: null };
+        [...hist].sort((a,b) => a.ano - b.ano).forEach(t => {
+            const n = t.campeaoPilotos?.nome;
+            const eq = t.campeaoPilotos?.equipe;
+            if (!n) { seqPil = { nome: null, count: 0, de: null }; return; }
+            if (n === seqPil.nome) {
+                seqPil.count++;
+            } else {
+                seqPil = { nome: n, count: 1, de: t.ano };
+            }
+            if (seqPil.count > melhorSeqPiloto.count) {
+                melhorSeqPiloto = { count: seqPil.count, piloto: n, equipe: eq, de: seqPil.de, ate: t.ano };
+            }
+        });
+
+        // ── Especiais ─────────────────────────────────────────────────
+
+        // 12. Mais jovem a ganhar o título
+        const recMaisJovem = hist.reduce((best, t) => {
+            if (!t.campeaoPilotos || t.campeaoPilotos.idade == null) return best;
+            return (!best || t.campeaoPilotos.idade < best.idade)
+                ? { idade: t.campeaoPilotos.idade, piloto: t.campeaoPilotos.nome, equipe: t.campeaoPilotos.equipe, ano: t.ano }
+                : best;
+        }, null);
+
+        // 13. Mais velho a ganhar o título
+        const recMaisVelho = hist.reduce((best, t) => {
+            if (!t.campeaoPilotos || t.campeaoPilotos.idade == null) return best;
+            return (!best || t.campeaoPilotos.idade > best.idade)
+                ? { idade: t.campeaoPilotos.idade, piloto: t.campeaoPilotos.nome, equipe: t.campeaoPilotos.equipe, ano: t.ano }
+                : best;
+        }, null);
+
+        return {
+            construtores: {
+                titulosConstr:    recTitulosConstr,
+                seqConstr:        melhorSeqConstr.count > 0 ? melhorSeqConstr : null,
+                pontuacaoConstr:  recPontuacaoConstr,
+                difConstr:        recDifConstr,
+            },
+            pilotos: {
+                titulosPiloto:      recTitulosPiloto,
+                vitoriasTemporada:  recVitSingleFull,
+                vitoriasCarreira:   recVitoriasCarreira,
+                podiosCarreira:     recPodiosCarreira,
+                corridasCarreira:   recCorridasCarreira,
+            },
+            sequencias: {
+                vitoriasConsec:  seq.contagem > 0 ? seq : null,
+                titulosConsecPiloto: melhorSeqPiloto.count > 0 ? melhorSeqPiloto : null,
+            },
+            especiais: {
+                maisJovem: recMaisJovem,
+                maisVelho: recMaisVelho,
+            }
+        };
+    }
+
+    function renderLivroRecordes() {
+        const container = document.getElementById('livro-recordes-container');
+        if (!container) return;
+
+        const hist = gameState.historicoTemporadas || [];
+        if (hist.length === 0) {
+            container.innerHTML = '<p class="galeria-sem-dados">Nenhuma temporada concluída ainda. Complete o primeiro campeonato para ver os recordes.</p>';
+            return;
+        }
+
+        const R = computarRecordes();
+        const nomeEsc = gameState.escuderia.nome;
+
+        const isMeuConstr = (nome) => nome === nomeEsc;
+        const isMeuPiloto = (nome) => {
+            if (!nome) return false;
+            return gameState.pilotos.some(p => p.nome === nome)
+                || gameState.galeria.hallDaFama.some(h => h.piloto.nome === nome);
+        };
+
+        function card(titulo, valor, unidade, detentor, equipe, periodo, isMeu) {
+            const estrela = isMeu ? '<span class="rec-estrela">★ Seu recorde</span>' : '';
+            const classMeu = isMeu ? ' meu-recorde' : '';
+            const badgeEquipe = equipe ? `<span class="rec-badge">${equipe}</span>` : '';
+            const badgePeriodo = periodo ? `<span class="rec-badge">${periodo}</span>` : '';
+            const valDisplay = valor != null ? `${valor} <span>${unidade}</span>` : `<span style="color:#ccc">—</span>`;
+            const detentorHtml = detentor
+                ? `<div class="rec-detentor"><strong>${detentor}</strong>${badgeEquipe}${badgePeriodo}</div>`
+                : `<div class="rec-detentor" style="color:#bbb">Aguardando...</div>`;
+            return `<div class="rec-card${classMeu}">${estrela}
+                <div class="rec-titulo">${titulo}</div>
+                <div class="rec-valor">${valDisplay}</div>
+                ${detentorHtml}
+            </div>`;
+        }
+
+        function painel(cor, emoji, titulo, cardsHtml) {
+            return `<div class="rec-painel rec-painel-${cor}">
+                <div class="rec-painel-header">
+                    <span>${emoji} ${titulo}</span>
+                </div>
+                <div class="rec-painel-body">
+                    <div class="rec-grade">${cardsHtml}</div>
+                </div>
+            </div>`;
+        }
+
+        // ── Construtores ──────────────────────────────────────────────
+        const C = R.construtores;
+        const cCards = [
+            card('Maior nº de títulos de construtores',
+                C.titulosConstr?.count, 'títulos',
+                C.titulosConstr?.equipe, null, null,
+                isMeuConstr(C.titulosConstr?.equipe)),
+            card('Maior sequência consecutiva de títulos',
+                C.seqConstr?.count, 'anos',
+                C.seqConstr?.equipe, null,
+                C.seqConstr ? `${C.seqConstr.de}–${C.seqConstr.ate}` : null,
+                isMeuConstr(C.seqConstr?.equipe)),
+            card('Maior pontuação numa temporada',
+                C.pontuacaoConstr?.pontos, 'pts',
+                C.pontuacaoConstr?.equipe, null,
+                C.pontuacaoConstr?.ano?.toString(),
+                isMeuConstr(C.pontuacaoConstr?.equipe)),
+            card('Maior diferença de pontos para o 2º',
+                C.difConstr?.dif != null ? `+${C.difConstr.dif}` : null, 'pts',
+                C.difConstr?.equipe, null,
+                C.difConstr?.ano?.toString(),
+                isMeuConstr(C.difConstr?.equipe)),
+        ].join('');
+
+        // ── Pilotos ───────────────────────────────────────────────────
+        const P = R.pilotos;
+        const pCards = [
+            card('Maior nº de títulos individuais',
+                P.titulosPiloto?.count, 'títulos',
+                P.titulosPiloto?.nome, P.titulosPiloto?.equipe, null,
+                isMeuPiloto(P.titulosPiloto?.nome)),
+            card('Mais vitórias em uma única temporada',
+                P.vitoriasTemporada?.vitorias, 'vitórias',
+                P.vitoriasTemporada?.piloto, P.vitoriasTemporada?.equipe,
+                P.vitoriasTemporada?.ano?.toString(),
+                isMeuPiloto(P.vitoriasTemporada?.piloto)),
+            card('Mais vitórias na carreira',
+                P.vitoriasCarreira?.vitorias, 'vitórias',
+                P.vitoriasCarreira?.nome, P.vitoriasCarreira?.equipe, null,
+                isMeuPiloto(P.vitoriasCarreira?.nome)),
+            card('Mais pódios na carreira',
+                P.podiosCarreira?.podios, 'pódios',
+                P.podiosCarreira?.nome, P.podiosCarreira?.equipe, null,
+                isMeuPiloto(P.podiosCarreira?.nome)),
+            card('Mais corridas na carreira',
+                P.corridasCarreira?.corridas, 'corridas',
+                P.corridasCarreira?.nome, P.corridasCarreira?.equipe, null,
+                isMeuPiloto(P.corridasCarreira?.nome)),
+        ].join('');
+
+        // ── Sequências ────────────────────────────────────────────────
+        const S = R.sequencias;
+        const sCards = [
+            card('Maior sequência de vitórias consecutivas',
+                S.vitoriasConsec?.contagem, 'vitórias',
+                S.vitoriasConsec?.piloto, S.vitoriasConsec?.equipe, 'cross-temporada',
+                isMeuPiloto(S.vitoriasConsec?.piloto) || isMeuConstr(S.vitoriasConsec?.equipe)),
+            card('Maior sequência de títulos consecutivos',
+                S.titulosConsecPiloto?.count, 'anos',
+                S.titulosConsecPiloto?.piloto, S.titulosConsecPiloto?.equipe,
+                S.titulosConsecPiloto ? `${S.titulosConsecPiloto.de}–${S.titulosConsecPiloto.ate}` : null,
+                isMeuPiloto(S.titulosConsecPiloto?.piloto)),
+        ].join('');
+
+        // ── Especiais ─────────────────────────────────────────────────
+        const E = R.especiais;
+        const eCards = [
+            card('Piloto mais jovem a ganhar o título',
+                E.maisJovem?.idade, 'anos',
+                E.maisJovem?.piloto, E.maisJovem?.equipe,
+                E.maisJovem?.ano?.toString(),
+                isMeuPiloto(E.maisJovem?.piloto)),
+            card('Piloto mais velho a ganhar o título',
+                E.maisVelho?.idade, 'anos',
+                E.maisVelho?.piloto, E.maisVelho?.equipe,
+                E.maisVelho?.ano?.toString(),
+                isMeuPiloto(E.maisVelho?.piloto)),
+        ].join('');
+
+        container.innerHTML =
+            painel('construtores', '🏗️', 'Construtores', cCards) +
+            painel('pilotos',      '🧑‍✈️', 'Pilotos',      pCards) +
+            painel('sequencias',   '🔥', 'Sequências',   sCards) +
+            painel('especiais',    '⭐', 'Especiais',    eCards);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // FIM — LIVRO DE RECORDES
+    // ═══════════════════════════════════════════════════════════════════
+
     function renderAbaGaleria() {
         const nomeEscuderiaEl = document.getElementById('escuderia-nome-galeria');
         const trofeusContainer = document.getElementById('gabinete-trofeus');
@@ -7020,7 +7369,8 @@ document.addEventListener('DOMContentLoaded', () => {
         _renderTabelaStats(tabelaJogador, _getDadosStats('jogador'), ['nome', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.jogador);
         _renderTabelaStats(tabelaTodos,   _getDadosStats('todos'),   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.todos, _tiebreakersTodos);
 
-        // ── Tabela de Histórico de Campeonatos ──────────────────────────────
+        // ── Livro de Recordes ─────────────────────────────────────────
+        renderLivroRecordes();
         const historicoContainer = document.getElementById('historico-campeonatos-container');
         if (historicoContainer) {
             const historico = [...(gameState.historicoTemporadas || [])].sort((a, b) => b.ano - a.ano);
