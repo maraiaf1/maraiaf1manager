@@ -2099,15 +2099,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const pecaIndex = gameState.mercadoDePecas.findIndex(p => p.instanceId === instanceId);
         if (pecaIndex === -1) { alert("Esta peça não está mais disponível!"); return; }
         const peca = gameState.mercadoDePecas[pecaIndex];
-
-        // ── Verificação do teto de produção ──────────────────────────────────
-        if (!podeConstruirPeca(peca.tipo)) {
-            const construidas = gameState.producaoAnual[peca.tipo] || 0;
-            const cota        = (gameState.quotaAnual[peca.tipo] || 99) + (gameState.quotaBonus[peca.tipo] || 0);
-            alert(`Cota de ${peca.tipo} atingida! (${construidas}/${cota})\n\nAceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
-            return;
-        }
-
         if (gameState.escuderia.dinheiro >= peca.preco) {
             gameState.escuderia.dinheiro -= peca.preco;
             const pecaComprada = {
@@ -2117,12 +2108,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             gameState.todasAsPecas.push(pecaComprada);
             gameState.mercadoDePecas.splice(pecaIndex, 1);
-
-            // Incrementa o contador de produção da temporada
-            if (gameState.tetoAtivo) {
-                gameState.producaoAnual[peca.tipo] = (gameState.producaoAnual[peca.tipo] || 0) + 1;
-            }
-
             alert(`Peça "${peca.nome}" comprada com sucesso!`);
             updateUI();
             saveGame();
@@ -2317,43 +2302,63 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (gameState.escuderia.dinheiro < custoFinal) {
-            alert(`Dinheiro insuficiente! Custo total do projeto: R$ ${custoFinal.toLocaleString('pt-BR')}`);
+        // ── Monta o mapa de especialistas (declarado antes de qualquer uso) ──
+        const especialistas = {
+            "Motor":        gameState.escuderia.especialistas.find(e => e.tipo === "Engenheiro de Motor"),
+            "Asa Dianteira": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
+            "Asa Traseira":  gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
+            "Chassi":        gameState.escuderia.especialistas.find(e => e.tipo === "Projetista"),
+            "Suspensão":     gameState.escuderia.especialistas.find(e => e.tipo === "Projetista")
+        };
+
+        // ── Filtra apenas os tipos com slot disponível ────────────────────────
+        const tiposDisponiveis = Object.keys(especialistas).filter(tipo =>
+            !gameState.tetoAtivo || podeConstruirPeca(tipo)
+        );
+        const tiposBloqueados = Object.keys(especialistas).filter(tipo =>
+            gameState.tetoAtivo && !podeConstruirPeca(tipo)
+        );
+
+        if (tiposDisponiveis.length === 0) {
+            alert("Cotas de produção esgotadas para todos os tipos de peça.\n\nAceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.");
             return;
         }
 
-        if (confirm(`Iniciar um projeto completo de ${duracao} corrida(s) para todas as 5 categorias de peças por R$ ${custoFinal.toLocaleString('pt-BR')}?`)) {
+        // ── Calcula custo proporcional (só pelos tipos disponíveis) ──────────
+        const todosTipos = Object.keys(especialistas);
+        const custoProportional = tiposDisponiveis.length < todosTipos.length
+            ? Math.round(custoFinal * tiposDisponiveis.length / todosTipos.length)
+            : custoFinal;
 
-            // ── Verificação do teto de produção para cada tipo ────────────────
-            if (gameState.tetoAtivo) {
-                const tiposBloqueados = Object.keys(especialistas).filter(tipo => !podeConstruirPeca(tipo));
-                if (tiposBloqueados.length > 0) {
-                    alert(`Cota de produção atingida para: ${tiposBloqueados.join(', ')}.\n\nO projeto completo não pode ser iniciado. Aceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
-                    return;
-                }
-            }
-            gameState.escuderia.dinheiro -= custoFinal;
+        if (gameState.escuderia.dinheiro < custoProportional) {
+            alert(`Dinheiro insuficiente! Custo do projeto: R$ ${custoProportional.toLocaleString('pt-BR')}`);
+            return;
+        }
+
+        // ── Mensagem de confirmação informando o que será criado ──────────────
+        let msgConfirm = `Iniciar projeto de ${duracao} corrida(s) por R$ ${custoProportional.toLocaleString('pt-BR')}?\n\n`;
+        msgConfirm += `✅ Será criado: ${tiposDisponiveis.join(', ')}`;
+        if (tiposBloqueados.length > 0) {
+            msgConfirm += `\n⛔ Cota esgotada (não será criado): ${tiposBloqueados.join(', ')}`;
+        }
+
+        if (confirm(msgConfirm)) {
+            gameState.escuderia.dinheiro -= custoProportional;
 
             // 🎲 Bônus de dado
             const dadoRolado = Math.floor(Math.random() * 6) + 1;
             const reducaoDado = dadoRolado >= 5 ? 3 : dadoRolado >= 3 ? 2 : dadoRolado >= 2 ? 1 : 0;
 
-            const especialistas = {
-                "Motor": gameState.escuderia.especialistas.find(e => e.tipo === "Engenheiro de Motor"),
-                "Asa Dianteira": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
-                "Asa Traseira": gameState.escuderia.especialistas.find(e => e.tipo === "Aerodinamicista"),
-                "Chassi": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista"),
-                "Suspensão": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista")
-            };
-
             const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
-            for (const tipoPeca in especialistas) {
+
+            for (const tipoPeca of tiposDisponiveis) {
                 const especialista = especialistas[tipoPeca];
                 let reducaoInstalacao = 0;
                 if (pecasAero.includes(tipoPeca)) reducaoInstalacao = calcularReducaoTunelTempo();
-                else if (tipoPeca === 'Motor') reducaoInstalacao = calcularReducaoMotoresTempo();
-                if (tipoPeca === 'Chassi')    reducaoInstalacao += calcularReducaoChassisTempo();
-                if (tipoPeca === 'Suspensão') reducaoInstalacao += calcularReducaoSuspensoesTempo();
+                else if (tipoPeca === 'Motor')     reducaoInstalacao = calcularReducaoMotoresTempo();
+                if (tipoPeca === 'Chassi')         reducaoInstalacao += calcularReducaoChassisTempo();
+                if (tipoPeca === 'Suspensão')      reducaoInstalacao += calcularReducaoSuspensoesTempo();
+
                 const duracaoFinal = Math.max(1, duracao - reducaoDado - reducaoInstalacao);
                 gameState.projetosEmAndamento.push({
                     id: Date.now() + Math.random(),
@@ -2365,7 +2370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     status: 'em_andamento'
                 });
 
-                // Incrementa o contador de produção da temporada
+                // Consome o slot ao iniciar a construção
                 if (gameState.tetoAtivo) {
                     gameState.producaoAnual[tipoPeca] = (gameState.producaoAnual[tipoPeca] || 0) + 1;
                 }
@@ -2374,7 +2379,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const msgDado = reducaoDado > 0
                 ? `\n🎲 Dado bônus: ${dadoRolado} — redução de ${reducaoDado} corrida(s)!`
                 : `\n🎲 Dado bônus: ${dadoRolado} — sem redução desta vez.`;
-            alert(`Projetos iniciados! O desenvolvimento de um novo conjunto completo de peças começou.${msgDado}`);
+            const resumo = tiposDisponiveis.length < todosTipos.length
+                ? `\n\n(${tiposBloqueados.join(', ')} não iniciado — cota esgotada)`
+                : '';
+            alert(`Projetos iniciados!${msgDado}${resumo}`);
             updateUI();
             saveGame();
         }
@@ -5344,47 +5352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
-    function renderPainelCotas() {
-        const container = document.getElementById('painel-cotas-container');
-        if (!container) return;
-
-        if (!gameState.tetoAtivo) {
-            container.innerHTML = '';
-            container.style.display = 'none';
-            return;
-        }
-
-        container.style.display = 'block';
-        const tipos = ['Motor', 'Suspensão', 'Chassi', 'Asa Dianteira', 'Asa Traseira'];
-
-        const barras = tipos.map(tipo => {
-            const usado  = gameState.producaoAnual[tipo] || 0;
-            const cota   = (gameState.quotaAnual[tipo] || 99) + (gameState.quotaBonus[tipo] || 0);
-            const bonus  = gameState.quotaBonus[tipo] || 0;
-            const pct    = Math.min(100, Math.round((usado / cota) * 100));
-            const cheio  = usado >= cota;
-            const corBarra = cheio ? '#dc3545' : usado >= cota - 1 ? '#f0ad4e' : '#28a745';
-            const labelBonus = bonus > 0 ? ` <span class="cota-bonus">+${bonus} extra</span>` : '';
-
-            return `
-            <div class="cota-row">
-                <div class="cota-label">
-                    <span class="cota-tipo">${tipo}</span>
-                    <span class="cota-num ${cheio ? 'cota-cheia' : ''}">${usado}/${cota}${labelBonus}</span>
-                </div>
-                <div class="cota-barra-bg">
-                    <div class="cota-barra-fill" style="width:${pct}%;background:${corBarra}"></div>
-                </div>
-            </div>`;
-        }).join('');
-
-        container.innerHTML = `
-            <div class="cota-titulo">Regulamento técnico — cotas de produção ${gameState.campeonato.ano}</div>
-            ${barras}
-            <p class="cota-dica">Cada peça construída <strong>ou comprada</strong> no mercado consome 1 slot. Aceite encomendas externas para ganhar slots bônus.</p>
-        `;
-    }
-
     function renderEscuderia() {
         const elVersao = document.getElementById('versao-jogo');
         if (elVersao) elVersao.textContent = `v${VERSAO_JOGO}`;
@@ -5401,7 +5368,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPatrocinadores();
         renderCentroPD();
         renderEncomendasExternas();
-        renderPainelCotas();
         const emblemaEscuderiaContainer = document.getElementById('emblema-display-escuderia');
         renderizarEmblema(emblemaEscuderiaContainer, gameState.escuderia.emblema);
     }
