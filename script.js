@@ -2309,16 +2309,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (confirm(`Iniciar um projeto completo de ${duracao} corrida(s) para todas as 5 categorias de peças por R$ ${custoFinal.toLocaleString('pt-BR')}?`)) {
 
-            // ── Verificação do teto de produção para cada tipo ────────────────
-            if (gameState.tetoAtivo) {
-                const tiposBloqueados = Object.keys(especialistas).filter(tipo => !podeConstruirPeca(tipo));
-                if (tiposBloqueados.length > 0) {
-                    alert(`Cota de produção atingida para: ${tiposBloqueados.join(', ')}.\n\nO projeto completo não pode ser iniciado. Aceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
-                    return;
-                }
-            }
-            gameState.escuderia.dinheiro -= custoFinal;
-
             // 🎲 Bônus de dado
             const dadoRolado = Math.floor(Math.random() * 6) + 1;
             const reducaoDado = dadoRolado >= 5 ? 3 : dadoRolado >= 3 ? 2 : dadoRolado >= 2 ? 1 : 0;
@@ -2330,6 +2320,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 "Chassi": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista"),
                 "Suspensão": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista")
             };
+
+            // ── Verificação do teto de produção para cada tipo ────────────────
+            if (gameState.tetoAtivo) {
+                const tiposBloqueados = Object.keys(especialistas).filter(tipo => !podeConstruirPeca(tipo));
+                if (tiposBloqueados.length > 0) {
+                    alert(`Cota de produção atingida para: ${tiposBloqueados.join(', ')}.\n\nO projeto completo não pode ser iniciado. Aceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
+                    return;
+                }
+            }
+
+            gameState.escuderia.dinheiro -= custoFinal;
 
             const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
             for (const tipoPeca in especialistas) {
