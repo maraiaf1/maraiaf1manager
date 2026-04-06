@@ -5218,6 +5218,9 @@ font-size: 0.8em;
     gap: 0.5rem;
     margin-top: 0.75rem;
 }
+.encomenda-acoes .btn-corrida:not(.btn-real) {
+    background-color: #6c757d;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    COMUNICADO REGULATÓRIO (modal fim de temporada)
