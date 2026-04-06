@@ -2099,6 +2099,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const pecaIndex = gameState.mercadoDePecas.findIndex(p => p.instanceId === instanceId);
         if (pecaIndex === -1) { alert("Esta peça não está mais disponível!"); return; }
         const peca = gameState.mercadoDePecas[pecaIndex];
+
+        // ── Verificação do teto de produção ──────────────────────────────────
+        if (!podeConstruirPeca(peca.tipo)) {
+            const construidas = gameState.producaoAnual[peca.tipo] || 0;
+            const cota        = (gameState.quotaAnual[peca.tipo] || 99) + (gameState.quotaBonus[peca.tipo] || 0);
+            alert(`Cota de ${peca.tipo} atingida! (${construidas}/${cota})\n\nAceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
+            return;
+        }
+
         if (gameState.escuderia.dinheiro >= peca.preco) {
             gameState.escuderia.dinheiro -= peca.preco;
             const pecaComprada = {
@@ -2108,6 +2117,12 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             gameState.todasAsPecas.push(pecaComprada);
             gameState.mercadoDePecas.splice(pecaIndex, 1);
+
+            // Incrementa o contador de produção da temporada
+            if (gameState.tetoAtivo) {
+                gameState.producaoAnual[peca.tipo] = (gameState.producaoAnual[peca.tipo] || 0) + 1;
+            }
+
             alert(`Peça "${peca.nome}" comprada com sucesso!`);
             updateUI();
             saveGame();
@@ -2309,6 +2324,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (confirm(`Iniciar um projeto completo de ${duracao} corrida(s) para todas as 5 categorias de peças por R$ ${custoFinal.toLocaleString('pt-BR')}?`)) {
 
+            // ── Verificação do teto de produção para cada tipo ────────────────
+            if (gameState.tetoAtivo) {
+                const tiposBloqueados = Object.keys(especialistas).filter(tipo => !podeConstruirPeca(tipo));
+                if (tiposBloqueados.length > 0) {
+                    alert(`Cota de produção atingida para: ${tiposBloqueados.join(', ')}.\n\nO projeto completo não pode ser iniciado. Aceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
+                    return;
+                }
+            }
+            gameState.escuderia.dinheiro -= custoFinal;
+
             // 🎲 Bônus de dado
             const dadoRolado = Math.floor(Math.random() * 6) + 1;
             const reducaoDado = dadoRolado >= 5 ? 3 : dadoRolado >= 3 ? 2 : dadoRolado >= 2 ? 1 : 0;
@@ -2320,17 +2345,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 "Chassi": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista"),
                 "Suspensão": gameState.escuderia.especialistas.find(e => e.tipo === "Projetista")
             };
-
-            // ── Verificação do teto de produção para cada tipo ────────────────
-            if (gameState.tetoAtivo) {
-                const tiposBloqueados = Object.keys(especialistas).filter(tipo => !podeConstruirPeca(tipo));
-                if (tiposBloqueados.length > 0) {
-                    alert(`Cota de produção atingida para: ${tiposBloqueados.join(', ')}.\n\nO projeto completo não pode ser iniciado. Aceite encomendas externas para ganhar slots extras ou aguarde a próxima temporada.`);
-                    return;
-                }
-            }
-
-            gameState.escuderia.dinheiro -= custoFinal;
 
             const pecasAero = ["Asa Dianteira", "Asa Traseira", "Chassi"];
             for (const tipoPeca in especialistas) {
@@ -5330,6 +5344,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
+    function renderPainelCotas() {
+        const container = document.getElementById('painel-cotas-container');
+        if (!container) return;
+
+        if (!gameState.tetoAtivo) {
+            container.innerHTML = '';
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'block';
+        const tipos = ['Motor', 'Suspensão', 'Chassi', 'Asa Dianteira', 'Asa Traseira'];
+
+        const barras = tipos.map(tipo => {
+            const usado  = gameState.producaoAnual[tipo] || 0;
+            const cota   = (gameState.quotaAnual[tipo] || 99) + (gameState.quotaBonus[tipo] || 0);
+            const bonus  = gameState.quotaBonus[tipo] || 0;
+            const pct    = Math.min(100, Math.round((usado / cota) * 100));
+            const cheio  = usado >= cota;
+            const corBarra = cheio ? '#dc3545' : usado >= cota - 1 ? '#f0ad4e' : '#28a745';
+            const labelBonus = bonus > 0 ? ` <span class="cota-bonus">+${bonus} extra</span>` : '';
+
+            return `
+            <div class="cota-row">
+                <div class="cota-label">
+                    <span class="cota-tipo">${tipo}</span>
+                    <span class="cota-num ${cheio ? 'cota-cheia' : ''}">${usado}/${cota}${labelBonus}</span>
+                </div>
+                <div class="cota-barra-bg">
+                    <div class="cota-barra-fill" style="width:${pct}%;background:${corBarra}"></div>
+                </div>
+            </div>`;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="cota-titulo">Regulamento técnico — cotas de produção ${gameState.campeonato.ano}</div>
+            ${barras}
+            <p class="cota-dica">Cada peça construída <strong>ou comprada</strong> no mercado consome 1 slot. Aceite encomendas externas para ganhar slots bônus.</p>
+        `;
+    }
+
     function renderEscuderia() {
         const elVersao = document.getElementById('versao-jogo');
         if (elVersao) elVersao.textContent = `v${VERSAO_JOGO}`;
@@ -5346,6 +5401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPatrocinadores();
         renderCentroPD();
         renderEncomendasExternas();
+        renderPainelCotas();
         const emblemaEscuderiaContainer = document.getElementById('emblema-display-escuderia');
         renderizarEmblema(emblemaEscuderiaContainer, gameState.escuderia.emblema);
     }
