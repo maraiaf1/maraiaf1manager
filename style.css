@@ -5260,6 +5260,7 @@ font-size: 0.8em;
     border-radius: 8px;
     padding: 1rem 1.2rem;
     margin-bottom: 1rem;
+    max-width: 420px;
 }
 .cota-titulo {
     font-weight: bold;

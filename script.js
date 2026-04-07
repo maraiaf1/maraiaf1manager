@@ -3141,7 +3141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         raceData.historicoSC.push({ volta: raceData.voltaAtual, totalVoltas: raceData.totalVoltas, motivo: raceData.safetyCarMotivo || 'Incidente na pista' });
         renderHistoricoSC();
 
-        const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual;
+        const voltasRestantes = raceData.totalVoltas - raceData.voltaAtual + 1;
 
         // ── 1. Comprime o campo ──────────────────────────────────────
         const ativos = raceData.participantes.filter(p => p.tempoTotal !== Infinity);
