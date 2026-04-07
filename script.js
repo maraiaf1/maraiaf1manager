@@ -3697,7 +3697,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const nomeVenc   = vencedorCorrida.piloto?.nome || vencedorCorrida.piloto;
             const equipeVenc = vencedorCorrida.equipe;
             const seq = gameState.sequenciaVitoriasAtual;
-
             if (seq.piloto === nomeVenc) {
                 seq.contagem++;
             } else {
@@ -3709,8 +3708,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 seq.equipe   = equipeVenc;
                 seq.contagem = 1;
             }
-
-            // Atualiza o melhor histórico mesmo enquanto a sequência ainda está em andamento
+            // Atualiza o melhor histórico mesmo com a sequência em andamento
             if (seq.contagem > gameState.melhorSequenciaVitorias.contagem) {
                 gameState.melhorSequenciaVitorias = { ...seq };
             }
@@ -7101,8 +7099,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // ── Sequências ────────────────────────────────────────────────
 
         // 10. Maior sequência de vitórias consecutivas (cross-temporada)
-        // Compara o melhor histórico salvo com a sequência ainda em andamento
-        const seqAtiva    = gameState.sequenciaVitoriasAtual  || { piloto: null, equipe: null, contagem: 0 };
+        const seqAtiva     = gameState.sequenciaVitoriasAtual  || { piloto: null, equipe: null, contagem: 0 };
         const seqHistorica = gameState.melhorSequenciaVitorias || { piloto: null, equipe: null, contagem: 0 };
         const seq = seqAtiva.contagem >= seqHistorica.contagem ? seqAtiva : seqHistorica;
 
@@ -7182,8 +7179,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMeuConstr = (nome) => nome === nomeEsc;
         const isMeuPiloto = (nome) => {
             if (!nome) return false;
-            return gameState.pilotos.some(p => p.nome === nome)
-                || gameState.galeria.hallDaFama.some(h => h.piloto.nome === nome);
+            const ativo = gameState.pilotos.some(p =>
+                p.nome === nome && (p.status === 'Jogador' || p.status === 'Reserva')
+            );
+            if (ativo) return true;
+            return gameState.galeria.hallDaFama.some(h =>
+                h.piloto.nome === nome && h.statsCarreira?.equipe === nomeEsc
+            );
         };
 
         function card(titulo, valor, unidade, detentor, equipe, periodo, isMeu) {
