@@ -7161,11 +7161,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const R = computarRecordes();
         const nomeEsc = gameState.escuderia.nome;
 
+        // Recorde de construtor: equipe detentora é a escuderia atual do jogador
         const isMeuConstr = (nome) => nome === nomeEsc;
+
+        // Recorde de piloto: apenas pilotos ativos do jogador OU aposentados da equipe do jogador (Hall da Fama)
         const isMeuPiloto = (nome) => {
             if (!nome) return false;
-            return gameState.pilotos.some(p => p.nome === nome)
-                || gameState.galeria.hallDaFama.some(h => h.piloto.nome === nome);
+            const ativo = gameState.pilotos.some(p =>
+                p.nome === nome && (p.status === 'Jogador' || p.status === 'Reserva')
+            );
+            if (ativo) return true;
+            // Aposentados: só conta se a equipe registrada no Hall da Fama for a escuderia do jogador
+            return gameState.galeria.hallDaFama.some(h =>
+                h.piloto.nome === nome && h.statsCarreira?.equipe === nomeEsc
+            );
         };
 
         function card(titulo, valor, unidade, detentor, equipe, periodo, isMeu) {
