@@ -768,6 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quotaBonus:    { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
             // Livro de recordes — sequência cross-temporada
             sequenciaVitoriasAtual: { piloto: null, equipe: null, contagem: 0 },
+            melhorSequenciaVitorias: { piloto: null, equipe: null, contagem: 0 },
             historicoMarketing: {},
             historicoAnualMarketing: [],
             historicoVendasPorCorrida: [],
@@ -920,6 +921,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!gameState.quotaBonus)    gameState.quotaBonus    = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
                     if (!gameState.encomendasExternas) gameState.encomendasExternas = [];
                     if (!gameState.sequenciaVitoriasAtual) gameState.sequenciaVitoriasAtual = { piloto: null, equipe: null, contagem: 0 };
+                    if (!gameState.melhorSequenciaVitorias) gameState.melhorSequenciaVitorias = { piloto: null, equipe: null, contagem: 0 };
 
                     // Determina se está no meio de uma temporada
                     const corridasRestantes = (calendarioCorridas.length - 1) - (gameState.campeonato.corridaAtualIndex || 0);
@@ -3687,17 +3689,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!gameState.sequenciaVitoriasAtual) {
             gameState.sequenciaVitoriasAtual = { piloto: null, equipe: null, contagem: 0 };
         }
+        if (!gameState.melhorSequenciaVitorias) {
+            gameState.melhorSequenciaVitorias = { piloto: null, equipe: null, contagem: 0 };
+        }
         const vencedorCorrida = resultados[0];
         if (vencedorCorrida) {
-            const nomeVenc  = vencedorCorrida.piloto?.nome || vencedorCorrida.piloto;
+            const nomeVenc   = vencedorCorrida.piloto?.nome || vencedorCorrida.piloto;
             const equipeVenc = vencedorCorrida.equipe;
             const seq = gameState.sequenciaVitoriasAtual;
+
             if (seq.piloto === nomeVenc) {
                 seq.contagem++;
             } else {
-                seq.piloto  = nomeVenc;
-                seq.equipe  = equipeVenc;
+                // Sequência quebrou — salva o melhor histórico antes de resetar
+                if (seq.contagem > gameState.melhorSequenciaVitorias.contagem) {
+                    gameState.melhorSequenciaVitorias = { ...seq };
+                }
+                seq.piloto   = nomeVenc;
+                seq.equipe   = equipeVenc;
                 seq.contagem = 1;
+            }
+
+            // Atualiza o melhor histórico mesmo enquanto a sequência ainda está em andamento
+            if (seq.contagem > gameState.melhorSequenciaVitorias.contagem) {
+                gameState.melhorSequenciaVitorias = { ...seq };
             }
         }
         // ── Fim sequência ─────────────────────────────────────────────────────
@@ -7086,7 +7101,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // ── Sequências ────────────────────────────────────────────────
 
         // 10. Maior sequência de vitórias consecutivas (cross-temporada)
-        const seq = gameState.sequenciaVitoriasAtual || { piloto: null, equipe: null, contagem: 0 };
+        // Compara o melhor histórico salvo com a sequência ainda em andamento
+        const seqAtiva    = gameState.sequenciaVitoriasAtual  || { piloto: null, equipe: null, contagem: 0 };
+        const seqHistorica = gameState.melhorSequenciaVitorias || { piloto: null, equipe: null, contagem: 0 };
+        const seq = seqAtiva.contagem >= seqHistorica.contagem ? seqAtiva : seqHistorica;
 
         // 11. Maior sequência de títulos consecutivos de piloto
         let melhorSeqPiloto = { count: 0, piloto: null, equipe: null, de: null, ate: null };
@@ -7161,20 +7179,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const R = computarRecordes();
         const nomeEsc = gameState.escuderia.nome;
 
-        // Recorde de construtor: equipe detentora é a escuderia atual do jogador
         const isMeuConstr = (nome) => nome === nomeEsc;
-
-        // Recorde de piloto: apenas pilotos ativos do jogador OU aposentados da equipe do jogador (Hall da Fama)
         const isMeuPiloto = (nome) => {
             if (!nome) return false;
-            const ativo = gameState.pilotos.some(p =>
-                p.nome === nome && (p.status === 'Jogador' || p.status === 'Reserva')
-            );
-            if (ativo) return true;
-            // Aposentados: só conta se a equipe registrada no Hall da Fama for a escuderia do jogador
-            return gameState.galeria.hallDaFama.some(h =>
-                h.piloto.nome === nome && h.statsCarreira?.equipe === nomeEsc
-            );
+            return gameState.pilotos.some(p => p.nome === nome)
+                || gameState.galeria.hallDaFama.some(h => h.piloto.nome === nome);
         };
 
         function card(titulo, valor, unidade, detentor, equipe, periodo, isMeu) {
