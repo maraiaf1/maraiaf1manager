@@ -2199,23 +2199,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function autoEquiparMelhoresPecas() {
         const slotTypes = { motor: 'Motor', chassi: 'Chassi', asaDianteira: 'Asa Dianteira', asaTraseira: 'Asa Traseira', suspensao: 'Suspensão' };
+
+        // Atributo principal de cada slot — mesma lógica do modal de seleção manual
+        const atributoPrincipal = {
+            motor:        'potencia',
+            chassi:       'aerodinamica',
+            asaDianteira: 'aerodinamica',
+            asaTraseira:  'aerodinamica',
+            suspensao:    'aderencia'
+        };
+
+        // Função de pontuação: atributo principal como critério principal,
+        // confiabilidade apenas como desempate
+        const pontuarPeca = (peca, slotKey) => {
+            const attr = atributoPrincipal[slotKey];
+            const principal    = peca.atributos[attr]           || 0;
+            const confianca    = peca.atributos.confiabilidade  || 0;
+            // Para chassi, aerodinamica + aderencia ambos importam —
+            // usa aerodinamica como principal e aderencia como segundo critério
+            const secundario   = slotKey === 'chassi' ? (peca.atributos.aderencia || 0) : 0;
+            return { principal, secundario, confianca };
+        };
+
+        const compararPecas = (a, b, slotKey) => {
+            const pa = pontuarPeca(a, slotKey);
+            const pb = pontuarPeca(b, slotKey);
+            if (pb.principal  !== pa.principal)  return pb.principal  - pa.principal;
+            if (pb.secundario !== pa.secundario) return pb.secundario - pa.secundario;
+            return pb.confianca - pa.confianca; // desempate
+        };
+
         let pecasDisponiveis = [...gameState.todasAsPecas];
+
+        // Limpa todos os slots antes de reatribuir
         gameState.carros.forEach(carro => {
             for (const slotKey in carro.pecas) {
                 carro.pecas[slotKey] = null;
             }
         });
+
+        // Para cada carro, equipa o melhor disponível por slot
         gameState.carros.forEach(carro => {
             for (const slotKey in slotTypes) {
                 const tipoPeca = slotTypes[slotKey];
-                const pecasCompativeis = pecasDisponiveis.filter(p => p.tipo === tipoPeca);
-                if (pecasCompativeis.length === 0) continue;
-                pecasCompativeis.sort((a, b) => b.nivel - a.nivel);
-                const melhorPeca = pecasCompativeis[0];
-                carro.pecas[slotKey] = melhorPeca.instanceId;
-                pecasDisponiveis = pecasDisponiveis.filter(p => p.instanceId !== melhorPeca.instanceId);
+                const compativeis = pecasDisponiveis.filter(p => p.tipo === tipoPeca);
+                if (compativeis.length === 0) continue;
+
+                compativeis.sort((a, b) => compararPecas(a, b, slotKey));
+                const melhor = compativeis[0];
+                carro.pecas[slotKey] = melhor.instanceId;
+                pecasDisponiveis = pecasDisponiveis.filter(p => p.instanceId !== melhor.instanceId);
             }
         });
+
         alert("Carros 1 e 2 foram equipados com as melhores peças disponíveis no inventário!");
         renderGaragem();
         saveGame();
