@@ -1878,20 +1878,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processarProjetosConcluidos() {
-        let projetoFoiConcluidoNestaCorrida = false;
+        let projetoProprioConcluidoNestaCorrida = false;
         gameState.projetosEmAndamento.forEach(projeto => {
             if (projeto.status === 'em_andamento' && --projeto.duracaoRestante <= 0) {
                 projeto.status = 'concluido';
                 projeto.pecaConcluida = criarPecaDeProjeto(projeto);
-                projetoFoiConcluidoNestaCorrida = true;
 
                 // Se for encomenda externa, entrega para a IA e paga o jogador
                 if (projeto.encomendaExterna) {
                     concluirEncomendaExterna(projeto);
+                } else {
+                    projetoProprioConcluidoNestaCorrida = true;
                 }
             }
         });
-        if (projetoFoiConcluidoNestaCorrida) {
+        if (projetoProprioConcluidoNestaCorrida) {
             setTimeout(() => alert("Um ou mais projetos de pesquisa foram concluídos! Verifique a aba Escuderia para decidir o que fazer com as peças."), 500);
         }
     }
@@ -4236,6 +4237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const encomenda = (gameState.encomendasExternas || []).find(e => e.id === projeto.id);
         if (encomenda) encomenda.status = 'concluida';
 
+        // Marca como entregue para não aparecer com botões "Ficar/Vender"
+        projeto.status = 'entregue';
+
         setTimeout(() => alert(
             `Encomenda entregue!\n\n` +
             `A ${projeto.encomendaEquipe} recebeu a peça de ${projeto.tipoPeca}.\n` +
@@ -5605,6 +5609,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProjetos() {
         const containerProjetos = document.getElementById('projetos-em-andamento-container');
         if (!containerProjetos) return;
+
+        // Remove projetos já entregues a equipes externas
+        gameState.projetosEmAndamento = gameState.projetosEmAndamento.filter(p => p.status !== 'entregue');
+
         if (gameState.projetosEmAndamento.length === 0) { containerProjetos.innerHTML = "<p>Nenhum projeto em desenvolvimento.</p>"; return; }
         containerProjetos.innerHTML = gameState.projetosEmAndamento.map(projeto => {
             if (projeto.status === 'em_andamento') {
