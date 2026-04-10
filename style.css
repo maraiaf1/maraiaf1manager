@@ -5446,3 +5446,110 @@ font-size: 0.8em;
 @media (max-width: 700px) {
     .rec-grade { grid-template-columns: 1fr 1fr; }
 }
+/* ═══════════════════════════════════════════════════════════════════
+   ACADEMIA JÚNIOR
+   ═══════════════════════════════════════════════════════════════════ */
+.academia-lock-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 2rem;
+    max-width: 500px;
+    text-align: center;
+}
+.academia-lock-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.academia-lock-card h3 { color: #1e1e1e; border: none; margin-bottom: 0.75rem; }
+.academia-lock-card p  { color: #555; font-size: 0.92rem; margin-bottom: 1rem; }
+.academia-features {
+    text-align: left;
+    display: inline-block;
+    margin: 0 0 1.2rem;
+    padding-left: 1.2rem;
+    font-size: 0.88rem;
+    color: #444;
+    line-height: 2;
+}
+.academia-lock-price {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #1e1e1e;
+    margin-bottom: 1rem;
+}
+.academia-saldo { font-size: 0.8rem; color: #999; margin-top: 0.6rem; }
+
+.academia-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+.academia-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.academia-card-pronto {
+    border-color: #28a745;
+    background: #f6fff8;
+}
+.academia-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.academia-nome { font-weight: 700; font-size: 1rem; color: #1e1e1e; }
+.academia-idade { font-size: 0.8rem; color: #888; background: #f0f2f5; padding: 0.15rem 0.5rem; border-radius: 10px; }
+.academia-badge-pronto {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #155724;
+    background: #d4edda;
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    text-align: center;
+}
+.academia-temporadas { font-size: 0.75rem; color: #888; }
+.academia-atributos { display: flex; flex-direction: column; gap: 0.4rem; }
+.academia-attr {
+    display: grid;
+    grid-template-columns: 80px 1fr 30px;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #444;
+}
+.academia-barra-bg {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 7px;
+    overflow: hidden;
+}
+.academia-barra-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.academia-val { font-weight: 700; font-size: 0.82rem; color: #1e1e1e; }
+.academia-acoes { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.3rem; }
+.academia-acoes .btn-corrida { font-size: 0.8rem; padding: 0.45rem; border-radius: 6px; }
+
+.academia-slot-vazio {
+    background: #fafafa;
+    border: 2px dashed #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: #bbb;
+}
+.academia-slot-texto { font-size: 0.9rem; margin-bottom: 0.8rem; }
+
+.academia-dica {
+    background: #fffde7;
+    border: 1px solid #f0ad4e;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    color: #8a6d3b;
+}

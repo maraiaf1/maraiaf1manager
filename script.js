@@ -9,8 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const VERSAO_DADOS = 2;
 
     // --- 1. DADOS GLOBAIS ---
-    const CUSTO_MUDAR_NOME = 250000;
+    const CUSTO_MUDAR_NOME    = 250000;
     const CUSTO_MUDAR_EMBLEMA = 250000;
+    const CUSTO_ACADEMIA      = 50000000;
 
     const catalogoDePecas = {
         50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1.0', nivel: 1, atributos: { potencia: 40, confiabilidade: 75 } },
@@ -764,13 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fornecedorAtivo: false,         // ativa a partir da T3
             novasMecanicasPendentes: false,
             producaoAnual: { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
-            quotaAnual:    {
-                'Motor':        2 + Math.floor(Math.random() * 2), // 2–3
-                'Suspensão':    3 + Math.floor(Math.random() * 2), // 3–4
-                'Chassi':       3 + Math.floor(Math.random() * 3), // 3–5
-                'Asa Dianteira':3 + Math.floor(Math.random() * 3), // 3–5
-                'Asa Traseira': 3 + Math.floor(Math.random() * 3), // 3–5
-            },
+            quotaAnual:    { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 },
             quotaBonus:    { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
             // Livro de recordes — sequência cross-temporada
             sequenciaVitoriasAtual: { piloto: null, equipe: null, contagem: 0 },
@@ -782,7 +777,12 @@ document.addEventListener('DOMContentLoaded', () => {
             carros: [
                 { id: 1, pilotoId: piloto1Jogador ? piloto1Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 26, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } },
                 { id: 2, pilotoId: piloto2Jogador ? piloto2Jogador.id : null, pecas: { motor: null, chassi: null, asaDianteira: null, asaTraseira: null, suspensao: null }, estrategia: { pneuInicial: 'medio', paradas: [{ pararNaVolta: 27, colocarPneu: 'duro' }] }, ers: { bateria: 0, voltasParaCarregar: 0, cicloDeCarregamento: 0, ativo: false } }
-            ]
+            ],
+            // ── Academia Júnior ───────────────────────────────────────────────
+            academia: {
+                desbloqueada: false,
+                pupilos: []   // até 3 pilotos júnior
+            }
         };
     }
 
@@ -923,15 +923,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (versaoSalva < 2) {
                     // Campos do teto de produção
                     if (!gameState.producaoAnual) gameState.producaoAnual = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
-                    if (!gameState.quotaAnual)    gameState.quotaAnual    = {
-                        'Motor':        2 + Math.floor(Math.random() * 2),
-                        'Suspensão':    3 + Math.floor(Math.random() * 2),
-                        'Chassi':       3 + Math.floor(Math.random() * 3),
-                        'Asa Dianteira':3 + Math.floor(Math.random() * 3),
-                        'Asa Traseira': 3 + Math.floor(Math.random() * 3),
-                    };
+                    if (!gameState.quotaAnual)    gameState.quotaAnual    = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
                     if (!gameState.quotaBonus)    gameState.quotaBonus    = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
                     if (!gameState.encomendasExternas) gameState.encomendasExternas = [];
+                    if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [] };
                     if (!gameState.sequenciaVitoriasAtual) gameState.sequenciaVitoriasAtual = { piloto: null, equipe: null, contagem: 0 };
                     if (!gameState.melhorSequenciaVitorias) gameState.melhorSequenciaVitorias = { piloto: null, equipe: null, contagem: 0 };
 
@@ -3493,7 +3488,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Preenche informações do header
         document.getElementById('sc-motivo-text').textContent = raceData.safetyCarMotivo || 'Incidente na pista';
-        document.getElementById('sc-volta-info').textContent = `Volta ${raceData.voltaAtual - 1} de ${raceData.totalVoltas}`;
+        document.getElementById('sc-volta-info').textContent = `Volta ${raceData.voltaAtual} de ${raceData.totalVoltas}`;
         document.getElementById('sc-voltas-restantes-info').textContent = `${voltasRestantes} voltas restantes`;
 
         // Renderiza editor de estratégia
@@ -4022,7 +4017,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 || (proximoNumero > 3 && (proximoNumero - 3) % 2 === 0);
 
             if (mostraComunicado) {
-                const cotas = gameState.quotaAnual || { 'Motor': 2, 'Suspensão': 3, 'Chassi': 3, 'Asa Dianteira': 3, 'Asa Traseira': 3 };
+                const cotas = gameState.quotaAnual || { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
                 const linhasCotas = Object.entries(cotas).map(([tipo, qtd]) =>
                     `<li><strong>${tipo}:</strong> ${qtd} peças por temporada</li>`
                 ).join('');
@@ -4090,14 +4085,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Gera novas cotas regulatórias a cada ciclo de 2 temporadas.
     // Pequenas variações para dar sensação de regulamentos reais.
     function gerarNovasCotas(temporadaNumero) {
-        const ri = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
-        return {
-            'Motor':        ri(2, 3),
-            'Suspensão':    ri(3, 4),
-            'Chassi':       ri(3, 5),
-            'Asa Dianteira':ri(3, 5),
-            'Asa Traseira': ri(3, 5),
-        };
+        const base = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
+        // A cada ciclo, sorteia ±1 em alguns tipos para variar
+        const tipos = Object.keys(base);
+        const novas = { ...base };
+        // Dois tipos aleatórios ganham +1, um tipo perde -1 (nunca abaixo de 2)
+        const shuffle = tipos.sort(() => Math.random() - 0.5);
+        novas[shuffle[0]] = Math.min(base[shuffle[0]] + 1, 6);
+        novas[shuffle[1]] = Math.min(base[shuffle[1]] + 1, 6);
+        novas[shuffle[2]] = Math.max(base[shuffle[2]] - 1, 2);
+        return novas;
     }
 
     // Aplica os atributos de uma peça ao carro da equipe IA,
@@ -4325,6 +4322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         processarReajusteSalarialEspecialistas();
         processarEnvelhecimentoPilotos();
+        processarEvolucaoAcademia();
         atualizarMercadoDePilotos(gameState.pilotos);
         evoluirCarrosIA();
 
@@ -4621,14 +4619,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemJogo = gameState.marketing[nomeItem];
         const itemCatalogo = catalogoMarketing[nomeItem];
         if (!itemJogo || !itemCatalogo) return { mod: 1.0, rosto: '🙂', label: 'Neutro' };
-
-        // O preço base aceito pelos torcedores escala com a base de fãs.
-        // Com 5k torcedores: fator = 1.0 (base). Com 50k: ~1.5. Com 500k: ~2.0.
-        const torcedores = Math.max(1000, gameState.torcedores || 4000);
-        const fatorFans = 1 + Math.log10(torcedores / 5000) * 0.6;
-        const precoBaseEscalado = itemCatalogo.preco_venda_minimo * Math.max(1, fatorFans);
-
-        const markup = itemJogo.preco_venda_definido / precoBaseEscalado;
+        const markup = itemJogo.preco_venda_definido / itemCatalogo.preco_venda_minimo;
         if (markup <= 1.5) return { mod: 1.20, rosto: '😍', label: 'Torcedores adoram!', cor: '#27ae60' };
         if (markup <= 3.0) return { mod: 1.00, rosto: '🙂', label: 'Preço justo', cor: '#2980b9' };
         if (markup <= 5.0) return { mod: 0.70, rosto: '😐', label: 'Um pouco caro...', cor: '#f39c12' };
@@ -7048,6 +7039,266 @@ document.addEventListener('DOMContentLoaded', () => {
     // LIVRO DE RECORDES
     // ═══════════════════════════════════════════════════════════════════
 
+    // ═══════════════════════════════════════════════════════════════════
+    // ACADEMIA JÚNIOR
+    // ═══════════════════════════════════════════════════════════════════
+
+    const NOMES_ACADEMIA = [
+        'A. Souza','B. Lima','C. Mendes','D. Ferreira','E. Costa',
+        'F. Oliveira','G. Santos','H. Rocha','I. Alves','J. Nunes',
+        'K. Pinto','L. Gomes','M. Carvalho','N. Ribeiro','O. Teixeira',
+        'P. Azevedo','Q. Moreira','R. Cardoso','S. Lopes','T. Dias',
+        'U. Faria','V. Ramos','W. Barros','X. Melo','Y. Cunha',
+        'Z. Borges','A. Vieira','B. Monteiro','C. Cavalcanti','D. Correia',
+        'E. Aragão','F. Braga','G. Vasconcelos','H. Macedo','I. Freitas'
+    ];
+
+    function gerarNomeJunior() {
+        const usados = (gameState.academia?.pupilos || []).map(p => p.nome);
+        const disponiveis = NOMES_ACADEMIA.filter(n => !usados.includes(n));
+        return disponiveis.length > 0
+            ? disponiveis[Math.floor(Math.random() * disponiveis.length)]
+            : `Rookie ${Math.floor(Math.random() * 99) + 1}`;
+    }
+
+    function recrutarJunior() {
+        if (!gameState.academia.desbloqueada) return;
+        if (gameState.academia.pupilos.length >= 3) {
+            alert('A academia já está com 3 pupilos. Dispense um antes de recrutar.');
+            return;
+        }
+        const custoRecrutamento = 1500000 + Math.floor(Math.random() * 1000000);
+        if (gameState.escuderia.dinheiro < custoRecrutamento) {
+            alert(`Dinheiro insuficiente! Custo de recrutamento: R$ ${custoRecrutamento.toLocaleString('pt-BR')}`);
+            return;
+        }
+        if (!confirm(`Recrutar um novo piloto júnior por R$ ${custoRecrutamento.toLocaleString('pt-BR')}?`)) return;
+
+        gameState.escuderia.dinheiro -= custoRecrutamento;
+
+        const atribBase = () => 40 + Math.floor(Math.random() * 16); // 40–55
+        const novoPupilo = {
+            id:                  Date.now() + Math.random(),
+            nome:                gerarNomeJunior(),
+            idade:               15 + Math.floor(Math.random() * 2), // 15 ou 16
+            habilidade:          atribBase(),
+            consistencia:        atribBase(),
+            gerenciamentoPneus:  atribBase(),
+            anoEntrada:          gameState.campeonato.ano,
+            temporadasNaAcademia: 0,
+            status:              'Junior'
+        };
+
+        gameState.academia.pupilos.push(novoPupilo);
+        alert(`${novoPupilo.nome} (${novoPupilo.idade} anos) foi recrutado para a academia!`);
+        renderAbaAcademia();
+        saveGame();
+    }
+
+    function dispensarJunior(idPupilo) {
+        const idx = gameState.academia.pupilos.findIndex(p => p.id === idPupilo);
+        if (idx === -1) return;
+        const pupilo = gameState.academia.pupilos[idx];
+        if (!confirm(`Dispensar ${pupilo.nome} da academia?`)) return;
+        gameState.academia.pupilos.splice(idx, 1);
+        renderAbaAcademia();
+        saveGame();
+    }
+
+    function promoverJuniorParaElenco(idPupilo) {
+        const idx = gameState.academia.pupilos.findIndex(p => p.id === idPupilo);
+        if (idx === -1) return;
+        const pupilo = gameState.academia.pupilos[idx];
+
+        const meusPilotos = gameState.pilotos.filter(p =>
+            p.status === 'Jogador' || p.status === 'Reserva'
+        );
+        if (meusPilotos.length >= 4) {
+            alert('Elenco cheio! Dispense um piloto antes de promover.');
+            return;
+        }
+
+        // Custo de contrato com desconto por ser formado na casa
+        const custoContrato = 300000 + Math.floor(Math.random() * 200000);
+        if (!confirm(`Promover ${pupilo.nome} para o elenco principal por R$ ${custoContrato.toLocaleString('pt-BR')}?`)) return;
+
+        gameState.escuderia.dinheiro -= custoContrato;
+
+        // Cria o piloto no elenco principal
+        const novoPiloto = {
+            id:                   pupilo.id,
+            nome:                 pupilo.nome,
+            idade:                pupilo.idade,
+            habilidade:           pupilo.habilidade,
+            consistencia:         pupilo.consistencia,
+            gerenciamentoPneus:   pupilo.gerenciamentoPneus,
+            salario:              40000 + Math.floor(Math.random() * 30000),
+            precoContrato:        custoContrato,
+            status:               'Reserva',
+            campeonatosGanhos:    [],
+            rosto:                'img/Pilotos/default.png'
+        };
+        novoPiloto.atributosBase = {
+            habilidade:           novoPiloto.habilidade,
+            consistencia:         novoPiloto.consistencia,
+            gerenciamentoPneus:   novoPiloto.gerenciamentoPneus
+        };
+
+        gameState.pilotos.push(novoPiloto);
+        gameState.academia.pupilos.splice(idx, 1);
+        alert(`${novoPiloto.nome} foi promovido para o elenco principal como Reserva!`);
+        renderAbaAcademia();
+        saveGame();
+    }
+
+    // Chamado em processarFimDeTemporada — evolui pupilos e avisa quando prontos
+    function processarEvolucaoAcademia() {
+        if (!gameState.academia?.desbloqueada) return;
+        if (!gameState.academia.pupilos || gameState.academia.pupilos.length === 0) return;
+
+        const msgs = [];
+
+        gameState.academia.pupilos.forEach(pupilo => {
+            pupilo.idade++;
+            pupilo.temporadasNaAcademia = (pupilo.temporadasNaAcademia || 0) + 1;
+
+            // Evolução por temporada: cresce mais rápido nas primeiras e desacelera
+            const fator = pupilo.temporadasNaAcademia <= 2 ? 1.2 : 0.9;
+            const ganho = () => Math.round((6 + Math.floor(Math.random() * 7)) * fator); // 7–15 × fator
+
+            pupilo.habilidade         = Math.min(85, pupilo.habilidade         + ganho());
+            pupilo.consistencia       = Math.min(85, pupilo.consistencia       + ganho());
+            pupilo.gerenciamentoPneus = Math.min(85, pupilo.gerenciamentoPneus + ganho());
+
+            // Custo de manutenção por pupilo cobrado aqui
+            const custoAnual = 2000000;
+            gameState.escuderia.dinheiro -= custoAnual;
+
+            const pronto = pupilo.habilidade >= 80
+                && pupilo.consistencia >= 80
+                && pupilo.gerenciamentoPneus >= 80;
+
+            if (pronto) {
+                msgs.push(`🌟 ${pupilo.nome} atingiu atributos de 80+! Ele está pronto para o grid principal. Acesse a aba Academia para promovê-lo.`);
+            }
+        });
+
+        if (msgs.length > 0) {
+            setTimeout(() => alert(msgs.join('\n\n')), 1500);
+        }
+    }
+
+    function desbloquearAcademia() {
+        if (gameState.academia.desbloqueada) return;
+        if (gameState.escuderia.dinheiro < CUSTO_ACADEMIA) {
+            alert(`Dinheiro insuficiente! Custo para fundar a Academia Júnior: R$ ${CUSTO_ACADEMIA.toLocaleString('pt-BR')}`);
+            return;
+        }
+        if (!confirm(`Fundar a Academia Júnior por R$ ${CUSTO_ACADEMIA.toLocaleString('pt-BR')}?\n\nCusto de manutenção: R$ 2.000.000 por pupilo por temporada.\nRecrutamento: R$ 1,5–2,5 milhões por atleta.`)) return;
+        gameState.escuderia.dinheiro -= CUSTO_ACADEMIA;
+        gameState.academia.desbloqueada = true;
+        alert('Academia Júnior fundada! Agora você pode recrutar até 3 jovens talentos.');
+        renderAbaAcademia();
+        saveGame();
+    }
+
+    function renderAbaAcademia() {
+        const container = document.getElementById('academia-container');
+        if (!container) return;
+
+        if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [] };
+
+        // ── Bloqueada ─────────────────────────────────────────────────────
+        if (!gameState.academia.desbloqueada) {
+            container.innerHTML = `
+                <div class="academia-lock-card">
+                    <div class="academia-lock-icon">🏫</div>
+                    <h3>Academia Júnior</h3>
+                    <p>Invista no futuro da equipe formando seus próprios talentos. Recrute jovens de 15–16 anos e desenvolva-os por até 3 temporadas até atingirem atributos de 80+ para o grid principal.</p>
+                    <ul class="academia-features">
+                        <li>Até 3 pupilos simultâneos</li>
+                        <li>Custo de R$ 2.000.000 por pupilo por temporada</li>
+                        <li>Recrutamento: R$ 1,5–2,5 milhões por talento</li>
+                        <li>Promoção com desconto para o elenco principal</li>
+                    </ul>
+                    <div class="academia-lock-price">R$ ${CUSTO_ACADEMIA.toLocaleString('pt-BR')}</div>
+                    <button class="btn-corrida btn-real" onclick="desbloquearAcademiaGlobal()">Fundar Academia Júnior</button>
+                    <p class="academia-saldo">Saldo atual: R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</p>
+                </div>`;
+            return;
+        }
+
+        // ── Desbloqueada ─────────────────────────────────────────────────
+        const pupilos = gameState.academia.pupilos;
+        const custoTotal = pupilos.length * 2000000;
+
+        let cardsHtml = '';
+        for (let i = 0; i < 3; i++) {
+            const p = pupilos[i];
+            if (p) {
+                const prog = (p.temporadasNaAcademia || 0);
+                const prontoGrid = p.habilidade >= 80 && p.consistencia >= 80 && p.gerenciamentoPneus >= 80;
+                const pct = h => Math.round((h / 85) * 100);
+
+                cardsHtml += `
+                <div class="academia-card ${prontoGrid ? 'academia-card-pronto' : ''}">
+                    <div class="academia-card-header">
+                        <span class="academia-nome">${p.nome}</span>
+                        <span class="academia-idade">${p.idade} anos</span>
+                    </div>
+                    ${prontoGrid ? '<div class="academia-badge-pronto">🌟 Pronto para o grid!</div>' : ''}
+                    <div class="academia-temporadas">Temporada ${prog} na academia · Entrou em ${p.anoEntrada}</div>
+                    <div class="academia-atributos">
+                        <div class="academia-attr">
+                            <span>Habilidade</span>
+                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.habilidade)}%;background:${p.habilidade>=80?'#28a745':'#008cba'}"></div></div>
+                            <span class="academia-val">${p.habilidade}</span>
+                        </div>
+                        <div class="academia-attr">
+                            <span>Consistência</span>
+                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.consistencia)}%;background:${p.consistencia>=80?'#28a745':'#008cba'}"></div></div>
+                            <span class="academia-val">${p.consistencia}</span>
+                        </div>
+                        <div class="academia-attr">
+                            <span>Ger. Pneus</span>
+                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.gerenciamentoPneus)}%;background:${p.gerenciamentoPneus>=80?'#28a745':'#008cba'}"></div></div>
+                            <span class="academia-val">${p.gerenciamentoPneus}</span>
+                        </div>
+                    </div>
+                    <div class="academia-acoes">
+                        ${prontoGrid
+                            ? `<button class="btn-corrida btn-real" onclick="promoverJuniorGlobal(${p.id})">⬆️ Promover ao Elenco</button>`
+                            : ''}
+                        <button class="btn-corrida" style="background:#6c757d" onclick="dispensarJuniorGlobal(${p.id})">Dispensar</button>
+                    </div>
+                </div>`;
+            } else {
+                cardsHtml += `
+                <div class="academia-card academia-slot-vazio">
+                    <div class="academia-slot-texto">Slot vazio</div>
+                    <button class="btn-corrida btn-real" onclick="recrutarJuniorGlobal()">+ Recrutar Talento</button>
+                    <p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">R$ 1,5–2,5 mi por atleta</p>
+                </div>`;
+            }
+        }
+
+        container.innerHTML = `
+            <div class="info-box" style="margin-bottom:1rem;">
+                <p><strong>Custo de manutenção desta temporada:</strong>
+                   R$ ${custoTotal.toLocaleString('pt-BR')}
+                   (R$ 2.000.000 × ${pupilos.length} pupilo${pupilos.length !== 1 ? 's' : ''})</p>
+                <p><strong>Dinheiro em Caixa:</strong> R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</p>
+            </div>
+            <div class="academia-grid">${cardsHtml}</div>
+            <div class="academia-dica">
+                <p>💡 Os pupilos evoluem automaticamente a cada temporada. Quando atingirem 80+ em todos os atributos, você poderá promovê-los ao elenco principal com desconto no contrato.</p>
+            </div>`;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // FIM — ACADEMIA JÚNIOR
+    // ═══════════════════════════════════════════════════════════════════
+
     function computarRecordes() {
         const hist  = gameState.historicoTemporadas || [];
         const nomeEsc = gameState.escuderia.nome;
@@ -9129,6 +9380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'personalizacao': renderAbaPersonalizacao(); break;
                 case 'marketing': renderAbaMarketing(); break;
                 case 'telemetria': renderAbaTelemetria(); break;
+                case 'academia':   renderAbaAcademia();   break;
             }
             return;
         }
@@ -9614,6 +9866,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 6. INICIALIZAÇÃO ---
+    document.addEventListener('academia:desbloquear', () => desbloquearAcademia());
+    document.addEventListener('academia:recrutar',    () => recrutarJunior());
+    document.addEventListener('academia:dispensar',   e  => dispensarJunior(e.detail));
+    document.addEventListener('academia:promover',    e  => promoverJuniorParaElenco(e.detail));
     loadGame();
     updateUI();
 });
+
+// Funções globais da Academia (necessário para onclick inline nos cards)
+function desbloquearAcademiaGlobal() {
+    document.dispatchEvent(new CustomEvent('academia:desbloquear'));
+}
+function recrutarJuniorGlobal() {
+    document.dispatchEvent(new CustomEvent('academia:recrutar'));
+}
+function dispensarJuniorGlobal(id) {
+    document.dispatchEvent(new CustomEvent('academia:dispensar', { detail: id }));
+}
+function promoverJuniorGlobal(id) {
+    document.dispatchEvent(new CustomEvent('academia:promover', { detail: id }));
+}
