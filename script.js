@@ -764,7 +764,13 @@ document.addEventListener('DOMContentLoaded', () => {
             fornecedorAtivo: false,         // ativa a partir da T3
             novasMecanicasPendentes: false,
             producaoAnual: { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
-            quotaAnual:    { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 },
+            quotaAnual:    {
+                'Motor':        2 + Math.floor(Math.random() * 2), // 2–3
+                'Suspensão':    3 + Math.floor(Math.random() * 2), // 3–4
+                'Chassi':       3 + Math.floor(Math.random() * 3), // 3–5
+                'Asa Dianteira':3 + Math.floor(Math.random() * 3), // 3–5
+                'Asa Traseira': 3 + Math.floor(Math.random() * 3), // 3–5
+            },
             quotaBonus:    { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 },
             // Livro de recordes — sequência cross-temporada
             sequenciaVitoriasAtual: { piloto: null, equipe: null, contagem: 0 },
@@ -917,7 +923,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (versaoSalva < 2) {
                     // Campos do teto de produção
                     if (!gameState.producaoAnual) gameState.producaoAnual = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
-                    if (!gameState.quotaAnual)    gameState.quotaAnual    = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
+                    if (!gameState.quotaAnual)    gameState.quotaAnual    = {
+                        'Motor':        2 + Math.floor(Math.random() * 2),
+                        'Suspensão':    3 + Math.floor(Math.random() * 2),
+                        'Chassi':       3 + Math.floor(Math.random() * 3),
+                        'Asa Dianteira':3 + Math.floor(Math.random() * 3),
+                        'Asa Traseira': 3 + Math.floor(Math.random() * 3),
+                    };
                     if (!gameState.quotaBonus)    gameState.quotaBonus    = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
                     if (!gameState.encomendasExternas) gameState.encomendasExternas = [];
                     if (!gameState.sequenciaVitoriasAtual) gameState.sequenciaVitoriasAtual = { piloto: null, equipe: null, contagem: 0 };
@@ -3481,7 +3493,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Preenche informações do header
         document.getElementById('sc-motivo-text').textContent = raceData.safetyCarMotivo || 'Incidente na pista';
-        document.getElementById('sc-volta-info').textContent = `Volta ${raceData.voltaAtual} de ${raceData.totalVoltas}`;
+        document.getElementById('sc-volta-info').textContent = `Volta ${raceData.voltaAtual - 1} de ${raceData.totalVoltas}`;
         document.getElementById('sc-voltas-restantes-info').textContent = `${voltasRestantes} voltas restantes`;
 
         // Renderiza editor de estratégia
@@ -4010,7 +4022,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 || (proximoNumero > 3 && (proximoNumero - 3) % 2 === 0);
 
             if (mostraComunicado) {
-                const cotas = gameState.quotaAnual || { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
+                const cotas = gameState.quotaAnual || { 'Motor': 2, 'Suspensão': 3, 'Chassi': 3, 'Asa Dianteira': 3, 'Asa Traseira': 3 };
                 const linhasCotas = Object.entries(cotas).map(([tipo, qtd]) =>
                     `<li><strong>${tipo}:</strong> ${qtd} peças por temporada</li>`
                 ).join('');
@@ -4078,16 +4090,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Gera novas cotas regulatórias a cada ciclo de 2 temporadas.
     // Pequenas variações para dar sensação de regulamentos reais.
     function gerarNovasCotas(temporadaNumero) {
-        const base = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
-        // A cada ciclo, sorteia ±1 em alguns tipos para variar
-        const tipos = Object.keys(base);
-        const novas = { ...base };
-        // Dois tipos aleatórios ganham +1, um tipo perde -1 (nunca abaixo de 2)
-        const shuffle = tipos.sort(() => Math.random() - 0.5);
-        novas[shuffle[0]] = Math.min(base[shuffle[0]] + 1, 6);
-        novas[shuffle[1]] = Math.min(base[shuffle[1]] + 1, 6);
-        novas[shuffle[2]] = Math.max(base[shuffle[2]] - 1, 2);
-        return novas;
+        const ri = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
+        return {
+            'Motor':        ri(2, 3),
+            'Suspensão':    ri(3, 4),
+            'Chassi':       ri(3, 5),
+            'Asa Dianteira':ri(3, 5),
+            'Asa Traseira': ri(3, 5),
+        };
     }
 
     // Aplica os atributos de uma peça ao carro da equipe IA,
@@ -4611,7 +4621,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemJogo = gameState.marketing[nomeItem];
         const itemCatalogo = catalogoMarketing[nomeItem];
         if (!itemJogo || !itemCatalogo) return { mod: 1.0, rosto: '🙂', label: 'Neutro' };
-        const markup = itemJogo.preco_venda_definido / itemCatalogo.preco_venda_minimo;
+
+        // O preço base aceito pelos torcedores escala com a base de fãs.
+        // Com 5k torcedores: fator = 1.0 (base). Com 50k: ~1.5. Com 500k: ~2.0.
+        const torcedores = Math.max(1000, gameState.torcedores || 4000);
+        const fatorFans = 1 + Math.log10(torcedores / 5000) * 0.6;
+        const precoBaseEscalado = itemCatalogo.preco_venda_minimo * Math.max(1, fatorFans);
+
+        const markup = itemJogo.preco_venda_definido / precoBaseEscalado;
         if (markup <= 1.5) return { mod: 1.20, rosto: '😍', label: 'Torcedores adoram!', cor: '#27ae60' };
         if (markup <= 3.0) return { mod: 1.00, rosto: '🙂', label: 'Preço justo', cor: '#2980b9' };
         if (markup <= 5.0) return { mod: 0.70, rosto: '😐', label: 'Um pouco caro...', cor: '#f39c12' };
