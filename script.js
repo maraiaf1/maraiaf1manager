@@ -917,6 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (!gameState.patrocinio) gameState.patrocinio = { ofertas: [], ativos: [] };
                 if (!gameState.projetosEmAndamento) gameState.projetosEmAndamento = [];
+                if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [] };
 
                 // ── MIGRAÇÃO v2: teto de produção + sistema de fornecedor ──────────────
                 const versaoSalva = gameState.versaoDados ?? 0;
@@ -926,7 +927,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!gameState.quotaAnual)    gameState.quotaAnual    = { 'Motor': 4, 'Suspensão': 4, 'Chassi': 4, 'Asa Dianteira': 5, 'Asa Traseira': 5 };
                     if (!gameState.quotaBonus)    gameState.quotaBonus    = { 'Motor': 0, 'Suspensão': 0, 'Chassi': 0, 'Asa Dianteira': 0, 'Asa Traseira': 0 };
                     if (!gameState.encomendasExternas) gameState.encomendasExternas = [];
-                    if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [] };
                     if (!gameState.sequenciaVitoriasAtual) gameState.sequenciaVitoriasAtual = { piloto: null, equipe: null, contagem: 0 };
                     if (!gameState.melhorSequenciaVitorias) gameState.melhorSequenciaVitorias = { piloto: null, equipe: null, contagem: 0 };
 
@@ -7178,6 +7178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Chamado em processarFimDeTemporada — evolui pupilos e avisa quando prontos
     function processarEvolucaoAcademia() {
+        if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [] };
         if (!gameState.academia?.desbloqueada) return;
         if (!gameState.academia.pupilos || gameState.academia.pupilos.length === 0) return;
 
