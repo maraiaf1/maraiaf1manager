@@ -1926,9 +1926,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function criarPecaDeProjeto(projeto) {
         // ── Tabela de probabilidades por duração ─────────────────────────────
         // Duração 1–2 corridas: peças nível 1–7 (aprendizado básico)
-        // Duração 3   corridas:  5% nível 10 | 10% nível 9 | 15% nível 8 | 45% nível 7 | 15% nível 6 | 10% nível 5
-        // Duração 5–6 corridas: 15% nível 10 | 20% nível 9 | 25% nível 8 | 40% nível 7
-        // Duração 10  corridas: 60% nível 10 | 25% nível 9 | 10% nível 8 |  5% nível 7
+        // Duração 3   corridas:  2% nível 10 |  8% nível 9 | 20% nível 8 | 45% nível 7 | 15% nível 6 | 10% nível 5
+        // Duração 5–6 corridas:  8% nível 10 | 20% nível 9 | 32% nível 8 | 40% nível 7
+        // Duração 10  corridas: 40% nível 10 | 33% nível 9 | 17% nível 8 | 10% nível 7
         let nivelSorteado;
         const chance = Math.random();
 
@@ -1939,26 +1939,26 @@ document.addEventListener('DOMContentLoaded', () => {
                           :                 Math.floor(Math.random() * 2) + 6; // 25% → níveis 6–7
 
         } else if (projeto.duracaoOriginal === 3) {
-            // 3 corridas:  5% nível 10 | 10% nível 9 | 15% nível 8 | 45% nível 7 | 15% nível 6 | 10% nível 5
-            nivelSorteado = chance < 0.05 ? 10
-                          : chance < 0.15 ? 9
+            // 3 corridas: 2% nível 10 | 8% nível 9 | 20% nível 8 | 45% nível 7 | 15% nível 6 | 10% nível 5
+            nivelSorteado = chance < 0.02 ? 10
+                          : chance < 0.10 ? 9
                           : chance < 0.30 ? 8
                           : chance < 0.75 ? 7
                           : chance < 0.90 ? 6
                           :                 5;
 
         } else if (projeto.duracaoOriginal <= 6) {
-            // 5–6 corridas: 15% nível 10 | 20% nível 9 | 25% nível 8 | 40% nível 7
-            nivelSorteado = chance < 0.15 ? 10
-                          : chance < 0.35 ? 9
+            // 5–6 corridas: 8% nível 10 | 20% nível 9 | 32% nível 8 | 40% nível 7
+            nivelSorteado = chance < 0.08 ? 10
+                          : chance < 0.28 ? 9
                           : chance < 0.60 ? 8
                           :                 7;
 
         } else {
-            // 10 corridas: 60% nível 10 | 25% nível 9 | 10% nível 8 | 5% nível 7
-            nivelSorteado = chance < 0.60 ? 10
-                          : chance < 0.85 ? 9
-                          : chance < 0.95 ? 8
+            // 10 corridas: 40% nível 10 | 33% nível 9 | 17% nível 8 | 10% nível 7
+            nivelSorteado = chance < 0.40 ? 10
+                          : chance < 0.73 ? 9
+                          : chance < 0.90 ? 8
                           :                 7;
         }
 
@@ -3488,7 +3488,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Preenche informações do header
         document.getElementById('sc-motivo-text').textContent = raceData.safetyCarMotivo || 'Incidente na pista';
-        document.getElementById('sc-volta-info').textContent = `Volta ${raceData.voltaAtual} de ${raceData.totalVoltas}`;
+        document.getElementById('sc-volta-info').textContent = `Volta ${raceData.voltaAtual - 1} de ${raceData.totalVoltas}`;
         document.getElementById('sc-voltas-restantes-info').textContent = `${voltasRestantes} voltas restantes`;
 
         // Renderiza editor de estratégia
@@ -4104,7 +4104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nivelAtual = equipe.componenteNivel[tipoPeca] || 1;
 
         // Só melhora se a peça for de nível superior ao que a IA já tem
-        if (pecaNivel <= nivelAtual) return;
+        if (pecaNivel <= nivelAtual) return null;
 
         const melhoria = pecaNivel - nivelAtual;
 
@@ -4118,20 +4118,30 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const cfg = mapa[tipoPeca];
-        if (!cfg) return;
+        if (!cfg) return null;
 
-        const teto = 92; // IA nunca ultrapassa 92 em nenhum atributo
+        // Captura valores antes da alteração
+        const antes = { ...equipe.carro };
+
+        const teto = 92;
         equipe.carro[cfg.attr] = Math.min(teto,
-            (equipe.carro[cfg.attr] || 70) + melhoria * cfg.peso
+            Math.round((equipe.carro[cfg.attr] || 70) + melhoria * cfg.peso)
         );
         if (cfg.extra) {
             equipe.carro[cfg.extra.attr] = Math.min(teto,
-                (equipe.carro[cfg.extra.attr] || 70) + melhoria * cfg.extra.peso
+                Math.round((equipe.carro[cfg.extra.attr] || 70) + melhoria * cfg.extra.peso)
             );
         }
 
-        // Atualiza o nível registrado
         equipe.componenteNivel[tipoPeca] = pecaNivel;
+
+        // Retorna o delta para exibição
+        const delta = {};
+        for (const attr of Object.keys(equipe.carro)) {
+            const diff = Math.round((equipe.carro[attr] - (antes[attr] || 0)) * 10) / 10;
+            if (diff !== 0) delta[attr] = { antes: antes[attr], depois: equipe.carro[attr], diff };
+        }
+        return delta;
     }
 
     // Gera 2 a 3 encomendas externas para o início da temporada.
@@ -4236,22 +4246,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Aplica a peça na IA, paga o jogador e registra a conclusão.
     function concluirEncomendaExterna(projeto) {
         const equipe = equipesIA.find(e => e.nome === projeto.encomendaEquipe);
+        let deltaMsg = '';
+
         if (equipe) {
-            aplicarPecaNaIA(equipe, projeto.tipoPeca, projeto.encomendaNivelPedido || 7);
+            const delta = aplicarPecaNaIA(equipe, projeto.tipoPeca, projeto.encomendaNivelPedido || 7);
             equipe.relacaoComJogador = 'parceira';
+
+            if (delta && Object.keys(delta).length > 0) {
+                const nomesAttr = {
+                    potencia: 'Potência', aerodinamica: 'Aerodinâmica',
+                    aderencia: 'Aderência', confiabilidade: 'Confiabilidade'
+                };
+                const linhas = Object.entries(delta).map(([attr, v]) =>
+                    `  📈 ${nomesAttr[attr] || attr}: ${v.antes} → ${v.depois} (+${v.diff})`
+                ).join('\n');
+                deltaMsg = `\n\n🔧 Novos atributos da ${projeto.encomendaEquipe}:\n${linhas}`;
+            } else {
+                deltaMsg = `\n\n⚠️ A ${projeto.encomendaEquipe} já possuía componente de nível igual ou superior — sem melhoria de atributos.`;
+            }
         }
+
         gameState.escuderia.dinheiro += projeto.encomendaCustoPago || 0;
         const encomenda = (gameState.encomendasExternas || []).find(e => e.id === projeto.id);
         if (encomenda) encomenda.status = 'concluida';
-
-        // Marca como entregue para não aparecer com botões "Ficar/Vender"
         projeto.status = 'entregue';
 
         setTimeout(() => alert(
             `Encomenda entregue!\n\n` +
             `A ${projeto.encomendaEquipe} recebeu a peça de ${projeto.tipoPeca}.\n` +
             `💰 R$ ${(projeto.encomendaCustoPago || 0).toLocaleString('pt-BR')} creditados.\n` +
-            `🤝 ${projeto.encomendaEquipe} agora é sua equipe parceira por esta temporada.`
+            `🤝 ${projeto.encomendaEquipe} agora é sua equipe parceira por esta temporada.` +
+            deltaMsg
         ), 500);
     }
 
@@ -9500,9 +9525,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const projetoId = parseFloat(target.dataset.projectId);
             const projeto = gameState.projetosEmAndamento.find(p => p.id === projetoId);
             if (projeto) {
-                projeto.status = 'a_venda';
-                alert("A peça foi colocada no mercado. Você será notificado quando for vendida.");
-                renderProjetos(); saveGame();
+                const pecaVirtual = projeto.pecaConcluida;
+                const valorVenda = pecaVirtual ? Math.floor(calcularPrecoPeca(pecaVirtual) * 0.7) : 0;
+                if (confirm(`Colocar a peça no mercado por aprox. R$ ${valorVenda.toLocaleString('pt-BR')}?\n\nVocê será notificado quando for vendida.`)) {
+                    projeto.status = 'a_venda';
+                    renderProjetos(); saveGame();
+                }
             }
         }
         else if (action === 'desbloquear-marketing') desbloquearItemMarketing(target.dataset.itemNome);
