@@ -4644,7 +4644,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemJogo = gameState.marketing[nomeItem];
         const itemCatalogo = catalogoMarketing[nomeItem];
         if (!itemJogo || !itemCatalogo) return { mod: 1.0, rosto: '🙂', label: 'Neutro' };
-        const markup = itemJogo.preco_venda_definido / itemCatalogo.preco_venda_minimo;
+
+        // O preço base aceito pelos torcedores escala com a base de fãs.
+        // Com 5k torcedores: fator = 1.0 (base). Com 50k: ~1.5. Com 500k: ~2.0.
+        const torcedores = Math.max(1000, gameState.torcedores || 4000);
+        const fatorFans = 1 + Math.log10(torcedores / 5000) * 0.6;
+        const precoBaseEscalado = itemCatalogo.preco_venda_minimo * Math.max(1, fatorFans);
+
+        const markup = itemJogo.preco_venda_definido / precoBaseEscalado;
         if (markup <= 1.5) return { mod: 1.20, rosto: '😍', label: 'Torcedores adoram!', cor: '#27ae60' };
         if (markup <= 3.0) return { mod: 1.00, rosto: '🙂', label: 'Preço justo', cor: '#2980b9' };
         if (markup <= 5.0) return { mod: 0.70, rosto: '😐', label: 'Um pouco caro...', cor: '#f39c12' };
@@ -7102,22 +7109,16 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.escuderia.dinheiro -= custoRecrutamento;
 
         const atribBase = () => 40 + Math.floor(Math.random() * 16); // 40–55
-        const hab  = atribBase();
-        const cons = atribBase();
-        const gerP = atribBase();
         const novoPupilo = {
-            id:                   Date.now() + Math.random(),
-            nome:                 gerarNomeJunior(),
-            idade:                15 + Math.floor(Math.random() * 2), // 15 ou 16
-            habilidade:           hab,
-            consistencia:         cons,
-            gerenciamentoPneus:   gerP,
-            habilidadeInicial:    hab,
-            consistenciaInicial:  cons,
-            gerenciamentoPneusInicial: gerP,
-            anoEntrada:           gameState.campeonato.ano,
+            id:                  Date.now() + Math.random(),
+            nome:                gerarNomeJunior(),
+            idade:               15 + Math.floor(Math.random() * 2), // 15 ou 16
+            habilidade:          atribBase(),
+            consistencia:        atribBase(),
+            gerenciamentoPneus:  atribBase(),
+            anoEntrada:          gameState.campeonato.ano,
             temporadasNaAcademia: 0,
-            status:               'Junior'
+            status:              'Junior'
         };
 
         gameState.academia.pupilos.push(novoPupilo);
@@ -7270,28 +7271,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p) {
                 const prog = (p.temporadasNaAcademia || 0);
                 const prontoGrid = p.habilidade >= 80 && p.consistencia >= 80 && p.gerenciamentoPneus >= 80;
-                const MAX = 85;
-                const pct = v => Math.min(100, Math.round((v / MAX) * 100));
-
-                // Calcula ganho desde o recrutamento (compatível com pupilos antigos)
-                const ganhHab  = p.habilidade         - (p.habilidadeInicial         ?? p.habilidade);
-                const ganhCons = p.consistencia       - (p.consistenciaInicial        ?? p.consistencia);
-                const ganhGer  = p.gerenciamentoPneus - (p.gerenciamentoPneusInicial  ?? p.gerenciamentoPneus);
-
-                // Larguras das barras: base (azul) + ganho (verde na ponta)
-                const barHab  = { base: pct(p.habilidade - ganhHab),  ganho: pct(p.habilidade)  - pct(p.habilidade - ganhHab)  };
-                const barCons = { base: pct(p.consistencia - ganhCons), ganho: pct(p.consistencia) - pct(p.consistencia - ganhCons) };
-                const barGer  = { base: pct(p.gerenciamentoPneus - ganhGer), ganho: pct(p.gerenciamentoPneus) - pct(p.gerenciamentoPneus - ganhGer) };
-
-                const deltaSpan = (ganho) => ganho > 0
-                    ? `<span class="academia-delta">+${ganho}</span>`
-                    : '';
-
-                const barHtml = (val, bar, atLim) => `
-                    <div class="academia-barra-bg">
-                        <div class="academia-barra-fill" style="width:${bar.base}%;background:${atLim?'#28a745':'#008cba'}"></div>
-                        ${bar.ganho > 0 ? `<div class="academia-barra-ganho" style="width:${bar.ganho}%"></div>` : ''}
-                    </div>`;
+                const pct = h => Math.round((h / 85) * 100);
 
                 cardsHtml += `
                 <div class="academia-card ${prontoGrid ? 'academia-card-pronto' : ''}">
@@ -7304,18 +7284,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="academia-atributos">
                         <div class="academia-attr">
                             <span>Habilidade</span>
-                            ${barHtml(p.habilidade, barHab, p.habilidade>=80)}
-                            <span class="academia-val">${p.habilidade}${deltaSpan(ganhHab)}</span>
+                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.habilidade)}%;background:${p.habilidade>=80?'#28a745':'#008cba'}"></div></div>
+                            <span class="academia-val">${p.habilidade}</span>
                         </div>
                         <div class="academia-attr">
                             <span>Consistência</span>
-                            ${barHtml(p.consistencia, barCons, p.consistencia>=80)}
-                            <span class="academia-val">${p.consistencia}${deltaSpan(ganhCons)}</span>
+                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.consistencia)}%;background:${p.consistencia>=80?'#28a745':'#008cba'}"></div></div>
+                            <span class="academia-val">${p.consistencia}</span>
                         </div>
                         <div class="academia-attr">
                             <span>Ger. Pneus</span>
-                            ${barHtml(p.gerenciamentoPneus, barGer, p.gerenciamentoPneus>=80)}
-                            <span class="academia-val">${p.gerenciamentoPneus}${deltaSpan(ganhGer)}</span>
+                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.gerenciamentoPneus)}%;background:${p.gerenciamentoPneus>=80?'#28a745':'#008cba'}"></div></div>
+                            <span class="academia-val">${p.gerenciamentoPneus}</span>
                         </div>
                     </div>
                     <div class="academia-acoes">
