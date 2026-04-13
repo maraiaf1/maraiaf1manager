@@ -1411,8 +1411,33 @@ document.addEventListener('DOMContentLoaded', () => {
             if (entrada.piloto?.status === nomeAntigo) entrada.piloto.status = novoNome;
         });
 
-        // 7. Histórico anual de marketing (não tem nome de equipe, mas deixa aqui como extensão futura)
-        // — nada a fazer por enquanto
+        // 7. Histórico de temporadas (Livro de Recordes + Histórico de Campeonatos)
+        if (gameState.historicoTemporadas) {
+            gameState.historicoTemporadas.forEach(t => {
+                if (t.campeaoConstrutores?.nome === nomeAntigo) t.campeaoConstrutores.nome = novoNome;
+                if (t.campeaoPilotos?.equipe === nomeAntigo)    t.campeaoPilotos.equipe    = novoNome;
+            });
+        }
+
+        // 8. Títulos da galeria (titulosConstrutores e titulosPilotos)
+        if (gameState.galeria.titulosConstrutores) {
+            gameState.galeria.titulosConstrutores.forEach(t => {
+                if (typeof t === 'object' && t.equipe === nomeAntigo) t.equipe = novoNome;
+            });
+        }
+        if (gameState.galeria.titulosPilotos) {
+            gameState.galeria.titulosPilotos.forEach(t => {
+                if (typeof t === 'object' && t.equipe === nomeAntigo) t.equipe = novoNome;
+            });
+        }
+
+        // 9. Sequência de vitórias consecutivas (Livro de Recordes)
+        if (gameState.sequenciaVitoriasAtual?.equipe === nomeAntigo) {
+            gameState.sequenciaVitoriasAtual.equipe = novoNome;
+        }
+        if (gameState.melhorSequenciaVitorias?.equipe === nomeAntigo) {
+            gameState.melhorSequenciaVitorias.equipe = novoNome;
+        }
     }
 
     function mudarNomeEquipe() {
