@@ -1373,69 +1373,70 @@ document.addEventListener('DOMContentLoaded', () => {
      * tabelas de campeonato, resultados de corrida, galeria e pilotos.
      */
     function propagarNomeEquipe(nomeAntigo, novoNome) {
+        // Critério: qualquer nome que não seja de equipe IA e não seja já o novo nome
+        // é considerado nome antigo do jogador — cobre múltiplas trocas de nome.
+        const nomesIA = new Set(equipesIA.map(ia => ia.nome));
+        const isJogador = (nome) => nome && !nomesIA.has(nome) && nome !== novoNome;
+
         // 1. Classificação de construtores da temporada atual
         gameState.campeonato.classificacaoConstrutores.forEach(e => {
-            if (e.equipe === nomeAntigo) e.equipe = novoNome;
+            if (isJogador(e.equipe)) e.equipe = novoNome;
         });
 
-        // 2. Classificação de pilotos (campo "equipe" de cada entrada)
+        // 2. Classificação de pilotos
         gameState.campeonato.classificacaoPilotos.forEach(p => {
-            if (p.equipe === nomeAntigo) p.equipe = novoNome;
+            if (isJogador(p.equipe)) p.equipe = novoNome;
         });
 
-        // 3. Resultados de corridas já disputadas (equipe em cada participante)
+        // 3. Resultados de corridas já disputadas
         gameState.campeonato.resultadosCorridas.forEach(corrida => {
             corrida.resultadoFinal.forEach(res => {
-                if (res.equipe === nomeAntigo) res.equipe = novoNome;
+                if (isJogador(res.equipe)) res.equipe = novoNome;
             });
         });
 
-        // 4. Status dos pilotos do jogador (armazenam o nome da equipe como status)
+        // 4. Status dos pilotos do jogador
         gameState.pilotos.forEach(piloto => {
-            if (piloto.status === nomeAntigo) piloto.status = novoNome;
+            if (isJogador(piloto.status)) piloto.status = novoNome;
         });
 
-        // 5. Estatísticas da galeria (campo "equipe" nos registros de todos os pilotos)
+        // 5. Estatísticas da galeria
         const atualizarStatsEquipe = (statsObj) => {
             if (!statsObj) return;
             Object.values(statsObj).forEach(s => {
-                if (s.equipe === nomeAntigo) s.equipe = novoNome;
+                if (isJogador(s.equipe)) s.equipe = novoNome;
             });
         };
         atualizarStatsEquipe(gameState.galeria.estatisticasPilotos);
         atualizarStatsEquipe(gameState.galeria.estatisticasTodosPilotos);
 
-        // 6. Hall da Fama — equipe registrada na entrada
+        // 6. Hall da Fama
         gameState.galeria.hallDaFama.forEach(entrada => {
-            if (entrada.statsCarreira?.equipe === nomeAntigo) entrada.statsCarreira.equipe = novoNome;
-            if (entrada.piloto?.status === nomeAntigo) entrada.piloto.status = novoNome;
+            if (isJogador(entrada.statsCarreira?.equipe)) entrada.statsCarreira.equipe = novoNome;
+            if (isJogador(entrada.piloto?.status))        entrada.piloto.status        = novoNome;
         });
 
-        // 7. Histórico de temporadas (Livro de Recordes + Histórico de Campeonatos)
+        // 7. Histórico de temporadas (Histórico de Campeonatos + Livro de Recordes)
         if (gameState.historicoTemporadas) {
             gameState.historicoTemporadas.forEach(t => {
-                if (t.campeaoConstrutores?.nome === nomeAntigo) t.campeaoConstrutores.nome = novoNome;
-                if (t.campeaoPilotos?.equipe === nomeAntigo)    t.campeaoPilotos.equipe    = novoNome;
+                if (isJogador(t.campeaoConstrutores?.nome)) t.campeaoConstrutores.nome = novoNome;
+                if (isJogador(t.campeaoPilotos?.equipe))    t.campeaoPilotos.equipe    = novoNome;
             });
         }
 
-        // 8. Títulos da galeria (titulosConstrutores e titulosPilotos)
-        if (gameState.galeria.titulosConstrutores) {
-            gameState.galeria.titulosConstrutores.forEach(t => {
-                if (typeof t === 'object' && t.equipe === nomeAntigo) t.equipe = novoNome;
-            });
-        }
-        if (gameState.galeria.titulosPilotos) {
-            gameState.galeria.titulosPilotos.forEach(t => {
-                if (typeof t === 'object' && t.equipe === nomeAntigo) t.equipe = novoNome;
-            });
-        }
+        // 8. Títulos da galeria
+        (gameState.galeria.titulosConstrutores || []).forEach(t => {
+            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
+        });
+        (gameState.galeria.titulosPilotos || []).forEach(t => {
+            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
+        });
 
         // 9. Sequência de vitórias consecutivas (Livro de Recordes)
-        if (gameState.sequenciaVitoriasAtual?.equipe === nomeAntigo) {
+        if (isJogador(gameState.sequenciaVitoriasAtual?.equipe)) {
             gameState.sequenciaVitoriasAtual.equipe = novoNome;
         }
-        if (gameState.melhorSequenciaVitorias?.equipe === nomeAntigo) {
+        if (isJogador(gameState.melhorSequenciaVitorias?.equipe)) {
             gameState.melhorSequenciaVitorias.equipe = novoNome;
         }
     }
