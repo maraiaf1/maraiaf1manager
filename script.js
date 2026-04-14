@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.40";
+    const VERSAO_JOGO = "21.0.41";
 
     // Versão do SCHEMA de dados (independente da versão do jogo).
     // Incremente sempre que adicionar campos novos ao gameState ou às equipesIA.
@@ -1373,38 +1373,42 @@ document.addEventListener('DOMContentLoaded', () => {
      * tabelas de campeonato, resultados de corrida, galeria e pilotos.
      */
     function propagarNomeEquipe(nomeAntigo, novoNome) {
-        // Critério: qualquer nome que não seja de equipe IA e não seja já o novo nome
-        // é considerado nome antigo do jogador — cobre múltiplas trocas de nome.
+        // Para campos "equipe": qualquer nome que não seja de IA e não seja já o novo nome
         const nomesIA = new Set(equipesIA.map(ia => ia.nome));
-        const isJogador = (nome) => nome && !nomesIA.has(nome) && nome !== novoNome;
+        const isEquipeJogador = (nome) => nome && !nomesIA.has(nome) && nome !== novoNome;
+
+        // Para piloto.status: exclui também os valores reservados do sistema
+        const STATUS_SISTEMA = new Set(['Disponível', 'Indisponível', 'Jogador', 'Reserva', 'Junior']);
+        const isStatusJogador = (status) =>
+            status && !nomesIA.has(status) && !STATUS_SISTEMA.has(status) && status !== novoNome;
 
         // 1. Classificação de construtores da temporada atual
         gameState.campeonato.classificacaoConstrutores.forEach(e => {
-            if (isJogador(e.equipe)) e.equipe = novoNome;
+            if (isEquipeJogador(e.equipe)) e.equipe = novoNome;
         });
 
         // 2. Classificação de pilotos
         gameState.campeonato.classificacaoPilotos.forEach(p => {
-            if (isJogador(p.equipe)) p.equipe = novoNome;
+            if (isEquipeJogador(p.equipe)) p.equipe = novoNome;
         });
 
         // 3. Resultados de corridas já disputadas
         gameState.campeonato.resultadosCorridas.forEach(corrida => {
             corrida.resultadoFinal.forEach(res => {
-                if (isJogador(res.equipe)) res.equipe = novoNome;
+                if (isEquipeJogador(res.equipe)) res.equipe = novoNome;
             });
         });
 
-        // 4. Status dos pilotos do jogador
+        // 4. Status dos pilotos do jogador (usa check com exclusão de status do sistema)
         gameState.pilotos.forEach(piloto => {
-            if (isJogador(piloto.status)) piloto.status = novoNome;
+            if (isStatusJogador(piloto.status)) piloto.status = novoNome;
         });
 
         // 5. Estatísticas da galeria
         const atualizarStatsEquipe = (statsObj) => {
             if (!statsObj) return;
             Object.values(statsObj).forEach(s => {
-                if (isJogador(s.equipe)) s.equipe = novoNome;
+                if (isEquipeJogador(s.equipe)) s.equipe = novoNome;
             });
         };
         atualizarStatsEquipe(gameState.galeria.estatisticasPilotos);
@@ -1412,31 +1416,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 6. Hall da Fama
         gameState.galeria.hallDaFama.forEach(entrada => {
-            if (isJogador(entrada.statsCarreira?.equipe)) entrada.statsCarreira.equipe = novoNome;
-            if (isJogador(entrada.piloto?.status))        entrada.piloto.status        = novoNome;
+            if (isEquipeJogador(entrada.statsCarreira?.equipe)) entrada.statsCarreira.equipe = novoNome;
+            if (isStatusJogador(entrada.piloto?.status))        entrada.piloto.status        = novoNome;
         });
 
         // 7. Histórico de temporadas (Histórico de Campeonatos + Livro de Recordes)
         if (gameState.historicoTemporadas) {
             gameState.historicoTemporadas.forEach(t => {
-                if (isJogador(t.campeaoConstrutores?.nome)) t.campeaoConstrutores.nome = novoNome;
-                if (isJogador(t.campeaoPilotos?.equipe))    t.campeaoPilotos.equipe    = novoNome;
+                if (isEquipeJogador(t.campeaoConstrutores?.nome)) t.campeaoConstrutores.nome = novoNome;
+                if (isEquipeJogador(t.campeaoPilotos?.equipe))    t.campeaoPilotos.equipe    = novoNome;
             });
         }
 
         // 8. Títulos da galeria
         (gameState.galeria.titulosConstrutores || []).forEach(t => {
-            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
+            if (typeof t === 'object' && isEquipeJogador(t.equipe)) t.equipe = novoNome;
         });
         (gameState.galeria.titulosPilotos || []).forEach(t => {
-            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
+            if (typeof t === 'object' && isEquipeJogador(t.equipe)) t.equipe = novoNome;
         });
 
         // 9. Sequência de vitórias consecutivas (Livro de Recordes)
-        if (isJogador(gameState.sequenciaVitoriasAtual?.equipe)) {
+        if (isEquipeJogador(gameState.sequenciaVitoriasAtual?.equipe)) {
             gameState.sequenciaVitoriasAtual.equipe = novoNome;
         }
-        if (isJogador(gameState.melhorSequenciaVitorias?.equipe)) {
+        if (isEquipeJogador(gameState.melhorSequenciaVitorias?.equipe)) {
             gameState.melhorSequenciaVitorias.equipe = novoNome;
         }
     }
@@ -7108,7 +7112,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'P. Azevedo','Q. Moreira','R. Cardoso','S. Lopes','T. Dias',
         'U. Faria','V. Ramos','W. Barros','X. Melo','Y. Cunha',
         'Z. Borges','A. Vieira','B. Monteiro','C. Cavalcanti','D. Correia',
-        'E. Aragão','F. Braga','G. Vasconcelos','H. Macedo','I. Freitas'
+        'E. Aragão','F. Braga','G. Vasconcelos','H. Macedo','I. Freitas',
+        'A. Maraia','B. Maraia','C. Maraia','D. Maraia',
+        'A. Bitencourt','B. Bitencourt','C. Bitencourt','D. Bitencourt'
     ];
 
     function gerarNomeJunior() {
@@ -7135,16 +7141,22 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.escuderia.dinheiro -= custoRecrutamento;
 
         const atribBase = () => 40 + Math.floor(Math.random() * 16); // 40–55
+        const hab  = atribBase();
+        const cons = atribBase();
+        const gerP = atribBase();
         const novoPupilo = {
-            id:                  Date.now() + Math.random(),
-            nome:                gerarNomeJunior(),
-            idade:               15 + Math.floor(Math.random() * 2), // 15 ou 16
-            habilidade:          atribBase(),
-            consistencia:        atribBase(),
-            gerenciamentoPneus:  atribBase(),
-            anoEntrada:          gameState.campeonato.ano,
-            temporadasNaAcademia: 0,
-            status:              'Junior'
+            id:                        Date.now() + Math.random(),
+            nome:                      gerarNomeJunior(),
+            idade:                     15 + Math.floor(Math.random() * 2),
+            habilidade:                hab,
+            consistencia:              cons,
+            gerenciamentoPneus:        gerP,
+            habilidadeInicial:         hab,
+            consistenciaInicial:       cons,
+            gerenciamentoPneusInicial: gerP,
+            anoEntrada:                gameState.campeonato.ano,
+            temporadasNaAcademia:      0,
+            status:                    'Junior'
         };
 
         gameState.academia.pupilos.push(novoPupilo);
@@ -7297,7 +7309,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p) {
                 const prog = (p.temporadasNaAcademia || 0);
                 const prontoGrid = p.habilidade >= 80 && p.consistencia >= 80 && p.gerenciamentoPneus >= 80;
-                const pct = h => Math.round((h / 85) * 100);
+                const MAX = 85;
+                const pct = v => Math.min(100, Math.round((v / MAX) * 100));
+
+                // Ganho desde o recrutamento (retrocompatível — sem inicial mostra +0)
+                const ganhHab  = p.habilidade         - (p.habilidadeInicial         ?? p.habilidade);
+                const ganhCons = p.consistencia       - (p.consistenciaInicial        ?? p.consistencia);
+                const ganhGer  = p.gerenciamentoPneus - (p.gerenciamentoPneusInicial  ?? p.gerenciamentoPneus);
+
+                const barBase  = (val, ganho) => Math.max(0, pct(val - ganho));
+                const barGanho = (val, ganho) => Math.max(0, pct(val) - pct(val - ganho));
+
+                const deltaSpan = (g) => g > 0 ? `<span class="academia-delta">+${g}</span>` : '';
+
+                const barHtml = (val, ganho, atLim) => `
+                    <div class="academia-barra-bg">
+                        <div class="academia-barra-fill" style="width:${barBase(val,ganho)}%;background:${atLim?'#28a745':'#008cba'}"></div>
+                        ${barGanho(val,ganho) > 0 ? `<div class="academia-barra-ganho" style="width:${barGanho(val,ganho)}%"></div>` : ''}
+                    </div>`;
 
                 cardsHtml += `
                 <div class="academia-card ${prontoGrid ? 'academia-card-pronto' : ''}">
@@ -7310,18 +7339,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="academia-atributos">
                         <div class="academia-attr">
                             <span>Habilidade</span>
-                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.habilidade)}%;background:${p.habilidade>=80?'#28a745':'#008cba'}"></div></div>
-                            <span class="academia-val">${p.habilidade}</span>
+                            ${barHtml(p.habilidade, ganhHab, p.habilidade>=80)}
+                            <span class="academia-val">${p.habilidade}${deltaSpan(ganhHab)}</span>
                         </div>
                         <div class="academia-attr">
                             <span>Consistência</span>
-                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.consistencia)}%;background:${p.consistencia>=80?'#28a745':'#008cba'}"></div></div>
-                            <span class="academia-val">${p.consistencia}</span>
+                            ${barHtml(p.consistencia, ganhCons, p.consistencia>=80)}
+                            <span class="academia-val">${p.consistencia}${deltaSpan(ganhCons)}</span>
                         </div>
                         <div class="academia-attr">
                             <span>Ger. Pneus</span>
-                            <div class="academia-barra-bg"><div class="academia-barra-fill" style="width:${pct(p.gerenciamentoPneus)}%;background:${p.gerenciamentoPneus>=80?'#28a745':'#008cba'}"></div></div>
-                            <span class="academia-val">${p.gerenciamentoPneus}</span>
+                            ${barHtml(p.gerenciamentoPneus, ganhGer, p.gerenciamentoPneus>=80)}
+                            <span class="academia-val">${p.gerenciamentoPneus}${deltaSpan(ganhGer)}</span>
                         </div>
                     </div>
                     <div class="academia-acoes">
