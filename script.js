@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.41";
+    const VERSAO_JOGO = "21.0.42";
 
     // Versão do SCHEMA de dados (independente da versão do jogo).
     // Incremente sempre que adicionar campos novos ao gameState ou às equipesIA.
@@ -11,7 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. DADOS GLOBAIS ---
     const CUSTO_MUDAR_NOME    = 250000;
     const CUSTO_MUDAR_EMBLEMA = 250000;
-    const CUSTO_ACADEMIA      = 50000000;
+    const CUSTO_ACADEMIA        = 50000000;
+    const CUSTO_SLOT_EXTRA      = 15000000; // por slot adicional (máx +2)
+    const CUSTO_POTENCIALIZAR   = 10000000; // por temporada, 1 pupilo por vez
 
     const catalogoDePecas = {
         50: { id: 50, tipo: 'Motor', nome: 'Motor Padrão V1.0', nivel: 1, atributos: { potencia: 40, confiabilidade: 75 } },
@@ -781,7 +783,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // ── Academia Júnior ───────────────────────────────────────────────
             academia: {
                 desbloqueada: false,
-                pupilos: []   // até 3 pilotos júnior
+                pupilos: [],          // até 3 + slotsExtras
+                slotsExtras: 0,       // 0, 1 ou 2 slots adicionais comprados
+                pupilosPotencializados: [] // ids dos pupilos potencializados nesta temporada
             }
         };
     }
@@ -917,7 +921,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (!gameState.patrocinio) gameState.patrocinio = { ofertas: [], ativos: [] };
                 if (!gameState.projetosEmAndamento) gameState.projetosEmAndamento = [];
-                if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [] };
+                if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [], slotsExtras: 0, pupilosPotencializados: [] };
+                if (!gameState.academia.slotsExtras) gameState.academia.slotsExtras = 0;
+                if (!gameState.academia.pupilosPotencializados) gameState.academia.pupilosPotencializados = [];
 
                 // ── MIGRAÇÃO v2: teto de produção + sistema de fornecedor ──────────────
                 const versaoSalva = gameState.versaoDados ?? 0;
@@ -1373,42 +1379,38 @@ document.addEventListener('DOMContentLoaded', () => {
      * tabelas de campeonato, resultados de corrida, galeria e pilotos.
      */
     function propagarNomeEquipe(nomeAntigo, novoNome) {
-        // Para campos "equipe": qualquer nome que não seja de IA e não seja já o novo nome
+        // Critério: qualquer nome que não seja de equipe IA e não seja já o novo nome
+        // é considerado nome antigo do jogador — cobre múltiplas trocas de nome.
         const nomesIA = new Set(equipesIA.map(ia => ia.nome));
-        const isEquipeJogador = (nome) => nome && !nomesIA.has(nome) && nome !== novoNome;
-
-        // Para piloto.status: exclui também os valores reservados do sistema
-        const STATUS_SISTEMA = new Set(['Disponível', 'Indisponível', 'Jogador', 'Reserva', 'Junior']);
-        const isStatusJogador = (status) =>
-            status && !nomesIA.has(status) && !STATUS_SISTEMA.has(status) && status !== novoNome;
+        const isJogador = (nome) => nome && !nomesIA.has(nome) && nome !== novoNome;
 
         // 1. Classificação de construtores da temporada atual
         gameState.campeonato.classificacaoConstrutores.forEach(e => {
-            if (isEquipeJogador(e.equipe)) e.equipe = novoNome;
+            if (isJogador(e.equipe)) e.equipe = novoNome;
         });
 
         // 2. Classificação de pilotos
         gameState.campeonato.classificacaoPilotos.forEach(p => {
-            if (isEquipeJogador(p.equipe)) p.equipe = novoNome;
+            if (isJogador(p.equipe)) p.equipe = novoNome;
         });
 
         // 3. Resultados de corridas já disputadas
         gameState.campeonato.resultadosCorridas.forEach(corrida => {
             corrida.resultadoFinal.forEach(res => {
-                if (isEquipeJogador(res.equipe)) res.equipe = novoNome;
+                if (isJogador(res.equipe)) res.equipe = novoNome;
             });
         });
 
-        // 4. Status dos pilotos do jogador (usa check com exclusão de status do sistema)
+        // 4. Status dos pilotos do jogador
         gameState.pilotos.forEach(piloto => {
-            if (isStatusJogador(piloto.status)) piloto.status = novoNome;
+            if (isJogador(piloto.status)) piloto.status = novoNome;
         });
 
         // 5. Estatísticas da galeria
         const atualizarStatsEquipe = (statsObj) => {
             if (!statsObj) return;
             Object.values(statsObj).forEach(s => {
-                if (isEquipeJogador(s.equipe)) s.equipe = novoNome;
+                if (isJogador(s.equipe)) s.equipe = novoNome;
             });
         };
         atualizarStatsEquipe(gameState.galeria.estatisticasPilotos);
@@ -1416,31 +1418,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 6. Hall da Fama
         gameState.galeria.hallDaFama.forEach(entrada => {
-            if (isEquipeJogador(entrada.statsCarreira?.equipe)) entrada.statsCarreira.equipe = novoNome;
-            if (isStatusJogador(entrada.piloto?.status))        entrada.piloto.status        = novoNome;
+            if (isJogador(entrada.statsCarreira?.equipe)) entrada.statsCarreira.equipe = novoNome;
+            if (isJogador(entrada.piloto?.status))        entrada.piloto.status        = novoNome;
         });
 
         // 7. Histórico de temporadas (Histórico de Campeonatos + Livro de Recordes)
         if (gameState.historicoTemporadas) {
             gameState.historicoTemporadas.forEach(t => {
-                if (isEquipeJogador(t.campeaoConstrutores?.nome)) t.campeaoConstrutores.nome = novoNome;
-                if (isEquipeJogador(t.campeaoPilotos?.equipe))    t.campeaoPilotos.equipe    = novoNome;
+                if (isJogador(t.campeaoConstrutores?.nome)) t.campeaoConstrutores.nome = novoNome;
+                if (isJogador(t.campeaoPilotos?.equipe))    t.campeaoPilotos.equipe    = novoNome;
             });
         }
 
         // 8. Títulos da galeria
         (gameState.galeria.titulosConstrutores || []).forEach(t => {
-            if (typeof t === 'object' && isEquipeJogador(t.equipe)) t.equipe = novoNome;
+            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
         });
         (gameState.galeria.titulosPilotos || []).forEach(t => {
-            if (typeof t === 'object' && isEquipeJogador(t.equipe)) t.equipe = novoNome;
+            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
         });
 
         // 9. Sequência de vitórias consecutivas (Livro de Recordes)
-        if (isEquipeJogador(gameState.sequenciaVitoriasAtual?.equipe)) {
+        if (isJogador(gameState.sequenciaVitoriasAtual?.equipe)) {
             gameState.sequenciaVitoriasAtual.equipe = novoNome;
         }
-        if (isEquipeJogador(gameState.melhorSequenciaVitorias?.equipe)) {
+        if (isJogador(gameState.melhorSequenciaVitorias?.equipe)) {
             gameState.melhorSequenciaVitorias.equipe = novoNome;
         }
     }
@@ -7112,9 +7114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'P. Azevedo','Q. Moreira','R. Cardoso','S. Lopes','T. Dias',
         'U. Faria','V. Ramos','W. Barros','X. Melo','Y. Cunha',
         'Z. Borges','A. Vieira','B. Monteiro','C. Cavalcanti','D. Correia',
-        'E. Aragão','F. Braga','G. Vasconcelos','H. Macedo','I. Freitas',
-        'A. Maraia','B. Maraia','C. Maraia','D. Maraia',
-        'A. Bitencourt','B. Bitencourt','C. Bitencourt','D. Bitencourt'
+        'E. Aragão','F. Braga','G. Vasconcelos','H. Macedo','I. Freitas'
     ];
 
     function gerarNomeJunior() {
@@ -7141,22 +7141,16 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.escuderia.dinheiro -= custoRecrutamento;
 
         const atribBase = () => 40 + Math.floor(Math.random() * 16); // 40–55
-        const hab  = atribBase();
-        const cons = atribBase();
-        const gerP = atribBase();
         const novoPupilo = {
-            id:                        Date.now() + Math.random(),
-            nome:                      gerarNomeJunior(),
-            idade:                     15 + Math.floor(Math.random() * 2),
-            habilidade:                hab,
-            consistencia:              cons,
-            gerenciamentoPneus:        gerP,
-            habilidadeInicial:         hab,
-            consistenciaInicial:       cons,
-            gerenciamentoPneusInicial: gerP,
-            anoEntrada:                gameState.campeonato.ano,
-            temporadasNaAcademia:      0,
-            status:                    'Junior'
+            id:                  Date.now() + Math.random(),
+            nome:                gerarNomeJunior(),
+            idade:               15 + Math.floor(Math.random() * 2), // 15 ou 16
+            habilidade:          atribBase(),
+            consistencia:        atribBase(),
+            gerenciamentoPneus:  atribBase(),
+            anoEntrada:          gameState.campeonato.ano,
+            temporadasNaAcademia: 0,
+            status:              'Junior'
         };
 
         gameState.academia.pupilos.push(novoPupilo);
@@ -7175,84 +7169,199 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGame();
     }
 
-    function promoverJuniorParaElenco(idPupilo) {
+    function promoverJuniorParaElenco(idPupilo, forcado = false) {
         const idx = gameState.academia.pupilos.findIndex(p => p.id === idPupilo);
         if (idx === -1) return;
         const pupilo = gameState.academia.pupilos[idx];
 
-        const meusPilotos = gameState.pilotos.filter(p =>
-            p.status === 'Jogador' || p.status === 'Reserva'
-        );
-        if (meusPilotos.length >= 4) {
-            alert('Elenco cheio! Dispense um piloto antes de promover.');
+        // Verifica critério de promoção (18 anos + atributos 75+), exceto se forçado por expiração
+        if (!forcado) {
+            const pronto = pupilo.idade >= 18
+                && pupilo.habilidade >= 75
+                && pupilo.consistencia >= 75
+                && pupilo.gerenciamentoPneus >= 75;
+            if (!pronto) {
+                alert(`${pupilo.nome} ainda não está pronto. Necessário: 18 anos e atributos 75+.\nAtual: ${pupilo.idade} anos | Hab ${pupilo.habilidade} | Cons ${pupilo.consistencia} | GP ${pupilo.gerenciamentoPneus}`);
+                return;
+            }
+        }
+
+        // Verifica se há slot de Reserva disponível
+        const reservas = gameState.pilotos.filter(p => p.status === 'Reserva');
+        const titulares = gameState.pilotos.filter(p => p.status === 'Jogador');
+
+        if (reservas.length >= 2) {
+            // Slots de reserva cheios — mostra modal para dispensar um
+            _mostrarModalDispensarReserva(pupilo, reservas, idx);
             return;
         }
 
-        // Custo de contrato com desconto por ser formado na casa
-        const custoContrato = 300000 + Math.floor(Math.random() * 200000);
-        if (!confirm(`Promover ${pupilo.nome} para o elenco principal por R$ ${custoContrato.toLocaleString('pt-BR')}?`)) return;
+        _concluirPromocaoJunior(pupilo, idx);
+    }
+
+    // Modal para escolher qual reserva dispensar antes de promover o junior
+    function _mostrarModalDispensarReserva(pupilo, reservas, idxPupilo) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+
+        const reservaCards = reservas.map(r => `
+            <div class="dispensar-reserva-card" data-id="${r.id}"
+                 style="border:1px solid #ddd;border-radius:8px;padding:1rem;cursor:pointer;background:#fff;margin-bottom:0.5rem;transition:background 0.15s;"
+                 onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='#fff'">
+                <strong>${r.nome}</strong> (${r.idade} anos)
+                <div style="font-size:0.82rem;color:#666;margin-top:0.3rem;">
+                    Hab ${r.habilidade} | Cons ${r.consistencia} | GP ${r.gerenciamentoPneus}
+                </div>
+            </div>`).join('');
+
+        modal.innerHTML = `
+            <div style="background:#fff;border-radius:12px;padding:1.5rem;max-width:420px;width:90%;">
+                <h3 style="margin-bottom:0.5rem;">⚠️ Slots de Reserva Cheios</h3>
+                <p style="color:#555;font-size:0.9rem;margin-bottom:1rem;">
+                    Para promover <strong>${pupilo.nome}</strong>, escolha qual reserva dispensar.
+                    O piloto dispensado volta ao mercado livre.
+                </p>
+                ${reservaCards}
+                <button id="btn-cancelar-dispensar" style="margin-top:0.75rem;width:100%;padding:0.5rem;background:#6c757d;color:#fff;border:none;border-radius:6px;cursor:pointer;">Cancelar</button>
+            </div>`;
+
+        document.body.appendChild(modal);
+
+        modal.querySelectorAll('.dispensar-reserva-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const idDispensado = parseFloat(card.dataset.id);
+                const pilotoDispensado = gameState.pilotos.find(p => p.id === idDispensado);
+                if (pilotoDispensado) {
+                    pilotoDispensado.status = 'Disponível';
+                    alert(`${pilotoDispensado.nome} foi dispensado e voltou ao mercado livre.`);
+                }
+                document.body.removeChild(modal);
+                _concluirPromocaoJunior(pupilo, idxPupilo);
+            });
+        });
+
+        document.getElementById('btn-cancelar-dispensar').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+    }
+
+    function _concluirPromocaoJunior(pupilo, idxPupilo) {
+        const custoContrato = 200000 + Math.floor(Math.random() * 150000); // mais barato que mercado
+        if (!confirm(`Promover ${pupilo.nome} como Reserva por R$ ${custoContrato.toLocaleString('pt-BR')}?`)) return;
 
         gameState.escuderia.dinheiro -= custoContrato;
 
-        // Cria o piloto no elenco principal
         const novoPiloto = {
-            id:                   pupilo.id,
-            nome:                 pupilo.nome,
-            idade:                pupilo.idade,
-            habilidade:           pupilo.habilidade,
-            consistencia:         pupilo.consistencia,
-            gerenciamentoPneus:   pupilo.gerenciamentoPneus,
-            salario:              40000 + Math.floor(Math.random() * 30000),
-            precoContrato:        custoContrato,
-            status:               'Reserva',
-            campeonatosGanhos:    [],
-            rosto:                'img/Pilotos/default.png'
-        };
-        novoPiloto.atributosBase = {
-            habilidade:           novoPiloto.habilidade,
-            consistencia:         novoPiloto.consistencia,
-            gerenciamentoPneus:   novoPiloto.gerenciamentoPneus
+            id:                  pupilo.id,
+            nome:                pupilo.nome,
+            idade:               pupilo.idade,
+            habilidade:          pupilo.habilidade,
+            consistencia:        pupilo.consistencia,
+            gerenciamentoPneus:  pupilo.gerenciamentoPneus,
+            salario:             15000 + Math.floor(Math.random() * 10000),
+            precoContrato:       custoContrato,
+            status:              'Reserva',
+            campeonatosGanhos:   [],
+            rosto:               'img/Pilotos/default.png',
+            atributosBase:       { habilidade: pupilo.habilidade, consistencia: pupilo.consistencia, gerenciamentoPneus: pupilo.gerenciamentoPneus }
         };
 
         gameState.pilotos.push(novoPiloto);
-        gameState.academia.pupilos.splice(idx, 1);
-        alert(`${novoPiloto.nome} foi promovido para o elenco principal como Reserva!`);
+        gameState.academia.pupilos.splice(idxPupilo, 1);
+        alert(`✅ ${novoPiloto.nome} foi promovido ao elenco principal como Reserva!`);
         renderAbaAcademia();
         saveGame();
     }
 
-    // Chamado em processarFimDeTemporada — evolui pupilos e avisa quando prontos
+    // Chamado em processarFimDeTemporada — evolui pupilos, cobra manutenção e trata expiração
     function processarEvolucaoAcademia() {
-        if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [] };
+        if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [], slotsExtras: 0, pupilosPotencializados: [] };
         if (!gameState.academia?.desbloqueada) return;
         if (!gameState.academia.pupilos || gameState.academia.pupilos.length === 0) return;
 
+        const TETO = 88;
+        const potIds = gameState.academia.pupilosPotencializados || [];
         const msgs = [];
+        const expirados = [];
 
         gameState.academia.pupilos.forEach(pupilo => {
             pupilo.idade++;
             pupilo.temporadasNaAcademia = (pupilo.temporadasNaAcademia || 0) + 1;
 
-            // Evolução por temporada: cresce mais rápido nas primeiras e desacelera
-            const fator = pupilo.temporadasNaAcademia <= 2 ? 1.2 : 0.9;
-            const ganho = () => Math.round((6 + Math.floor(Math.random() * 7)) * fator); // 7–15 × fator
+            // Fator base: cresce mais rápido nas primeiras temporadas
+            const fatorBase = pupilo.temporadasNaAcademia <= 2 ? 1.2 : 0.9;
+            // Bônus de potencialização
+            const potencializado = potIds.includes(pupilo.id);
+            const fator = potencializado ? fatorBase * 1.5 : fatorBase;
 
-            pupilo.habilidade         = Math.min(85, pupilo.habilidade         + ganho());
-            pupilo.consistencia       = Math.min(85, pupilo.consistencia       + ganho());
-            pupilo.gerenciamentoPneus = Math.min(85, pupilo.gerenciamentoPneus + ganho());
+            const ganho = () => Math.round((6 + Math.floor(Math.random() * 7)) * fator);
 
-            // Custo de manutenção por pupilo cobrado aqui
-            const custoAnual = 2000000;
-            gameState.escuderia.dinheiro -= custoAnual;
+            pupilo.habilidade         = Math.min(TETO, pupilo.habilidade         + ganho());
+            pupilo.consistencia       = Math.min(TETO, pupilo.consistencia       + ganho());
+            pupilo.gerenciamentoPneus = Math.min(TETO, pupilo.gerenciamentoPneus + ganho());
 
-            const pronto = pupilo.habilidade >= 80
-                && pupilo.consistencia >= 80
-                && pupilo.gerenciamentoPneus >= 80;
+            // Custo de manutenção
+            gameState.escuderia.dinheiro -= 2000000;
 
-            if (pronto) {
-                msgs.push(`🌟 ${pupilo.nome} atingiu atributos de 80+! Ele está pronto para o grid principal. Acesse a aba Academia para promovê-lo.`);
+            // Verifica se está pronto (18+ anos e atributos 75+)
+            const pronto = pupilo.idade >= 18
+                && pupilo.habilidade         >= 75
+                && pupilo.consistencia        >= 75
+                && pupilo.gerenciamentoPneus  >= 75;
+
+            // Expiração: 21 anos — deve sair da academia
+            if (pupilo.idade >= 21) {
+                expirados.push(pupilo);
+            } else if (pronto) {
+                msgs.push(`🌟 ${pupilo.nome} (${pupilo.idade} anos) está pronto para o grid! Acesse a Academia para promovê-lo.`);
             }
         });
+
+        // Reseta potencialização para a próxima temporada
+        gameState.academia.pupilosPotencializados = [];
+
+        // Processa expirados com setTimeout para não conflitar com outros alerts
+        if (expirados.length > 0) {
+            setTimeout(() => {
+                expirados.forEach(pupilo => {
+                    const opcao = confirm(
+                        `⏰ ${pupilo.nome} tem ${pupilo.idade} anos — ultrapassou o limite da academia!\n\n` +
+                        `Atributos: Hab ${pupilo.habilidade} | Cons ${pupilo.consistencia} | GP ${pupilo.gerenciamentoPneus}\n\n` +
+                        `OK → Promover como Reserva (desconto no contrato)\n` +
+                        `Cancelar → Liberar para o Mercado Livre`
+                    );
+                    if (opcao) {
+                        // Promove como reserva
+                        promoverJuniorParaElenco(pupilo.id, true);
+                    } else {
+                        // Libera para o mercado
+                        const idx = gameState.academia.pupilos.findIndex(p => p.id === pupilo.id);
+                        if (idx !== -1) {
+                            const p = gameState.academia.pupilos[idx];
+                            // Adiciona ao pool de pilotos como Disponível
+                            gameState.pilotos.push({
+                                id:                  p.id,
+                                nome:                p.nome,
+                                idade:               p.idade,
+                                habilidade:          p.habilidade,
+                                consistencia:        p.consistencia,
+                                gerenciamentoPneus:  p.gerenciamentoPneus,
+                                salario:             25000 + Math.floor(Math.random() * 15000),
+                                precoContrato:       500000 + Math.floor(Math.random() * 300000),
+                                status:              'Disponível',
+                                campeonatosGanhos:   [],
+                                rosto:               'img/Pilotos/default.png',
+                                atributosBase:       { habilidade: p.habilidade, consistencia: p.consistencia, gerenciamentoPneus: p.gerenciamentoPneus }
+                            });
+                            gameState.academia.pupilos.splice(idx, 1);
+                            alert(`${p.nome} foi liberado para o mercado livre.`);
+                        }
+                    }
+                });
+                saveGame();
+            }, 2000);
+        }
 
         if (msgs.length > 0) {
             setTimeout(() => alert(msgs.join('\n\n')), 1500);
@@ -7268,7 +7377,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm(`Fundar a Academia Júnior por R$ ${CUSTO_ACADEMIA.toLocaleString('pt-BR')}?\n\nCusto de manutenção: R$ 2.000.000 por pupilo por temporada.\nRecrutamento: R$ 1,5–2,5 milhões por atleta.`)) return;
         gameState.escuderia.dinheiro -= CUSTO_ACADEMIA;
         gameState.academia.desbloqueada = true;
-        alert('Academia Júnior fundada! Agora você pode recrutar até 3 jovens talentos.');
+        alert('Academia Júnior fundada! Você tem 3 slots iniciais. Pode comprar até 2 slots extras por R$ 15M cada.');
+        renderAbaAcademia();
+        saveGame();
+    }
+
+    function comprarSlotExtra() {
+        if (!gameState.academia.desbloqueada) return;
+        if ((gameState.academia.slotsExtras || 0) >= 2) {
+            alert('Você já possui o máximo de slots extras (2). Total: 5 slots.');
+            return;
+        }
+        if (gameState.escuderia.dinheiro < CUSTO_SLOT_EXTRA) {
+            alert(`Dinheiro insuficiente! Custo por slot extra: R$ ${CUSTO_SLOT_EXTRA.toLocaleString('pt-BR')}`);
+            return;
+        }
+        if (!confirm(`Comprar um slot extra na academia por R$ ${CUSTO_SLOT_EXTRA.toLocaleString('pt-BR')}?\n(Slots extras: ${gameState.academia.slotsExtras} → ${gameState.academia.slotsExtras + 1} de 2)`)) return;
+        gameState.escuderia.dinheiro -= CUSTO_SLOT_EXTRA;
+        gameState.academia.slotsExtras = (gameState.academia.slotsExtras || 0) + 1;
+        alert(`Slot extra comprado! Agora você tem ${3 + gameState.academia.slotsExtras} slots na academia.`);
+        renderAbaAcademia();
+        saveGame();
+    }
+
+    function potencializarJunior(idPupilo) {
+        if (!gameState.academia.desbloqueada) return;
+        const pots = gameState.academia.pupilosPotencializados || [];
+        if (pots.includes(idPupilo)) {
+            // Toggle: remove potencialização
+            gameState.academia.pupilosPotencializados = pots.filter(id => id !== idPupilo);
+            renderAbaAcademia();
+            saveGame();
+            return;
+        }
+        if (gameState.escuderia.dinheiro < CUSTO_POTENCIALIZAR) {
+            alert(`Dinheiro insuficiente! Custo: R$ ${CUSTO_POTENCIALIZAR.toLocaleString('pt-BR')}`);
+            return;
+        }
+        if (!confirm(`Potencializar o treino deste pupilo nesta temporada por R$ ${CUSTO_POTENCIALIZAR.toLocaleString('pt-BR')}?\nO piloto ganhará ~50% mais atributos no próximo fim de temporada.`)) return;
+        gameState.escuderia.dinheiro -= CUSTO_POTENCIALIZAR;
+        gameState.academia.pupilosPotencializados = [...pots, idPupilo];
         renderAbaAcademia();
         saveGame();
     }
@@ -7300,86 +7448,105 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ── Desbloqueada ─────────────────────────────────────────────────
-        const pupilos = gameState.academia.pupilos;
+        const pupilos   = gameState.academia.pupilos;
+        const slotsMax  = 3 + (gameState.academia.slotsExtras || 0);
         const custoTotal = pupilos.length * 2000000;
+        const pots       = gameState.academia.pupilosPotencializados || [];
+        const TETO_ATRIB = 88;
+
+        const slotsExtrasDisponiveis = 2 - (gameState.academia.slotsExtras || 0);
+        const btnSlotExtra = slotsExtrasDisponiveis > 0
+            ? `<button class="btn-corrida" style="background:#17a2b8;font-size:0.82rem;padding:0.4rem 0.8rem;" onclick="comprarSlotExtraGlobal()">
+                 + Slot Extra — R$ ${CUSTO_SLOT_EXTRA.toLocaleString('pt-BR')} (${slotsExtrasDisponiveis} disponível${slotsExtrasDisponiveis > 1 ? 'is' : ''})
+               </button>`
+            : '<span style="font-size:0.8rem;color:#28a745;">✅ Capacidade máxima (5 slots)</span>';
 
         let cardsHtml = '';
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < slotsMax; i++) {
             const p = pupilos[i];
             if (p) {
                 const prog = (p.temporadasNaAcademia || 0);
-                const prontoGrid = p.habilidade >= 80 && p.consistencia >= 80 && p.gerenciamentoPneus >= 80;
-                const MAX = 85;
-                const pct = v => Math.min(100, Math.round((v / MAX) * 100));
+                const prontoGrid = p.idade >= 18 && p.habilidade >= 75 && p.consistencia >= 75 && p.gerenciamentoPneus >= 75;
+                const expirando  = p.idade >= 21;
+                const potencializado = pots.includes(p.id);
 
-                // Ganho desde o recrutamento (retrocompatível — sem inicial mostra +0)
+                const pct = v => Math.min(100, Math.round((v / TETO_ATRIB) * 100));
                 const ganhHab  = p.habilidade         - (p.habilidadeInicial         ?? p.habilidade);
                 const ganhCons = p.consistencia       - (p.consistenciaInicial        ?? p.consistencia);
                 const ganhGer  = p.gerenciamentoPneus - (p.gerenciamentoPneusInicial  ?? p.gerenciamentoPneus);
 
                 const barBase  = (val, ganho) => Math.max(0, pct(val - ganho));
                 const barGanho = (val, ganho) => Math.max(0, pct(val) - pct(val - ganho));
-
                 const deltaSpan = (g) => g > 0 ? `<span class="academia-delta">+${g}</span>` : '';
-
                 const barHtml = (val, ganho, atLim) => `
                     <div class="academia-barra-bg">
                         <div class="academia-barra-fill" style="width:${barBase(val,ganho)}%;background:${atLim?'#28a745':'#008cba'}"></div>
                         ${barGanho(val,ganho) > 0 ? `<div class="academia-barra-ganho" style="width:${barGanho(val,ganho)}%"></div>` : ''}
                     </div>`;
 
+                const cardClass = expirando ? 'academia-card academia-card-expirando'
+                                : prontoGrid ? 'academia-card academia-card-pronto'
+                                : 'academia-card';
+
+                const badgeStatus = expirando
+                    ? `<div class="academia-badge-exp">⏰ Prazo esgotado — ${p.idade} anos</div>`
+                    : prontoGrid ? `<div class="academia-badge-pronto">🌟 Pronto para o grid!</div>` : '';
+                const badgePot = potencializado ? `<div class="academia-badge-pot">⚡ Treino Potencializado</div>` : '';
+
+                const faltaTexto = (!prontoGrid && !expirando)
+                    ? `· Faltam: ${Math.max(0,18-p.idade)}a | Hab+${Math.max(0,75-p.habilidade)} Cons+${Math.max(0,75-p.consistencia)} GP+${Math.max(0,75-p.gerenciamentoPneus)}`
+                    : '';
+
+                const btnPot = potencializado
+                    ? `<button class="btn-corrida" style="background:#e67e22;font-size:0.75rem;" onclick="potencializarJuniorGlobal(${p.id})">⚡ Remover Potencialização</button>`
+                    : `<button class="btn-corrida" style="background:#f39c12;font-size:0.75rem;" onclick="potencializarJuniorGlobal(${p.id})">⚡ Potencializar — R$ ${CUSTO_POTENCIALIZAR.toLocaleString('pt-BR')}</button>`;
+
                 cardsHtml += `
-                <div class="academia-card ${prontoGrid ? 'academia-card-pronto' : ''}">
+                <div class="${cardClass}">
                     <div class="academia-card-header">
                         <span class="academia-nome">${p.nome}</span>
                         <span class="academia-idade">${p.idade} anos</span>
                     </div>
-                    ${prontoGrid ? '<div class="academia-badge-pronto">🌟 Pronto para o grid!</div>' : ''}
+                    ${badgeStatus}${badgePot}
                     <div class="academia-temporadas">Temporada ${prog} na academia · Entrou em ${p.anoEntrada}</div>
                     <div class="academia-atributos">
-                        <div class="academia-attr">
-                            <span>Habilidade</span>
-                            ${barHtml(p.habilidade, ganhHab, p.habilidade>=80)}
-                            <span class="academia-val">${p.habilidade}${deltaSpan(ganhHab)}</span>
-                        </div>
-                        <div class="academia-attr">
-                            <span>Consistência</span>
-                            ${barHtml(p.consistencia, ganhCons, p.consistencia>=80)}
-                            <span class="academia-val">${p.consistencia}${deltaSpan(ganhCons)}</span>
-                        </div>
-                        <div class="academia-attr">
-                            <span>Ger. Pneus</span>
-                            ${barHtml(p.gerenciamentoPneus, ganhGer, p.gerenciamentoPneus>=80)}
-                            <span class="academia-val">${p.gerenciamentoPneus}${deltaSpan(ganhGer)}</span>
-                        </div>
+                        <div class="academia-attr"><span>Habilidade</span>
+                            ${barHtml(p.habilidade, ganhHab, p.habilidade>=75)}
+                            <span class="academia-val">${p.habilidade}${deltaSpan(ganhHab)}</span></div>
+                        <div class="academia-attr"><span>Consistência</span>
+                            ${barHtml(p.consistencia, ganhCons, p.consistencia>=75)}
+                            <span class="academia-val">${p.consistencia}${deltaSpan(ganhCons)}</span></div>
+                        <div class="academia-attr"><span>Ger. Pneus</span>
+                            ${barHtml(p.gerenciamentoPneus, ganhGer, p.gerenciamentoPneus>=75)}
+                            <span class="academia-val">${p.gerenciamentoPneus}${deltaSpan(ganhGer)}</span></div>
                     </div>
+                    <div style="font-size:0.72rem;color:#999;margin-bottom:0.4rem;">Promoção: 18 anos + 75+ atributos ${faltaTexto}</div>
                     <div class="academia-acoes">
-                        ${prontoGrid
-                            ? `<button class="btn-corrida btn-real" onclick="promoverJuniorGlobal(${p.id})">⬆️ Promover ao Elenco</button>`
-                            : ''}
-                        <button class="btn-corrida" style="background:#6c757d" onclick="dispensarJuniorGlobal(${p.id})">Dispensar</button>
+                        ${(prontoGrid || expirando) ? `<button class="btn-corrida btn-real" onclick="promoverJuniorGlobal(${p.id})">⬆️ Promover ao Elenco</button>` : ''}
+                        ${btnPot}
+                        <button class="btn-corrida" style="background:#6c757d;font-size:0.75rem;" onclick="dispensarJuniorGlobal(${p.id})">Dispensar</button>
                     </div>
                 </div>`;
             } else {
                 cardsHtml += `
                 <div class="academia-card academia-slot-vazio">
-                    <div class="academia-slot-texto">Slot vazio</div>
-                    <button class="btn-corrida btn-real" onclick="recrutarJuniorGlobal()">+ Recrutar Talento</button>
-                    <p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">R$ 1,5–2,5 mi por atleta</p>
+                    <div class="academia-slot-texto">Slot ${i + 1} — Vazio</div>
+                    <button class="btn-corrida btn-real" onclick="recrutarJuniorGlobal()">+ Recrutar</button>
+                    <p style="font-size:0.78rem;color:#888;margin-top:0.5rem;">R$ 1,5–2,5 mi por atleta</p>
                 </div>`;
             }
         }
 
         container.innerHTML = `
-            <div class="info-box" style="margin-bottom:1rem;">
-                <p><strong>Custo de manutenção desta temporada:</strong>
-                   R$ ${custoTotal.toLocaleString('pt-BR')}
-                   (R$ 2.000.000 × ${pupilos.length} pupilo${pupilos.length !== 1 ? 's' : ''})</p>
-                <p><strong>Dinheiro em Caixa:</strong> R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</p>
+            <div class="info-box" style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                <div>
+                    <p><strong>Manutenção:</strong> R$ ${custoTotal.toLocaleString('pt-BR')} | <strong>Slots:</strong> ${pupilos.length}/${slotsMax} | <strong>Caixa:</strong> R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</p>
+                </div>
+                <div>${btnSlotExtra}</div>
             </div>
-            <div class="academia-grid">${cardsHtml}</div>
+            <div class="academia-grid" style="grid-template-columns:repeat(${Math.min(slotsMax,3)},1fr)">${cardsHtml}</div>
             <div class="academia-dica">
-                <p>💡 Os pupilos evoluem automaticamente a cada temporada. Quando atingirem 80+ em todos os atributos, você poderá promovê-los ao elenco principal com desconto no contrato.</p>
+                <p>💡 Regras: <strong>18 anos + 75+ atributos</strong> para promoção | Aos 21 anos deve sair | Potencializar custa R$ 10M/temporada (+50% evolução) | Teto de atributos: 88</p>
             </div>`;
     }
 
@@ -9961,6 +10128,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('academia:recrutar',    () => recrutarJunior());
     document.addEventListener('academia:dispensar',   e  => dispensarJunior(e.detail));
     document.addEventListener('academia:promover',    e  => promoverJuniorParaElenco(e.detail));
+    document.addEventListener('academia:slotextra',   () => comprarSlotExtra());
+    document.addEventListener('academia:potencializar', e => potencializarJunior(e.detail));
     loadGame();
     updateUI();
 });
@@ -9977,4 +10146,10 @@ function dispensarJuniorGlobal(id) {
 }
 function promoverJuniorGlobal(id) {
     document.dispatchEvent(new CustomEvent('academia:promover', { detail: id }));
+}
+function comprarSlotExtraGlobal() {
+    document.dispatchEvent(new CustomEvent('academia:slotextra'));
+}
+function potencializarJuniorGlobal(id) {
+    document.dispatchEvent(new CustomEvent('academia:potencializar', { detail: id }));
 }
