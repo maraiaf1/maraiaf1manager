@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 21, rosto: 'img/Pilotos/Arvid.png', nome: "Arvid Lindblad", idade: 18, habilidade: 82, consistencia: 76, gerenciamentoPneus: 77, atributosBase: { habilidade: 82, consistencia: 76, gerenciamentoPneus: 77 }, status: 'RB', campeonatosGanhos: [] },
         { id: 19, rosto: 'img/Pilotos/piastri.png', nome: "Oscar Piastri", idade: 25, habilidade: 92, consistencia: 93, gerenciamentoPneus: 92, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 92 }, status: 'MacLaren', campeonatosGanhos: [] },
         { id: 20, rosto: 'img/Pilotos/norris.png', nome: "Lando Norris", idade: 26, habilidade: 92, consistencia: 93, gerenciamentoPneus: 93, atributosBase: { habilidade: 92, consistencia: 93, gerenciamentoPneus: 93 }, status: 'MacLaren', campeonatosGanhos: [] },
-        { id: 101, rosto: 'img/Pilotos/lucasdigrassi.png', nome: "Lucas di Grassi", idade: 33, habilidade: 94, consistencia: 92, gerenciamentoPneus: 93, atributosBase: { habilidade: 94, consistencia: 92, gerenciamentoPneus: 93 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 101, rosto: 'img/Pilotos/lucasdigrassi.png', nome: "Lucas di Grassi", idade: 33, habilidade: 94, consistencia: 90, gerenciamentoPneus: 91, atributosBase: { habilidade: 94, consistencia: 90, gerenciamentoPneus: 91 },salario: 14000, precoContrato: 1200000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 102, rosto: 'img/Pilotos/felipedrugovich.png', nome: "Felipe Drugovich", idade: 19, habilidade: 89, consistencia: 87, gerenciamentoPneus: 88, salario: 17000, precoContrato: 3800000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 103, rosto: 'img/Pilotos/dudubarrichello.png', nome: "Dudu Barrichello", idade: 21, habilidade: 84, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 104, rosto: 'img/Pilotos/fbarrichello.png', nome: "F. Barrichello", idade: 17, habilidade: 80, consistencia: 81, gerenciamentoPneus: 85, salario: 15000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
@@ -461,17 +461,17 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 114, rosto: 'img/Pilotos/default.png', nome: "Roberto Moreno", idade: 24, habilidade: 85, consistencia: 89, gerenciamentoPneus: 91, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 115, rosto: 'img/Pilotos/pepe.png', nome: "Pepe Martí", idade: 25, habilidade: 88, consistencia: 80, gerenciamentoPneus: 88, salario: 16000, precoContrato: 650000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 116, rosto: 'img/Pilotos/default.png', nome: "Oliver Goethe", idade: 26, habilidade: 91, consistencia: 85, gerenciamentoPneus: 84, salario: 14000, precoContrato: 550000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 117, rosto: 'img/Pilotos/default.png', nome: "Richard Verschoo", idade: 19, habilidade: 82, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 117, rosto: 'img/Pilotos/default.png', nome: "Hanzo Bullss", idade: 19, habilidade: 82, consistencia: 85, gerenciamentoPneus: 88, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 118, rosto: 'img/Pilotos/default.png', nome: "Luke Browning", idade: 24, habilidade: 90, consistencia: 75, gerenciamentoPneus: 88, salario: 14000, precoContrato: 290000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 119, rosto: 'img/Pilotos/default.png', nome: "Dino Beganovic", idade: 25, habilidade: 82, consistencia: 85, gerenciamentoPneus: 78, salario: 15000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 120, rosto: 'img/Pilotos/default.png', nome: "Gabriele Minì", idade: 38, habilidade: 90, consistencia: 92, gerenciamentoPneus: 91, salario: 16000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 121, rosto: 'img/Pilotos/default.png', nome: "Jak Crawford", idade: 24, habilidade: 88, consistencia: 82, gerenciamentoPneus: 85, salario: 11000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 122, rosto: 'img/Pilotos/default.png', nome: "Amaury Cordeel", idade: 25, habilidade: 85, consistencia: 88, gerenciamentoPneus: 82, salario: 13000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 123, rosto: 'img/Pilotos/default.png', nome: "Cian Shields", idade: 26, habilidade: 86, consistencia: 85, gerenciamentoPneus: 78, salario: 12000, precoContrato: 350000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 124, rosto: 'img/Pilotos/default.png', nome: "Sami Meguetounif", idade: 16, habilidade: 84, consistencia: 85, gerenciamentoPneus: 86, salario: 14000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 125, rosto: 'img/Pilotos/rafaelcamara.png', nome: "Rafael Camara", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 19000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 126, rosto: 'img/Pilotos/default.png', nome: "Charlie Chaplin", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 18000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
-        { id: 127, rosto: 'img/Pilotos/default.png', nome: "P. Beralta", idade: 17, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 17000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 124, rosto: 'img/Pilotos/default.png', nome: "Sami Meguetounif", idade: 18, habilidade: 84, consistencia: 85, gerenciamentoPneus: 86, salario: 14000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 125, rosto: 'img/Pilotos/rafaelcamara.png', nome: "Rafael Camara", idade: 18, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 19000, precoContrato: 310000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 126, rosto: 'img/Pilotos/default.png', nome: "Charlie Chaplin", idade: 18, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 18000, precoContrato: 319000, status: 'Disponível', campeonatosGanhos: [] },
+        { id: 127, rosto: 'img/Pilotos/default.png', nome: "P. Beralta", idade: 18, habilidade: 85, consistencia: 85, gerenciamentoPneus: 88, salario: 17000, precoContrato: 318000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 2, rosto: 'img/Pilotos/tsunoda.png', nome: "Yuki Tsunoda", idade: 24, habilidade: 89, consistencia: 85, gerenciamentoPneus: 88, atributosBase: { habilidade: 89, consistencia: 85, gerenciamentoPneus: 88 }, salario: 18000, precoContrato: 950000, status: 'Disponível', campeonatosGanhos: [] },
         { id: 128, rosto: 'img/Pilotos/sergio.png', nome: "Sérgio Perez", idade: 35, habilidade: 90, consistencia: 91, gerenciamentoPneus: 89, atributosBase: { habilidade: 90, consistencia: 91, gerenciamentoPneus: 89 }, status: 'Cadillac Racing', campeonatosGanhos: [] },
         { id: 129, rosto: 'img/Pilotos/valtteri.png', nome: "Valtteri Bottas", idade: 35, habilidade: 88, consistencia: 86, gerenciamentoPneus: 84, atributosBase: { habilidade: 88, consistencia: 86, gerenciamentoPneus: 84 }, status: 'Cadillac Racing', campeonatosGanhos: [] },
@@ -792,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function gerarPilotoSubstituto() {
-        const nomes = ["T. Maraia", "J. Santos", "M. Oliveira", "L. Pereira", "G. Almeida", "R. Costa", "N. Bitencourt", "R. Ruffo"];
+        const nomes = ["T. Maraia", "J. Santos", "M. Oliveira", "L. Pereira", "G. Almeida", "R. Costa", "N. Bitencourt", "R. Ruffo", "Luck Black", "Chaplin JR.", "Y. Caramelo", "C. Catarina"];
         const novoPiloto = {
             id: Date.now(),
             rosto: 'img/Pilotos/default.png',
