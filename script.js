@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // VERSÃO DO JOGO — altere aqui para atualizar na tela
     // ============================================================
-    const VERSAO_JOGO = "21.0.42";
+    const VERSAO_JOGO = "21.0.43";
 
     // Versão do SCHEMA de dados (independente da versão do jogo).
     // Incremente sempre que adicionar campos novos ao gameState ou às equipesIA.
@@ -856,6 +856,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (!gameState.historicoAutodromos) gameState.historicoAutodromos = {};
                 if (!gameState.torcedores) gameState.torcedores = 4000;
+
+                // ── MIGRAÇÃO CORRETIVA: conserta pilotos com status inválido ──────────
+                // O bug do propagarNomeEquipe antigo atribuía o nome da equipe do jogador
+                // como status de pilotos Disponível/Indisponível. Esta migração detecta
+                // e reverte isso automaticamente em saves corrompidos.
+                {
+                    const nomesIASet = new Set(equipesIA.map(ia => ia.nome));
+                    const STATUS_VALIDOS = new Set(['Jogador', 'Reserva', 'Disponível', 'Indisponível', 'Junior']);
+                    let corrigidos = 0;
+                    gameState.pilotos.forEach(piloto => {
+                        // Status inválido: não é reservado, não é equipe IA — é nome antigo da escuderia
+                        if (!STATUS_VALIDOS.has(piloto.status) && !nomesIASet.has(piloto.status)) {
+                            // Verifica se o piloto deveria ser Jogador/Reserva (tem carro vinculado)
+                            const temCarro = (gameState.carros || []).some(c => c.pilotoId === piloto.id);
+                            piloto.status = temCarro ? 'Reserva' : 'Disponível';
+                            corrigidos++;
+                        }
+                    });
+                    if (corrigidos > 0) {
+                        console.log(`[Migração] ${corrigidos} pilotos com status corrompido foram corrigidos.`);
+                    }
+                }
+                // ── FIM MIGRAÇÃO CORRETIVA ────────────────────────────────────────────
                 if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
                 if (!gameState.historicoAnualMarketing) gameState.historicoAnualMarketing = [];
                 if (!gameState.historicoVendasPorCorrida) gameState.historicoVendasPorCorrida = [];
@@ -1379,72 +1402,62 @@ document.addEventListener('DOMContentLoaded', () => {
      * tabelas de campeonato, resultados de corrida, galeria e pilotos.
      */
     function propagarNomeEquipe(nomeAntigo, novoNome) {
-        // Critério: qualquer nome que não seja de equipe IA e não seja já o novo nome
-        // é considerado nome antigo do jogador — cobre múltiplas trocas de nome.
         const nomesIA = new Set(equipesIA.map(ia => ia.nome));
-        const isJogador = (nome) => nome && !nomesIA.has(nome) && nome !== novoNome;
+        // Para campos "equipe": não é IA e não é já o novo nome
+        const isEquipeJogador = (nome) => nome && !nomesIA.has(nome) && nome !== novoNome;
+        // Para piloto.status: exclui também os valores reservados do sistema
+        const STATUS_SISTEMA = new Set(['Disponível', 'Indisponível', 'Jogador', 'Reserva', 'Junior']);
+        const isStatusJogador = (s) => s && !nomesIA.has(s) && !STATUS_SISTEMA.has(s) && s !== novoNome;
 
-        // 1. Classificação de construtores da temporada atual
+        // 1. Classificação de construtores
         gameState.campeonato.classificacaoConstrutores.forEach(e => {
-            if (isJogador(e.equipe)) e.equipe = novoNome;
+            if (isEquipeJogador(e.equipe)) e.equipe = novoNome;
         });
-
         // 2. Classificação de pilotos
         gameState.campeonato.classificacaoPilotos.forEach(p => {
-            if (isJogador(p.equipe)) p.equipe = novoNome;
+            if (isEquipeJogador(p.equipe)) p.equipe = novoNome;
         });
-
-        // 3. Resultados de corridas já disputadas
+        // 3. Resultados de corridas
         gameState.campeonato.resultadosCorridas.forEach(corrida => {
             corrida.resultadoFinal.forEach(res => {
-                if (isJogador(res.equipe)) res.equipe = novoNome;
+                if (isEquipeJogador(res.equipe)) res.equipe = novoNome;
             });
         });
-
-        // 4. Status dos pilotos do jogador
+        // 4. Status dos pilotos — usa isStatusJogador para não afetar Disponível/Indisponível
         gameState.pilotos.forEach(piloto => {
-            if (isJogador(piloto.status)) piloto.status = novoNome;
+            if (isStatusJogador(piloto.status)) piloto.status = novoNome;
         });
-
         // 5. Estatísticas da galeria
         const atualizarStatsEquipe = (statsObj) => {
             if (!statsObj) return;
             Object.values(statsObj).forEach(s => {
-                if (isJogador(s.equipe)) s.equipe = novoNome;
+                if (isEquipeJogador(s.equipe)) s.equipe = novoNome;
             });
         };
         atualizarStatsEquipe(gameState.galeria.estatisticasPilotos);
         atualizarStatsEquipe(gameState.galeria.estatisticasTodosPilotos);
-
         // 6. Hall da Fama
         gameState.galeria.hallDaFama.forEach(entrada => {
-            if (isJogador(entrada.statsCarreira?.equipe)) entrada.statsCarreira.equipe = novoNome;
-            if (isJogador(entrada.piloto?.status))        entrada.piloto.status        = novoNome;
+            if (isEquipeJogador(entrada.statsCarreira?.equipe)) entrada.statsCarreira.equipe = novoNome;
+            if (isStatusJogador(entrada.piloto?.status))        entrada.piloto.status        = novoNome;
         });
-
-        // 7. Histórico de temporadas (Histórico de Campeonatos + Livro de Recordes)
+        // 7. Histórico de temporadas
         if (gameState.historicoTemporadas) {
             gameState.historicoTemporadas.forEach(t => {
-                if (isJogador(t.campeaoConstrutores?.nome)) t.campeaoConstrutores.nome = novoNome;
-                if (isJogador(t.campeaoPilotos?.equipe))    t.campeaoPilotos.equipe    = novoNome;
+                if (isEquipeJogador(t.campeaoConstrutores?.nome)) t.campeaoConstrutores.nome = novoNome;
+                if (isEquipeJogador(t.campeaoPilotos?.equipe))    t.campeaoPilotos.equipe    = novoNome;
             });
         }
-
         // 8. Títulos da galeria
         (gameState.galeria.titulosConstrutores || []).forEach(t => {
-            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
+            if (typeof t === 'object' && isEquipeJogador(t.equipe)) t.equipe = novoNome;
         });
         (gameState.galeria.titulosPilotos || []).forEach(t => {
-            if (typeof t === 'object' && isJogador(t.equipe)) t.equipe = novoNome;
+            if (typeof t === 'object' && isEquipeJogador(t.equipe)) t.equipe = novoNome;
         });
-
-        // 9. Sequência de vitórias consecutivas (Livro de Recordes)
-        if (isJogador(gameState.sequenciaVitoriasAtual?.equipe)) {
-            gameState.sequenciaVitoriasAtual.equipe = novoNome;
-        }
-        if (isJogador(gameState.melhorSequenciaVitorias?.equipe)) {
-            gameState.melhorSequenciaVitorias.equipe = novoNome;
-        }
+        // 9. Sequências de vitórias
+        if (isEquipeJogador(gameState.sequenciaVitoriasAtual?.equipe))  gameState.sequenciaVitoriasAtual.equipe  = novoNome;
+        if (isEquipeJogador(gameState.melhorSequenciaVitorias?.equipe)) gameState.melhorSequenciaVitorias.equipe = novoNome;
     }
 
     function mudarNomeEquipe() {
