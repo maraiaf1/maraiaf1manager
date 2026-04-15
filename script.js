@@ -362,27 +362,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const calendarioCorridas = [
         { nome: "GP da Austrália (Melbourne)", imagem: "Autodromos/Australia.png", voltas: 58, tempoBaseVolta: 79, pitstopTime: 20, demandaMotor: 0.6, demandaAero: 0.7, demandaAderencia: 0.7 },
         { nome: "GP da China (Xangai)", imagem: "Autodromos/China.png", voltas: 56, tempoBaseVolta: 92, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.7, demandaAderencia: 0.95 },
-        { nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.78 },
-        { nome: "GP do Bahrein (Sakhir)", imagem: "Autodromos/Bahrain.png", voltas: 57, tempoBaseVolta: 91, pitstopTime: 22, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.75 },
-        { nome: "GP da Arábia Saudita (Jeddah)", imagem: "Autodromos/Arabia.png", voltas: 50, tempoBaseVolta: 90, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.8 },
-        { nome: "Gp de Miami (EUA)", imagem: "Autodromos/Miami.png", voltas: 57, tempoBaseVolta: 89, pitstopTime: 21, demandaMotor: 0.6, demandaAero: 0.8, demandaAderencia: 0.7 },
-        { nome: "GP de Emília-Romanha (Ímola)", imagem: "Autodromos/Imola.png", voltas: 63, tempoBaseVolta: 75, pitstopTime: 20, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.95 },
-        { nome: "GP de Mônaco", imagem: "Autodromos/Monaco.png", voltas: 78, tempoBaseVolta: 75, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.92 },
-        { nome: "GP da Espanha (Barcelona)", imagem: "Autodromos/Spain.png", voltas: 66, tempoBaseVolta: 76, pitstopTime: 23, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.90 },
-        { nome: "GP do Canadá (Montreal)", imagem: "Autodromos/Canada.png", voltas: 70, tempoBaseVolta: 73, pitstopTime: 24, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.96 },
-        { nome: "Gp da Áustria (Red Bull Ring)", imagem: "Autodromos/Austria.png", voltas: 71, tempoBaseVolta: 65, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.8, demandaAderencia: 0.85 },
-        { nome: "GP da Inglaterra (Silverstone)", imagem: "Autodromos/Inglaterra.png", voltas: 52, tempoBaseVolta: 87, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.7 },
-        { nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.92 },
-        { nome: "GP da Hungria (Hungaroring)", imagem: "Autodromos/Hungria.png", voltas: 70, tempoBaseVolta: 76, pitstopTime: 20, demandaMotor: 0.8, demandaAero: 0.8, demandaAderencia: 0.8 },
-        { nome: "Gp da Holanda (Zandvoort)", imagem: "Autodromos/Holanda.png", voltas: 72, tempoBaseVolta: 71, pitstopTime: 29, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.9 },
-        { nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
-        { nome: "GP do Azerbaijão (Baku)", imagem: "Autodromos/Azerbaijan.png", voltas: 51, tempoBaseVolta: 103, pitstopTime: 24, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.95 },
-        { nome: "GP de Singapura (Marina Bay)", imagem: "Autodromos/Singapura.png", voltas: 61, tempoBaseVolta: 94, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.7, demandaAderencia: 0.85 },
-        { nome: "Gp dos EUA (Austin)", imagem: "Autodromos/EUA.png", voltas: 56, tempoBaseVolta: 96, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.83 },
-        { nome: "GP do México (CDMX)", imagem: "Autodromos/Mexico.png", voltas: 71, tempoBaseVolta: 81, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.85 },
-        { nome: "Gp do Brasil (Interlagos)", imagem: "Autodromos/Brasil.png", voltas: 71, tempoBaseVolta: 70, pitstopTime: 22, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.95 },
-        { nome: "GP de Las Vegas", imagem: "Autodromos/LasVegas.png", voltas: 50, tempoBaseVolta: 95, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.9, demandaAderencia: 0.83 },
-        { nome: "GP do Catar (Lusail)", imagem: "Autodromos/Qatar.png", voltas: 57, tempoBaseVolta: 84, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.79 },
+        //{ nome: "GP do Japão (Suzuka)", imagem: "Autodromos/Japan.png", voltas: 53, tempoBaseVolta: 90, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.78 },
+        //{ nome: "GP do Bahrein (Sakhir)", imagem: "Autodromos/Bahrain.png", voltas: 57, tempoBaseVolta: 91, pitstopTime: 22, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.75 },
+        //{ nome: "GP da Arábia Saudita (Jeddah)", imagem: "Autodromos/Arabia.png", voltas: 50, tempoBaseVolta: 90, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.8 },
+        //{ nome: "Gp de Miami (EUA)", imagem: "Autodromos/Miami.png", voltas: 57, tempoBaseVolta: 89, pitstopTime: 21, demandaMotor: 0.6, demandaAero: 0.8, demandaAderencia: 0.7 },
+        //{ nome: "GP de Emília-Romanha (Ímola)", imagem: "Autodromos/Imola.png", voltas: 63, tempoBaseVolta: 75, pitstopTime: 20, demandaMotor: 0.9, demandaAero: 0.6, demandaAderencia: 0.95 },
+        //{ nome: "GP de Mônaco", imagem: "Autodromos/Monaco.png", voltas: 78, tempoBaseVolta: 75, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.92 },
+        //{ nome: "GP da Espanha (Barcelona)", imagem: "Autodromos/Spain.png", voltas: 66, tempoBaseVolta: 76, pitstopTime: 23, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.90 },
+        //{ nome: "GP do Canadá (Montreal)", imagem: "Autodromos/Canada.png", voltas: 70, tempoBaseVolta: 73, pitstopTime: 24, demandaMotor: 0.7, demandaAero: 0.5, demandaAderencia: 0.96 },
+        //{ nome: "Gp da Áustria (Red Bull Ring)", imagem: "Autodromos/Austria.png", voltas: 71, tempoBaseVolta: 65, pitstopTime: 28, demandaMotor: 0.7, demandaAero: 0.8, demandaAderencia: 0.85 },
+        //{ nome: "GP da Inglaterra (Silverstone)", imagem: "Autodromos/Inglaterra.png", voltas: 52, tempoBaseVolta: 87, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.7 },
+        //{ nome: "GP da Bélgica (Spa)", imagem: "Autodromos/Belgica.png", voltas: 44, tempoBaseVolta: 106, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.92 },
+        //{ nome: "GP da Hungria (Hungaroring)", imagem: "Autodromos/Hungria.png", voltas: 70, tempoBaseVolta: 76, pitstopTime: 20, demandaMotor: 0.8, demandaAero: 0.8, demandaAderencia: 0.8 },
+        //{ nome: "Gp da Holanda (Zandvoort)", imagem: "Autodromos/Holanda.png", voltas: 72, tempoBaseVolta: 71, pitstopTime: 29, demandaMotor: 0.8, demandaAero: 0.5, demandaAderencia: 0.9 },
+        //{ nome: "GP de Monza (Itália)", imagem: "Autodromos/Italia.png", voltas: 53, tempoBaseVolta: 85, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.9, demandaAderencia: 0.5 },
+        //{ nome: "GP do Azerbaijão (Baku)", imagem: "Autodromos/Azerbaijan.png", voltas: 51, tempoBaseVolta: 103, pitstopTime: 24, demandaMotor: 0.9, demandaAero: 0.5, demandaAderencia: 0.95 },
+        //{ nome: "GP de Singapura (Marina Bay)", imagem: "Autodromos/Singapura.png", voltas: 61, tempoBaseVolta: 94, pitstopTime: 22, demandaMotor: 0.7, demandaAero: 0.7, demandaAderencia: 0.85 },
+        //{ nome: "Gp dos EUA (Austin)", imagem: "Autodromos/EUA.png", voltas: 56, tempoBaseVolta: 96, pitstopTime: 21, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.83 },
+        //{ nome: "GP do México (CDMX)", imagem: "Autodromos/Mexico.png", voltas: 71, tempoBaseVolta: 81, pitstopTime: 25, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.85 },
+        //{ nome: "Gp do Brasil (Interlagos)", imagem: "Autodromos/Brasil.png", voltas: 71, tempoBaseVolta: 70, pitstopTime: 22, demandaMotor: 0.8, demandaAero: 0.9, demandaAderencia: 0.95 },
+        //{ nome: "GP de Las Vegas", imagem: "Autodromos/LasVegas.png", voltas: 50, tempoBaseVolta: 95, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.9, demandaAderencia: 0.83 },
+        //{ nome: "GP do Catar (Lusail)", imagem: "Autodromos/Qatar.png", voltas: 57, tempoBaseVolta: 84, pitstopTime: 26, demandaMotor: 0.9, demandaAero: 0.8, demandaAderencia: 0.79 },
         { nome: "GP de Abu Dhabi (Yas Marina)", imagem: "Autodromos/Abudabi.png", voltas: 55, tempoBaseVolta: 86, pitstopTime: 21, demandaMotor: 0.9, demandaAero: 0.9, demandaAderencia: 0.99 },
     ];
     const coordenadasPistas = {
@@ -483,13 +483,13 @@ document.addEventListener('DOMContentLoaded', () => {
         { nome: "Red Bull",        ftequipe: 'img/equipes/redbull.png',     cor: "rgb(30,65,255)",   piloto1Id: 1,   piloto2Id: 17,  carro: { potencia: 91, aerodinamica: 89, aderencia: 90, confiabilidade: 82 } }, // equilibrado/potência
         { nome: "Mercedes",        ftequipe: 'img/equipes/mercedes.png',     cor: "rgb(0,210,190)",   piloto1Id: 5,   piloto2Id: 6,   carro: { potencia: 95, aerodinamica: 93, aderencia: 92, confiabilidade: 89 } }, // aerodinâmica dominante
         { nome: "Ferrari",         ftequipe: 'img/equipes/ferrari.png',      cor: "rgb(220,0,0)",     piloto1Id: 3,   piloto2Id: 4,   carro: { potencia: 94, aerodinamica: 92, aderencia: 91, confiabilidade: 88 } }, // potência alta, conf. frágil
-        { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 88, aerodinamica: 87, aderencia: 87, confiabilidade: 85 } }, // aderência e confiabilidade sólidas
-        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 82, aerodinamica: 81, aderencia: 80, confiabilidade: 76 } }, // aderência forte
+        { nome: "Audi",            ftequipe: 'img/equipes/audi.png',         cor: "rgb(80,80,80)",    piloto1Id: 9,   piloto2Id: 10,  carro: { potencia: 89, aerodinamica: 87, aderencia: 89, confiabilidade: 85 } }, // aderência e confiabilidade sólidas
+        { nome: "Aston Martin",    ftequipe: 'img/equipes/astonmartin.png',  cor: "rgb(0,111,98)",    piloto1Id: 11,  piloto2Id: 12,  carro: { potencia: 85, aerodinamica: 81, aderencia: 83, confiabilidade: 76 } }, // aderência forte
         { nome: "MacLaren",        ftequipe: 'img/equipes/maclaren.png',     cor: "rgb(255,135,0)",   piloto1Id: 19,  piloto2Id: 20,  carro: { potencia: 92, aerodinamica: 95, aderencia: 92, confiabilidade: 88 } }, // o mais rápido, conf. média
-        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 86, aerodinamica: 88, aderencia: 88, confiabilidade: 81 } }, // midfield equilibrado
-        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 85, aerodinamica: 83, aderencia: 84, confiabilidade: 85 } }, // campo de trás
-        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 87, aerodinamica: 85, aderencia: 86, confiabilidade: 86 } }, // aero ligeiramente melhor
-        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 86, aerodinamica: 87, aderencia: 85, confiabilidade: 85 } }, // melhor que Haas/RB
+        { nome: "Alpine",          ftequipe: 'img/equipes/alpine.png',       cor: "rgb(255,192,203)", piloto1Id: 13,  piloto2Id: 14,  carro: { potencia: 89, aerodinamica: 88, aderencia: 88, confiabilidade: 81 } }, // midfield equilibrado
+        { nome: "Haas",            ftequipe: 'img/equipes/haas.png',         cor: "rgb(128,95,95)",   piloto1Id: 15,  piloto2Id: 16,  carro: { potencia: 88, aerodinamica: 83, aderencia: 87, confiabilidade: 85 } }, // campo de trás
+        { nome: "RB",              ftequipe: 'img/equipes/racingbulls.png',  cor: "rgb(240,240,240)", piloto1Id: 18,  piloto2Id: 21,  carro: { potencia: 87, aerodinamica: 87, aderencia: 89, confiabilidade: 86 } }, // aero ligeiramente melhor
+        { nome: "Wilians",         ftequipe: 'img/equipes/willians.png',     cor: "rgb(90,165,255)",  piloto1Id: 7,   piloto2Id: 8,   carro: { potencia: 86, aerodinamica: 89, aderencia: 87, confiabilidade: 85 } }, // melhor que Haas/RB
         { nome: "Cadillac Racing", ftequipe: 'img/equipes/cadillac.png',     cor: "rgb(199,199,199)", piloto1Id: 128, piloto2Id: 129, carro: { potencia: 78, aerodinamica: 80, aderencia: 80, confiabilidade: 75 } }, // estreante sólida
     ];
 
@@ -710,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         atualizarMercadoDePilotos(pilotosDoJogo);
 
         gameState = {
-            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 10000000, especialistas: [], emblema: {
+            escuderia: { nome: "Equipe Novata", cor: "rgb(255,255,0)", dinheiro: 910000000, especialistas: [], emblema: {
                 forma: 'circle.svg',
                 corForma: '#ff0000',
                 icone: 'asterik.svg',
@@ -1249,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         (typeof t === 'object' ? t.ano : t) === _anoAtual
                     );
                     if (!_jaTitulo) {
-                        gameState.galeria.titulosPilotos.push({ ano: _anoAtual, piloto: piloto.nome });
+                        gameState.galeria.titulosPilotos.push({ ano: _anoAtual, piloto: piloto.nome, equipe: gameState.escuderia.nome });
                         piloto.campeonatosGanhos.push(_anoAtual);
                     }
                 }
@@ -1332,7 +1332,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`${pilotoAposentado.nome} (equipe: ${pilotoAposentado.status}) se aposentou aos ${pilotoAposentado.idade} anos!`);
             const equipeDoPiloto = pilotoAposentado.status;
 
-            if (equipeDoPiloto === 'Jogador') {
+            if (equipeDoPiloto === 'Jogador' || equipeDoPiloto === 'Reserva') {
                 const _statsSnap2 = gameState.galeria.estatisticasPilotos[pilotoAposentado.nome]
                                  || gameState.galeria.estatisticasTodosPilotos?.[pilotoAposentado.nome]
                                  || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
@@ -3967,13 +3967,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         (typeof t === 'object' ? t.ano : t) === ano
                     );
                     if (!jaRegistrado) {
-                        gameState.galeria.titulosPilotos.push({ ano, piloto: entradaHall.piloto.nome });
+                        gameState.galeria.titulosPilotos.push({ ano, piloto: entradaHall.piloto.nome, equipe: gameState.escuderia.nome });
                         if (!entradaHall.piloto.campeonatosGanhos.includes(ano)) {
                             entradaHall.piloto.campeonatosGanhos.push(ano);
                         }
-                        // Recalcula o contador de títulos no statsCarreira para refletir o novo título
-                        entradaHall.statsCarreira.titulos = entradaHall.piloto.campeonatosGanhos.length;
                     }
+                    // Sempre recalcula — garante que aposentadoria no mesmo ano do título fica correta
+                    entradaHall.statsCarreira.titulos = entradaHall.piloto.campeonatosGanhos.length;
                 }
             }
         }
@@ -6449,7 +6449,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const isSeasonOver = gameState.campeonato.corridaAtualIndex >= calendarioCorridas.length;
         if (isSeasonOver) {
-            corridaDiv.innerHTML = `<div class="corrida-start-container" style="text-align:center;"><h2>Temporada de ${gameState.campeonato.ano} Concluída!</h2><p>Visite a Aba Campeonato para ver a classificação final.</p><button id="btn-iniciar-nova-temporada" class="btn-corrida btn-real">Iniciar Temporada de ${gameState.campeonato.ano + 1}</button></div>`;
+            corridaDiv.innerHTML = `<div class="corrida-start-container" style="text-align:center;"><h2>Temporada de ${gameState.campeonato.ano} Concluída!</h2><p>Veja a classificação final e colete o seu prêmio antes de iniciar a próxima temporada.</p><button id="btn-abrir-modal-fim-temporada" class="btn-corrida btn-real">📋 Ver Resultado Final</button></div>`;
             return;
         }
 
@@ -9952,6 +9952,9 @@ document.addEventListener('DOMContentLoaded', () => {
             processarFimDeTemporada();
             saveGame();
             updateUI();
+        }
+        else if (target.matches('#btn-abrir-modal-fim-temporada')) {
+            exibirModalFimDeTemporada();
         }
         else if (target.matches('#btn-toggle-pirelli')) {
             const stratContainer = document.getElementById('strategy-container');
