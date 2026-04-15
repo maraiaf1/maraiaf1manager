@@ -838,15 +838,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert("Seu jogo salvo era de uma versão antiga ou incompatível. Um novo jogo foi iniciado.");
                     return;
                 }
-
-                // ── Corrige corridaAtualIndex se o calendário foi alterado ──────────
-                // Garante que um save com índice maior que o calendário atual não
-                // fique preso na tela de fim de temporada sem ter corrido.
-                if (gameState.campeonato.corridaAtualIndex > calendarioCorridas.length) {
-                    console.log(`[Correção] corridaAtualIndex (${gameState.campeonato.corridaAtualIndex}) maior que o calendário atual (${calendarioCorridas.length}). Resetando índice.`);
-                    gameState.campeonato.corridaAtualIndex = 0;
-                }
-                // ────────────────────────────────────────────────────────────────────
                 if (gameState.escuderia.emblema.primeiroNomeSalvo === undefined) {
                 gameState.escuderia.emblema.primeiroNomeSalvo = true;
                 }
@@ -9915,6 +9906,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (target.matches('#btn-fechar-season-modal')) {
             document.getElementById('season-end-modal').classList.add('hidden');
+            processarFimDeTemporada();
+            saveGame();
             // Navega para aba campeonato para o jogador aproveitar a pré-temporada
             document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
             const campTabBtn = document.querySelector('.tab-btn[data-tab="campeonato"]');
