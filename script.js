@@ -7140,8 +7140,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function recrutarJunior() {
         if (!gameState.academia.desbloqueada) return;
-        if (gameState.academia.pupilos.length >= 3) {
-            alert('A academia já está com 3 pupilos. Dispense um antes de recrutar.');
+        const slotsMax = 3 + (gameState.academia.slotsExtras || 0);
+        if (gameState.academia.pupilos.length >= slotsMax) {
+            alert(`A academia já está com ${slotsMax} pupilos (capacidade máxima). Dispense um antes de recrutar.`);
             return;
         }
         const custoRecrutamento = 1500000 + Math.floor(Math.random() * 1000000);
@@ -7557,7 +7558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div>${btnSlotExtra}</div>
             </div>
-            <div class="academia-grid" style="grid-template-columns:repeat(${Math.min(slotsMax,3)},1fr)">${cardsHtml}</div>
+            <div class="academia-grid" style="grid-template-columns:repeat(${slotsMax <= 3 ? slotsMax : 3},1fr)">${cardsHtml}</div>
             <div class="academia-dica">
                 <p>💡 Regras: <strong>18 anos + 75+ atributos</strong> para promoção | Aos 21 anos deve sair | Potencializar custa R$ 10M/temporada (+50% evolução) | Teto de atributos: 88</p>
             </div>`;
@@ -9906,8 +9907,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (target.matches('#btn-fechar-season-modal')) {
             document.getElementById('season-end-modal').classList.add('hidden');
-            processarFimDeTemporada();
-            saveGame();
             // Navega para aba campeonato para o jogador aproveitar a pré-temporada
             document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
             const campTabBtn = document.querySelector('.tab-btn[data-tab="campeonato"]');
