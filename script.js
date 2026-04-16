@@ -9907,6 +9907,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (target.matches('#btn-fechar-season-modal')) {
             document.getElementById('season-end-modal').classList.add('hidden');
+            processarFimDeTemporada();
+            saveGame();
             // Navega para aba campeonato para o jogador aproveitar a pré-temporada
             document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
             const campTabBtn = document.querySelector('.tab-btn[data-tab="campeonato"]');
