@@ -3356,10 +3356,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 estrategiaSugeridaSemPit,
             };
 
-            // Inicializa decisão e estratégia do editor para opção 1 (manter + planejar)
-            // Estratégia começa vazia — o jogador monta do zero
-            carro._scDecisao = 'manter-planejar';
-            carro.estrategia = { pneuInicial: participante.pneuAtual, paradas: [] };
+            // ── Carrega a última estratégia válida (remove paradas já passadas) ────────
+            // Configurável: antecipa a parada se ela estiver a ≤ N voltas
+            const ANTECIPAR_SC_VOLTAS = 4;
+            const voltaCorrenteSC = raceData.voltaAtual;
+
+            // Filtra apenas as paradas futuras da estratégia vigente do participante
+            const paradasFuturasSC = (participante.estrategia?.paradas || [])
+                .filter(p => p.pararNaVolta >= voltaCorrenteSC);
+
+            const proximaParadaSC = paradasFuturasSC[0] || null;
+            const devAntecipar = proximaParadaSC !== null &&
+                (proximaParadaSC.pararNaVolta - voltaCorrenteSC) <= ANTECIPAR_SC_VOLTAS;
+
+            carro._scDeveAntecipar = devAntecipar;
+            carro._scAnteciparVolta = devAntecipar ? proximaParadaSC.pararNaVolta : null;
+
+            if (devAntecipar) {
+                // Modo antecipação: pré-seleciona trocar agora com o pneu da parada anteciapada
+                // As paradas restantes ficam a partir da segunda parada futura
+                carro._scDecisao = 'trocar-planejar';
+                carro.estrategia = {
+                    pneuInicial: proximaParadaSC.colocarPneu,
+                    paradas: paradasFuturasSC.slice(1)
+                };
+            } else {
+                // Normal: mantém pneu atual e pré-carrega as paradas futuras da estratégia vigente
+                carro._scDecisao = 'manter-planejar';
+                carro.estrategia = {
+                    pneuInicial: participante.pneuAtual,
+                    paradas: paradasFuturasSC
+                };
+            }
         });
 
         // Reordena e atualiza a tabela com as novas posições
@@ -3510,11 +3538,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="sc-op-label">${op.label}</span>
                 </button>`).join('');
 
+            const badgeAntecipar = carro._scDeveAntecipar
+                ? `<div class="sc-badge-antecipar">⚡ Parada planejada na v${carro._scAnteciparVolta} — antecipando!</div>`
+                : '';
+
             return `<div class="sc-coluna">
                 <div class="sc-col-header">
                     <strong>${pilotoNome}</strong>
                     <span class="sc-col-compostos">${[...compositosUsados].map(c=>pneuNome[c]).join(' + ')}</span>
                 </div>
+                ${badgeAntecipar}
                 <div class="sc-opcoes-grid">${botoesHtml}</div>
                 <div class="sc-col-conteudo">${conteudo}</div>
             </div>`;
@@ -3652,6 +3685,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             carro._scDecisaoAplicada = decisao; // salva antes de deletar
             delete carro._scDecisao;
+            delete carro._scDeveAntecipar;
+            delete carro._scAnteciparVolta;
         });
 
         // Guarda resumo das decisões do SC para exibir no painel de estratégia
