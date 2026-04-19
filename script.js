@@ -785,7 +785,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 desbloqueada: false,
                 pupilos: [],          // até 3 + slotsExtras
                 slotsExtras: 0,       // 0, 1 ou 2 slots adicionais comprados
-                pupilosPotencializados: [] // ids dos pupilos potencializados nesta temporada
+                pupilosPotencializados: [], // ids dos pupilos potencializados nesta temporada
+                nomesHistorico: []    // todos os nomes já gerados (nunca repete)
             }
         };
     }
@@ -947,6 +948,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!gameState.academia) gameState.academia = { desbloqueada: false, pupilos: [], slotsExtras: 0, pupilosPotencializados: [] };
                 if (!gameState.academia.slotsExtras) gameState.academia.slotsExtras = 0;
                 if (!gameState.academia.pupilosPotencializados) gameState.academia.pupilosPotencializados = [];
+                if (!gameState.academia.nomesHistorico) {
+                    // Migração: popula o histórico com os nomes dos pupilos atuais
+                    // para não repetir os que já estão na academia
+                    gameState.academia.nomesHistorico = (gameState.academia.pupilos || []).map(p => p.nome);
+                }
 
                 // ── MIGRAÇÃO v2: teto de produção + sistema de fornecedor ──────────────
                 const versaoSalva = gameState.versaoDados ?? 0;
@@ -7166,11 +7172,33 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function gerarNomeJunior() {
-        const usados = (gameState.academia?.pupilos || []).map(p => p.nome);
-        const disponiveis = NOMES_ACADEMIA.filter(n => !usados.includes(n));
-        return disponiveis.length > 0
-            ? disponiveis[Math.floor(Math.random() * disponiveis.length)]
-            : `Rookie ${Math.floor(Math.random() * 99) + 1}`;
+        // Constrói o conjunto completo de nomes já "ocupados":
+        // 1. Histórico permanente da academia (nomes gerados em todos os recrutamentos)
+        // 2. Pilotos ativos no plantel do jogador (por segurança extra)
+        const historico  = new Set(gameState.academia?.nomesHistorico || []);
+        const noElenco   = new Set((gameState.pilotos || []).map(p => p.nome));
+        const bloqueados = new Set([...historico, ...noElenco]);
+
+        const disponiveis = NOMES_ACADEMIA.filter(n => !bloqueados.has(n));
+
+        let nomeEscolhido;
+        if (disponiveis.length > 0) {
+            nomeEscolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+        } else {
+            // Pool esgotado: gera sufixo numérico único
+            let sufixo = Math.floor(Math.random() * 900) + 100;
+            nomeEscolhido = `Rookie #${sufixo}`;
+            while (bloqueados.has(nomeEscolhido)) {
+                sufixo++;
+                nomeEscolhido = `Rookie #${sufixo}`;
+            }
+        }
+
+        // Registra permanentemente para não reutilizar no futuro
+        if (!gameState.academia.nomesHistorico) gameState.academia.nomesHistorico = [];
+        gameState.academia.nomesHistorico.push(nomeEscolhido);
+
+        return nomeEscolhido;
     }
 
     function recrutarJunior() {
