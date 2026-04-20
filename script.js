@@ -1956,7 +1956,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const duracaoFinal = Math.max(1, duracao - reducaoTempo);
 
-        gameState.projetosEmAndamento.push({ id: Date.now(), tipoPeca, nomeEspecialista: especialista.nome, nivelEspecialista: especialista.nivel, duracaoOriginal: duracao, duracaoRestante: duracaoFinal, status: 'em_andamento' });
+        gameState.projetosEmAndamento.push({ id: Date.now() * 1000 + Math.floor(Math.random() * 1000), tipoPeca, nomeEspecialista: especialista.nome, nivelEspecialista: especialista.nivel, duracaoOriginal: duracao, duracaoRestante: duracaoFinal, status: 'em_andamento' });
 
         // Incrementa o contador de produção da temporada
         if (gameState.tetoAtivo) {
@@ -9958,10 +9958,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (target.matches('.btn-ficar-com-peca')) {
             const projetoId = parseFloat(target.dataset.projectId);
-            const projeto = gameState.projetosEmAndamento.find(p => p.id === projetoId);
+            // Garante que só buscamos projetos concluídos — evita colisão de ID com projetos em andamento
+            const projeto = gameState.projetosEmAndamento.find(p => p.id === projetoId && p.status === 'concluido');
             if (!projeto) return;
+
+            // Fallback: reconstrói pecaConcluida se perdida (ex.: save antigo ou ID duplicado resolvido)
+            if (!projeto.pecaConcluida) {
+                projeto.pecaConcluida = criarPecaDeProjeto(projeto);
+            }
             const pecaFinal = projeto.pecaConcluida;
-            if (!pecaFinal) { alert("Erro ao obter a peça final."); return; }
+            if (!pecaFinal) { alert("Erro ao obter a peça final. O catálogo pode não ter peças deste tipo."); return; }
             const custoProducao = Math.floor(calcularPrecoPeca(pecaFinal) * 0.15);
             if (confirm(`A produção final desta peça custará R$ ${custoProducao.toLocaleString('pt-BR')}. Deseja continuar?`)) {
                 if (gameState.escuderia.dinheiro >= custoProducao) {
@@ -9975,7 +9981,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (target.matches('.btn-vender-peca[data-project-id]')) {
             const projetoId = parseFloat(target.dataset.projectId);
-            const projeto = gameState.projetosEmAndamento.find(p => p.id === projetoId);
+            const projeto = gameState.projetosEmAndamento.find(p => p.id === projetoId && p.status === 'concluido');
             if (projeto) {
                 const pecaVirtual = projeto.pecaConcluida;
                 const valorVenda = pecaVirtual ? Math.floor(calcularPrecoPeca(pecaVirtual) * 0.7) : 0;
