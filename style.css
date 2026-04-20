@@ -5720,3 +5720,178 @@ font-size: 0.8em;
     margin: 0;
     text-align: center;
 }
+/* ═══════════════════════════════════════════════════════════════
+   CIRCUITO SPOTLIGHT
+   ═══════════════════════════════════════════════════════════════ */
+
+.circuito-spotlight-card {
+    border-top: 4px solid #e10600;
+}
+
+/* Header: texto + imagem lado a lado */
+.cs-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+.cs-header-texto {
+    flex: 1;
+    min-width: 220px;
+}
+.cs-titulo {
+    margin: 0 0 0.6rem 0;
+    color: #e10600;
+    font-size: 1.15rem;
+}
+.cs-select-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.cs-select-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap;
+}
+.cs-select {
+    background: #f4f4f4;
+    border: 1.5px solid #ddd;
+    border-radius: 7px;
+    padding: 0.38rem 0.75rem;
+    font-size: 0.85rem;
+    color: #222;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    max-width: 280px;
+}
+.cs-select:focus { border-color: #e10600; outline: none; }
+
+.cs-imagem-wrap {
+    flex-shrink: 0;
+}
+.cs-imagem-pista {
+    width: 200px;
+    max-height: 140px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 0.4rem;
+}
+
+/* Grid de estatísticas */
+.cs-body { width: 100%; }
+
+.cs-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+.cs-stat-bloco {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+}
+.cs-stat-titulo {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 0.55rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.3rem;
+}
+.cs-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0;
+    font-size: 0.82rem;
+}
+.cs-stat-row.cs-meu {
+    color: #b8860b;
+    font-weight: 700;
+}
+.cs-medal { font-size: 0.9rem; flex-shrink: 0; }
+.cs-nome  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-val   { font-size: 0.75rem; color: #888; white-space: nowrap; }
+
+/* Bloco de recorde */
+.cs-recorde-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+}
+.cs-recorde-tempo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #185FA5;
+    letter-spacing: -0.5px;
+}
+.cs-recorde-info {
+    font-size: 0.78rem;
+    color: #888;
+}
+
+/* Tabela de histórico anual */
+.cs-historico-wrap { margin-top: 0.5rem; }
+.cs-historico-titulo {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 0.6rem;
+}
+.cs-tabela-wrap {
+    overflow-x: auto;
+}
+.cs-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+.cs-tabela th {
+    background: #f0f0f0;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 0.45rem 0.65rem;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+}
+.cs-tabela td {
+    padding: 0.4rem 0.65rem;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    vertical-align: middle;
+}
+.cs-tabela tbody tr:hover td { background: #fafafa; }
+.cs-linha-minha td {
+    background: #fffbe6;
+}
+.cs-linha-minha:hover td { background: #fff5cc; }
+.cs-td-ano {
+    font-weight: 700;
+    color: #e10600;
+    font-size: 0.88rem;
+}
+.cs-td-vr { color: #555; font-size: 0.78rem; }
+.cs-badge-ouro   { margin-right: 0.2rem; }
+.cs-badge-prata  { margin-right: 0.2rem; }
+.cs-badge-bronze { margin-right: 0.2rem; }
+
+@media (max-width: 600px) {
+    .cs-imagem-pista { width: 130px; max-height: 90px; }
+    .cs-stats-grid { grid-template-columns: 1fr 1fr; }
+}

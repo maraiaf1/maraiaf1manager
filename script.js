@@ -3839,7 +3839,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const dadosParaSalvar = {
             ano: gameState.campeonato.ano,
             nomePista,
-            pole: raceData.polePosition,
             resultadoFinal: resultados.map(p => ({
                 ...p,
                 lapData: (p.isPlayer || top3Ids.has(p.piloto.id)) ? (p.lapData || []) : []
@@ -7884,51 +7883,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(([nome, s]) => ({ nome, corridas: s.corridas || 0, equipe: s.equipe || '—' }))
             .sort((a,b) => b.corridas - a.corridas)[0] || null;
 
-        // 10. Mais pole positions na carreira
-        const contPolesCarreira = {};
-        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
-            (circuito.historicoAnual || []).forEach(ano => {
-                if (ano.pole?.piloto) {
-                    const n = ano.pole.piloto;
-                    contPolesCarreira[n] = (contPolesCarreira[n] || 0) + 1;
-                }
-            });
-        });
-        const recPolesCarreira = Object.entries(contPolesCarreira)
-            .map(([nome, poles]) => {
-                const stats = todosStats[nome] || {};
-                return { nome, poles, equipe: stats.equipe || '—' };
-            })
-            .sort((a, b) => b.poles - a.poles)[0] || null;
-
-        // 11. Mais poles em um único campeonato
-        const polesPorAno = {};
-        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
-            (circuito.historicoAnual || []).forEach(ano => {
-                if (ano.pole?.piloto) {
-                    const key = `${ano.ano}_${ano.pole.piloto}`;
-                    if (!polesPorAno[key]) polesPorAno[key] = { piloto: ano.pole.piloto, ano: ano.ano, count: 0 };
-                    polesPorAno[key].count++;
-                }
-            });
-        });
-        const recPolesTemporada = Object.values(polesPorAno)
-            .sort((a, b) => b.count - a.count)[0] || null;
-        if (recPolesTemporada) {
-            // Adiciona equipe via todosStats ou historicoTemporadas
-            const t = hist.find(h => h.ano === recPolesTemporada.ano);
-            recPolesTemporada.equipe = todosStats[recPolesTemporada.piloto]?.equipe
-                || t?.campeaoPilotos?.equipe || '—';
-        }
-
-        // 12. Maior pontuação em um único campeonato (entre todos os pilotos, não só campeão)
-        const recPontuacaoTemporada = hist.reduce((best, t) => {
-            if (!t.campeaoPilotos) return best;
-            return (!best || t.campeaoPilotos.pontos > best.pontos)
-                ? { pontos: t.campeaoPilotos.pontos, piloto: t.campeaoPilotos.nome, equipe: t.campeaoPilotos.equipe, ano: t.ano }
-                : best;
-        }, null);
-
         // ── Sequências ────────────────────────────────────────────────
 
         // 10. Maior sequência de vitórias consecutivas (cross-temporada)
@@ -7971,27 +7925,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 : best;
         }, null);
 
-        // 14. Maior sequência consecutiva de pole positions
-        let melhorSeqPoles = { piloto: null, equipe: null, count: 0 };
-        let seqPolesAtual  = { piloto: null, count: 0 };
-        const todasPolesOrdenadas = [];
-        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
-            (circuito.historicoAnual || []).forEach(ano => {
-                if (ano.pole?.piloto) todasPolesOrdenadas.push({ piloto: ano.pole.piloto, ano: ano.ano });
-            });
-        });
-        todasPolesOrdenadas.sort((a, b) => a.ano - b.ano);
-        todasPolesOrdenadas.forEach(p => {
-            if (p.piloto === seqPolesAtual.piloto) {
-                seqPolesAtual.count++;
-            } else {
-                seqPolesAtual = { piloto: p.piloto, count: 1 };
-            }
-            if (seqPolesAtual.count > melhorSeqPoles.count) {
-                melhorSeqPoles = { piloto: p.piloto, equipe: todosStats[p.piloto]?.equipe || '—', count: seqPolesAtual.count };
-            }
-        });
-
         return {
             construtores: {
                 titulosConstr:    recTitulosConstr,
@@ -8005,14 +7938,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 vitoriasCarreira:   recVitoriasCarreira,
                 podiosCarreira:     recPodiosCarreira,
                 corridasCarreira:   recCorridasCarreira,
-                polesCarreira:      recPolesCarreira,
-                polesTemporada:     recPolesTemporada,
-                pontuacaoTemporada: recPontuacaoTemporada,
             },
             sequencias: {
-                vitoriasConsec:      seq.contagem > 0 ? seq : null,
+                vitoriasConsec:  seq.contagem > 0 ? seq : null,
                 titulosConsecPiloto: melhorSeqPiloto.count > 0 ? melhorSeqPiloto : null,
-                polesConsec:         melhorSeqPoles.count > 0 ? melhorSeqPoles : null,
             },
             especiais: {
                 maisJovem: recMaisJovem,
@@ -8121,20 +8050,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 P.corridasCarreira?.corridas, 'corridas',
                 P.corridasCarreira?.nome, P.corridasCarreira?.equipe, null,
                 isMeuPiloto(P.corridasCarreira?.nome)),
-            card('Mais pole positions na carreira',
-                P.polesCarreira?.poles, 'poles',
-                P.polesCarreira?.nome, P.polesCarreira?.equipe, null,
-                isMeuPiloto(P.polesCarreira?.nome)),
-            card('Mais poles em uma temporada',
-                P.polesTemporada?.count, 'poles',
-                P.polesTemporada?.piloto, P.polesTemporada?.equipe,
-                P.polesTemporada?.ano?.toString(),
-                isMeuPiloto(P.polesTemporada?.piloto)),
-            card('Maior pontuação em uma temporada',
-                P.pontuacaoTemporada?.pontos, 'pts',
-                P.pontuacaoTemporada?.piloto, P.pontuacaoTemporada?.equipe,
-                P.pontuacaoTemporada?.ano?.toString(),
-                isMeuPiloto(P.pontuacaoTemporada?.piloto)),
         ].join('');
 
         // ── Sequências ────────────────────────────────────────────────
@@ -8149,10 +8064,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 S.titulosConsecPiloto?.piloto, S.titulosConsecPiloto?.equipe,
                 S.titulosConsecPiloto ? `${S.titulosConsecPiloto.de}–${S.titulosConsecPiloto.ate}` : null,
                 isMeuPiloto(S.titulosConsecPiloto?.piloto)),
-            card('Maior sequência de poles consecutivas',
-                S.polesConsec?.count, 'poles',
-                S.polesConsec?.piloto, S.polesConsec?.equipe, null,
-                isMeuPiloto(S.polesConsec?.piloto)),
         ].join('');
 
         // ── Especiais ─────────────────────────────────────────────────
@@ -8179,6 +8090,192 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ═══════════════════════════════════════════════════════════════════
     // FIM — LIVRO DE RECORDES
+    // ═══════════════════════════════════════════════════════════════════
+
+    // ═══════════════════════════════════════════════════════════════════
+    // CIRCUITO SPOTLIGHT — card de histórico por circuito na aba Galeria
+    // ═══════════════════════════════════════════════════════════════════
+    const CS_PISTA_PADRAO = 'Gp do Brasil (Interlagos)';
+    let _csPistaSelecionada = CS_PISTA_PADRAO;
+
+    function renderCircuitoSpotlight() {
+        const select = document.getElementById('cs-select-pista');
+        const body   = document.getElementById('cs-body');
+        const img    = document.getElementById('cs-imagem-pista');
+        if (!select || !body) return;
+
+        // Monta opções do select com todos os circuitos do calendário
+        if (select.options.length === 0) {
+            calendarioCorridas.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.nome;
+                opt.textContent = p.nome;
+                if (p.nome === _csPistaSelecionada) opt.selected = true;
+                select.appendChild(opt);
+            });
+            select.addEventListener('change', () => {
+                _csPistaSelecionada = select.value;
+                _renderCSBody();
+            });
+        }
+
+        // Sincroniza seleção com estado
+        select.value = _csPistaSelecionada;
+
+        // Imagem do circuito
+        const pistaInfo = calendarioCorridas.find(p => p.nome === _csPistaSelecionada);
+        if (img && pistaInfo?.imagem) {
+            img.src = `img/${pistaInfo.imagem}`;
+            img.alt = _csPistaSelecionada;
+            img.style.display = '';
+        }
+
+        _renderCSBody();
+    }
+
+    function _renderCSBody() {
+        const body = document.getElementById('cs-body');
+        const img  = document.getElementById('cs-imagem-pista');
+        if (!body) return;
+
+        const pistaInfo = calendarioCorridas.find(p => p.nome === _csPistaSelecionada);
+        if (img && pistaInfo?.imagem) {
+            img.src = `img/${pistaInfo.imagem}`;
+            img.alt = _csPistaSelecionada;
+            img.style.display = '';
+        }
+
+        const historico = gameState.historicoAutodromos[_csPistaSelecionada];
+        if (!historico || historico.historicoAnual.length === 0) {
+            body.innerHTML = `<p class="galeria-sem-dados">Nenhuma corrida disputada neste circuito ainda.</p>`;
+            return;
+        }
+
+        const anos = [...historico.historicoAnual].sort((a, b) => b.ano - a.ano);
+        const nomeEsc = gameState.escuderia.nome;
+
+        // ── Estatísticas agregadas ────────────────────────────────────
+        const contVitorias  = {};
+        const contPodios    = {};
+        const contPoles     = {};
+        const contVRapidas  = {};
+
+        anos.forEach(ano => {
+            // Vitórias (1º lugar)
+            const venc = ano.podium?.[0];
+            if (venc) contVitorias[venc] = (contVitorias[venc] || 0) + 1;
+
+            // Pódios (2º e 3º)
+            [ano.podium?.[0], ano.podium?.[1], ano.podium?.[2]].forEach(n => {
+                if (n) contPodios[n] = (contPodios[n] || 0) + 1;
+            });
+
+            // Poles
+            if (ano.pole?.piloto) contPoles[ano.pole.piloto] = (contPoles[ano.pole.piloto] || 0) + 1;
+
+            // Voltas rápidas
+            if (ano.voltaRapida?.piloto) contVRapidas[ano.voltaRapida.piloto] = (contVRapidas[ano.voltaRapida.piloto] || 0) + 1;
+        });
+
+        const top3 = (obj, chave) => Object.entries(obj)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([nome, val], i) => {
+                const medal = ['🥇','🥈','🥉'][i];
+                const minha = nome === nomeEsc || gameState.pilotos.some(p => p.nome === nome)
+                           || gameState.galeria.hallDaFama.some(h => h.piloto.nome === nome);
+                return `<div class="cs-stat-row ${minha ? 'cs-meu' : ''}">
+                    <span class="cs-medal">${medal}</span>
+                    <span class="cs-nome">${nome}</span>
+                    <span class="cs-val">${val} ${chave}</span>
+                </div>`;
+            }).join('') || `<p class="galeria-sem-dados">Sem dados</p>`;
+
+        // Recorde de volta do circuito
+        const rv = historico.recordeVolta;
+        const recordeHtml = rv?.piloto
+            ? `<div class="cs-recorde-row">
+                <span class="cs-recorde-tempo">${formatLapTime(rv.tempo)}</span>
+                <span class="cs-recorde-info">${rv.piloto} · ${rv.ano}</span>
+               </div>`
+            : `<span class="galeria-sem-dados">Sem recorde registrado</span>`;
+
+        // ── Tabela de histórico anual ─────────────────────────────────
+        const tabelaRows = anos.map(ano => {
+            const p1 = ano.podium?.[0] || '—';
+            const p2 = ano.podium?.[1] || '—';
+            const p3 = ano.podium?.[2] || '—';
+            const pole = ano.pole?.piloto || '—';
+            const vr   = ano.voltaRapida?.piloto
+                ? `${ano.voltaRapida.piloto} (${formatLapTime(ano.voltaRapida.tempo)})`
+                : '—';
+
+            const isMinhaVit = p1 === nomeEsc || gameState.pilotos.some(p => p.nome === p1)
+                            || gameState.galeria.hallDaFama.some(h => h.piloto.nome === p1);
+
+            return `<tr class="${isMinhaVit ? 'cs-linha-minha' : ''}">
+                <td class="cs-td-ano">${ano.ano}</td>
+                <td><span class="cs-badge-ouro">🥇</span>${p1}</td>
+                <td>${p2 !== '—' ? `<span class="cs-badge-prata">🥈</span>${p2}` : '—'}</td>
+                <td>${p3 !== '—' ? `<span class="cs-badge-bronze">🥉</span>${p3}` : '—'}</td>
+                <td>${pole}</td>
+                <td class="cs-td-vr">${vr}</td>
+            </tr>`;
+        }).join('');
+
+        body.innerHTML = `
+        <div class="cs-stats-grid">
+            <div class="cs-stat-bloco">
+                <div class="cs-stat-titulo">🏆 Mais Vitórias</div>
+                ${top3(contVitorias, 'vitórias')}
+            </div>
+            <div class="cs-stat-bloco">
+                <div class="cs-stat-titulo">🏅 Mais Pódios</div>
+                ${top3(contPodios, 'pódios')}
+            </div>
+            <div class="cs-stat-bloco">
+                <div class="cs-stat-titulo">🟢 Mais Poles</div>
+                ${top3(contPoles, 'poles')}
+            </div>
+            <div class="cs-stat-bloco">
+                <div class="cs-stat-titulo">⚡ Mais Voltas Rápidas</div>
+                ${top3(contVRapidas, 'v.rápidas')}
+            </div>
+            <div class="cs-stat-bloco cs-recorde-bloco">
+                <div class="cs-stat-titulo">🕐 Recorde do Circuito</div>
+                ${recordeHtml}
+            </div>
+            <div class="cs-stat-bloco">
+                <div class="cs-stat-titulo">📊 Corridas disputadas</div>
+                <div class="cs-recorde-row">
+                    <span class="cs-recorde-tempo">${anos.length}</span>
+                    <span class="cs-recorde-info">edição${anos.length !== 1 ? 's' : ''}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="cs-historico-wrap">
+            <div class="cs-historico-titulo">📋 Histórico de Corridas</div>
+            <div class="cs-tabela-wrap">
+                <table class="cs-tabela">
+                    <thead>
+                        <tr>
+                            <th>Ano</th>
+                            <th>1º</th>
+                            <th>2º</th>
+                            <th>3º</th>
+                            <th>Pole</th>
+                            <th>Volta Rápida</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tabelaRows}</tbody>
+                </table>
+            </div>
+        </div>`;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // FIM — CIRCUITO SPOTLIGHT
     // ═══════════════════════════════════════════════════════════════════
 
     function renderAbaGaleria() {
@@ -8267,6 +8364,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── Livro de Recordes ─────────────────────────────────────────
         renderLivroRecordes();
+        renderCircuitoSpotlight();
         const historicoContainer = document.getElementById('historico-campeonatos-container');
         if (historicoContainer) {
             const historico = [...(gameState.historicoTemporadas || [])].sort((a, b) => b.ano - a.ano);
@@ -8276,12 +8374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nomeEscuderia = gameState.escuderia.nome;
                 const rows = historico.map(t => {
                     const isPlayerConstr = t.campeaoConstrutores?.nome === nomeEscuderia;
-                    // Destaque para piloto ativo OU aposentado que correu pela escuderia do jogador
-                    const pilotoNomeCamp = t.campeaoPilotos?.nome;
-                    const isPlayerPiloto = pilotoNomeCamp && (
-                        gameState.pilotos.some(p => p.nome === pilotoNomeCamp && (p.status === 'Jogador' || p.status === 'Reserva'))
-                        || gameState.galeria.hallDaFama.some(h => h.piloto.nome === pilotoNomeCamp && (h.statsCarreira?.equipe === nomeEscuderia || t.campeaoPilotos?.equipe === nomeEscuderia))
-                    );
+                    const isPlayerPiloto = gameState.pilotos.some(p => p.nome === t.campeaoPilotos?.nome && p.status === 'Jogador');
                     return `<tr>
                         <td class="hc-ano">${t.ano}</td>
                         <td class="${isPlayerConstr ? 'hc-destaque' : ''}">${isPlayerConstr ? '🏆 ' : ''}${t.campeaoConstrutores?.nome || '—'}</td>
