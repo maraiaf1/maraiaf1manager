@@ -8408,13 +8408,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rows = historico.map(t => {
                     const isPlayerConstr = t.campeaoConstrutores?.nome === nomeEscuderia;
                     const pilotoNomeCamp = t.campeaoPilotos?.nome;
-                    // Destaque para: titular ativo, reserva ativo, ou aposentado que correu pela escuderia
+                    // Destaque se a equipe do campeão naquele ano era a escuderia do jogador
+                    // (cobre titulares, reservas, dispensados e aposentados)
                     const isPlayerPiloto = pilotoNomeCamp && (
-                        gameState.pilotos.some(p => p.nome === pilotoNomeCamp &&
+                        t.campeaoPilotos?.equipe === nomeEscuderia
+                        || gameState.pilotos.some(p => p.nome === pilotoNomeCamp &&
                             (p.status === 'Jogador' || p.status === 'Reserva'))
                         || gameState.galeria.hallDaFama.some(h =>
                             h.piloto.nome === pilotoNomeCamp &&
-                            (h.statsCarreira?.equipe === nomeEscuderia || t.campeaoPilotos?.equipe === nomeEscuderia))
+                            h.statsCarreira?.equipe === nomeEscuderia)
                     );
                     return `<tr>
                         <td class="hc-ano">${t.ano}</td>
