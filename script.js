@@ -8407,7 +8407,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nomeEscuderia = gameState.escuderia.nome;
                 const rows = historico.map(t => {
                     const isPlayerConstr = t.campeaoConstrutores?.nome === nomeEscuderia;
-                    const isPlayerPiloto = gameState.pilotos.some(p => p.nome === t.campeaoPilotos?.nome && p.status === 'Jogador');
+                    const pilotoNomeCamp = t.campeaoPilotos?.nome;
+                    // Destaque para: titular ativo, reserva ativo, ou aposentado que correu pela escuderia
+                    const isPlayerPiloto = pilotoNomeCamp && (
+                        gameState.pilotos.some(p => p.nome === pilotoNomeCamp &&
+                            (p.status === 'Jogador' || p.status === 'Reserva'))
+                        || gameState.galeria.hallDaFama.some(h =>
+                            h.piloto.nome === pilotoNomeCamp &&
+                            (h.statsCarreira?.equipe === nomeEscuderia || t.campeaoPilotos?.equipe === nomeEscuderia))
+                    );
                     return `<tr>
                         <td class="hc-ano">${t.ano}</td>
                         <td class="${isPlayerConstr ? 'hc-destaque' : ''}">${isPlayerConstr ? '🏆 ' : ''}${t.campeaoConstrutores?.nome || '—'}</td>
