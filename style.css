@@ -1273,6 +1273,24 @@ font-size: 0.8rem;
     background-color: #2f5c8e;
     transform: translateY(-1px);
 }
+
+/* Botão troca reserva ↔ titular */
+.btn-trocar-reserva {
+    background-color: #5a3e8a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+    letter-spacing: 0.3px;
+}
+.btn-trocar-reserva:hover {
+    background-color: #482f72;
+    transform: translateY(-1px);
+}
 .piloto-card .atributo-valor.decline {
     color: #dc3545; /* Vermelho */
 }

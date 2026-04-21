@@ -1330,6 +1330,32 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGame();
     }
 
+    // Troca um reserva com P1 ou P2.
+    // O titular vai para a reserva; o reserva assume o carro e vira 'Jogador'.
+    function trocarReservaPorTitular(reservaId, slot) {
+        const carro = gameState.carros[slot - 1];
+        if (!carro) return;
+
+        const reserva = gameState.pilotos.find(p => p.id === reservaId && p.status === 'Reserva');
+        const titular = carro.pilotoId ? gameState.pilotos.find(p => p.id === carro.pilotoId) : null;
+
+        if (!reserva) { alert('Piloto reserva não encontrado.'); return; }
+
+        const nomeTitular = titular ? titular.nome : '(vago)';
+        if (!confirm(
+            `Trocar ${reserva.nome} (Reserva) com ${nomeTitular} (Piloto ${slot})?\n\n` +
+            `• ${reserva.nome} assume o slot Piloto ${slot}\n` +
+            `• ${titular ? titular.nome + ' passa para a Reserva' : 'Slot vago preenchido'}`
+        )) return;
+
+        carro.pilotoId = reserva.id;
+        reserva.status = 'Jogador';
+        if (titular) titular.status = 'Reserva';
+
+        renderAbaPilotos();
+        saveGame();
+    }
+
     function processarEnvelhecimentoPilotos() {
         const pilotosAposentados = [];
         gameState.pilotos.forEach(piloto => {
@@ -5435,7 +5461,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 actionButtonHtml += `<button class="btn-dispensar-piloto" data-action="dispensar-piloto" data-piloto-id="${piloto.id}">Dispensar</button>`;
             }
             if (piloto.status === 'Reserva' && vagaAberta) {
-                actionButtonHtml += `<button class="btn-contratar-piloto" data-action="promover-piloto" data-piloto-id="${piloto.id}">Promover</button>`;
+                // Vaga aberta → promoção direta (comportamento original)
+                actionButtonHtml += `<button class="btn-contratar-piloto" data-action="promover-piloto" data-piloto-id="${piloto.id}">⬆️ Promover</button>`;
+            } else if (piloto.status === 'Reserva' && !vagaAberta) {
+                // Ambos titulares preenchidos → troca bidirecional
+                const p1 = gameState.pilotos.find(p => p.id === gameState.carros[0]?.pilotoId);
+                const p2 = gameState.pilotos.find(p => p.id === gameState.carros[1]?.pilotoId);
+                if (p1) actionButtonHtml += `<button class="btn-trocar-reserva" data-action="trocar-por-p1" data-piloto-id="${piloto.id}" title="Substituir ${p1.nome} (P1)">↔️ Entrar por P1</button>`;
+                if (p2) actionButtonHtml += `<button class="btn-trocar-reserva" data-action="trocar-por-p2" data-piloto-id="${piloto.id}" title="Substituir ${p2.nome} (P2)">↔️ Entrar por P2</button>`;
             }
         } else if (piloto.status === 'Disponível') {
             actionButtonHtml = `<button class="btn-contratar-piloto" data-action="contratar-piloto" data-piloto-id="${piloto.id}">Contratar</button>`;
@@ -10059,6 +10092,8 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (action === 'promover-piloto') promoverPilotoReserva(parseFloat(target.dataset.pilotoId));
         else if (action === 'setar-p1') trocarPosicaoPiloto(parseFloat(target.dataset.pilotoId), 1);
         else if (action === 'setar-p2') trocarPosicaoPiloto(parseFloat(target.dataset.pilotoId), 2);
+        else if (action === 'trocar-por-p1') trocarReservaPorTitular(parseFloat(target.dataset.pilotoId), 1);
+        else if (action === 'trocar-por-p2') trocarReservaPorTitular(parseFloat(target.dataset.pilotoId), 2);
         else if (target.matches('#btn-salvar-nome')) {
             mudarNomeEquipe();
         }
