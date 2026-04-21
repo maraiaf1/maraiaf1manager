@@ -3865,6 +3865,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dadosParaSalvar = {
             ano: gameState.campeonato.ano,
             nomePista,
+            pole: raceData.polePosition,
             resultadoFinal: resultados.map(p => ({
                 ...p,
                 lapData: (p.isPlayer || top3Ids.has(p.piloto.id)) ? (p.lapData || []) : []
@@ -7916,6 +7917,45 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(([nome, s]) => ({ nome, corridas: s.corridas || 0, equipe: s.equipe || '—' }))
             .sort((a,b) => b.corridas - a.corridas)[0] || null;
 
+        // 10. Mais pole positions na carreira
+        const contPolesCarreira = {};
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(ano => {
+                if (ano.pole?.piloto) {
+                    const n = ano.pole.piloto;
+                    contPolesCarreira[n] = (contPolesCarreira[n] || 0) + 1;
+                }
+            });
+        });
+        const recPolesCarreira = Object.entries(contPolesCarreira)
+            .map(([nome, poles]) => ({ nome, poles, equipe: todosStats[nome]?.equipe || '—' }))
+            .sort((a, b) => b.poles - a.poles)[0] || null;
+
+        // 11. Mais poles em um único campeonato
+        const polesPorAno = {};
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(ano => {
+                if (ano.pole?.piloto) {
+                    const key = `${ano.ano}_${ano.pole.piloto}`;
+                    if (!polesPorAno[key]) polesPorAno[key] = { piloto: ano.pole.piloto, ano: ano.ano, count: 0 };
+                    polesPorAno[key].count++;
+                }
+            });
+        });
+        let recPolesTemporada = Object.values(polesPorAno).sort((a, b) => b.count - a.count)[0] || null;
+        if (recPolesTemporada) {
+            const t = hist.find(h => h.ano === recPolesTemporada.ano);
+            recPolesTemporada.equipe = todosStats[recPolesTemporada.piloto]?.equipe || t?.campeaoPilotos?.equipe || '—';
+        }
+
+        // 12. Maior pontuação em um único campeonato (piloto campeão)
+        const recPontuacaoTemporada = hist.reduce((best, t) => {
+            if (!t.campeaoPilotos) return best;
+            return (!best || t.campeaoPilotos.pontos > best.pontos)
+                ? { pontos: t.campeaoPilotos.pontos, piloto: t.campeaoPilotos.nome, equipe: t.campeaoPilotos.equipe, ano: t.ano }
+                : best;
+        }, null);
+
         // ── Sequências ────────────────────────────────────────────────
 
         // 10. Maior sequência de vitórias consecutivas (cross-temporada)
@@ -7958,6 +7998,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 : best;
         }, null);
 
+        // 14. Maior sequência consecutiva de pole positions
+        let melhorSeqPoles = { piloto: null, equipe: null, count: 0 };
+        let seqPolesAtual  = { piloto: null, count: 0 };
+        const todasPolesOrdenadas = [];
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(ano => {
+                if (ano.pole?.piloto) todasPolesOrdenadas.push({ piloto: ano.pole.piloto, ano: ano.ano });
+            });
+        });
+        todasPolesOrdenadas.sort((a, b) => a.ano - b.ano);
+        todasPolesOrdenadas.forEach(p => {
+            if (p.piloto === seqPolesAtual.piloto) {
+                seqPolesAtual.count++;
+            } else {
+                seqPolesAtual = { piloto: p.piloto, count: 1 };
+            }
+            if (seqPolesAtual.count > melhorSeqPoles.count) {
+                melhorSeqPoles = { piloto: p.piloto, equipe: todosStats[p.piloto]?.equipe || '—', count: seqPolesAtual.count };
+            }
+        });
+
         return {
             construtores: {
                 titulosConstr:    recTitulosConstr,
@@ -7971,10 +8032,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 vitoriasCarreira:   recVitoriasCarreira,
                 podiosCarreira:     recPodiosCarreira,
                 corridasCarreira:   recCorridasCarreira,
+                polesCarreira:      recPolesCarreira,
+                polesTemporada:     recPolesTemporada,
+                pontuacaoTemporada: recPontuacaoTemporada,
             },
             sequencias: {
-                vitoriasConsec:  seq.contagem > 0 ? seq : null,
+                vitoriasConsec:      seq.contagem > 0 ? seq : null,
                 titulosConsecPiloto: melhorSeqPiloto.count > 0 ? melhorSeqPiloto : null,
+                polesConsec:         melhorSeqPoles.count > 0 ? melhorSeqPoles : null,
             },
             especiais: {
                 maisJovem: recMaisJovem,
@@ -8083,6 +8148,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 P.corridasCarreira?.corridas, 'corridas',
                 P.corridasCarreira?.nome, P.corridasCarreira?.equipe, null,
                 isMeuPiloto(P.corridasCarreira?.nome)),
+            card('Mais pole positions na carreira',
+                P.polesCarreira?.poles, 'poles',
+                P.polesCarreira?.nome, P.polesCarreira?.equipe, null,
+                isMeuPiloto(P.polesCarreira?.nome)),
+            card('Mais poles em uma temporada',
+                P.polesTemporada?.count, 'poles',
+                P.polesTemporada?.piloto, P.polesTemporada?.equipe,
+                P.polesTemporada?.ano?.toString(),
+                isMeuPiloto(P.polesTemporada?.piloto)),
+            card('Maior pontuação em uma temporada',
+                P.pontuacaoTemporada?.pontos, 'pts',
+                P.pontuacaoTemporada?.piloto, P.pontuacaoTemporada?.equipe,
+                P.pontuacaoTemporada?.ano?.toString(),
+                isMeuPiloto(P.pontuacaoTemporada?.piloto)),
         ].join('');
 
         // ── Sequências ────────────────────────────────────────────────
@@ -8097,6 +8176,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 S.titulosConsecPiloto?.piloto, S.titulosConsecPiloto?.equipe,
                 S.titulosConsecPiloto ? `${S.titulosConsecPiloto.de}–${S.titulosConsecPiloto.ate}` : null,
                 isMeuPiloto(S.titulosConsecPiloto?.piloto)),
+            card('Maior sequência de poles consecutivas',
+                S.polesConsec?.count, 'poles',
+                S.polesConsec?.piloto, S.polesConsec?.equipe, null,
+                isMeuPiloto(S.polesConsec?.piloto)),
         ].join('');
 
         // ── Especiais ─────────────────────────────────────────────────
