@@ -7473,8 +7473,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const idx = gameState.academia.pupilos.findIndex(p => p.id === idPupilo);
         if (idx === -1) return;
         const pupilo = gameState.academia.pupilos[idx];
-        if (!confirm(`Dispensar ${pupilo.nome} da academia?`)) return;
+        if (!confirm(`Dispensar ${pupilo.nome} da academia?\n\nEle será liberado para o mercado de pilotos.`)) return;
+
+        // Salário e contrato proporcionais à média de atributos
+        const mediaAtrib    = Math.round((pupilo.habilidade + pupilo.consistencia + pupilo.gerenciamentoPneus) / 3);
+        const salario       = 10000 + Math.floor(mediaAtrib * 400 + Math.random() * 5000);
+        const precoContrato = 200000 + Math.floor(mediaAtrib * 8000 + Math.random() * 150000);
+
+        gameState.pilotos.push({
+            id:                  pupilo.id,
+            nome:                pupilo.nome,
+            idade:               pupilo.idade,
+            habilidade:          pupilo.habilidade,
+            consistencia:        pupilo.consistencia,
+            gerenciamentoPneus:  pupilo.gerenciamentoPneus,
+            salario,
+            precoContrato,
+            status:              'Disponível',
+            campeonatosGanhos:   [],
+            rosto:               'img/Pilotos/default.png',
+            atributosBase:       { habilidade: pupilo.habilidade, consistencia: pupilo.consistencia, gerenciamentoPneus: pupilo.gerenciamentoPneus }
+        });
+
         gameState.academia.pupilos.splice(idx, 1);
+        alert(`${pupilo.nome} foi dispensado e está disponível no mercado de pilotos.`);
         renderAbaAcademia();
         saveGame();
     }
