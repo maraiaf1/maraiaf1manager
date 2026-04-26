@@ -1246,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const piloto = gameState.pilotos.find(p => p.id === pilotoId);
         if (!piloto || (piloto.status !== 'Jogador' && piloto.status !== 'Reserva')) return;
 
-        if (piloto.idade >= 35 && piloto.status === 'Jogador') {
+        if (piloto.idade >= 31 && piloto.status === 'Jogador') {
             if (confirm(`Tem certeza que deseja aposentar ${piloto.nome}?\nEle será adicionado ao Hall da Fama e removido permanentemente do jogo.`)) {
                 // Garante que o título do campeonato atual seja creditado ANTES do snapshot,
                 // caso o piloto seja o líder da classificação no momento da aposentadoria.
