@@ -4577,10 +4577,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function processarReajusteSalarialEspecialistas() {
         if (gameState.escuderia.especialistas.length === 0) return;
+
         const classificacaoConstrutores = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
         const nossaPosicao = classificacaoConstrutores.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
         let percentualDeAumento = 0;
         const ano = gameState.campeonato.ano;
+
         if (ano < 2028) {
             if (nossaPosicao === 1) percentualDeAumento = 0.40;
             else if (nossaPosicao <= 5) percentualDeAumento = 0.30;
@@ -4592,12 +4594,23 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (nossaPosicao <= 8) percentualDeAumento = 0.30;
             else percentualDeAumento = 0.10;
         }
+
         const detalhesReajuste = [];
+
         gameState.escuderia.especialistas.forEach(especialista => {
             const salarioAntigo = especialista.salario;
-            especialista.salario = Math.round(salarioAntigo * (1 + percentualDeAumento));
+            let aumentoAplicavel = percentualDeAumento;
+
+            // Se o salário atingiu 5 milhões, reduzimos o percentual de aumento para 5% do valor original
+            // Isso faz com que o crescimento se torne muito lento, sem travar o valor.
+            if (salarioAntigo >= 5000000) {
+                aumentoAplicavel = percentualDeAumento * 0.05;
+            }
+
+            especialista.salario = Math.round(salarioAntigo * (1 + aumentoAplicavel));
             detalhesReajuste.push(`${especialista.nome}: R$ ${salarioAntigo.toLocaleString('pt-BR')} -> R$ ${especialista.salario.toLocaleString('pt-BR')}`);
         });
+
         setTimeout(() => {
             // Reajuste silencioso — informado via modal de fim de temporada
         }, 1000);
