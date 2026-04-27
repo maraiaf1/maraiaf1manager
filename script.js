@@ -4578,42 +4578,45 @@ document.addEventListener('DOMContentLoaded', () => {
     function processarReajusteSalarialEspecialistas() {
         if (gameState.escuderia.especialistas.length === 0) return;
 
-        const classificacaoConstrutores = [...gameState.campeonato.classificacaoConstrutores].sort((a, b) => b.pontos - a.pontos);
-        const nossaPosicao = classificacaoConstrutores.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
-        let percentualDeAumento = 0;
-        const ano = gameState.campeonato.ano;
+        // ── Teto salarial ────────────────────────────────────────────────────────
+        // Curva projetada: ~R$ 12.000 iniciais → R$ 2.000.000 em 10 temporadas
+        // Taxa base de 67% ao ano garante isso matematicamente.
+        // Acima do teto: crescimento fixo de R$ 20.000/ano (residual, ~1% do teto).
+        const TETO_SALARIO     = 2000000;
+        const TAXA_BASE        = 0.67; // 67% ao ano — leva ao teto em ~10 temporadas
+        const CRESCIMENTO_APOS_TETO = 20000; // R$ 20k/ano após o teto
 
-        if (ano < 2028) {
-            if (nossaPosicao === 1) percentualDeAumento = 0.40;
-            else if (nossaPosicao <= 5) percentualDeAumento = 0.30;
-            else if (nossaPosicao <= 8) percentualDeAumento = 0.15;
-            else percentualDeAumento = 0.05;
-        } else {
-            if (nossaPosicao === 1) percentualDeAumento = 0.80;
-            else if (nossaPosicao <= 5) percentualDeAumento = 0.60;
-            else if (nossaPosicao <= 8) percentualDeAumento = 0.30;
-            else percentualDeAumento = 0.10;
-        }
+        // Pequeno bônus por desempenho (não muda a curva, só ajusta o ritmo levemente)
+        const classificacaoConstrutores = [...gameState.campeonato.classificacaoConstrutores]
+            .sort((a, b) => b.pontos - a.pontos);
+        const nossaPosicao = classificacaoConstrutores.findIndex(e => e.equipe === gameState.escuderia.nome) + 1;
+
+        let bonusPosicao = 0;
+        if      (nossaPosicao === 1)  bonusPosicao =  0.03; // P1: +3% → chega no teto ~9 temp.
+        else if (nossaPosicao <= 5)   bonusPosicao =  0.01; // P2-5: +1%
+        else if (nossaPosicao <= 8)   bonusPosicao =  0.00; // P6-8: taxa base pura
+        else                          bonusPosicao = -0.02; // P9+: -2% → ~11 temp.
+
+        const taxaEfetiva = TAXA_BASE + bonusPosicao;
 
         const detalhesReajuste = [];
 
         gameState.escuderia.especialistas.forEach(especialista => {
             const salarioAntigo = especialista.salario;
-            let aumentoAplicavel = percentualDeAumento;
 
-            // Se o salário atingiu 5 milhões, reduzimos o percentual de aumento para 5% do valor original
-            // Isso faz com que o crescimento se torne muito lento, sem travar o valor.
-            if (salarioAntigo >= 5000000) {
-                aumentoAplicavel = percentualDeAumento * 0.05;
+            if (salarioAntigo >= TETO_SALARIO) {
+                // Acima do teto: crescimento residual fixo
+                especialista.salario = salarioAntigo + CRESCIMENTO_APOS_TETO;
+            } else {
+                // Abaixo do teto: cresce pela taxa efetiva, nunca ultrapassa o teto de uma vez
+                const novoSalario = Math.round(salarioAntigo * (1 + taxaEfetiva));
+                especialista.salario = Math.min(novoSalario, TETO_SALARIO);
             }
 
-            especialista.salario = Math.round(salarioAntigo * (1 + aumentoAplicavel));
-            detalhesReajuste.push(`${especialista.nome}: R$ ${salarioAntigo.toLocaleString('pt-BR')} -> R$ ${especialista.salario.toLocaleString('pt-BR')}`);
+            detalhesReajuste.push(
+                `${especialista.nome}: R$ ${salarioAntigo.toLocaleString('pt-BR')} → R$ ${especialista.salario.toLocaleString('pt-BR')}`
+            );
         });
-
-        setTimeout(() => {
-            // Reajuste silencioso — informado via modal de fim de temporada
-        }, 1000);
     }
 
     function desbloquearItemMarketing(nomeItem) {
