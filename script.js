@@ -1397,6 +1397,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const equipeDoPiloto = pilotoAposentado.status;
 
             if (equipeDoPiloto === 'Jogador' || equipeDoPiloto === 'Reserva') {
+                // Garante que o título do campeonato atual seja creditado ANTES do snapshot,
+                // caso o piloto seja o líder da classificação no momento da aposentadoria compulsória.
+                // Cobre o caminho onde processarFimDeTemporada é chamado sem passar por exibirModalFimDeTemporada.
+                const _anoCompulsorio = gameState.campeonato.ano;
+                const _classifComp = [...(gameState.campeonato.classificacaoPilotos || [])].sort((a, b) => b.pontos - a.pontos);
+                const _liderComp = _classifComp[0];
+                if (_liderComp && _liderComp.piloto === pilotoAposentado.nome) {
+                    const _jaTituloComp = gameState.galeria.titulosPilotos.some(t =>
+                        (typeof t === 'object' ? t.ano : t) === _anoCompulsorio
+                    );
+                    if (!_jaTituloComp) {
+                        gameState.galeria.titulosPilotos.push({ ano: _anoCompulsorio, piloto: pilotoAposentado.nome, equipe: gameState.escuderia.nome });
+                        pilotoAposentado.campeonatosGanhos.push(_anoCompulsorio);
+                    }
+                }
                 const _statsSnap2 = gameState.galeria.estatisticasPilotos[pilotoAposentado.nome]
                                  || gameState.galeria.estatisticasTodosPilotos?.[pilotoAposentado.nome]
                                  || { corridas: 0, vitorias: 0, podios: 0, pontos: 0 };
