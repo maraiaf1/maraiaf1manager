@@ -3973,6 +3973,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index < 3) statsGeral.podios++;
             const posGeral = index + 1;
             if (pontosPorPosicao[posGeral]) statsGeral.pontos += pontosPorPosicao[posGeral];
+            if (resultado.tempoTotal === Infinity) {
+                statsGeral.dnfs = (statsGeral.dnfs || 0) + 1;
+            }
         });
 
          // --- FIM DO CÓDIGO FALTANTE ---
@@ -4035,6 +4038,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? equipeCampe.pontos - segundoConstr.pontos : null;
             const difPontosPiloto = pilotoCampeao && segundoPiloto
                 ? pilotoCampeao.pontos - segundoPiloto.pontos : null;
+            const pilotosCampeaoConstr = equipeCampe
+                ? classificacaoPilotos.filter(p => p.equipe === equipeCampe.equipe).slice(0, 2).map(p => ({ nome: p.piloto, pontos: p.pontos }))
+                : [];
+            const pilotoChamp1 = classificacaoPilotos[0];
+            const pilotoChamp2 = classificacaoPilotos[1];
+            const _melhorSemVit = classificacaoPilotos.filter(p => !vitoriasPorPiloto[p.piloto]).sort((a, b) => b.pontos - a.pontos)[0] || null;
+            const melhorSemVitoriaSnap = _melhorSemVit
+                ? { nome: _melhorSemVit.piloto, equipe: _melhorSemVit.equipe, pontos: _melhorSemVit.pontos }
+                : null;
             // Busca a idade do campeão piloto no momento do título
             const pilotoCampeaoObj = pilotoCampeao
                 ? gameState.pilotos.find(p => p.nome === pilotoCampeao.piloto)
@@ -4045,11 +4057,15 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.historicoTemporadas.push({
                 ano,
                 campeaoConstrutores: equipeCampe
-                    ? { nome: equipeCampe.equipe, pontos: equipeCampe.pontos, vitorias: vitoriasPorEquipe[equipeCampe.equipe] || 0, difPontos: difPontosConstr }
+                    ? { nome: equipeCampe.equipe, pontos: equipeCampe.pontos, vitorias: vitoriasPorEquipe[equipeCampe.equipe] || 0, difPontos: difPontosConstr,
+                        pilotos: pilotosCampeaoConstr,
+                        piloto1: pilotoChamp1 ? { nome: pilotoChamp1.piloto, pontos: pilotoChamp1.pontos } : null,
+                        piloto2: pilotoChamp2 ? { nome: pilotoChamp2.piloto, pontos: pilotoChamp2.pontos } : null }
                     : null,
                 campeaoPilotos: pilotoCampeao
                     ? { nome: pilotoCampeao.piloto, equipe: pilotoCampeao.equipe, pontos: pilotoCampeao.pontos, vitorias: vitoriasPorPiloto[pilotoCampeao.piloto] || 0, difPontos: difPontosPiloto, idade: idadeCampeao }
                     : null,
+                melhorSemVitoria: melhorSemVitoriaSnap,
             });
         }
 
@@ -4089,6 +4105,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     // Sempre recalcula — garante que aposentadoria no mesmo ano do título fica correta
                     entradaHall.statsCarreira.titulos = entradaHall.piloto.campeonatosGanhos.length;
+                } else {
+                    // Piloto campeão da IA ainda ativo em gameState.pilotos — registra o título
+                    // em campeonatosGanhos agora, para que o card do Hall da Fama exiba
+                    // corretamente quando ele se aposentar no futuro.
+                    const pilotoAI = gameState.pilotos.find(p => p.nome === pilotoCampeao.piloto);
+                    if (pilotoAI && !pilotoAI.campeonatosGanhos.includes(ano)) {
+                        pilotoAI.campeonatosGanhos.push(ano);
+                    }
                 }
             }
         }
@@ -4098,6 +4122,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabelaBonus  = { 1: 20000000, 2: 17000000, 3: 14000000, 4: 12000000, 5: 10500000, 6: 9500000, 7: 8500000, 8: 8000000, 9: 7500000, 10: 6500000, 11: 5500000, 12: 5000000 };
         const premioRecebido = tabelaBonus[nossaPosicao] || 0;
         if (premioRecebido > 0) gameState.escuderia.dinheiro += premioRecebido;
+
+        // ── Bônus de equipes parceiras ────────────────────────────────
+        const bonusParceiras = [];
+        let totalBonusParceiras = 0;
+        if (gameState.fornecedorAtivo) {
+            equipesIA.forEach(equipe => {
+                if (equipe.relacaoComJogador === 'parceira') {
+                    const posParc = classificacaoConstrutores.findIndex(e => e.equipe === equipe.nome) + 1;
+                    if (posParc > 0) {
+                        const premioParc = tabelaBonus[posParc] || 0;
+                        if (premioParc > 0) {
+                            const bonusParc = Math.round(premioParc * 0.5);
+                            totalBonusParceiras += bonusParc;
+                            bonusParceiras.push({ equipe: equipe.nome, posicao: posParc, bonusRecebido: bonusParc });
+                        }
+                    }
+                }
+            });
+            if (totalBonusParceiras > 0) {
+                gameState.escuderia.dinheiro += totalBonusParceiras;
+            }
+        }
 
         // ── Projetos em andamento — só prévia no modal ───────────────
         // A conclusão real ocorre ao clicar "Iniciar Nova Temporada"
@@ -4157,6 +4203,28 @@ document.addEventListener('DOMContentLoaded', () => {
                <div class="se-prize-saldo">Saldo atual: R$ ${gameState.escuderia.dinheiro.toLocaleString('pt-BR')}</div>`
             : `<div class="se-prize-pos">Sem posição classificada este ano.</div>`;
 
+        // Seção de bônus de equipes parceiras
+        const secaoParceiras = document.getElementById('se-parceiras-section');
+        if (secaoParceiras) {
+            if (bonusParceiras.length > 0) {
+                const medalhasParceira = ['🥇', '🥈', '🥉'];
+                document.getElementById('se-parceiras-list').innerHTML =
+                    bonusParceiras.map(p => {
+                        const med = medalhasParceira[p.posicao - 1] || `${p.posicao}º`;
+                        return `<div class="se-parceira-item">
+                            <span class="se-parceira-equipe">${med} ${p.equipe}</span>
+                            <span class="se-parceira-bonus">+ R$ ${p.bonusRecebido.toLocaleString('pt-BR')}</span>
+                        </div>`;
+                    }).join('') +
+                    (bonusParceiras.length > 1
+                        ? `<div class="se-parceira-total">Total: + R$ ${totalBonusParceiras.toLocaleString('pt-BR')}</div>`
+                        : '');
+                secaoParceiras.classList.remove('hidden');
+            } else {
+                secaoParceiras.classList.add('hidden');
+            }
+        }
+
         // Projetos — prévia do que será concluído no off-season
         const projetosSection = document.getElementById('se-projetos-section');
         if (projetosEmAndamento.length > 0) {
@@ -4187,6 +4255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p>A partir da próxima temporada, a produção de peças estará sujeita a <strong>cotas anuais</strong>:</p>
                         <ul>${linhasCotas}</ul>
                         <p>Para ganhar slots extras, aceite <strong>encomendas externas</strong> de equipes menores na aba Escuderia.</p>
+                        <p class="se-regulatorio-parceria">🤝 Ao concluir uma encomenda, a equipe torna-se sua <strong>parceira</strong> e divide <strong>50% do seu prêmio de campeonato</strong> com você ao final da temporada — quanto melhor a parceira terminar, mais você ganha!</p>
                     </div>`;
                 comunicadoDiv.classList.remove('hidden');
             } else {
@@ -7166,8 +7235,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Estado de ordenação das tabelas de estatísticas
     const _sortState = {
-        jogador: { col: 'corridas', dir: 'desc' },
-        todos:   { col: 'pontos',   dir: 'desc' }
+        jogador: { col: 'pontos', dir: 'desc' },
+        todos:   { col: 'pontos', dir: 'desc' }
     };
 
     // Critérios de desempate da tabela "Todos os Pilotos":
@@ -7252,8 +7321,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function _getDadosStats(tabelaKey) {
         if (tabelaKey === 'jogador') {
+            const nomesPilotos = new Set(Object.keys(gameState.galeria.estatisticasPilotos || {}));
+            const polesJog = {}, vrJog = {};
+            Object.values(gameState.historicoAutodromos || {}).forEach(circ => {
+                (circ.historicoAnual || []).forEach(a => {
+                    if (a.pole?.piloto && nomesPilotos.has(a.pole.piloto))
+                        polesJog[a.pole.piloto] = (polesJog[a.pole.piloto] || 0) + 1;
+                    if (a.voltaRapida?.piloto && nomesPilotos.has(a.voltaRapida.piloto))
+                        vrJog[a.voltaRapida.piloto] = (vrJog[a.voltaRapida.piloto] || 0) + 1;
+                });
+            });
             return Object.entries(gameState.galeria.estatisticasPilotos || {}).map(([nome, s]) => ({
-                nome, corridas: s.corridas, vitorias: s.vitorias, podios: s.podios, pontos: s.pontos
+                nome, corridas: s.corridas, vitorias: s.vitorias, podios: s.podios, pontos: s.pontos,
+                poles: polesJog[nome] || 0, voltasRapidas: vrJog[nome] || 0
             }));
         } else {
             return Object.entries(gameState.galeria.estatisticasTodosPilotos || {}).map(([nome, s]) => ({
@@ -7992,7 +8072,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const recPontuacaoConstr = hist.reduce((best, t) => {
             if (!t.campeaoConstrutores) return best;
             return (!best || t.campeaoConstrutores.pontos > best.pontos)
-                ? { pontos: t.campeaoConstrutores.pontos, equipe: t.campeaoConstrutores.nome, ano: t.ano }
+                ? { pontos: t.campeaoConstrutores.pontos, equipe: t.campeaoConstrutores.nome, ano: t.ano, pilotos: t.campeaoConstrutores.pilotos || [] }
                 : best;
         }, null);
 
@@ -8000,7 +8080,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const recDifConstr = hist.reduce((best, t) => {
             if (!t.campeaoConstrutores || t.campeaoConstrutores.difPontos == null) return best;
             return (!best || t.campeaoConstrutores.difPontos > best.dif)
-                ? { dif: t.campeaoConstrutores.difPontos, equipe: t.campeaoConstrutores.nome, ano: t.ano }
+                ? { dif: t.campeaoConstrutores.difPontos, equipe: t.campeaoConstrutores.nome, ano: t.ano,
+                    piloto1: t.campeaoConstrutores.piloto1 || null, piloto2: t.campeaoConstrutores.piloto2 || null }
                 : best;
         }, null);
 
@@ -8072,6 +8153,40 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(([nome, poles]) => ({ nome, poles, equipe: todosStats[nome]?.equipe || '—' }))
             .sort((a, b) => b.poles - a.poles)[0] || null;
 
+        // 10b. Mais voltas rápidas na carreira
+        const contVRapidasCarreira = {};
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(a => {
+                if (a.voltaRapida?.piloto) {
+                    const n = a.voltaRapida.piloto;
+                    contVRapidasCarreira[n] = (contVRapidasCarreira[n] || 0) + 1;
+                }
+            });
+        });
+        const recVRapidasCarreira = Object.entries(contVRapidasCarreira)
+            .map(([nome, vr]) => ({ nome, vr, equipe: todosStats[nome]?.equipe || '—' }))
+            .sort((a, b) => b.vr - a.vr)[0] || null;
+
+        // 10c. Mais voltas rápidas em uma única temporada
+        const vrsPorAno = {};
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(a => {
+                if (a.voltaRapida?.piloto) {
+                    const key = `${a.ano}_${a.voltaRapida.piloto}`;
+                    if (!vrsPorAno[key]) vrsPorAno[key] = { piloto: a.voltaRapida.piloto, ano: a.ano, count: 0 };
+                    vrsPorAno[key].count++;
+                }
+            });
+        });
+        let recVRTemporada = Object.values(vrsPorAno).sort((a, b) => b.count - a.count)[0] || null;
+        if (recVRTemporada) recVRTemporada.equipe = todosStats[recVRTemporada.piloto]?.equipe || '—';
+
+        // 10d. Piloto com mais abandonos na carreira (DNF)
+        const recMaisDNFs = Object.entries(todosStats)
+            .map(([nome, s]) => ({ nome, dnfs: s.dnfs || 0, equipe: s.equipe || '—' }))
+            .filter(p => p.dnfs > 0)
+            .sort((a, b) => b.dnfs - a.dnfs)[0] || null;
+
         // 11. Mais poles em um único campeonato
         const polesPorAno = {};
         Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
@@ -8123,6 +8238,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── Especiais ─────────────────────────────────────────────────
 
+        // Helper: idade do piloto no ano da corrida
+        function getPilotoIdadeNoAno(nome, anoAlvo) {
+            const anoAtual = gameState.campeonato.ano;
+            const ativo = gameState.pilotos.find(p => p.nome === nome);
+            if (ativo) return ativo.idade - (anoAtual - anoAlvo);
+            const hof = (gameState.galeria?.hallDaFama || []).find(h => h.piloto?.nome === nome);
+            if (hof && hof.anoAposentadoria != null) return hof.piloto.idade - (hof.anoAposentadoria - anoAlvo);
+            return null;
+        }
+
         // 12. Mais jovem a ganhar o título
         const recMaisJovem = hist.reduce((best, t) => {
             if (!t.campeaoPilotos || t.campeaoPilotos.idade == null) return best;
@@ -8160,6 +8285,87 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // 14b. Maior sequência de voltas rápidas consecutivas
+        let melhorSeqVR = { piloto: null, equipe: null, count: 0 };
+        let seqVRAtual  = { piloto: null, count: 0 };
+        const todasVROrdenadas = [];
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(ano => {
+                if (ano.voltaRapida?.piloto) todasVROrdenadas.push({ piloto: ano.voltaRapida.piloto, ano: ano.ano });
+            });
+        });
+        todasVROrdenadas.sort((a, b) => a.ano - b.ano);
+        todasVROrdenadas.forEach(p => {
+            if (p.piloto === seqVRAtual.piloto) {
+                seqVRAtual.count++;
+            } else {
+                seqVRAtual = { piloto: p.piloto, count: 1 };
+            }
+            if (seqVRAtual.count > melhorSeqVR.count) {
+                melhorSeqVR = { piloto: p.piloto, equipe: todosStats[p.piloto]?.equipe || '—', count: seqVRAtual.count };
+            }
+        });
+
+        // 15. Mais jovem / mais velho a vencer uma corrida
+        let recMaisJovemVitoria = null;
+        let recMaisVelhoVitoria = null;
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(entrada => {
+                const vencedor = entrada.podium?.[0];
+                if (!vencedor) return;
+                const idade = getPilotoIdadeNoAno(vencedor, entrada.ano);
+                if (idade == null || idade <= 0) return;
+                const equipe = todosStats[vencedor]?.equipe || '—';
+                if (!recMaisJovemVitoria || idade < recMaisJovemVitoria.idade)
+                    recMaisJovemVitoria = { idade, piloto: vencedor, equipe, ano: entrada.ano };
+                if (!recMaisVelhoVitoria || idade > recMaisVelhoVitoria.idade)
+                    recMaisVelhoVitoria = { idade, piloto: vencedor, equipe, ano: entrada.ano };
+            });
+        });
+
+        // 16. Mais jovem / mais velho a fazer pole position
+        let recMaisJovemPole = null;
+        let recMaisVelhoPole = null;
+        Object.values(gameState.historicoAutodromos || {}).forEach(circuito => {
+            (circuito.historicoAnual || []).forEach(entrada => {
+                const poleiro = entrada.pole?.piloto;
+                if (!poleiro) return;
+                const idade = getPilotoIdadeNoAno(poleiro, entrada.ano);
+                if (idade == null || idade <= 0) return;
+                const equipe = todosStats[poleiro]?.equipe || '—';
+                if (!recMaisJovemPole || idade < recMaisJovemPole.idade)
+                    recMaisJovemPole = { idade, piloto: poleiro, equipe, ano: entrada.ano };
+                if (!recMaisVelhoPole || idade > recMaisVelhoPole.idade)
+                    recMaisVelhoPole = { idade, piloto: poleiro, equipe, ano: entrada.ano };
+            });
+        });
+
+        // ── Especiais adicionais ──────────────────────────────────────
+
+        // Campeão com menor pontuação
+        const recMenorPontuacaoCampeao = hist.reduce((best, t) => {
+            if (!t.campeaoPilotos) return best;
+            return (!best || t.campeaoPilotos.pontos < best.pontos)
+                ? { pontos: t.campeaoPilotos.pontos, piloto: t.campeaoPilotos.nome, equipe: t.campeaoPilotos.equipe, ano: t.ano }
+                : best;
+        }, null);
+
+        // Menor diferença de pontos no final do campeonato (pilotos)
+        const recMenorDifPontos = hist.reduce((best, t) => {
+            if (!t.campeaoPilotos || t.campeaoPilotos.difPontos == null) return best;
+            return (!best || t.campeaoPilotos.difPontos < best.dif)
+                ? { dif: t.campeaoPilotos.difPontos, piloto: t.campeaoPilotos.nome, equipe: t.campeaoPilotos.equipe, ano: t.ano }
+                : best;
+        }, null);
+
+        // Piloto com mais pontos sem nenhuma vitória em uma temporada
+        const recMelhorSemVitoria = hist.reduce((best, t) => {
+            if (!t.melhorSemVitoria) return best;
+            return (!best || t.melhorSemVitoria.pontos > best.pontos)
+                ? { ...t.melhorSemVitoria, ano: t.ano }
+                : best;
+        }, null);
+
         return {
             construtores: {
                 titulosConstr:    recTitulosConstr,
@@ -8168,23 +8374,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 difConstr:        recDifConstr,
             },
             pilotos: {
-                titulosPiloto:      recTitulosPiloto,
-                vitoriasTemporada:  recVitSingleFull,
-                vitoriasCarreira:   recVitoriasCarreira,
-                podiosCarreira:     recPodiosCarreira,
-                corridasCarreira:   recCorridasCarreira,
-                polesCarreira:      recPolesCarreira,
-                polesTemporada:     recPolesTemporada,
-                pontuacaoTemporada: recPontuacaoTemporada,
+                titulosPiloto:         recTitulosPiloto,
+                vitoriasTemporada:     recVitSingleFull,
+                vitoriasCarreira:      recVitoriasCarreira,
+                podiosCarreira:        recPodiosCarreira,
+                corridasCarreira:      recCorridasCarreira,
+                polesCarreira:         recPolesCarreira,
+                polesTemporada:        recPolesTemporada,
+                pontuacaoTemporada:    recPontuacaoTemporada,
+                voltasRapidasCarreira: recVRapidasCarreira,
+                vrTemporada:           recVRTemporada,
+                maisDNFs:              recMaisDNFs,
             },
             sequencias: {
                 vitoriasConsec:      seq.contagem > 0 ? seq : null,
                 titulosConsecPiloto: melhorSeqPiloto.count > 0 ? melhorSeqPiloto : null,
                 polesConsec:         melhorSeqPoles.count > 0 ? melhorSeqPoles : null,
+                vrConsec:            melhorSeqVR.count > 0 ? melhorSeqVR : null,
             },
             especiais: {
-                maisJovem: recMaisJovem,
-                maisVelho: recMaisVelho,
+                maisJovem:              recMaisJovem,
+                maisVelho:              recMaisVelho,
+                maisJovemVitoria:       recMaisJovemVitoria,
+                maisVelhoVitoria:       recMaisVelhoVitoria,
+                maisJovemPole:          recMaisJovemPole,
+                maisVelhoPole:          recMaisVelhoPole,
+                menorPontuacaoCampeao:  recMenorPontuacaoCampeao,
+                menorDifPontos:         recMenorDifPontos,
+                melhorSemVitoria:       recMelhorSemVitoria,
             }
         };
     }
@@ -8214,7 +8431,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         };
 
-        function card(titulo, valor, unidade, detentor, equipe, periodo, isMeu) {
+        function card(titulo, valor, unidade, detentor, equipe, periodo, isMeu, extra = '') {
             const estrela = isMeu ? '<span class="rec-estrela">★ Seu recorde</span>' : '';
             const classMeu = isMeu ? ' meu-recorde' : '';
             const badgeEquipe = equipe ? `<span class="rec-badge">${equipe}</span>` : '';
@@ -8227,6 +8444,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="rec-titulo">${titulo}</div>
                 <div class="rec-valor">${valDisplay}</div>
                 ${detentorHtml}
+                ${extra}
             </div>`;
         }
 
@@ -8257,12 +8475,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 C.pontuacaoConstr?.pontos, 'pts',
                 C.pontuacaoConstr?.equipe, null,
                 C.pontuacaoConstr?.ano?.toString(),
-                isMeuConstr(C.pontuacaoConstr?.equipe)),
+                isMeuConstr(C.pontuacaoConstr?.equipe),
+                C.pontuacaoConstr?.pilotos?.length
+                    ? `<div class="rec-pilotos-constr">${C.pontuacaoConstr.pilotos.map(p => `<span>${p.nome} <em>${p.pontos}pts</em></span>`).join(' · ')}</div>`
+                    : ''),
             card('Maior diferença de pontos para o 2º',
                 C.difConstr?.dif != null ? `+${C.difConstr.dif}` : null, 'pts',
                 C.difConstr?.equipe, null,
                 C.difConstr?.ano?.toString(),
-                isMeuConstr(C.difConstr?.equipe)),
+                isMeuConstr(C.difConstr?.equipe),
+                (C.difConstr?.piloto1 || C.difConstr?.piloto2)
+                    ? `<div class="rec-pilotos-constr"><span>${C.difConstr.piloto1?.nome || '—'} <em>${C.difConstr.piloto1?.pontos ?? '—'}pts</em></span> · <span>${C.difConstr.piloto2?.nome || '—'} <em>${C.difConstr.piloto2?.pontos ?? '—'}pts</em></span></div>`
+                    : ''),
         ].join('');
 
         // ── Pilotos ───────────────────────────────────────────────────
@@ -8303,6 +8527,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 P.pontuacaoTemporada?.piloto, P.pontuacaoTemporada?.equipe,
                 P.pontuacaoTemporada?.ano?.toString(),
                 isMeuPiloto(P.pontuacaoTemporada?.piloto)),
+            card('Mais voltas rápidas na carreira',
+                P.voltasRapidasCarreira?.vr, 'VRs',
+                P.voltasRapidasCarreira?.nome, P.voltasRapidasCarreira?.equipe, null,
+                isMeuPiloto(P.voltasRapidasCarreira?.nome)),
+            card('Mais voltas rápidas em uma temporada',
+                P.vrTemporada?.count, 'VRs',
+                P.vrTemporada?.piloto, P.vrTemporada?.equipe,
+                P.vrTemporada?.ano?.toString(),
+                isMeuPiloto(P.vrTemporada?.piloto)),
+            card('Mais abandonos na carreira',
+                P.maisDNFs?.dnfs, 'DNFs',
+                P.maisDNFs?.nome, P.maisDNFs?.equipe, null,
+                isMeuPiloto(P.maisDNFs?.nome)),
         ].join('');
 
         // ── Sequências ────────────────────────────────────────────────
@@ -8321,6 +8558,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 S.polesConsec?.count, 'poles',
                 S.polesConsec?.piloto, S.polesConsec?.equipe, null,
                 isMeuPiloto(S.polesConsec?.piloto)),
+            card('Maior sequência de voltas rápidas consecutivas',
+                S.vrConsec?.count, 'VRs',
+                S.vrConsec?.piloto, S.vrConsec?.equipe, null,
+                isMeuPiloto(S.vrConsec?.piloto)),
         ].join('');
 
         // ── Especiais ─────────────────────────────────────────────────
@@ -8336,6 +8577,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 E.maisVelho?.piloto, E.maisVelho?.equipe,
                 E.maisVelho?.ano?.toString(),
                 isMeuPiloto(E.maisVelho?.piloto)),
+            card('Piloto mais jovem a vencer uma corrida',
+                E.maisJovemVitoria?.idade, 'anos',
+                E.maisJovemVitoria?.piloto, E.maisJovemVitoria?.equipe,
+                E.maisJovemVitoria?.ano?.toString(),
+                isMeuPiloto(E.maisJovemVitoria?.piloto)),
+            card('Piloto mais velho a vencer uma corrida',
+                E.maisVelhoVitoria?.idade, 'anos',
+                E.maisVelhoVitoria?.piloto, E.maisVelhoVitoria?.equipe,
+                E.maisVelhoVitoria?.ano?.toString(),
+                isMeuPiloto(E.maisVelhoVitoria?.piloto)),
+            card('Piloto mais jovem a fazer pole position',
+                E.maisJovemPole?.idade, 'anos',
+                E.maisJovemPole?.piloto, E.maisJovemPole?.equipe,
+                E.maisJovemPole?.ano?.toString(),
+                isMeuPiloto(E.maisJovemPole?.piloto)),
+            card('Piloto mais velho a fazer pole position',
+                E.maisVelhoPole?.idade, 'anos',
+                E.maisVelhoPole?.piloto, E.maisVelhoPole?.equipe,
+                E.maisVelhoPole?.ano?.toString(),
+                isMeuPiloto(E.maisVelhoPole?.piloto)),
+            card('Campeão com menor pontuação',
+                E.menorPontuacaoCampeao?.pontos, 'pts',
+                E.menorPontuacaoCampeao?.piloto, E.menorPontuacaoCampeao?.equipe,
+                E.menorPontuacaoCampeao?.ano?.toString(),
+                isMeuPiloto(E.menorPontuacaoCampeao?.piloto)),
+            card('Temporada mais acirrada (menor diferença)',
+                E.menorDifPontos?.dif != null ? `+${E.menorDifPontos.dif}` : null, 'pts',
+                E.menorDifPontos?.piloto, E.menorDifPontos?.equipe,
+                E.menorDifPontos?.ano?.toString(),
+                isMeuPiloto(E.menorDifPontos?.piloto)),
+            card('Rei da consistência (mais pts sem vitória)',
+                E.melhorSemVitoria?.pontos, 'pts',
+                E.melhorSemVitoria?.nome, E.melhorSemVitoria?.equipe,
+                E.melhorSemVitoria?.ano?.toString(),
+                isMeuPiloto(E.melhorSemVitoria?.nome)),
         ].join('');
 
         container.innerHTML =
@@ -8610,13 +8886,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Ativa listeners de ordenação apenas uma vez
         if (!_statsOrdenacaoIniciada) {
-            _ativarOrdenacao(tabelaJogador, 'jogador', ['nome', 'corridas', 'vitorias', 'podios', 'pontos']);
+            _ativarOrdenacao(tabelaJogador, 'jogador', ['nome', 'corridas', 'vitorias', 'podios', 'pontos', 'poles', 'voltasRapidas']);
             _ativarOrdenacao(tabelaTodos,   'todos',   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _tiebreakersTodos);
             _statsOrdenacaoIniciada = true;
         }
 
         // Renderiza as tabelas com o estado de ordenação atual
-        _renderTabelaStats(tabelaJogador, _getDadosStats('jogador'), ['nome', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.jogador);
+        _renderTabelaStats(tabelaJogador, _getDadosStats('jogador'), ['nome', 'corridas', 'vitorias', 'podios', 'pontos', 'poles', 'voltasRapidas'], _sortState.jogador);
         _renderTabelaStats(tabelaTodos,   _getDadosStats('todos'),   ['nome', 'equipe', 'corridas', 'vitorias', 'podios', 'pontos'], _sortState.todos, _tiebreakersTodos);
 
         // ── Livro de Recordes ─────────────────────────────────────────
