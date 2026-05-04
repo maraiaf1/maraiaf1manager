@@ -5743,6 +5743,15 @@ font-size: 0.8em;
     color: #92400e;
     font-weight: 600;
 }
+.prm-patrocinio-expirado {
+    margin-top: 0.3rem;
+    padding: 0.3rem 0.5rem;
+    background: #f1f5f9;
+    border-left: 3px solid #94a3b8;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.78rem;
+    color: #475569;
+}
 
 /* Manutenção */
 .prm-sec-manutencao { background: #78350f; }

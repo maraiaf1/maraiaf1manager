@@ -1936,12 +1936,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function atualizarPatrociniosAtivos() {
+        const expirados = [];
         gameState.patrocinio.ativos = gameState.patrocinio.ativos.filter(p => {
             p.duracaoRestante--;
             if (p.duracaoRestante > 0) return true;
-            alert(`Contrato de patrocínio com ${p.marca} finalizado!`);
+            expirados.push(p.marca);
             return false;
         });
+        return expirados.length > 0 ? expirados : null;
     }
 
     function aceitarOfertaPatrocinio(ofertaId) {
@@ -3200,7 +3202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const _salarioReport = processarPagamentoDeSalarios();
             const _desgasteReport = processarDesgastePecas();
             gameState.campeonato.corridaAtualIndex++;
-            atualizarPatrociniosAtivos();
+            const _patrocinioReport = atualizarPatrociniosAtivos();
             gerarOfertasDePatrocinio();
             const _projetoConcluidoReport = processarProjetosConcluidos();
 
@@ -3224,6 +3226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 salarios:          _salarioReport,
                 desgaste:          _desgasteReport,
                 projetoConcluido:  _projetoConcluidoReport || false,
+                patrociniosExpirados: _patrocinioReport,
                 desenvolvimento:   _devReport && _devReport.length > 0 ? _devReport : null
             });
             // ─────────────────────────────────────────────────────────────────
@@ -3276,7 +3279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
 
         // ── Financeiro ────────────────────────────────────────────
-        if (report.pecas || report.marketing || report.salarios || report.projetoConcluido) {
+        if (report.pecas || report.marketing || report.salarios || report.projetoConcluido || report.patrociniosExpirados) {
             html += `<div class="prm-section">
                 <div class="prm-section-header prm-sec-financeiro">💰 Financeiro</div>
                 <div class="prm-section-body">`;
@@ -3324,6 +3327,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += `<div class="prm-fin-row prm-projeto-aviso">
                     <span>🔧 Projeto(s) de P&D concluído(s) — acesse a aba Escuderia!</span>
                 </div>`;
+            }
+
+            if (report.patrociniosExpirados && report.patrociniosExpirados.length > 0) {
+                report.patrociniosExpirados.forEach(marca => {
+                    html += `<div class="prm-fin-row prm-patrocinio-expirado">
+                        <span>📋 Contrato com <strong>${marca}</strong> encerrado</span>
+                    </div>`;
+                });
             }
 
             html += `</div></div>`;
