@@ -4775,6 +4775,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.campeonato.classificacaoConstrutores = [];
         gameState.campeonato.resultadosCorridas = [];
         gameState.campeonato.feriaVeraoFeita = false;
+        gameState.campeonato.modalFimTemporadaVisto = false;
 
         // ── Teto de produção e fornecedor ─────────────────────────────────────
         const temporadaNumero = gameState.campeonato.ano - 2025; // T1=2026, T3=2028...
@@ -6847,7 +6848,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const isSeasonOver = gameState.campeonato.corridaAtualIndex >= calendarioCorridas.length;
         if (isSeasonOver) {
-            corridaDiv.innerHTML = `<div class="corrida-start-container" style="text-align:center;"><h2>Temporada de ${gameState.campeonato.ano} Concluída!</h2><p>Veja a classificação final e colete o seu prêmio antes de iniciar a próxima temporada.</p><button id="btn-abrir-modal-fim-temporada" class="btn-corrida btn-real">📋 Ver Resultado Final</button></div>`;
+            if (gameState.campeonato.modalFimTemporadaVisto) {
+                corridaDiv.innerHTML = `<div class="corrida-start-container" style="text-align:center;"><h2>Temporada de ${gameState.campeonato.ano} Concluída!</h2><p>As peças em construção serão finalizadas ao iniciar a nova temporada. Certifique-se de que fez todas as atualizações na aba Campeonato antes de prosseguir.</p><button id="btn-iniciar-nova-temporada" class="btn-corrida btn-real">🚀 Iniciar Temporada de ${gameState.campeonato.ano + 1}</button></div>`;
+            } else {
+                corridaDiv.innerHTML = `<div class="corrida-start-container" style="text-align:center;"><h2>Temporada de ${gameState.campeonato.ano} Concluída!</h2><p>Veja a classificação final e colete o seu prêmio antes de iniciar a próxima temporada.</p><button id="btn-abrir-modal-fim-temporada" class="btn-corrida btn-real">📋 Ver Resultado Final</button></div>`;
+            }
             return;
         }
 
@@ -11039,9 +11044,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else if (target.matches('#btn-fechar-season-modal')) {
             document.getElementById('season-end-modal').classList.add('hidden');
-            processarFimDeTemporada();
+            gameState.campeonato.modalFimTemporadaVisto = true;
             saveGame();
-            // Navega para aba campeonato para o jogador aproveitar a pré-temporada
+            // Navega para aba campeonato para o jogador visualizar dados, receber prêmios e construir peças
             document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
             const campTabBtn = document.querySelector('.tab-btn[data-tab="campeonato"]');
             const campTabPane = document.getElementById('campeonato');
