@@ -2043,8 +2043,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (totalVendido > 0) {
             gameState.escuderia.dinheiro += totalVendido;
-            setTimeout(() => alert(`Boas notícias! Peças desenvolvidas foram vendidas, gerando um lucro de R$ ${totalVendido.toLocaleString('pt-BR')}!`), 1000);
         }
+        return totalVendido > 0 ? { total: totalVendido } : null;
     }
 
     function criarPecaDeProjeto(projeto) {
@@ -3161,6 +3161,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         animarBandeirada().then(() => {
             document.getElementById('corrida').classList.remove('race-in-progress');
+
+            // ── Captura dados ANTES do processamento ─────────────────────────
+            const _nomePista = calendarioCorridas[gameState.campeonato.corridaAtualIndex]?.nome || 'Corrida';
+            const _torceAntes = gameState.torcedores || 4000;
+            const _sortedFinal = [...raceData.participantes]
+                .filter(p => p.tempoTotal !== Infinity).sort((a, b) => a.tempoTotal - b.tempoTotal)
+                .concat(raceData.participantes.filter(p => p.tempoTotal === Infinity));
+            const _resultadosJogador = _sortedFinal.reduce((acc, p, i) => {
+                if (p.isPlayer) acc.push({
+                    nome: p.piloto.nome,
+                    pos: p.tempoTotal === Infinity ? null : i + 1,
+                    gridPos: p.gridPosition || 0,
+                    isDNF: p.tempoTotal === Infinity,
+                    isFastestLap: p.piloto.nome === raceData.pilotoMelhorVolta && raceData.melhorVolta !== Infinity,
+                    pontos: pontosPorPosicao[p.tempoTotal !== Infinity ? i + 1 : 0] || 0
+                });
+                return acc;
+            }, []);
+            const _melhorVoltaInfo = raceData.melhorVolta !== Infinity
+                ? { piloto: raceData.pilotoMelhorVolta, tempo: formatLapTime(raceData.melhorVolta) }
+                : null;
+            // ─────────────────────────────────────────────────────────────────
+
             processarResultados(raceData.participantes, raceData.pilotoMelhorVolta);
             processarCrescimentoTorcedores(raceData.participantes);
 
@@ -3182,21 +3205,140 @@ document.addEventListener('DOMContentLoaded', () => {
             atualizarPatrociniosAtivos();
             gerarOfertasDePatrocinio();
             processarProjetosConcluidos();
-            processarVendasDeMercado();
-            simularVendasMarketing();
+
+            const _pecasReport  = processarVendasDeMercado();
+            const _mktReport    = simularVendasMarketing();
             gerarMercado();
 
+            let _devReport = null;
             if ((gameState.campeonato.corridaAtualIndex + 1) % 5 === 0) {
-                processarEvolucaoPilotos();
+                _devReport = processarEvolucaoPilotos();
             }
 
-            const btnFechar = document.getElementById('btn-fechar-resultados');
-            if(btnFechar) {
-                btnFechar.classList.remove('hidden');
-                btnFechar.disabled = false;
-            }
+            // ── Exibe modal pós-corrida unificado ────────────────────────────
+            mostrarModalPosRace({
+                nomePista:        _nomePista,
+                resultadosJogador: _resultadosJogador,
+                melhorVoltaInfo:  _melhorVoltaInfo,
+                torcedores:       { antes: _torceAntes, depois: gameState.torcedores || 4000 },
+                pecas:            _pecasReport,
+                marketing:        _mktReport,
+                desenvolvimento:  _devReport && _devReport.length > 0 ? _devReport : null
+            });
+            // ─────────────────────────────────────────────────────────────────
+
             saveGame();
         });
+    }
+
+    function mostrarModalPosRace(report) {
+        const modal = document.getElementById('pos-race-modal');
+        const body  = document.getElementById('prm-body');
+        const titulo = document.getElementById('prm-titulo-corrida');
+        if (!modal || !body) return;
+
+        if (titulo) titulo.textContent = report.nomePista;
+
+        let html = '';
+
+        // ── Minha Equipe ──────────────────────────────────────────
+        const posLabel = (r) => {
+            if (r.isDNF) return '<span class="prm-pos prm-pos-dnf">DNF</span>';
+            if (r.pos === 1) return `<span class="prm-pos prm-pos-gold">P1</span>`;
+            if (r.pos <= 3)  return `<span class="prm-pos prm-pos-podium">P${r.pos}</span>`;
+            if (r.pos <= 10) return `<span class="prm-pos prm-pos-points">P${r.pos}</span>`;
+            return `<span class="prm-pos prm-pos-normal">P${r.pos}</span>`;
+        };
+        html += `<div class="prm-section">
+            <div class="prm-section-header prm-sec-resultado">🏁 Minha Equipe</div>
+            <div class="prm-section-body">
+                <div class="prm-pilotos-grid">
+                    ${report.resultadosJogador.map(r => {
+                        const delta = r.pos && r.gridPos ? r.gridPos - r.pos : 0;
+                        const deltaHtml = delta > 0 ? `<span class="prm-delta prm-delta-up">▲${delta}</span>`
+                                        : delta < 0 ? `<span class="prm-delta prm-delta-down">▼${Math.abs(delta)}</span>` : '';
+                        const vrBadge = r.isFastestLap ? '<span class="prm-vr-badge">⏱ VR</span>' : '';
+                        const pontosHtml = r.pontos > 0 ? `<strong>+${r.pontos} pts</strong>` : '<span style="color:#aaa">0 pts</span>';
+                        return `<div class="prm-piloto-card">
+                            ${posLabel(r)}
+                            <div class="prm-piloto-info">
+                                <div class="prm-piloto-nome">${r.nome}${vrBadge}</div>
+                                <div class="prm-piloto-meta">${pontosHtml} · Grid P${r.gridPos} ${deltaHtml}</div>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                ${report.melhorVoltaInfo
+                    ? `<div class="prm-fastest-lap">⏱ Volta Rápida da corrida: <strong>${report.melhorVoltaInfo.piloto}</strong> — ${report.melhorVoltaInfo.tempo}</div>`
+                    : ''}
+            </div>
+        </div>`;
+
+        // ── Financeiro ────────────────────────────────────────────
+        if (report.pecas || report.marketing) {
+            html += `<div class="prm-section">
+                <div class="prm-section-header prm-sec-financeiro">💰 Financeiro</div>
+                <div class="prm-section-body">`;
+
+            if (report.pecas) {
+                html += `<div class="prm-fin-row prm-fin-destaque">
+                    <span>Venda de Peças (Projetos)</span>
+                    <span class="prm-valor-pos">+ R$ ${report.pecas.total.toLocaleString('pt-BR')}</span>
+                </div>`;
+            }
+
+            if (report.marketing && report.marketing.itens.length > 0) {
+                html += `<div class="prm-fin-subtitulo">Marketing</div>`;
+                report.marketing.itens.forEach(item => {
+                    const tag = item.ultimas ? ' <em class="prm-tag-ultimas">🏁 últimas!</em>' : '';
+                    html += `<div class="prm-fin-row">
+                        <span>${item.nome}${tag} <em class="prm-fin-detalhe">${item.unidades} un. × R$ ${item.preco.toLocaleString('pt-BR')}</em></span>
+                        <span class="prm-valor-pos">+ R$ ${item.receita.toLocaleString('pt-BR')}</span>
+                    </div>`;
+                });
+                const totalMkt = report.marketing.receitaTotal;
+                html += `<div class="prm-fin-row prm-fin-total">
+                    <span>Total Marketing</span>
+                    <span class="prm-valor-pos">+ R$ ${totalMkt.toLocaleString('pt-BR')}</span>
+                </div>`;
+            }
+
+            html += `</div></div>`;
+        }
+
+        // ── Base de Fãs ───────────────────────────────────────────
+        const crescimento = (report.torcedores.depois || 0) - (report.torcedores.antes || 0);
+        html += `<div class="prm-section">
+            <div class="prm-section-header prm-sec-torcedores">👥 Base de Fãs</div>
+            <div class="prm-section-body">
+                <div class="prm-fans-row">
+                    <span class="prm-fans-num">${(report.torcedores.antes || 0).toLocaleString('pt-BR')}</span>
+                    <span class="prm-fans-arrow">→</span>
+                    <span class="prm-fans-num">${(report.torcedores.depois || 0).toLocaleString('pt-BR')}</span>
+                    <span class="prm-fans-delta prm-valor-pos">+${crescimento.toLocaleString('pt-BR')} novos fãs</span>
+                </div>
+            </div>
+        </div>`;
+
+        // ── Desenvolvimento de Pilotos (a cada 5 corridas) ────────
+        if (report.desenvolvimento && report.desenvolvimento.length > 0) {
+            html += `<div class="prm-section">
+                <div class="prm-section-header prm-sec-desenvolvimento">📈 Desenvolvimento de Pilotos</div>
+                <div class="prm-section-body">
+                    ${report.desenvolvimento.map(d => `
+                        <div class="prm-dev-piloto">
+                            <div class="prm-dev-nome">${d.nome} <span class="prm-dev-tipo">${d.tipo}</span></div>
+                            <div class="prm-dev-attrs">
+                                ${d.melhorias.map(m => `<span class="prm-dev-attr">${m.atrib}: <em>${m.de}</em> → <strong>${m.para}</strong></span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        }
+
+        body.innerHTML = html;
+        modal.classList.remove('hidden');
     }
 
     // ================================================================
@@ -4917,7 +5059,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         let receitaTotal = 0;
-        let relatorioVendas = "Relatório de Vendas de Marketing:\n\n";
+        const itensMkt = [];
         let algumaVendaOcorreu = false;
 
         // Modificador de desempenho na corrida
@@ -4971,8 +5113,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const receitaItem = unidadesVendidas * itemJogo.preco_venda_definido;
                 receitaTotal += receitaItem;
                 itemJogo.inventario -= unidadesVendidas;
-                const tagLiquidacao = (itemJogo.inventario === 0 && unidadesVendidas <= LIMIAR_LIQUIDACAO) ? ' 🏁 (últimas!)' : '';
-                relatorioVendas += `- ${nomeItem}: ${unidadesVendidas} un. × R$ ${itemJogo.preco_venda_definido.toLocaleString('pt-BR')} = R$ ${receitaItem.toLocaleString('pt-BR')}${tagLiquidacao}\n`;
+                const isUltimas = itemJogo.inventario === 0 && unidadesVendidas <= LIMIAR_LIQUIDACAO;
+                itensMkt.push({ nome: nomeItem, unidades: unidadesVendidas, preco: itemJogo.preco_venda_definido, receita: receitaItem, ultimas: isUltimas });
 
                 if (!gameState.historicoMarketing) gameState.historicoMarketing = {};
                 if (!gameState.historicoMarketing[nomeItem]) gameState.historicoMarketing[nomeItem] = { totalUnidades: 0, totalReceita: 0, corridasAtivas: 0 };
@@ -4991,8 +5133,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (algumaVendaOcorreu) {
             gameState.escuderia.dinheiro += receitaTotal;
-            relatorioVendas += `\nTorcedores da equipe: ${gameState.torcedores.toLocaleString('pt-BR')}\nReceita Total: R$ ${receitaTotal.toLocaleString('pt-BR')}`;
-            setTimeout(() => alert(relatorioVendas), 2500);
         }
 
         // Registra receita desta corrida no histórico por corrida (mesmo que seja 0)
@@ -5001,6 +5141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             corrida: gameState.campeonato.corridaAtualIndex,
             receita: receitaTotal
         });
+        return algumaVendaOcorreu ? { itens: itensMkt, receitaTotal } : null;
     }
 
     function processarEvolucaoPilotos() {
@@ -5037,23 +5178,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 piloto.habilidade         = Math.min(teto, piloto.habilidade         + crescimentoTotal * (Math.random() * 0.5 + 0.75));
                 piloto.consistencia       = Math.min(teto, piloto.consistencia       + crescimentoTotal * (Math.random() * 0.4 + 0.4));
                 piloto.gerenciamentoPneus = Math.min(teto, piloto.gerenciamentoPneus + crescimentoTotal * (Math.random() * 0.4 + 0.6));
-                const detalhesMelhoria = [];
-                if (Math.floor(piloto.habilidade) > Math.floor(atributosAntigos.hab)) detalhesMelhoria.push(`  Hab: ${Math.floor(atributosAntigos.hab)} -> ${Math.floor(piloto.habilidade)}`);
-                if (Math.floor(piloto.consistencia) > Math.floor(atributosAntigos.con)) detalhesMelhoria.push(`  Con: ${Math.floor(atributosAntigos.con)} -> ${Math.floor(piloto.consistencia)}`);
-                if (Math.floor(piloto.gerenciamentoPneus) > Math.floor(atributosAntigos.ger)) detalhesMelhoria.push(`  Ger: ${Math.floor(atributosAntigos.ger)} -> ${Math.floor(piloto.gerenciamentoPneus)}`);
-                if (detalhesMelhoria.length > 0) {
-                    const tipoPiloto = piloto.status === 'Reserva' ? 'Reserva' : 'Piloto';
-                    melhoriasJogador.push(`${piloto.nome} (${tipoPiloto}):\n` + detalhesMelhoria.join('\n'));
+                const melhorias = [];
+                if (Math.floor(piloto.habilidade) > Math.floor(atributosAntigos.hab)) melhorias.push({ atrib: 'Hab', de: Math.floor(atributosAntigos.hab), para: Math.floor(piloto.habilidade) });
+                if (Math.floor(piloto.consistencia) > Math.floor(atributosAntigos.con)) melhorias.push({ atrib: 'Con', de: Math.floor(atributosAntigos.con), para: Math.floor(piloto.consistencia) });
+                if (Math.floor(piloto.gerenciamentoPneus) > Math.floor(atributosAntigos.ger)) melhorias.push({ atrib: 'Ger', de: Math.floor(atributosAntigos.ger), para: Math.floor(piloto.gerenciamentoPneus) });
+                if (melhorias.length > 0) {
+                    melhoriasJogador.push({ nome: piloto.nome, tipo: piloto.status === 'Reserva' ? 'Reserva' : 'Piloto', melhorias });
                 }
             }
         });
         if (melhoriasJogador.length > 0) {
             if (!gameState.notificacoes) gameState.notificacoes = {};
             gameState.notificacoes.pilotos = true;
-            setTimeout(() => {
-                alert("Relatório de Desenvolvimento de Pilotos:\n\nSeus pilotos evoluíram com o treinamento:\n\n" + melhoriasJogador.join('\n\n'));
-            }, 3000);
         }
+        return melhoriasJogador;
     }
 
     function exibirMensagemRadio(carroIndex, remetente, texto) {
@@ -10842,6 +10980,15 @@ document.addEventListener('DOMContentLoaded', () => {
             target.disabled = true;
             document.getElementById(target.id === 'btn-corrida-real' ? 'btn-corrida-rapida' : 'btn-corrida-real').disabled = true;
             iniciarSequenciaDeLargada(target.id === 'btn-corrida-real' ? 'real' : 'rapido');
+        }
+        else if (target.matches('#btn-fechar-pos-race')) {
+            document.getElementById('pos-race-modal').classList.add('hidden');
+            const isSeasonOver = gameState.campeonato.corridaAtualIndex >= calendarioCorridas.length;
+            if (isSeasonOver) {
+                exibirModalFimDeTemporada();
+            } else {
+                updateUI();
+            }
         }
         else if (target.matches('#btn-fechar-resultados')) {
             const isSeasonOver = gameState.campeonato.corridaAtualIndex >= calendarioCorridas.length;

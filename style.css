@@ -5551,6 +5551,268 @@ font-size: 0.8em;
     .rec-grade { grid-template-columns: 1fr 1fr; }
 }
 /* ═══════════════════════════════════════════════════════════════════
+   MODAL PÓS-CORRIDA UNIFICADO
+   ═══════════════════════════════════════════════════════════════════ */
+#pos-race-modal { display: none; position: fixed; inset: 0; z-index: 9500; }
+#pos-race-modal:not(.hidden) { display: flex; align-items: center; justify-content: center; }
+
+.prm-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.prm-panel {
+    background: #fff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+    overflow: hidden;
+}
+
+/* Header */
+.prm-header {
+    background: #1a1a1a;
+    padding: 0.9rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+.prm-badge {
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    background: #e10600;
+    color: #fff;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+.prm-titulo-corrida {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Body */
+.prm-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    background: #f4f5f7;
+}
+
+/* Section */
+.prm-section {
+    background: #fff;
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+.prm-section-header {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #fff;
+}
+.prm-sec-resultado    { background: #b91c1c; }
+.prm-sec-financeiro   { background: #15803d; }
+.prm-sec-torcedores   { background: #1d4ed8; }
+.prm-sec-desenvolvimento { background: #6d28d9; }
+.prm-section-body { padding: 0.6rem 0.75rem; }
+
+/* Equipe */
+.prm-pilotos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.45rem;
+}
+.prm-piloto-card {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+    padding: 0.45rem 0.6rem;
+}
+.prm-pos {
+    font-size: 1.3rem;
+    font-weight: 900;
+    min-width: 2.6rem;
+    text-align: center;
+    line-height: 1;
+}
+.prm-pos-gold    { color: #b45309; }
+.prm-pos-podium  { color: #6b7280; }
+.prm-pos-points  { color: #1e1e1e; }
+.prm-pos-normal  { color: #9ca3af; }
+.prm-pos-dnf     { color: #e10600; font-size: 1rem; }
+.prm-piloto-info { flex: 1; min-width: 0; }
+.prm-piloto-nome {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+.prm-piloto-meta {
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: 0.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+.prm-piloto-meta strong { color: #111; }
+.prm-vr-badge {
+    font-size: 0.58rem;
+    background: #6d28d9;
+    color: #fff;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.prm-delta { font-weight: 700; font-size: 0.68rem; }
+.prm-delta-up   { color: #15803d; }
+.prm-delta-down { color: #e10600; }
+.prm-fastest-lap {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 0.4rem;
+}
+.prm-fastest-lap strong { color: #111; }
+
+/* Financeiro */
+.prm-fin-subtitulo {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.35rem 0 0.15rem;
+}
+.prm-fin-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.28rem 0;
+    font-size: 0.78rem;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+    gap: 0.5rem;
+}
+.prm-fin-row:last-child { border-bottom: none; }
+.prm-fin-detalhe { color: #9ca3af; font-style: normal; font-size: 0.7rem; }
+.prm-fin-destaque { font-weight: 600; color: #111; }
+.prm-fin-total { font-weight: 700; border-top: 1px solid #d1d5db; padding-top: 0.35rem; color: #111; }
+.prm-tag-ultimas { font-style: normal; font-size: 0.67rem; color: #b45309; }
+.prm-valor-pos { color: #15803d; font-weight: 700; white-space: nowrap; }
+
+/* Torcedores */
+.prm-fans-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+}
+.prm-fans-num   { font-weight: 700; color: #111; }
+.prm-fans-arrow { color: #9ca3af; font-size: 1rem; }
+.prm-fans-delta { font-size: 0.75rem; }
+
+/* Desenvolvimento */
+.prm-dev-piloto {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.prm-dev-piloto:last-child { border-bottom: none; }
+.prm-dev-nome {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: #111;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.prm-dev-tipo {
+    font-size: 0.65rem;
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.prm-dev-attrs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+}
+.prm-dev-attr {
+    font-size: 0.73rem;
+    background: #ede9fe;
+    border: 1px solid #c4b5fd;
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    color: #5b21b6;
+}
+.prm-dev-attr em     { font-style: normal; color: #9ca3af; }
+.prm-dev-attr strong { color: #15803d; font-weight: 700; }
+
+/* Footer */
+.prm-footer {
+    padding: 0.7rem 1rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+.prm-btn-continuar {
+    background: #e10600;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    letter-spacing: 0.02em;
+}
+.prm-btn-continuar:hover { background: #b91c1c; }
+
+@media (max-width: 500px) {
+    .prm-pilotos-grid { grid-template-columns: 1fr; }
+    .prm-panel { max-height: 95vh; border-radius: 10px 10px 0 0; align-self: flex-end; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    ACADEMIA JÚNIOR
    ═══════════════════════════════════════════════════════════════════ */
 .academia-lock-card {
