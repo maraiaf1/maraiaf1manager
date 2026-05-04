@@ -2023,9 +2023,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-        if (projetoProprioConcluidoNestaCorrida) {
-            setTimeout(() => alert("Um ou mais projetos de pesquisa foram concluídos! Verifique a aba Escuderia para decidir o que fazer com as peças."), 500);
-        }
+        return projetoProprioConcluidoNestaCorrida;
     }
 
     function processarVendasDeMercado() {
@@ -3199,12 +3197,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!gameState.notificacoes) gameState.notificacoes = {};
                 gameState.notificacoes.instalacoes = true;
             }
-            processarPagamentoDeSalarios();
-            processarDesgastePecas();
+            const _salarioReport = processarPagamentoDeSalarios();
+            const _desgasteReport = processarDesgastePecas();
             gameState.campeonato.corridaAtualIndex++;
             atualizarPatrociniosAtivos();
             gerarOfertasDePatrocinio();
-            processarProjetosConcluidos();
+            const _projetoConcluidoReport = processarProjetosConcluidos();
 
             const _pecasReport  = processarVendasDeMercado();
             const _mktReport    = simularVendasMarketing();
@@ -3217,13 +3215,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // ── Exibe modal pós-corrida unificado ────────────────────────────
             mostrarModalPosRace({
-                nomePista:        _nomePista,
+                nomePista:         _nomePista,
                 resultadosJogador: _resultadosJogador,
-                melhorVoltaInfo:  _melhorVoltaInfo,
-                torcedores:       { antes: _torceAntes, depois: gameState.torcedores || 4000 },
-                pecas:            _pecasReport,
-                marketing:        _mktReport,
-                desenvolvimento:  _devReport && _devReport.length > 0 ? _devReport : null
+                melhorVoltaInfo:   _melhorVoltaInfo,
+                torcedores:        { antes: _torceAntes, depois: gameState.torcedores || 4000 },
+                pecas:             _pecasReport,
+                marketing:         _mktReport,
+                salarios:          _salarioReport,
+                desgaste:          _desgasteReport,
+                projetoConcluido:  _projetoConcluidoReport || false,
+                desenvolvimento:   _devReport && _devReport.length > 0 ? _devReport : null
             });
             // ─────────────────────────────────────────────────────────────────
 
@@ -3275,7 +3276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
 
         // ── Financeiro ────────────────────────────────────────────
-        if (report.pecas || report.marketing) {
+        if (report.pecas || report.marketing || report.salarios || report.projetoConcluido) {
             html += `<div class="prm-section">
                 <div class="prm-section-header prm-sec-financeiro">💰 Financeiro</div>
                 <div class="prm-section-body">`;
@@ -3303,7 +3304,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             }
 
+            if (report.salarios) {
+                html += `<div class="prm-fin-subtitulo">Despesas</div>
+                    <div class="prm-fin-row">
+                        <span>Salários dos Pilotos</span>
+                        <span class="prm-valor-neg">- R$ ${report.salarios.pilotos.toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div class="prm-fin-row">
+                        <span>Equipe Técnica</span>
+                        <span class="prm-valor-neg">- R$ ${report.salarios.equipe.toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div class="prm-fin-row prm-fin-total">
+                        <span>Total Despesas</span>
+                        <span class="prm-valor-neg">- R$ ${report.salarios.total.toLocaleString('pt-BR')}</span>
+                    </div>`;
+            }
+
+            if (report.projetoConcluido) {
+                html += `<div class="prm-fin-row prm-projeto-aviso">
+                    <span>🔧 Projeto(s) de P&D concluído(s) — acesse a aba Escuderia!</span>
+                </div>`;
+            }
+
             html += `</div></div>`;
+        }
+
+        // ── Manutenção (desgaste de peças) ────────────────────────
+        if (report.desgaste && report.desgaste.length > 0) {
+            html += `<div class="prm-section">
+                <div class="prm-section-header prm-sec-manutencao">🔩 Manutenção</div>
+                <div class="prm-section-body">
+                    <div class="prm-manutencao-aviso">⚠️ Desgaste detectado nas seguintes peças:</div>
+                    <div class="prm-manutencao-lista">
+                        ${report.desgaste.map(nome => `<span class="prm-peca-degradada">${nome}</span>`).join('')}
+                    </div>
+                </div>
+            </div>`;
         }
 
         // ── Base de Fãs ───────────────────────────────────────────
@@ -4794,11 +4830,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const despesaTotal = totalSalariosPilotos + totalSalariosEquipe;
         gameState.escuderia.dinheiro -= despesaTotal;
-        if (despesaTotal > 0) {
-            setTimeout(() => {
-                alert(`Pagamentos processados após a corrida:\n\nSalário dos Pilotos: R$ ${totalSalariosPilotos.toLocaleString('pt-BR')}\nSalário da Equipe Técnica: R$ ${totalSalariosEquipe.toLocaleString('pt-BR')}\n\nDespesa Total: R$ ${despesaTotal.toLocaleString('pt-BR')}`);
-            }, 2000);
-        }
+        return despesaTotal > 0 ? { pilotos: totalSalariosPilotos, equipe: totalSalariosEquipe, total: despesaTotal } : null;
     }
 
     function processarReajusteSalarialEspecialistas() {
@@ -5333,11 +5365,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-        if (nomesPecasDegradadas.length > 0) {
-            setTimeout(() => {
-                alert(`Atenção: O uso contínuo causou desgaste nas seguintes peças:\n\n- ${nomesPecasDegradadas.join('\n- ')}`);
-            }, 1500);
-        }
+        return nomesPecasDegradadas.length > 0 ? nomesPecasDegradadas : null;
     }
 
 

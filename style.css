@@ -5732,6 +5732,40 @@ font-size: 0.8em;
 .prm-fin-total { font-weight: 700; border-top: 1px solid #d1d5db; padding-top: 0.35rem; color: #111; }
 .prm-tag-ultimas { font-style: normal; font-size: 0.67rem; color: #b45309; }
 .prm-valor-pos { color: #15803d; font-weight: 700; white-space: nowrap; }
+.prm-valor-neg { color: #b91c1c; font-weight: 700; white-space: nowrap; }
+.prm-projeto-aviso {
+    margin-top: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.78rem;
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* Manutenção */
+.prm-sec-manutencao { background: #78350f; }
+.prm-manutencao-aviso {
+    font-size: 0.8rem;
+    color: #92400e;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+.prm-manutencao-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.prm-peca-degradada {
+    font-size: 0.72rem;
+    background: #fef3c7;
+    color: #78350f;
+    border: 1px solid #fbbf24;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
 
 /* Torcedores */
 .prm-fans-row {
